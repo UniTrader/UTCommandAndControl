@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.captain" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <!-- this is basically just a Script which executes previously given Orders in order and falls back to a logical default behavior depending on context (a very stupid script - the logic is to be implemented in other scripts) -->
+  <interrupts>
+    <handler>
+      <conditions>
+        <!-- here are all Signals listed this Script will send with a short description what they do - this is just a declaration of intention, nothing is actually used/implemented so far.-->
+        <check_any>
+        <event_object_signalled object="this.ship" param="'travel jump prep'" param2="$destination" param3="$follower_list" comment="
+        Signals Followers that this Ship wants to Jump to $destination - small craft may now register in $follower_list that they want to dock here before the Ship charges (they shall take care of this themselves) and remove themselves from the List when docked.
+        Big Ships may add themselves to the List when they want to follow and they have Followers which have to dock first and remove themselves when their Followers are prepared"/>
+        <event_object_signalled object="this.ship" param="'travel jump start'" param2="$destination" comment="
+        Signals Followers that this Ship wants to Jump to $destination - Jumpdrive now actually Charges (the fast charge, not the 10 minute slow one - that one will signal in the last 10s when Jumpdrive really starts) and Followers should do the same"/>
+        <event_object_signalled object="this.ship" param="'emergency jump'" param2="$destination" comment="
+        Signals Followers that this Ship does an Emergency Jump immediately - other Big Ships may decide to follow or to continue Battle.
+        Small Craft try to Dock while JD charges and will re-assign to another mothership if not successful or try to get back to their Group"/>
+        <event_object_signalled object="this.ship" param="'travel boost prep'" param2="$destination" param3="$follower_list" comment="see above - just for boost"/>
+        <event_object_signalled object="this.ship" param="'travel boost start'" param2="$destination" comment="see above - just for boost"/>
+        <event_object_signalled object="this.ship" param="'emergency boost'" param2="$destination" comment="see above - just for boost"/>
+        </check_any>
+      </conditions>
+    </handler>
+    <handler>
+      <!-- 
+      add a new Order to the queue - param2 = Order List; param3 = Position in List (0=end; 1=first, interrupt current Order (will be repeated), any other Number: Insert at Position)
+      Order List Structure: [ String: Order Type , repeat order (1= copy to End , other number=copy to position), order parameters ] - still for review if more is necesary
+      Order Types with parameters (optional ones are in brackets):
+      'patrol' , repeat , Patrol Range ( , timeout )
+      'fly to' , repeat , Object/Zone 
+      'dock at' , repeat , Object
+      'follow' , repeat , Ship ( , timeout )
+      'escort' , repeat , Ship ( , timeout )
+      'wait' , repeat , object to signal for interrupt/next order (defaults to this.ship, skips if not existent or gets destroyed) , signal param for interrupt/next order (skips wait order if not a string) , timeout ( 10h if not set )
+      (Send) 'signal' , repeat , Object to Signal (defaults to this.ship) , signal param1 ( , param2 , param3 )
+      Execute next 'trade' in Shoppinglist , repeat XXX ( , override Shoppinglist Trade , with amount ) not implemented yet, wonder if i will do it..XXX 
+      'visit shipyard' for repairs/rearming , repeat ( , Repairdock )
+      'refuel' , repeat ( , reserve fuel below which the Ship will look for fuel ) => Order skips itself when there is enough Fuel so best set repeat to 2 or 3 so it regulary checks - min reserve is doubled when fuel fac is in current Zone
+      -->
+      <conditions>
+        <check_any>
+          <event_object_signalled object="this.ship" param="'new order'"/>
+          <event_object_signalled object="this.ship" param="'interrupt order'"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <do_if value="event.param3 == 1 or event.param == 'interrupt order'" comment="insert as first order interrupting the current one">
+          <!-- ToDo: implement Condition for uninterruptable Orders like Docking, which should not be aborted (insert as second in this case)-->
+          <do_if value="true">
+            <set_value name="this.$orderlist.{1}" exact="event.param2" operation="insert"/>
+            <abort_scripts entity="this"/>
+            <resume label="start"/>
+          </do_if>
+          <do_else>
+            <set_value name="this.$orderlist.{2}" exact="event.param2" operation="insert"/>
+          </do_else>
+        </do_if>
+        <do_if value="event.param3 gt 1" comment="insert order at specific position in queue">
+          <set_value name="this.$orderlist.{event.param3}" exact="event.param2" operation="insert"/>
+        </do_if>
+        <do_else comment="insert at the end">
+          <append_to_list name="this.$orderlist" exact="event.param2"/>
+        </do_else>
+      </actions>
+    </handler>
+    <handler>
+      <!-- cancel the current Order and continue with the next one -->
+      <conditions>
+        <event_object_signalled object="this.ship" param="'next order'"/>
+      </conditions>
+      <actions>
+        <!-- ToDo: implement Condition for uninterruptable Orders (do nothing-cases) like Docking, which should not be aborted-->
+        <remove_value name="this.$orderlist.{1}"/>
+        <abort_scripts entity="this"/>
+        <resume label="start"/>
+      </actions>
+    </handler>
+    <handler>
+      <!-- Depracted before even used - just access this.$orderlist remotely to check what the captain is up to (please use the Signals above to modify it - i will try to take care of uninterruptable stuff etc. this way and make shure the added Order is not skipped) -->
+      <!-- get current Order with params - defaults to current one (param2 defines order number or as List if multiple is requested) - param3 defines the param the Ship will signal itself with and the list will be delivered as param2 -->
+      <conditions>
+        <event_object_signalled object="this.ship" param="'get order'"/>
+      </conditions>
+      <actions>
+        <do_if value="event.param2.isnumeric">
+          <signal_objects object="this.ship" param="event.param3" param2="this.$orderlist.{event.param2}"/>
+        </do_if>
+        <do_elseif value="event.param2 == 'multiple'">
+          <signal_objects object="this.ship" param="event.param3" param2="this.$orderlist"/>
+        </do_elseif>
+        <do_else>
+          <signal_objects object="this.ship" param="event.param3" param2="this.$orderlist.{1}"/>
+        </do_else>
+      </actions>
+    </handler>
+  </interrupts>
+  <init comment="create Joblist">
+    <do_if value="not this.$orderlist?">
+      <create_list name="this.$orderlist"/>
+    </do_if>
+  </init>
+  <attention min="unknown">
+    <actions>
+      <label name="start"/>
+      
+      <!-- first get to free Space/Undock, leave formations etc. to have a safe initial state -->
+      <run_script name="'ut.cac.com.move.free'"/>
+      
+      <!-- fulfill all Orders in List in their order -->
+      <do_while value="this.$orderlist.count">
+        <set_value name="$order" exact="this.$orderlist.{1}" />
+        <!-- look up if this Order is to be repeated (before executing it in case the Order gets interrupted/overridden - it shall still be repeated later) -->
+        <do_if value="$order.{2} == 1" >
+          <!-- case 1/true -> copy Order to the end of the list -->
+          <append_to_list name="this.$orderlist" exact="$order"/>
+        </do_if>
+        <do_elseif value="$order.{2}.isnumeric and $order.{2} != 0" >
+          <!-- case other number -> copy Order to specified position (except 0/false, which says dont repeat) -->
+          <set_value name="this.$orderlist.{$order.{2}}" exact="order" operation="insert"/>
+        </do_elseif>
+        <!-- differ between all implemented Orders (sadly no support for dynamic parameter Names, because then i would make use of that )-->
+        <do_if value="$order.{1} == 'patrol'">
+          <!-- ################################# -->
+          <!-- ToDo: implement Timeout - currently this Order will not exit (use signal 'next order' to force it)-->
+          <run_script name="'move.patrol'">
+            <param name="range" value="$order.{3}"/>
+            <param name="timeout" value="$order.{4}"/>
+          </run_script>
+        </do_if>
+        <do_elseif value="$order.{1} == 'fly to'">
+          <run_script name="'move.generic'">
+            <param name="destination" value="$order.{3}"/>
+            <param name="endintargetzone" value="@$order.{4}"/>
+          </run_script>
+        </do_elseif>
+        <do_elseif value="$order.{1} == 'dock at'">
+          <run_script name="'move.dockat'">
+            <param name="destination" value="$order.{3}"/>
+            <param name="dockingslot" value="$order.{4}"/>
+          </run_script>
+        </do_elseif>
+        <do_elseif value="$order.{1} == 'follow'">
+          <!-- ################################# -->
+        </do_elseif>
+        <do_elseif value="$order.{1} == 'escort'">
+          <!-- ################################# -->
+        </do_elseif>
+        <do_elseif value="$order.{1} == 'wait'">
+          <do_if value="(typeof $order.{4}).isstring">
+            <do_if value="not $order.{3}">
+              <set_value name="$order.{3}" exact="this.ship"/>
+            </do_if>
+            <do_if value="not $order.{5}">
+              <set_value name="$order.{5}" exact="10h"/>
+            </do_if>
+            <do_if value="$order.{3}.exists">
+              <wait exact="$order.{5}">
+                <interrupt><conditions><check_any>
+                  <event_object_destroyed object="$order.{3}"/>
+                  <event_object_signalled object="$order.{3}" param="$order.{4}" />
+                </check_any></conditions></interrupt>
+              </wait>
+            </do_if>
+          </do_if>
+        </do_elseif>
+        <do_elseif value="$order.{1} == 'signal'">
+          <do_if value="not $order.{3}">
+            <set_value name="$order.{3}" exact="this.ship"/>
+          </do_if>
+          <signal_objects object="$order.{3}" param="$order.{4}" param2="$order.{5}" param3="$order.{6}"/>
+        </do_elseif>
+        <do_elseif value="$order.{1} == 'trade'">
+          <get_trade_from_shoppinglist object="this.ship" multiple="true" result="$trade"/>
+          <do_while value="$trade.{1}.object == $trade.{2}.object" comment="Trades are for the same Station - continue until this chain breaks">
+            <!-- ToDo: write own basic Trade Script which checks first if its already docked at the right Station and just pass it the next Trade until the chain breaks making this obselote-->
+            <do_if value="$trade.{1}.issellerpassive">
+              <run_script name="'move.performtraderun'">
+                <param name="selloffer" value="$trade.{1}"/>
+              </run_script>
+            </do_if>
+            <do_elseif value="$trade.{1}.isbuyerpassive">
+              <run_script name="'move.performtraderun'">
+                <param name="buyoffer" value="$trade.{1}"/>
+              </run_script>
+            </do_elseif>
+            <do_else comment="should not happen, but just in case..">
+              <remove_trade_order object="this.ship" trade="$trade.{1}"/>
+            </do_else>
+          </do_while>
+          <!-- perform last (and possibly only) Trade in chain -->
+          <do_if value="$trade.{1}.issellerpassive">
+            <run_script name="'move.performtraderun'">
+              <param name="selloffer" value="$trade.{1}"/>
+            </run_script>
+          </do_if>
+          <do_elseif value="$trade.{1}.isbuyerpassive">
+            <run_script name="'move.performtraderun'">
+              <param name="buyoffer" value="$trade.{1}"/>
+            </run_script>
+          </do_elseif>
+          <do_else comment="should not happen, but just in case..">
+            <remove_trade_order object="this.ship" trade="$trade.{1}"/>
+          </do_else>
+        </do_elseif>
+        <do_elseif value="$order.{1} == 'visit shipyard'">
+          <!-- ################################# -->
+        </do_elseif>
+        <do_elseif value="$order.{1} == 'refuel'">
+          <!-- ToDo: maybe turn this into a Trade Offer to be executed immediately once? -->
+          <do_if value="this.ship.cargo.{ware.fuelcells}.count lt $order.{3}">
+            <run_script name="'move.refuel'"/>
+          </do_if>
+          <do_elseif value="this.ship.cargo.{ware.fuelcells}.count lt $order.{3} * 2 " comment="double the reserve amount if we are nearby a Fuelstation anyway">
+            <find_station name="$fuelstation" space="this.zone">
+              <match_selloffer wares="[ware.fuelcells]"/>
+            </find_station>
+            <do_if value="$fuelstation.exists">
+              <run_script name="'move.refuel'"/>
+            </do_if>
+          </do_elseif>
+        </do_elseif>
+        <do_else>
+          <debug_text filter="general" text="'UT CAC: Unknown Order in Queue: %1 - skipping'.[$order]" comment="something has gone wrong"/>
+        </do_else>
+        <!-- remove current Order so we can get to the next one - after that wait a split-second to prevent Freezes should something go wrong-->
+        <remove_value name="this.$orderlist.{1}" />
+        <wait exact="100ms"/>
+      </do_while>
+      
+      <!-- no outstanding direct Orders - append a default Order which makes the most sense in the current context and restart -->
+      
+      <!-- if there are outstanding Trade Orders: do trade. -->
+      <get_trade_from_shoppinglist object="this.ship" result="$trade"/>
+      <do_if value="$trade.exists">
+        <append_to_list name="this.$orderlist" exact="['trade' , false]"/>
+        <resume label="start"/>
+      </do_if>
+      
+      <!-- if Ship needs Repairs or re-arming: move to Shipyard - will be forced by Engineer/DO in urgent cases so wrecked checks should be unnecesary (not implemented yet) -->
+      <find_object_component name="$needsrepairs" chance="$FindChance" object="this.ship" checkoperational="false" comment="just see if we can find something damaged">
+        <match_any>
+          <match restorable="true" comment="wrecked or"/>
+          <match_hull max="95" comment="damaged below 95%" />
+        </match_any>
+      </find_object_component>
+      <!-- Check if we have enough Ammo here - currently no Ammo usage, so unnecesary, but here is the point to add it.-->
+      <do_if value="$needsrepairs.exists or this.ship.hullpercentage lt 95.0">
+        <append_to_list name="this.$orderlist" exact="['visit shipyard' , false]"/>
+        <resume label="start"/>
+      </do_if>
+      
+      <!-- Signal the Superior we are now Free and want something to do -->
+      <do_if value="this.ship.commanderentity == player.entity" comment="Subordinate of the Player - currently not in my Plan, so either wait where you are (Trade Ships) or Patrol the current Sector (Battleships) until further Notice" >
+        <do_if value="this.ship.primarypurpose == objectpurpose.fight">
+          <!-- Patrol for 1h in the Sector and then pester again -->
+          <append_to_list name="this.$orderlist" exact="['patrol' , false , 'sector' , 1h ]"/>
+          <resume label="start"/>
+        </do_if>
+        <do_else comment="this.ship.primarypurpose == objectpurpose.trade">
+          <!-- wait at current Position until given a new Order, pester again after 1h -->
+          <append_to_list name="this.$orderlist" exact="['wait' , false , this.ship , 'new order' , 1h ]"/>
+          <resume label="start"/>
+        </do_else>
+      </do_if>
+      <do_else>
+        <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
+        <append_to_list name="this.$orderlist" exact="['wait' , false , this.ship , 'new order' , 1h ]"/>
+      </do_else>
+      
+      
+      <resume label="start"/>
+    </actions>
+  </attention>
+  <on_abort>
+    <!-- remove all fake Tradeoffers for Ware Transfers so they dont lie around unused -->
+    <get_trade_from_shoppinglist result="$trades" object="this.ship" multiple="true" />
+    <do_all exact="$trades.count" counter="$i">
+      <do_if value="$trades.{$i}.price == 0Cr">
+        <remove_trade_offer tradeoffer="$trades.{$i}" object="$trades.{$i}.owner"/>
+      </do_if>
+    </do_all>
+  </on_abort>
+</aiscript>

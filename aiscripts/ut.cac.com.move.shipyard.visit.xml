@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.shipyard.visit" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <attention min="unknown">
+    <actions>
+      <!-- fist get to free Space/Undock to have a safe initial state -->
+      <!-- then check if Enemies are nearby and if necessary flee -->
+      <!-- then check if this Ship should visit a Shipyard for repairs -->
+      <!-- after that check if this Ship should re-arm (note: no undocking - try to get as much as possible from the Shipyard if still there, then undock and look for other Sources) -->
+      <!-- then perform the assigned Tasks if given or fall back to a default behavior -->
+      
+      
+      <!-- visit Shipyard -->
+      <do_if value="$shipyard_visit">
+        <!-- find a Shipyard where this is allowed to dock (currently for L/XL Ships only) -->
+        <!-- ==> ToDo: improve this: should look for a free buildmodule and consider other Shipyards, too - and implement Costs for this!!!-->
+        <find_station name="$Shipyard" space="player.galaxy">
+          <match_content class="class.buildmodule" comment="this may have to change for S/M Ships"/>
+          <match_dock size="this.ship.docksize" />
+          <match_relation object="this.ship" relation="neutral" comparison="ge" />
+          <match_gate_distance object="this.ship" max="3" comment="is there a method to find the nearest one?"/>
+        </find_station>
+        <find_object_component name="$Buildmodule" object="$Shipyard" class="class.buildmodule">
+          <match_dock size="this.ship.docksize" comment="does this also apply for S/M Ships?" />
+        </find_object_component>
+        <!-- find the related Shiptrader-->
+        <find_object_component entitytype="entitytype.shiptrader" name="$shiptrader" object="this.station" multiple="true" />
+        <do_all exact="$Shiptrader.count" counter="$i">
+          <do_if value="$Shiptrader.{$i}.buildmodule == $Buildmodule">
+            <set_value name="$Shiptrader" exact="$shiptrader.{$i}"/>
+            <break/>
+          </do_if>
+        </do_all>
+        <!-- in case there is no resulting Shiptrader - just skip for now -->
+        <do_if value="$Shiptrader.isclass.entity">
+          <!-- if Shiptrader is busy just fly to Shipyard Zone and wait until hes free -->
+          <do_if value="$Shiptrader.$shiptrader_isbusy?">
+            <run_script name="'move.generic'">
+              <param name="destination" value="$Shipyard.zone"/>
+            </run_script>
+            <do_while value="$Shiptrader.$shiptrader_isbusy?">
+              <wait>
+                <interrupt>
+                  <conditions>
+                    <event_build_finished buildmodule="$Buildmodule"/>
+                  </conditions>
+                </interrupt>
+              </wait>
+            </do_while>
+          </do_if>
+          <!-- reserve Shiptrader and dock at Station (must be free at this point) -->
+          <set_value name="$Shiptrader.$shiptrader_isbusy" exact="true"/>
+          <signal_objects object="$Shiptrader" param="'repair request'" param2="a" param3="b"/><!-- ToDo: add Hook to Shiptrader MD Script -->
+          <run_script name="'move.dockat'">
+            <param name="destination" value="$Shipyard" />
+            <param name="dockingslot" value="$Buildmodule" />
+          </run_script>
+          <!-- wait until Ship is repaired -->
+          <do_while value="$Shiptrader.$shiptrader_isbusy?">
+            <wait>
+              <interrupt>
+                <conditions>
+                  <event_build_finished buildmodule="$Buildmodule"/>
+                </conditions>
+              </interrupt>
+            </wait>
+          </do_while>
+          <!-- when already at Shipyard and there are Resupply Orders - try to get as much as possible now -->
+          <do_if value="$ammo_restock">
+            <find_sell_offer seller="this.station" wares="$ammo_wishlist.{1}" result="$ammooffers" multiple="true" />
+            <do_all exact="$ammooffers.count" counter="$i">
+              <!-- ToDo: emulating a Trade here - maybe i should instead use the actual Trade commands? (may not work since we are not in a trade parking pos) -->
+              <!--                                                                                                                                                     vvv desired amount vvv                                                     vvv available amount vvv  vvv amount we have the money for vvv      -->
+              <remove_cargo object="$Shipyard" ware="$ammooffers.{$i}.ware" exact="[ $ammo_wishlist.{2}.{$ammo_wishlist.{1}.indexof.{$ammooffers.{$i}.ware}} , $ammooffers.{$i}.amount , this.money / $ammooffers.{$i}.unitprice ].min" result="$amount" />
+              <transfer_money from="this" to="$Shipyard" amount="$ammooffers.{$i}.unitprice * $amount" />
+              <!-- maybe some kinds of Ammo need another method of adding to the Ship? but this seems to be used for both Ammo and Drones. -->
+              <add_ammo object="this.ship" macro="$ammooffers.{$i}.ware.objectmacro" amount="$amount" />
+              
+              <!-- update wishlist -->
+              <do_if value="$ammo_wishlist.{2}.{$ammo_wishlist.{1}.indexof.{$ammooffers.{$i}.ware}} le $amount" comment="we have all the ammo we want for this type - remove entry">
+                <remove_value name="$ammo_wishlist.{2}.{$ammo_wishlist.{1}.indexof.{$ammooffers.{$i}.ware}}"/>
+                <remove_value name="$ammo_wishlist.{1}.{$ammo_wishlist.{1}.indexof.{$ammooffers.{$i}.ware}}"/>
+              </do_if>
+              <do_else comment="still want more Ammo - update amount">
+                <set_value name="$ammo_wishlist.{2}.{$ammo_wishlist.{1}.indexof.{$ammooffers.{$i}.ware}}" exact="$amount" operation="subtract"/>
+              </do_else>
+              
+              <!-- update Trades, or remove them if exhausted -->
+              <do_if value="$amount lt $ammooffers.{$i}.amount" >
+                <update_trade trade="$ammooffers.{$i}" amount="$ammooffers.{$i}.amount - $amount"/>
+              </do_if>
+              <do_else>
+                <remove_trade_offer object="$Shipyard" tradeoffer="$ammooffers.{$i}"/>
+              </do_else>
+            </do_all>
+          </do_if><!-- check for getting Ammo when already docked -->
+          
+          <!-- safe initial State once more -->
+          <run_script name="'ut.cac.command.movefree'"/>
+          
+        </do_if><!-- check for if Shiptrader exists -->
+        <remove_value name="$shipyard_visit"/>
+      </do_if><!-- check for if Shipyard shall be visited -->
+      
+      <!-- if Ship should rearm - go Shopping -->
+      <do_if value="$ammo_restock">
+        <do_while value="$ammo.wishlist.{1}.count">
+          <!-- first just look in the current Zone for Offers, then Sector-Wide, then Cluster-wide and re-start from the Zone when an Offer has been found -->
+          <find_sell_offer wares="$ammo_wishlist.{1}" space="this.zone" result="$ammooffer"/>
+          <do_if value="not $ammooffer.exists">
+            <find_sell_offer wares="$ammo_wishlist.{1}" space="this.sector" result="$ammooffer"/>
+            <do_if value="not $ammooffer.exists">
+              <find_sell_offer wares="$ammo_wishlist.{1}" space="this.cluster" result="$ammooffer"/>
+              <do_if value="not $ammooffer.exists">
+                <break comment="no Offers for wishlist-Ammo in the whole Cluster - abort and delete List"/>
+              </do_if>
+            </do_if>
+          </do_if>
+          <do_if value="$ammooffer.exists" comment="unnecesary, but doing it anyway..">
+            <run_script name="'move.dockat'" >
+              <param name="destination" value="$ammooffer.owner" />
+            </run_script>
+            <execute_trade tradeoffer="$tradeoffer" tradepartner="this.ship" amount="$ammo_wishlist.{2}.{$ammo_wishlist.{1}.indexof.{$ammooffer.ware}}" unbundle="true" result="$amount" />
+            <detach_from_masstraffic object="this.ship" wait="true" />
+            <!-- update wishlist -->
+            <do_if value="$ammo_wishlist.{2}.{$ammo_wishlist.{1}.indexof.{$ammooffers.{$i}.ware}} le $amount" comment="we have all the ammo we want for this type - remove entry">
+              <remove_value name="$ammo_wishlist.{2}.{$ammo_wishlist.{1}.indexof.{$ammooffers.{$i}.ware}}"/>
+              <remove_value name="$ammo_wishlist.{1}.{$ammo_wishlist.{1}.indexof.{$ammooffers.{$i}.ware}}"/>
+            </do_if>
+            <do_else comment="still want more Ammo - update amount">
+              <set_value name="$ammo_wishlist.{2}.{$ammo_wishlist.{1}.indexof.{$ammooffers.{$i}.ware}}" exact="$amount" operation="subtract"/>
+            </do_else>
+          </do_if>
+          <do_else>
+            <break/>
+          </do_else>
+        </do_while>
+        <!-- cleanup -->
+        <remove_value name="$ammo_restock"/>
+        <remove_value name="$ammo_wishlist"/>
+        <!-- ToDo: Signal DO we have fulfilled his wishes as far as possible -->
+        <!-- safe initial State once more -->
+        <run_script name="'ut.cac.com.captain.movefree'"/>
+      </do_if>
+    </actions>
+  </attention>
+  </aiscript>

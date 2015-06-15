@@ -1,0 +1,254 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.manager" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <params/>
+  <interrupts>
+    <handler comment="Money Updated Handler">
+      <conditions>
+        <event_object_money_updated object="this"/>
+      </conditions>
+    </handler>
+    <handler comment="Order Request Handler">
+      <conditions>
+        <check_any>
+          <event_object_signalled object="this" param="'request orders'"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <!-- simply assume event.param2.ship is a Trade Ship for now, give him the Order to buy the currently most required Ware -->
+        <!-- =============================== -->
+        <!-- get List of Ressources and order them by Wanted Amount Ratio - their priority -->
+        <create_list name="$ressources_wares"/>
+        <create_list name="$ressources_ratio"/>
+        <do_all exact="this.station.resources.list" counter="$i">
+          <set_value name="$ware" exact="this.station.resources.list.{$i}"/>
+          <get_ware_reservation ware="$ware" object="this.station" result="$incomingamount"/>
+          <set_value name="$ratio" exact="( this.station.wares.{$ware}.count + $incomingamount / this.station.cargo.{$ware}.target )f"/>
+          <!-- not interested in Wares which the Ship cannt transport -->
+          <do_if value="event.param2.cargo.{$ware}.free gt 0">
+            <do_if value="$ratio == 0.0 or $ressources_wares.count == 0">
+              <set_value name="$ressource_wares.{1}" exact="$ware" operation="insert"/>
+              <set_value name="$ressource_ratio.{1}" exact="$ratio" operation="insert"/>
+            </do_if>
+            <do_else>
+              <do_all exact="$ressource_ratio" counter="$j" reverse="false">
+                <do_if value="$ressource_ratio.{$j} le $ratio">
+                  <set_value name="$ressource_wares.{$j}" exact="$ware" operation="insert"/>
+                  <set_value name="$ressource_ratio.{$j}" exact="$ratio" operation="insert"/>
+                  <break/>
+                </do_if>
+              </do_all>
+            </do_else>
+          </do_if>
+        </do_all>
+        <!-- we dont need these Values anymore -->
+        <remove_value name="$incomingamount"/>
+        <remove_value name="$ware"/>
+        <remove_value name="$ratio"/>
+        <remove_value name="$ressource_ratio"/>
+        <!-- ================================ -->
+        <!-- find possible Trades in order of priority -->
+        <do_all exact="$ressource_wares" counter="$i" reverse="false">
+          <set_value name="$ware" exact="$ressource_wares.{$i}"/>
+          <do_if value="$ressources_ratio.{$i} ge 1.0">
+            <!-- all necesary Wares this Ship can carry are full - just wait a while (default fallback behavior, so doing nothing) -->
+            <break/>
+          </do_if>
+          <do_if value="event.param2.cargo.{$ware}.free gt 0">
+            <find_buy_offer result="$buyoffer" tradepartner="event.object" wares="$ware" space="this.sector">
+              <offeramount min="this.station.cargo.{$ware}.target / 10"/>
+            </find_buy_offer>
+            <do_if value="not $buyoffer.available">
+              <find_buy_offer result="$buyoffer" tradepartner="event.object" wares="$ware" space="this.cluster">
+                <offeramount min="this.station.cargo.{$ware}.target / 10"/>
+              </find_buy_offer>
+            </do_if>
+            <do_if value="$buyoffer.available">
+              <set_value name="$amount" exact="[ $buyoffer.amount, this.station.cargo.{$ware}.target - this.station.cargo.{$ware}.count, event.object.cargo.{$ware}.free ].min"/>
+              <clamp_trade_amount result="$amount" buyer="event.object" seller="$buyoffer.owner" trade="$buyoffer" amount="$amount"/>
+              <add_buy_order object="event.object" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice * $amount"/>
+              <!-- create Offer for this Ship to sell the bought Wares (price is 0Cr because i consider this a Ware Transfer, not a Trade)  -->
+              <create_trade_offer name="$selloffer" buyer="this.station" object="this.station" amount="$amount" ware="$ware" price="0Cr" playeronly="true"/>
+              <clamp_trade_amount result="$amount" buyer="this.station" seller="event.object" trade="$selloffer" amount="$amount"/>
+              <add_sell_order object="event.object" trade="$selloffer" amount="$amount" price="0Cr"/>
+              <add_ware_reservation result="$amount" object="this.station" entity="event.object.pilot" ware="$ware" amount="$amount" duration="2h"/>
+              <!-- tell the Ship to go shopping if its currently waiting for new Orders, otherwise assume it already has outstanding Trade Orders-->
+              <do_if value="event.object.pilot.$orderlist.count == 1 and event.object.pilot.$orderlist.{1} == 'wait'">
+                <signal_objects object="event.object" param="'new order'" param2="['trade' , 0 ]"/>
+                <signal_objects object="event.object" param="'new order'" param2="['refuel' , 0 , 800 ]"/>
+                <signal_objects object="event.object" param="'new order'" param2="['trade' , 0 ]"/>
+              </do_if>
+              <break/>
+            </do_if>
+          </do_if>
+        </do_all>
+      </actions>
+    </handler>
+    <handler comment="Subordinate Added Handler">
+      <conditions>
+        <event_object_subordinate_added object="this" commandertype="entitytype.manager"/>
+      </conditions>
+      <actions>
+        <set_value name="$new_subordinate" exact="event.param"/>
+        <do_if value="event.param.primarypurpose == objectpurpose.trade" ><!--ToDo: Implement mining Ships and add this to the condition: or event.param.primarypurpose == objectpurpose.mine -->
+          <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
+          <start_script name="ut.cac.base.captain" object="event.param"/>
+        </do_if>
+        <do_else>
+          <!-- cannt use this Ship for anything - remove assignment (maybe add passing it to the right entity? ) -->
+          <!-- ToDo: Also add an obvious Error Message - currently this fails siltently -->
+          <debug_text filter="general" text="'trying to add a non-trade Ship ( %1 ) to a Manager ( %2 , %3 in %4 ) - not supported yet!'.[event.param,this.name,this.station.name,this.zone.name]"/>
+          <remove_object_commander object="event.param"/>
+        </do_else>
+      </actions>
+    </handler>
+  </interrupts>
+  <init/>
+  <attention min="unknown">
+    <actions>
+      
+      <!-- not assigning the Subordinates any Scripts in the main script as vanilla does - it is started when being assigned to this Entity via the Signal/Interrupt -->
+      <label name="init"/>
+      
+      <!-- get List of Ressources and order them by Wanted Amount Ratio - their priority - removed, now evaluated on a per-request-basis in the 'request order'-Interrupt-handler -->
+      <!--set_value name="$resources" exact="this.station.resources.list" />
+      <create_list name="$ressources_wares"/>
+      <create_list name="$ressources_ratio"/>
+      
+      <do_all exact="$ressources" counter="$i">
+        <set_value name="$ware" exact="$ressources.{$i}" />
+        <get_ware_reservation ware="$ware" object="this.station" result="$incomingamount" />
+        <set_value name="$ratio" exact="( this.station.wares.{$ware}.count + $incomingamount / this.station.cargo.{$ware}.target )f"/>
+        <do_if value="$ratio == 0.0 or $ressources_wares.count == 0">
+          <set_value name="$ressource_wares.{1}" exact="$ware" operation="insert"/>
+          <set_value name="$ressource_ratio.{1}" exact="$ratio" operation="insert"/>
+        </do_if>
+        <do_else>
+          <do_all exact="$ressource_ratio" counter="$j" reverse="false">
+            <do_if value="$ressource_ratio.{$j} le $ratio">
+              <set_value name="$ressource_wares.{$j}" exact="$ware" operation="insert"/>
+              <set_value name="$ressource_ratio.{$j}" exact="$ratio" operation="insert"/>
+              <break/>
+            </do_if>
+          </do_all>
+        </do_else>
+      </do_all>
+      
+      <remove_value name="$ressources"/>
+      <remove_value name="$incomingamount"/>
+      <remove_value name="$ratio"/>
+      <remove_value name="$ware"/-->
+      <!-- Ship Assigning will be done by the Ships requesting Work via Signal (see interrupts) - the List just needs to be kept updated -->
+      
+      
+      <label name="start"/>
+      
+      <!-- Zone Trading with Cargo Drones - copied from Vanilla for now -->
+      
+      <!-- finding offers is expensive, we don't need to check this frequently -->
+      <set_command_action commandaction="commandaction.searchingtrades"/>
+      <wait min="2min" max="4min"/>
+      <set_value name="$buyoffer" exact="null"/>
+      <!-- find the best trade opportunity -->
+      <find_buy_offer buyer="this.station" result="$buyoffers" multiple="true">
+        <stocklevel min="0.2"/>
+      </find_buy_offer>
+      <do_if value="$buyoffers.count gt 0">
+        <create_list name="$buywares"/>
+        <!-- build list of wares that we are interested in -->
+        <do_all exact="$buyoffers.count" counter="$i">
+          <append_to_list name="$buywares" exact="$buyoffers.{$i}.ware"/>
+          <debug_text text="player.age + ' %1 in %2 wants %3 units of %4'.[this.station.knownname, this.station.zone.knownname, $buyoffers.{$i}.amount, $buyoffers.{$i}.ware.name]" chance="$debugchance"/>
+        </do_all>
+        <find_sell_offer tradepartner="this.station" wares="$buywares" space="this.station.zone" result="$selloffers" multiple="true">
+          <stocklevel min="0.2"/>
+        </find_sell_offer>
+        <remove_value name="$buywares"/>
+        <do_all exact="$selloffers.count" counter="$j" reverse="true">
+          <set_value name="$currentselloffer" exact="$selloffers.{$j}"/>
+          <set_value name="$currentware" exact="$currentselloffer.ware"/>
+          <!-- we don't want two stations shipping the same tradeware back and forth, so check if ware is a tradeware on both stations and negate -->
+          <do_if value="this.station.tradewares.{$currentware}.exists and $currentselloffer.seller.tradewares.{$currentware}.exists">
+            <remove_value name="$selloffers.{$j}"/>
+          </do_if>
+        </do_all>
+        <sort_trades name="$selloffers" tradelist="$selloffers" sorter="relativeprice"/>
+        <do_all exact="$buyoffers.count">
+          <!-- find the selloffer with the highest amount -->
+          <set_value name="$currentbuyoffer" exact="$buyoffers.random"/>
+          <set_value name="$offerindex" exact="$buyoffers.indexof.{$currentbuyoffer}"/>
+          <remove_value name="$buyoffers.{$offerindex}"/>
+          <remove_value name="$offerindex"/>
+          <set_value name="$currentware" exact="$currentbuyoffer.ware"/>
+          <set_value name="$maxsellamount" exact="0"/>
+          <set_value name="$selloffer" exact="null"/>
+          <do_all exact="$selloffers.count" counter="$j">
+            <set_value name="$currentselloffer" exact="$selloffers.{$j}"/>
+            <do_if value="$currentselloffer.ware == $currentware">
+              <!-- we don't want two stations shipping the same tradeware back and forth, so check if ware is a tradeware on both stations and negate -->
+              <do_if value="this.station.tradewares.{$currentware}.exists and $currentselloffer.seller.tradewares.{$currentware}.exists" negate="true">
+                <set_value name="$finalamount" exact="$currentselloffer.offeramount.{this}"/>
+                <do_if value="$currentbuyoffer.amount lt $currentselloffer.offeramount.{this}">
+                  <set_value name="$finalamount" exact="$currentbuyoffer.amount"/>
+                </do_if>
+                <do_if value="$finalamount * $currentware.volume gt 100000">
+                  <!-- cap the max trade volume at 100000 to avoid super-long huge trades -->
+                  <debug_text text="'reducing station trade volume for ware %4 from %1 (%2 units) to 100000 (%3 units)'.[$finalamount * $currentware.volume, $finalamount, 100000 / $currentware.volume, $currentware]" chance="$debugchance"/>
+                  <set_value name="$finalamount" exact="100000 / $currentware.volume"/>
+                </do_if>
+                <set_value name="$finalselloffer" exact="$currentselloffer"/>
+                <set_value name="$buyoffer" exact="$currentbuyoffer"/>
+                <break/>
+              </do_if>
+            </do_if>
+          </do_all>
+          <do_if value="$selloffer">
+            <break/>
+          </do_if>
+        </do_all>
+      </do_if>
+      <remove_value name="$buyoffers"/>
+      <remove_value name="$selloffers"/>
+      <!-- execute the trade -->
+      <do_if value="$buyoffer.exists">
+        <set_value name="$tradestart" exact="player.age"/>
+        <set_value name="$tradeware" exact="$finalselloffer.ware"/>
+        <do_if value="$buyoffer.unbundle">
+          <set_value name="$unbundle" exact="true"/>
+        </do_if>
+        <debug_text text="player.age + ' %1 in %2 wants %3 units of %4 from %5...'.[this.station.knownname, this.station.zone.knownname, $finalamount, $tradeware.name, $finalselloffer.seller.knownname]" chance="$debugchance"/>
+        <do_if value="not $unbundle?">
+          <!-- use a 2hour duration for station trades, as these can be inherently slower -->
+          <add_ware_reservation object="this.station" entity="this" ware="$tradeware" amount="$finalamount" result="$reserved" duration="3h"/>
+          <!-- DEBUG ONLY START -->
+          <set_value name="$d_startamount" exact="this.station.cargo.{$tradeware}.count"/>
+          <!-- DEBUG ONLY END -->
+        </do_if>
+        <set_command command="command.trade" param="$finalselloffer.seller"/>
+        <execute_trade tradeoffer="$finalselloffer" amount="$finalamount" tradepartner="this.station" result="$traderesult" unbundle="$unbundle?">
+          <interrupt_after_time time="5h"/>
+        </execute_trade>
+        <!-- no need to call detach_from_masstraffic since stations in the same zone are linked with a static network that persists anyway -->
+        <do_if value="(not $traderesult) and $unbundle?">
+          <!-- in case we failed to buy ammo, trigger an update for our ammo offers -->
+          <signal_objects object="this.station" param="'update_ammo_offers'"/>
+        </do_if>
+        <remove_value name="$unbundle"/>
+        <!-- DEBUG ONLY START -->
+        <do_if value="$reserved?">
+          <add_ware_reservation object="this.station" entity="this" ware="$tradeware" amount="0" result="$d_reserved"/>
+          <do_if value="$d_reserved != $reserved">
+            <debug_text text="'reserved ware amount for %4 has changed during trade, was %1, is %2, time since trade began: %3s'.[$reserved, $d_reserved, player.age - $tradestart, $tradeware]" chance="$debugchance"/>
+          </do_if>
+          <remove_value name="$d_reserved"/>
+        </do_if>
+        <!-- DEBUG ONLY END -->
+        <remove_value name="$reserved"/>
+        <remove_ware_reservation object="this.station" entity="this" ware="$tradeware"/>
+        <debug_text text="player.age + ' trade executed in %1 seconds'.[player.age - $tradestart]" chance="$debugchance"/>
+      </do_if>
+      
+      
+      <resume label="start"/>
+    </actions>
+  </attention>
+</aiscript>
