@@ -103,17 +103,18 @@
       <label name="start"/>
       
       <!-- first get to free Space/Undock, leave formations etc. to have a safe initial state -->
-      <run_script name="'ut.cac.com.move.free'"/>
+      <run_script name="'ut.cac.com.captain.move.free'"/>
       
       <!-- fulfill all Orders in List in their order -->
-      <do_while value="this.$orderlist.count">
+      <do_while value="this.$orderlist.count gt 0">
+        <debug_text filter="general" text="'Command Queue: ' + this.$orderlist"/>
         <set_value name="$order" exact="this.$orderlist.{1}" />
         <!-- look up if this Order is to be repeated (before executing it in case the Order gets interrupted/overridden - it shall still be repeated later) -->
         <do_if value="$order.{2} == 1" >
           <!-- case 1/true -> copy Order to the end of the list -->
           <append_to_list name="this.$orderlist" exact="$order"/>
         </do_if>
-        <do_elseif value="$order.{2}.isnumeric and $order.{2} != 0" >
+        <do_elseif value="@$order.{2}.isnumeric and $order.{2} != 0" >
           <!-- case other number -> copy Order to specified position (except 0/false, which says dont repeat) -->
           <set_value name="this.$orderlist.{$order.{2}}" exact="order" operation="insert"/>
         </do_elseif>
@@ -169,37 +170,10 @@
           <signal_objects object="$order.{3}" param="$order.{4}" param2="$order.{5}" param3="$order.{6}"/>
         </do_elseif>
         <do_elseif value="$order.{1} == 'trade'">
-          <get_trade_from_shoppinglist object="this.ship" multiple="true" result="$trade"/>
-          <do_while value="$trade.{1}.object == $trade.{2}.object" comment="Trades are for the same Station - continue until this chain breaks">
-            <!-- ToDo: write own basic Trade Script which checks first if its already docked at the right Station and just pass it the next Trade until the chain breaks making this obselote-->
-            <do_if value="$trade.{1}.issellerpassive">
-              <run_script name="'move.performtraderun'">
-                <param name="selloffer" value="$trade.{1}"/>
-              </run_script>
-            </do_if>
-            <do_elseif value="$trade.{1}.isbuyerpassive">
-              <run_script name="'move.performtraderun'">
-                <param name="buyoffer" value="$trade.{1}"/>
-              </run_script>
-            </do_elseif>
-            <do_else comment="should not happen, but just in case..">
-              <remove_trade_order object="this.ship" trade="$trade.{1}"/>
-            </do_else>
-          </do_while>
-          <!-- perform last (and possibly only) Trade in chain -->
-          <do_if value="$trade.{1}.issellerpassive">
-            <run_script name="'move.performtraderun'">
-              <param name="selloffer" value="$trade.{1}"/>
-            </run_script>
-          </do_if>
-          <do_elseif value="$trade.{1}.isbuyerpassive">
-            <run_script name="'move.performtraderun'">
-              <param name="buyoffer" value="$trade.{1}"/>
-            </run_script>
-          </do_elseif>
-          <do_else comment="should not happen, but just in case..">
-            <remove_trade_order object="this.ship" trade="$trade.{1}"/>
-          </do_else>
+          <!-- ToDo: write own Trade Script which is better suited for my purposes (with Signals, return Values, just one Action etc.)-->
+          <run_script name="'trade.performplayertraderun'">
+            <param name="debugchance" value="100"/>
+          </run_script>
         </do_elseif>
         <do_elseif value="$order.{1} == 'visit shipyard'">
           <!-- ################################# -->
@@ -231,39 +205,39 @@
       <!-- if there are outstanding Trade Orders: do trade. -->
       <get_trade_from_shoppinglist object="this.ship" result="$trade"/>
       <do_if value="$trade.exists">
-        <append_to_list name="this.$orderlist" exact="['trade' , false]"/>
+        <append_to_list name="this.$orderlist" exact="['trade' , 0 ]"/>
         <resume label="start"/>
       </do_if>
       
       <!-- if Ship needs Repairs or re-arming: move to Shipyard - will be forced by Engineer/DO in urgent cases so wrecked checks should be unnecesary (not implemented yet) -->
-      <find_object_component name="$needsrepairs" chance="$FindChance" object="this.ship" checkoperational="false" comment="just see if we can find something damaged">
+      <!--find_object_component name="$needsrepairs" object="this.ship" checkoperational="false" comment="just see if we can find something damaged">
         <match_any>
           <match restorable="true" comment="wrecked or"/>
           <match_hull max="95" comment="damaged below 95%" />
         </match_any>
-      </find_object_component>
+      </find_object_component-->
       <!-- Check if we have enough Ammo here - currently no Ammo usage, so unnecesary, but here is the point to add it.-->
-      <do_if value="$needsrepairs.exists or this.ship.hullpercentage lt 95.0">
-        <append_to_list name="this.$orderlist" exact="['visit shipyard' , false]"/>
+      <!--do_if value="$needsrepairs? or this.ship.hullpercentage lt 95.0">
+        <append_to_list name="this.$orderlist" exact="['visit shipyard' , 0 ]"/>
         <resume label="start"/>
-      </do_if>
+      </do_if-->
       
       <!-- Signal the Superior we are now Free and want something to do -->
       <do_if value="this.ship.commanderentity == player.entity" comment="Subordinate of the Player - currently not in my Plan, so either wait where you are (Trade Ships) or Patrol the current Sector (Battleships) until further Notice" >
         <do_if value="this.ship.primarypurpose == objectpurpose.fight">
           <!-- Patrol for 1h in the Sector and then pester again -->
-          <append_to_list name="this.$orderlist" exact="['patrol' , false , 'sector' , 1h ]"/>
+          <append_to_list name="this.$orderlist" exact="['patrol' , 0 , 'sector' , 1h ]"/>
           <resume label="start"/>
         </do_if>
         <do_else comment="this.ship.primarypurpose == objectpurpose.trade">
           <!-- wait at current Position until given a new Order, pester again after 1h -->
-          <append_to_list name="this.$orderlist" exact="['wait' , false , this.ship , 'new order' , 1h ]"/>
+          <append_to_list name="this.$orderlist" exact="['wait' , 0 , this.ship , 'new order' , 1h ]"/>
           <resume label="start"/>
         </do_else>
       </do_if>
       <do_else>
         <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
-        <append_to_list name="this.$orderlist" exact="['wait' , false , this.ship , 'new order' , 1h ]"/>
+        <append_to_list name="this.$orderlist" exact="['wait' , 0 , this.ship , 'new order' , 10s ]"/>
       </do_else>
       
       

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<mdscript name="UT_CAC_Engineer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
+<mdscript name="UT_CAC_Manager" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
 
   <cues>
 
@@ -20,32 +20,9 @@
           <param name="actor" value="$actor"/>
         </cue-->
         
-        <!--cue name="NormalActor" onfail="cancel">
-          <conditions>
-            <check_value value="not $actor.iscontrolentity" />
-          </conditions>
-          <cues>
-            <cue name="EngineerTimeout" ref="md.GenericMissions.PlatformActor">
-              <param name="BaseCue" value="OnPlatformPopulation_Engineer" />
-              <param name="Actor" value="$actor" />
-              <param name="TimeoutMin" value="10min"/>
-              <param name="TimeoutMax" value="20min"/>
-            </cue>
-          </cues>
+        <cue name="Account_Manager" ref="md.UT_CAC_Lib.Account_Manager">
+          <param name="actor" value="$actor"/>
         </cue>
-
-        <cue name="ControlEntity" onfail="cancel">
-          <conditions>
-            <check_value value="$actor.iscontrolentity" />
-            <check_value value="$actor.owner != faction.player"/>
-          </conditions>
-          <cues>
-            <cue name="ControlEntityHandling" ref="md.GenericMissions.PersistentPlatformActor">
-              <param name="BaseCue" value="OnPlatformPopulation_Engineer" />
-              <param name="Actor" value="$actor" />
-            </cue>
-          </cues>
-        </cue-->
 <!--
 Dialogue Tree - rough concept (for all Entity Types)
 1. Personal Managment
@@ -127,7 +104,7 @@ Dialogue Tree - rough concept (for all Entity Types)
         <cue name="Comm_Common" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common">
           <param name="actor" value="$actor"/>
         </cue>
-        <!-- Menu 2: Object Settings specific to Engineer -->
+        <!-- Menu 2: Object Settings specific to Manager -->
         <!--cue name="Comm_Settings" instantiate="true"/-->
         
         
@@ -145,7 +122,7 @@ Dialogue Tree - rough concept (for all Entity Types)
         <cue name="OnFired" instantiate="true">
           <conditions>
             <check_any>
-              <event_conversation_finished actor="$actor" outcome="cEngineer_fire" />
+              <event_conversation_finished actor="$actor" outcome="cManager_fire" />
             </check_any>
           </conditions>
           <delay exact="1s" />
