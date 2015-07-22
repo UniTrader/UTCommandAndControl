@@ -1,0 +1,174 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.refuel" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <interrupts>
+    <handler comment="Print Script Vars">
+      <conditions>
+        <event_object_signalled object="this" param="'print script vars to logfile'"/>
+      </conditions>
+      <actions>
+        <debug_text filter="general" text="'\n
+        Captain Name ' + this.knownname + ' at Time ' + player.age + '\n
+        ut.cac.com.captain.refuel Script Values:\n
+        $minamount = ' + @$minamount + '\n
+        $refuelamount = ' + @$refuelamount + '\n
+        $undock = ' + @$undock + '\n
+        $repeat = ' + @$repeat + '\n
+        $buyamount = ' + @$buyamount + '\n
+        $selloffer = ' + @$selloffer + '\n
+        NOTE: ONLY VALUES I CREATED MYSELF INCLUDED - nothing from C+P Code Snippets
+        '"/>
+      </actions>
+    </handler>
+  </interrupts>
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="minamount" default="1000" comment="below this Amount the Ship will go refuel, otherwise the Script just exits. Possible Input: Float between 0.0 and 1.0 -> Percentage of Fuel Capacity; bigger Number, either int or float -> total Amount; 0 as int -> always refuel"/>
+    <param name="refuelamount" default="2500" comment="How much Fuel should be aquired? Possible Input: Float between 0.0 and 1.0 -> Percentage of Fuel Capacity; bigger Number, either int or float -> total Amount; 0 as int -> full capacity"/>
+    <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      <!-- first turn params param into the real params -->
+      <do_if value="$params">
+        <do_if value="$params.$minamount?">
+          <set_value name="$minamount" exact="$params.$minamount"/>
+        </do_if>
+        <do_if value="$params.$refuelamount?">
+          <set_value name="$refuelamount" exact="$params.$refuelamount"/>
+        </do_if>
+        <do_if value="$params.$undock?">
+          <set_value name="$undock" exact="$params.$undock"/>
+        </do_if>
+        <do_if value="$params.$repeat?">
+          <set_value name="$repeat" exact="$params.$repeat"/>
+        </do_if>
+      </do_if>
+      <remove_value name="$params"/>
+      
+      <!-- calculate if we need to refuel -->
+      <!-- first calculate the actual min amount and refuelamount and compare them-->
+      <do_if value="typeof $minamount == datatype.float and 0.0 ge $minamount ge 1.0">
+        <set_value name="$minamount" exact="this.ship.cargo.{ware.fuelcells}.max * $minamount"/>
+      </do_if>
+      <do_elseif value="$minamount == 0">
+        <set_value name="$minamount" exact="this.ship.cargo.{ware.fuelcells}.max"/>
+      </do_elseif>
+      <do_else>
+        <set_value name="$minamount" exact="($minamount)i"/>
+      </do_else>
+      
+      <do_if value="typeof $refuelamount == datatype.float and 0.0 ge $refuelamount ge 1.0">
+        <set_value name="$refuelamount" exact="this.ship.cargo.{ware.fuelcells}.max * $refuelamount"/>
+      </do_if>
+      <do_elseif value="$refuelamount == 0">
+        <set_value name="$refuelamount" exact="this.ship.cargo.{ware.fuelcells}.max"/>
+      </do_elseif>
+      <do_else>
+        <set_value name="$refuelamount" exact="[($refuelamount)i,this.ship.cargo.{ware.fuelcells}.max].min"/>
+      </do_else>
+      
+      <do_if value="$minamount lt this.ship.cargo.{ware.fuelcells}.count">
+        <return>
+          <retval name="repeat" value="$repeat"/>
+        </return>
+      </do_if>
+      
+      <set_value name="$buyamount" exact="$refuelamount - this.ship.cargo.{ware.fuelcells}.count"/>
+      
+      <!-- find nearest Source for Fuel Cells (first check current Station and Home Station (Offers and Cargo), then Sector and as last the Cluster) -->
+      <set_value name="$selloffer" exact="null"/>
+      <do_if value="this.ship.parkedat.exists">
+        <find_sell_offer result="$selloffer" seller="this.ship.parkedat" wares="ware.fuelcells">
+          <offeramount min="$buyamount"/>
+        </find_sell_offer>
+        <do_if value="not $selloffer.available and this.ship.parkedat.cargo.{ware.fuelcells}.count ge $buyamount and this.ship.parkedat.trueownner == this.ship.trueowner">
+          <execute_custom_trade buyer="this.ship" seller="this.ship.parkedat" amount="$buyamount" ware="ware.fuelcells" price="0Cr" result="$result" usecommandermoney="true">
+            <interrupt_after_time time="121min"/>
+          </execute_custom_trade>
+          <!-- We have our Fuel - Continue with next Order -->
+          <!-- execute next Trade without undocking if the Trade partner is the same -->
+          <do_if value="$undock==2">
+            <get_trade_from_shoppinglist object="this.ship" result="$trade" />
+            <do_if value="$trade.seller == $tradepartner or $trade.buyer == $tradepartner">
+              <set_value name="$undock" exact="false"/>
+            </do_if>
+            <do_else>
+              <set_value name="$undock" exact="true"/>
+            </do_else>
+          </do_if>
+          <do_if value="(this.ship.isclass.ship_xl or this.ship.isclass.ship_l) and $undock">
+            <run_script name="'move.undock'" />
+          </do_if>
+          <return>
+            <retval name="repeat" value="$repeat"/>
+          </return>
+        </do_if>
+      </do_if>
+      <do_elseif value="this.ship.station.exists">
+        <find_sell_offer result="$selloffer" seller="this.ship.dockslot.station" wares="ware.fuelcells">
+          <offeramount min="$buyamount"/>
+        </find_sell_offer>
+        <do_if value="not $selloffer.available and this.ship.station.cargo.{ware.fuelcells}.count ge $buyamount and this.ship.parkedat.trueownner == this.ship.trueowner">
+          <execute_custom_trade buyer="this.ship" seller="this.ship.parkedat" amount="$buyamount" ware="ware.fuelcells" price="0Cr" result="$result" usecommandermoney="true">
+            <interrupt_after_time time="121min"/>
+          </execute_custom_trade>
+          <!-- We have our Fuel - Continue with next Order -->
+          <!-- execute next Trade without undocking if the Trade partner is the same -->
+          <do_if value="$undock==2">
+            <get_trade_from_shoppinglist object="this.ship" result="$trade" />
+            <do_if value="$trade.seller == $tradepartner or $trade.buyer == $tradepartner">
+              <set_value name="$undock" exact="false"/>
+            </do_if>
+            <do_else>
+              <set_value name="$undock" exact="true"/>
+            </do_else>
+          </do_if>
+          <do_if value="(this.ship.isclass.ship_xl or this.ship.isclass.ship_l) and $undock">
+            <run_script name="'move.undock'" />
+          </do_if>
+          <return>
+            <retval name="repeat" value="$repeat"/>
+          </return>
+      </do_if>
+      </do_elseif>
+      <do_if value="not $selloffer.available ">
+        <find_sell_offer result="$selloffer" seller="this.ship.commander" wares="ware.fuelcells">
+        <offeramount min="$buyamount"/>
+        </find_sell_offer>
+      </do_if>
+      <do_if value="not $selloffer.available ">
+        <find_sell_offer result="$selloffer" tradepartner="this.ship" wares="ware.fuelcells" space="this.sector">
+        <offeramount min="$buyamount"/>
+        </find_sell_offer>
+      </do_if>
+      <do_if value="not $selloffer.available ">
+        <find_sell_offer result="$selloffer" tradepartner="this.ship" wares="ware.fuelcells" space="this.cluster">
+        <offeramount min="$buyamount"/>
+        </find_sell_offer>
+      </do_if>
+      <do_if value="not $selloffer.available">
+        <!-- no Offer found- abort and continue with other Job -->
+        <return>
+          <retval name="repeat" value="$repeat"/>
+        </return>
+      </do_if>
+      
+      <!-- get the Money from the Manager and go buy the Fuel - if he doesnt have the Money just continue -->
+      <do_if value="this.ship.commanderentity.money lt $selloffer.unitprice * $buyamount">
+        <return>
+          <retval name="repeat" value="$repeat"/>
+        </return>
+      </do_if>
+      <transfer_money from="this.ship.commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
+      <run_script name="'ut.cac.com.captain.performsingletraderun'" >
+        <param name="trade" value="$selloffer"/>
+        <param name="amount" value="$buyamount"/>
+        <param name="undock" value="$undock"/>
+      </run_script>
+      <return>
+        <retval name="repeat" value="$repeat"/>
+      </return>
+      
+    </actions>
+  </attention>
+</aiscript>

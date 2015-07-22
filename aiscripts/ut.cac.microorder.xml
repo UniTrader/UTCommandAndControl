@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.microorder" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <!-- This Script contains all Single-Action-Scripts i intend to use in the queue of Objects to avoid having special cases for them in the main script and thereby cluttering it -->
+  <!-- Currently implemented are:
+  -> multiple variants of the wait command
+  -> signal Objects or Group Commands
+  more to come if needed, but this should cover most purposes -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (only mode for this Scripte since its supposed to be Command Queue only)"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      <do_if value="not ( typeof $params == datatype.table )">
+        <debug_text filter="error" text="'%1 %2 %3 Microorder passed was not a table'.[player.age,$actor.name,$actor.container.name]"/>
+        <return>
+          <retval name="repeat" value="false"/>
+        </return>
+      </do_if>
+      <do_elseif  value="$params.$order == 'wait exact'">
+        <wait exact="$params.$time"/>
+      </do_elseif>
+      <do_elseif value="$params.$order == 'wait minmax'">
+        <wait min="$params.$mintime" max="$params.$maxtime"/>
+      </do_elseif>
+      <do_elseif value="$params.$order == 'wait exact signal'">
+        <wait exact="$params.$time">
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="$params.$signalobject" param="$params.$signalparam"/>
+            </conditions>
+          </interrupt>
+        </wait>
+      </do_elseif>
+      <do_elseif value="$params.$order == 'wait minmax signal'">
+        <wait min="$params.$mintime" max="$params.$maxtime">
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="$params.$signalobject" param="$params.$signalparam"/>
+            </conditions>
+          </interrupt>
+        </wait>
+      </do_elseif>
+      <do_elseif value="$params.$order == 'wait signal'">
+        <do_while value="true">
+          <wait exact="10h">
+            <interrupt>
+              <conditions>
+              <event_object_signalled object="$params.$signalobject" param="$params.$signalparam"/>
+              </conditions>
+              <actions>
+                <return>
+                  <retval name="repeat" value="$params.$repeat"/>
+                </return>
+              </actions>
+            </interrupt>
+          </wait>
+        </do_while>
+      </do_elseif>
+      <do_elseif value="$params.$order == 'signalobject'">
+        <signal_objects object="$params.$signalobject" param="$params.$signalparam" param2="@$params.$signalparam2" param3="@$params.$signalparam3"/>
+      </do_elseif>
+      <do_elseif value="$params.$order == 'signalgroup'">
+        <signal_objects group="$params.$signalgroup" param="$params.$signalparam" param2="@$params.$signalparam2" param3="@$params.$signalparam3"/>
+      </do_elseif>
+      <do_else>
+        <debug_text filter="error" text="'%1 %2 %3 Microorder passed was not a valid microorder:\n%4'.[player.age,$actor.name,$actor.container.name,$params]"/>
+        <return>
+          <retval name="repeat" value="false"/>
+        </return>
+      </do_else>
+      <return>
+        <retval name="repeat" value="@$params.$repeat"/>
+      </return>
+    </actions>
+  </attention>
+</aiscript>

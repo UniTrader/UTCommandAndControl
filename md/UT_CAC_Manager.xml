@@ -8,12 +8,15 @@
         <event_cue_signalled cue="this"/>
       </conditions>
       <actions>
+        <!-- set up Variables -->
         <set_value name="$actor" exact="event.param" />
+        <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
+        <set_value name="$actor.$pesterlevel" exact="60" comment="default value for pestering the Player about issues"/>
+        <set_value name="$actor.$loglevel" exact="0" comment="default value for Playerlog verbosity"/>
         <debug_text filter="general" text="'%1 now uses UT CAC comm handlers'.[$actor.name]" />
         <set_comm_handler actor="$actor" customhandler="true" />
         <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
         <start_script object="$actor" name="'ut.cac.base.manager'"/>
-        <set_value name="$actor.$pesterlevel" exact="60" comment="default value for pestering the Player about issues"/>
       </actions>
       <cues>
         <!--cue name="Payment" ref="md.UT_CAC_Lib.Payment">
@@ -78,6 +81,7 @@ Dialogue Tree - rough concept (for all Entity Types)
             </check_any>
           </conditions>
           <actions>
+            <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
             <do_if value="event.name == 'event_conversation_started'">
               <do_if value="$actor.room == player.entity.room">
                 <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
@@ -89,8 +93,9 @@ Dialogue Tree - rough concept (for all Entity Types)
               </do_else>
             </do_if>
             <add_player_choice_sub text="'Lets talk about your Work / Personal Settings'" position="1" section="comm_personal_main"/>
-            <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main" selectable="false"/>
+            <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main"/>
             <add_player_choice_sub text="'Connect me with...'" position="3" section="comm_connect_main"/>
+            <add_player_choice_sub text="'DEBUG'" position="5" section="comm_debug_main"/>
             <set_conversation_return_section section="comm_goodbye"/>
             <add_player_choice_return text="'Goodbye'" position="6" />
             <add_player_choice_return text="'Goodbye'" position="close" />
@@ -105,8 +110,77 @@ Dialogue Tree - rough concept (for all Entity Types)
           <param name="actor" value="$actor"/>
         </cue>
         <!-- Menu 2: Object Settings specific to Manager -->
-        <!--cue name="Comm_Settings" instantiate="true"/-->
+        <cue name="Comm_Settings" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_next_section sectionprefix="comm_settings_" actor="$actor"/>
+              <event_conversation_returned_to_section sectionprefix="comm_settings_" actor="$actor"/>
+            </check_any>
+          </conditions>
+          <actions>
+            <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+            <!--- ################################### -->
+            <!--                       Settings Menu                          -->
+            <!--- ################################### -->
+            <do_if value="event.param == 'comm_settings_take_playersquad'">
+              <!-- ToDo: Add Dialogue -->
+              <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+              <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
+                <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
+                <set_value name="player.primaryship.subordinates.{$i}.pilot.$orders" exact="[
+                table[$script='ut.cac.microorder',$order='wait minmax',$mintime=5s,$maxtime=30s,$repeat=0],
+                table[$script='ut.cac.microorder',$order='signalobject',$signalobject=$actor,$signalparam='request orders',$signalparam2=player.primaryship.subordinates.{$i}.pilot,$repeat=0],
+                table[$script='ut.cac.microorder',$order='wait exact',$time=1s,$repeat=0]
+                ]"/>
+                <set_object_commander object="player.primaryship.subordinates.{$i}" commander="$actor.container" type="$actor.type"/>
+              </do_all>
+            </do_if>
+            <do_if value="event.param == 'comm_settings_main'">
+              <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
+                <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+                <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+              </do_if>
+              <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+                <do_if value="event.param2 == 'no change'">
+                  <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+                </do_if>
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_elseif>
+              <add_player_choice text="'Take all my direct Subordinates'" position="1" section="comm_settings_take_playersquad" selectable="player.primaryship.subordinates.{1}?"/>
+              <add_player_choice_sub text="'Take this Ship and all its Subordinates'" position="2" section="comm_settings_take_shipsquad" selectable="false" comment="not implemented yet"/>
+              <add_player_choice_return text="'(Back)'" position="close" />
+            </do_if>
+          </actions>
+        </cue>
         
+        <cue name="Subordinate_Added" instantiate="true">
+          <conditions>
+            <check_any>
+              <!--event_object_signalled object="this" param2="'register subordinate'"/-->
+              <event_object_subordinate_added object="$actor.container" commandertype="entitytype.manager"/>
+              <event_object_subordinate_removed object="$actor.container" />
+            </check_any>
+          </conditions>
+          <actions>
+            <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+            <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
+              <do_if value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
+                <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
+                <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
+              </do_if>
+              <do_else>
+                <!-- cannt use this Ship for anything - remove assignment (maybe add passing it to the right entity? ) -->
+                <!-- ToDo: Also add an obvious Error Message - currently this fails siltently -->
+                <debug_text filter="error" text="'trying to add a non-trade Ship ( %1 ) to a Manager ( %2 , %3 in %4 ) - not supported yet!'.[event.param.name,$actor.name,$actor.station.name,$actor.zone.name]"/>
+                <remove_object_commander object="event.param"/>
+              </do_else>
+            </do_if>
+            <do_elseif value="event.name == 'event_object_subordinate_removed'">
+              <remove_actor_account actor="event.param.pilot"/>
+            </do_elseif>
+          </actions>
+        </cue>
         
         <cue name="NPC_Destroyed">
           <conditions>
@@ -116,23 +190,6 @@ Dialogue Tree - rough concept (for all Entity Types)
           <actions>
             <debug_text text="'NPC_Destroyed'"/>
             <cancel_cue cue="Main"/>
-          </actions>
-        </cue>
-        
-        <cue name="OnFired" instantiate="true">
-          <conditions>
-            <check_any>
-              <event_conversation_finished actor="$actor" outcome="cManager_fire" />
-            </check_any>
-          </conditions>
-          <delay exact="1s" />
-          <actions>
-            <play_cutscene key="'LeavePlayerShipWithDrone'">
-              <param name="npcref" object="$actor" />
-            </play_cutscene>
-            <do_if value="not player.platform">
-              <start_actor_transport actor="$actor" />
-            </do_if>
           </actions>
         </cue>
         
