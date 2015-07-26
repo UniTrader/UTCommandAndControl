@@ -26,12 +26,12 @@
       <do_if value="this.$shiptrader_docking?">
         <do_if value="this.$shiptrader_docking.component.isoperational">
           <do_if value="not this.ship.dockslot">
-            <wait_for_prev_script action="$action" sinceversion="1" />
+            <wait_for_prev_script action="$action"/>
             <do_if value="$action == 'move_docking'">
               <dock ship="this.ship" />
             </do_if>
             <do_else>
-              <run_script name="'move.dockat'" sinceversion="1">
+              <run_script name="'move.dockat'">
                 <param name="dockingslot" value="this.$shiptrader_docking" />
               </run_script>
               <return />
@@ -43,7 +43,7 @@
           <remove_value name="this.$shiptrader_docking" />
         </do_else>
       </do_if>
-      <detach_from_masstraffic object="this.ship" sinceversion="4" />
+      <detach_from_masstraffic object="this.ship"/>
       <run_script name="'move.undock'" />
       
     </actions>

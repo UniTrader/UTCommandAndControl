@@ -136,81 +136,6 @@
             <set_value name="this.$orderlist.{$repeat}" exact="$order" operation="insert"/>
           </do_else>
         </do_if>
-        <do_else comment="Legacy Code for old, list based Order system - please use the new, table-based Order system instead">
-        <debug_text filter="error" text="'Depracted Method for Orders used - please convert to the new table-based Order system:\n'+$order"/>
-        <!-- look up if this Order is to be repeated (before executing it in case the Order gets interrupted/overridden - it shall still be repeated later) -->
-        <do_if value="$order.{2} == 1" >
-          <!-- case 1/true -> copy Order to the end of the list -->
-          <append_to_list name="this.$orderlist" exact="$order"/>
-        </do_if>
-        <do_elseif value="@$order.{2}.isnumeric and $order.{2} != 0" >
-        </do_elseif>
-        <!-- differ between all implemented Orders (sadly no support for dynamic parameter Names, because then i would make use of that )-->
-        <do_if value="$order.{1} == 'patrol'">
-          <!-- ################################# -->
-          <!-- ToDo: implement Timeout - currently this Order will not exit (use signal 'next order' to force it)-->
-          <run_script name="'move.patrol'">
-            <param name="range" value="$order.{3}"/>
-            <param name="timeout" value="$order.{4}"/>
-          </run_script>
-        </do_if>
-        <do_elseif value="$order.{1} == 'fly to'">
-          <run_script name="'move.generic'">
-            <param name="destination" value="$order.{3}"/>
-            <param name="endintargetzone" value="@$order.{4}"/>
-          </run_script>
-        </do_elseif>
-        <do_elseif value="$order.{1} == 'dock at'">
-          <run_script name="'move.dockat'">
-            <param name="destination" value="$order.{3}"/>
-            <param name="dockingslot" value="$order.{4}"/>
-          </run_script>
-        </do_elseif>
-        <do_elseif value="$order.{1} == 'wait'">
-          <do_if value="(typeof $order.{4}).isstring">
-            <do_if value="not $order.{3}">
-              <set_value name="$order.{3}" exact="this.ship"/>
-            </do_if>
-            <do_if value="not $order.{5}">
-              <set_value name="$order.{5}" exact="10h"/>
-            </do_if>
-            <do_if value="$order.{3}.exists">
-              <wait exact="$order.{5}">
-                <interrupt><conditions><check_any>
-                  <event_object_destroyed object="$order.{3}"/>
-                  <event_object_signalled object="$order.{3}" param="$order.{4}" />
-                </check_any></conditions></interrupt>
-              </wait>
-            </do_if>
-          </do_if>
-        </do_elseif>
-        <do_elseif value="$order.{1} == 'signal'">
-          <do_if value="not $order.{3}">
-            <set_value name="$order.{3}" exact="this.ship"/>
-          </do_if>
-          <signal_objects object="$order.{3}" param="$order.{4}" param2="$order.{5}" param3="$order.{6}"/>
-        </do_elseif>
-        <do_elseif value="$order.{1} == 'trade'">
-          <!-- ToDo: write own Trade Script which is better suited for my purposes (with Signals, return Values, just one Action etc.)-->
-          <run_script name="'ut.cac.com.captain.performsingletraderun'">
-            <param name="undock" value="'checknexttrade'"/>
-          </run_script>
-        </do_elseif>
-        <do_elseif value="$order.{1} == 'refuel'">
-          <!-- ToDo: maybe turn this into a Trade Offer to be executed immediately once? -->
-          <do_if value="this.ship.cargo.{ware.fuelcells}.count lt $order.{3}">
-            <run_script name="'move.refuel'"/>
-          </do_if>
-          <do_elseif value="this.ship.cargo.{ware.fuelcells}.count lt $order.{3} * 2 " comment="double the reserve amount if we are nearby a Fuelstation anyway">
-            <find_station name="$fuelstation" space="this.zone">
-              <match_selloffer wares="[ware.fuelcells]"/>
-            </find_station>
-            <do_if value="$fuelstation.exists">
-              <run_script name="'move.refuel'"/>
-            </do_if>
-          </do_elseif>
-        </do_elseif>
-        </do_else>
         <!-- remove current Order so we can get to the next one - after that wait a split-second to prevent Freezes should something go wrong-->
         <remove_value name="this.$orderlist.{1}" />
         <wait exact="100ms"/>
@@ -254,7 +179,7 @@
         </do_else>
       </do_if>
       <do_else>
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order='wait exact signal',$time=5s,$signalobject=this,$signalparam='new order',$repeat=0]"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order='wait minmax signal',$mintime=10s,$maxtime=30s,$signalobject=this,$signalparam='new order']"/>
         <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
       </do_else>
       

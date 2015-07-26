@@ -10,6 +10,7 @@
         <debug_text filter="general" text="'\n
         Manager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
         this.$legality = ' + this.$legality + '\n
+        this.$orderlist = ' + this.$orderlist + '\n
         $bug = ' + $bug + '\n
         NOTE: ONLY VALUES I CREATED MYSELF INCLUDED - nothing from C+P Code Snippets
         '"/>
@@ -28,160 +29,9 @@
       </conditions>
       <actions>
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
-        <!-- Check if the Ship is a mining Ship and if yes -> when a mineable Ressource either has a ratio of 0.0 or is encountered on the offer List send it mining instead of shopping -->
-        <!-- =============================== -->
-        <!-- check wheter the Ship is a mining Ship - Assume that Miningships with gascollectors have a liquid cargobay and Ships with miningturret and orecollectors have a bulk cargobay -->
-        <set_value name="$miningship" exact="false"/>
-        <do_if value="event.param2.ship.primarypurpose ==objectpurpose.mine and event.param2.ship.units.{unitcategory.gascollector}.count gt 0">
-          <set_value name="$miningship" exact="true"/>
-        </do_if>
-        <do_else>
-          <find_object_component name="$miningturret" object="event.param2.ship" macro="macro.turret_medium_ml_macro" />
-          <do_if value="$miningturret.exists and event.param2.ship.units.{unitcategory.orecollector}.count gt 0">
-            <set_value name="$miningship" exact="true"/>
-          </do_if>
-        </do_else>
-        
-        <debug_text filter="general" chance="this.$debug * 100 and $miningship" text="'%1 %2:\nevent.param2 is a mining Ship'.[player.age,this.name]"/>
-        
         <do_if value="true" comment="for when this is a Trading or mining Ship to give it Trade or Mining Orders - the only ones available currently." >
-          <!-- get List of Ressources and order them by Wanted Amount Ratio - their priority -->
-          <create_list name="$ressources_wares"/>
-          <create_list name="$ressources_ratio"/>
-          <set_value name="$ressources_list" exact="this.container.resources.list.clone"/>
-          <append_to_list name="$ressources_list" exact="ware.fuelcells"/>
-          <do_all exact="$ressources_list.count" counter="$ii">
-            <set_value name="$ware" exact="$ressources_list.{$ii}"/>
-            <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
-            <do_if value="this.$legality == 0 and not $ware.illegalto.{this.zone.policefaction}.{this.owner}" comment="trades with everything - wheter legal or illegal">
-              <debug_text filter="general" chance="this.$debug * 100" text="'%1 legal, illegal shitegal'.[$ware]"/>
-              <continue/>
-            </do_if>
-            <do_if value="this.$legality == 1 and $ware.illegalto.{this.zone.policefaction}.{this.owner}" comment="no goods which are considered illegal in this Zone taking licenses into account">
-              <debug_text filter="general" chance="this.$debug * 100" text="'%1 is licensed'.[$ware]"/>
-              <continue/>
-            </do_if>
-            <do_if value="this.$legality == 2 and $ware.illegalto.{this.zone.policefaction}.{null}" comment="no goods which are considered illegal in this Zone">
-              <debug_text filter="general" chance="this.$debug * 100" text="'%1 is illegal but has license'.[$ware]"/>
-              <continue/>
-            </do_if>
-            <do_if value="this.$legality == 3 and $ware.illegal" comment="no goods which are considered illegal anywhere">
-              <debug_text filter="general" chance="this.$debug * 100" text="'%1 is illegal'.[$ware]"/>
-              <continue/>
-            </do_if>
-            <do_if value="not $ware.illegal" comment="legal goods">
-              <debug_text filter="general" chance="this.$debug * 100" text="'%1 is legal'.[$ware]"/>
-            </do_if>
-            <debug_text filter="general" chance="this.$debug * 100" text="'trading with it'"/>
-            <!-- not interested in Wares which the Ship cannt transport -->
-            <do_if value="event.param2.ship.cargo.{$ware}.free gt 0">
-              <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-              <set_value name="$ratio" exact="( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.container.cargo.{$ware}.target )f"/>
-              <!-- no need to include the Wares where we have the desired amount -->
-              <do_if value="$ratio lt 1.0">
-                <!-- ratio 0.0, so always in the beginning -->
-                <do_if value="$ratio == 0f" >
-                  <set_value name="$ressources_wares.{1}" exact="$ware" operation="insert"/>
-                  <set_value name="$ressources_ratio.{1}" exact="$ratio" operation="insert"/>
-                  <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
-                    <set_value name="$miningpriority"/>
-                  </do_if>
-                </do_if>
-                <!-- first Value in the Target List, no need for any Sorting-->
-                <do_elseif value="$ressources_wares.count == 0">
-                  <set_value name="$ressources_wares.{1}" exact="$ware" operation="insert"/>
-                  <set_value name="$ressources_ratio.{1}" exact="$ratio" operation="insert"/>
-                </do_elseif>
-                <do_else>
-                  <do_all exact="$ressources_ratio.count" counter="$ij" reverse="true">
-                    <do_if value="$ressources_ratio.{$ij} le $ratio">
-                      <set_value name="$ressources_wares.{$ij+1}" exact="$ware" operation="insert"/>
-                      <set_value name="$ressources_ratio.{$ij+1}" exact="$ratio" operation="insert"/>
-                      <break/>
-                    </do_if>
-                  </do_all>
-                </do_else>
-              </do_if>
-            </do_if>
-          </do_all>
-          
-          <debug_text filter="general" chance="this.$debug * 100 and $miningship" text="'Sorted Ware List to grab: \n%1\n%2'.[$ressources_wares,$ressources_ratio]"/>
-          <!-- we dont need these Values anymore -->
-          <remove_value name="$incomingamount"/>
-          <remove_value name="$ware"/>
-          <remove_value name="$ratio"/>
-          <remove_value name="$ressources_ratio"/>
-          <remove_value name="$ressources_list"/>
-          
-          <!-- ================================ -->
-          <!-- find possible Trades in order of priority -->
-          <do_if value="$miningpriority?">
-            <do_all exact="$ressources_wares.count" counter="$ii" reverse="true">
-              <do_if value="not $ressources_wares.{$ii}.tags.indexof.{tag.minable}">
-                <remove_value name="$ressources_wares.{$ii}"/>
-              </do_if>
-            </do_all>
-            <signal_objects object="event.param2.ship" param="'new order'" param2="[ table[$script='ut.cac.mining.ship.station',$repeat=0,$warebasket=$ressources_wares] ]"/>
-            <remove_value name="$miningpriority"/>
-            <debug_text filter="general" chance="this.$debug * 100" text="'Sending Ship to mine %1'.[$ressources_wares]"/>
-          </do_if>
-          <do_else>
-          <do_all exact="$ressources_wares.count" counter="$ii" reverse="false">
-              <set_value name="$ware" exact="$ressources_wares.{$ii}"/>
-              <do_if value="event.param2.ship.cargo.{$ware}.free gt 0">
-                <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
-                  <do_all exact="$ressources_wares" counter="$ii" reverse="true">
-                    <do_if value="not $ressources_wares.{$ij}.tags.indexof.{tag.minable}">
-                      <remove_value name="$ressources_wares.{$ij}"/>
-                    </do_if>
-                  </do_all>
-                  <signal_objects object="event.param2.ship" param="'new order'" param2="[ table[$script='mining.ship.station',$repeat=0,$warebasket=$ressources_wares] ]"/>
-                  <debug_text filter="general" chance="this.$debug * 100" text="'Sending Ship to mine %1'.[$ressources_wares]"/>
-                  <break/>
-                </do_if>
-                <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="this.sector">
-                  <offeramount min="this.container.cargo.{$ware}.target / 10"/>
-                </find_sell_offer>
-                <do_if value="not $selloffer.available " comment="and event.param2.ship.hasjumpdrive  //// finish this: Cluster Range only with Jumpdrive">
-                  <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="this.cluster">
-                    <offeramount min="this.container.cargo.{$ware}.target / 10"/>
-                  </find_sell_offer>
-                </do_if>
-                <do_if value="$selloffer.available">
-                  <debug_text filter="general" chance="this.$debug * 100" text="'found sell offer: %1 ( %2 %3 %4 %5 )'.[$selloffer,$selloffer.owner.knownname,$selloffer.owner.zone.knownname,$selloffer.ware,$selloffer.amount]"/>
-                  <!--find_buy_offer buyer="this.container" wares="$ware" result="$buyoffer" />
-                  <do_if value="not $buyoffer.available"-->
-                  <!-- create a temp buyoffer so we can add an Trade Order to the Ship -->
-                  <set_value name="$amount" exact="[ $selloffer.amount, this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, event.param2.ship.cargo.{$ware}.free,(this.money/$selloffer.unitprice)i ].min"/>
-                  <!--set_value name="$created_buyoffer"/>
-                  <debug_text filter="general" text="'Station %1 has no fitting buy offer - creating one to be able to sell the necesary ware ( %2x %3 ).'.[this.container.name,$amount,$ware]" />
-                  </do_if>
-                  <do_else>
-                  <set_value name="$amount" exact="[ $selloffer.amount, this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, event.param2.ship.cargo.{$ware}.free,(this.money/$selloffer.unitprice)i , $buyoffer.amount].min"/>
-                  </do_else-->
-                  <do_if value="$amount == 0">
-                    <debug_text filter="general" chance="this.$debug * 100" text="'possible amount is 0 - continuing with next ware'"/>
-                    <continue/>
-                  </do_if>
-                  <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="0Cr" playeronly="true"/>
-                  <debug_text filter="general" chance="this.$debug * 100" text="'trade amount: %1\n=> %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.amount , this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count , this.container.cargo.{$ware}.target , this.container.cargo.{$ware}.count , event.param2.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/>
-                  <!--clamp_trade_amount result="$amount" seller="this.container" seller="event.param2.ship" trade="$buyoffer" amount="$amount"/-->
-                  <do_if value="not event.param2.hasownaccount">
-                    <set_actor_account actor="event.param2" />
-                  </do_if>
-                  <debug_text filter="general" chance="this.$debug * 100" text="'transfering %1 Credits from manager ( %2 Cr ) to trader ( %3 Cr ) for a total of %4 Cr'.[($amount * $selloffer.unitprice - event.param2.money)/100,(this.money)/100,(event.param2.money)/100,($amount * $selloffer.unitprice)/100]"/>
-                  <transfer_money from="this" to="event.param2" amount="$amount * $selloffer.unitprice - event.param2.money" chance="100 - $bug"/>
-                  <add_buy_order object="event.param2.ship" trade="$selloffer" amount="$amount" price="$selloffer.unitprice"/>
-                  <add_sell_order object="event.param2.ship" trade="$buyoffer" amount="$amount" price="0Cr"/>
-                  <remove_trade_offer object="this.container" tradeoffer="$buyoffer"/>
-                  <!-- tell the Ship to get the Wares and bring them back ( ^= 2 single trade runs ) -->
-                  <signal_objects object="event.param2.ship" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0] , table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=0] , table[$script='ut.cac.com.captain.refuel',$repeat=0] ]"/>
-                  <break/>
-                </do_if>
-              </do_if>
-            </do_all>
-          </do_else>
-          <remove_value name="$miningship"/>
+          <!-- ToDo: be a bit more considerate about where to put this order - dont move orders from other requesters down for example or look if the manager already intends to look for trades for this Ship -->
+          <set_value name="this.$orderlist.{2}" exact="table[$script='ut.cac.com.manager.findjob.trade',$repeat=false,$entity=event.param2]" operation="insert"/>
         </do_if>
         <!-- Other possible Orders the Manager can give to be added here -->
       </actions>
@@ -193,13 +43,24 @@
     <actions>
       <label name="init"/>
       
-      <!-- legality levels:
+      <!-- set up legality levels:
       3 - no goods which are considered illegal anywhere
       2 - no goods which are considered illegal in this Zone or Sector
       1 - no goods which are considered illegal in this Zone or Sector taking licenses into account (default for now; will change to 3 when interface is ready)
       0 - trades with everything - wheter legal or illegal
       -->
-      <set_value name="this.$legality" exact="1"/>
+      <do_if value="not this.$legality?">
+        <set_value name="this.$legality" exact="1"/>
+      </do_if>
+      
+      <!-- set up orderlist -->
+      <do_if value="not this.$orderlist?">
+        <create_list name="this.$orderlist"/>
+      </do_if>
+      
+      <!--immediately allow Zone Trading and Mining -->
+        <set_value name="$next_zonetrade" exact="player.age"/>
+        <set_value name="$next_miningstep" exact="player.age"/>
       
       <!-- Chance of this Script to bug out to improve Feedback -->
       <!-- feel free to set it to 0, but please dont spoil this trick and write a few comments in the Mod Topics :) -->
@@ -208,7 +69,9 @@
       <!-- add Fuelcells as Trade Ware so Energy Freighters will buy it and put it into the Station Cargo -->
       <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false" />
       
+      
       <!-- register Subordinates - see event Handlers for actual adding procedure -->
+      <!-- also add order to manager to look up their first assignment -->
       <do_all exact="this.container.subordinates.{this.type}.count" counter="$i">
         <signal_objects object="this" param="this.container.subordinates.{this.type}.{$i}" param2="'register subordinate'" />
         <wait exact="1ms"/>
@@ -216,112 +79,70 @@
       
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 init finished\nSet Values: this.$legalitiy= %3 $bug= %4 , Fuelcells added as Tradeware, Signalled %5 Subordinates'.[player.age,$actor.name,this.$legality,$bug,this.container.subordinates.{this.type}.count]"/>
       
-      <label name="start"/>
       
-      <!-- Zone Trading with Cargo Drones - copied from Vanilla for now -->
+      <label name="start with orderlist"/>
       
-      <!-- finding offers is expensive, we don't need to check this frequently -->
-      <set_command_action commandaction="commandaction.searchingtrades"/>
-      <wait min="2min" max="4min"/>
-      <set_value name="$buyoffer" exact="null"/>
-      <!-- find the best trade opportunity -->
-      <find_buy_offer buyer="this.container" result="$buyoffers" multiple="true">
-        <stocklevel min="0.2"/>
-      </find_buy_offer>
-      <do_if value="$buyoffers.count gt 0">
-        <create_list name="$buywares"/>
-        <!-- build list of wares that we are interested in -->
-        <do_all exact="$buyoffers.count" counter="$i">
-          <append_to_list name="$buywares" exact="$buyoffers.{$i}.ware"/>
-        </do_all>
-        <find_sell_offer tradepartner="this.container" wares="$buywares" space="this.container.zone" result="$selloffers" multiple="true">
-          <stocklevel min="0.2"/>
-        </find_sell_offer>
-        <remove_value name="$buywares"/>
-        <do_all exact="$selloffers.count" counter="$j" reverse="true">
-          <set_value name="$currentselloffer" exact="$selloffers.{$j}"/>
-          <set_value name="$currentware" exact="$currentselloffer.ware"/>
-          <!-- we don't want two stations shipping the same tradeware back and forth, so check if ware is a tradeware on both stations and negate -->
-          <do_if value="this.container.tradewares.{$currentware}.exists and $currentselloffer.seller.tradewares.{$currentware}.exists">
-            <remove_value name="$selloffers.{$j}"/>
-          </do_if>
-        </do_all>
-        <sort_trades name="$selloffers" tradelist="$selloffers" sorter="relativeprice"/>
-        <do_all exact="$buyoffers.count">
-          <!-- find the selloffer with the highest amount -->
-          <set_value name="$currentbuyoffer" exact="$buyoffers.random"/>
-          <set_value name="$offerindex" exact="$buyoffers.indexof.{$currentbuyoffer}"/>
-          <remove_value name="$buyoffers.{$offerindex}"/>
-          <remove_value name="$offerindex"/>
-          <set_value name="$currentware" exact="$currentbuyoffer.ware"/>
-          <set_value name="$maxsellamount" exact="0"/>
-          <set_value name="$selloffer" exact="null"/>
-          <do_all exact="$selloffers.count" counter="$j">
-            <set_value name="$currentselloffer" exact="$selloffers.{$j}"/>
-            <do_if value="$currentselloffer.ware == $currentware">
-              <!-- we don't want two stations shipping the same tradeware back and forth, so check if ware is a tradeware on both stations and negate -->
-              <do_if value="this.container.tradewares.{$currentware}.exists and $currentselloffer.seller.tradewares.{$currentware}.exists" negate="true">
-                <set_value name="$finalamount" exact="$currentselloffer.offeramount.{this}"/>
-                <do_if value="$currentbuyoffer.amount lt $currentselloffer.offeramount.{this}">
-                  <set_value name="$finalamount" exact="$currentbuyoffer.amount"/>
-                </do_if>
-                <do_if value="$finalamount * $currentware.volume gt 100000">
-                  <!-- cap the max trade volume at 100000 to avoid super-long huge trades -->
-                  <set_value name="$finalamount" exact="100000 / $currentware.volume"/>
-                </do_if>
-                <set_value name="$finalselloffer" exact="$currentselloffer"/>
-                <set_value name="$buyoffer" exact="$currentbuyoffer"/>
-                <break/>
-              </do_if>
+      <!-- fulfill all Orders in List in their order -->
+      <do_while value="this.$orderlist.count gt 0">
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
+        <set_value name="$order" exact="this.$orderlist.{1}" />
+        <do_if value="typeof $order == datatype.table">
+          <remove_value name="$repeat"/>
+          <run_script name="$order.$script">
+            <param name="params" value="$order" />
+            <save_retval name="repeat" variable="$repeat"/>
+          </run_script>
+          <do_if value="not $repeat"/><!-- case 0/false - dont copy/re-execute the Order -->
+          <do_elseif value="$repeat == 1" >
+            <!-- case 1/true -> copy Order to the end of the list -->
+            <append_to_list name="this.$orderlist" exact="$order"/>
+          </do_elseif>
+          <do_else>
+            <!-- case other number -> copy Order to specified position (except 0/false, which says dont repeat) -->
+            <set_value name="this.$orderlist.{$repeat}" exact="$order" operation="insert"/>
+          </do_else>
+        </do_if>
+        <!-- remove current Order so we can get to the next one - after that wait a split-second to prevent Freezes should something go wrong-->
+        <remove_value name="this.$orderlist.{1}" />
+        <wait exact="100ms"/>
+      </do_while>
+      
+      <!-- no outstanding direct orders - look up what makes sense and append it to Orderlist -->
+      
+      <label name="find job"/>
+      
+      <!-- check if we have gasses as ressource and can mine them directly (!!!Testing needed!!! )-->
+      <do_if value="player.age gt $next_miningstep">
+        <set_value name="$next_miningstep" exact="player.age + 2min"/>
+        <create_list name="$mineable_ressources"/>
+        <do_all exact="this.container.resources.list.count" counter="$i">
+          <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
+          <do_if value="$ware.tags.indexof.{tag.minable} and this.container.cargo.{$ware}.count lt this.container.cargo.{$ware}.target">
+            <get_resource_gatherrate name="$gatherrate" refobject="this.container" ware="$ware" zone="this.zone" />
+            <do_if value="$gatherrate">
+              <append_to_list name="$mineable_ressources" exact="$ware"/>
             </do_if>
-          </do_all>
-          <do_if value="$selloffer">
-            <break/>
           </do_if>
         </do_all>
-      </do_if>
-      <remove_value name="$buyoffers"/>
-      <remove_value name="$selloffers"/>
-      <!-- execute the trade -->
-      <do_if value="$buyoffer.exists">
-        <set_value name="$tradestart" exact="player.age"/>
-        <set_value name="$tradeware" exact="$finalselloffer.ware"/>
-        <do_if value="$buyoffer.unbundle">
-          <set_value name="$unbundle" exact="true"/>
+        <do_if value="$mineable_ressources.count">
+          <set_value name="$next_miningstep" exact="player.age + 2min"/>
+          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
+          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.gatherressources',$repeat=false,$wareslist=$mineable_ressources]" chance="0"/>
         </do_if>
-        <do_if value="not $unbundle?">
-          <!-- use a 2hour duration for station trades, as these can be inherently slower -->
-          <add_ware_reservation object="this.container" entity="this" ware="$tradeware" amount="$finalamount" result="$reserved" duration="3h"/>
-          <!-- DEBUG ONLY START -->
-          <set_value name="$d_startamount" exact="this.container.cargo.{$tradeware}.count"/>
-          <!-- DEBUG ONLY END -->
-        </do_if>
-        <set_command command="command.trade" param="$finalselloffer.seller"/>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 Manager Zonetrade Executing Trade'.[player.age,this.name]"/>
-        <execute_trade tradeoffer="$finalselloffer" amount="$finalamount" tradepartner="this.container" result="$traderesult" unbundle="$unbundle?">
-          <interrupt_after_time time="5h"/>
-        </execute_trade>
-        <!-- no need to call detach_from_masstraffic since stations in the same zone are linked with a static network that persists anyway -->
-        <do_if value="(not $traderesult) and $unbundle?">
-          <!-- in case we failed to buy ammo, trigger an update for our ammo offers -->
-          <signal_objects object="this.container" param="'update_ammo_offers'"/>
-        </do_if>
-        <remove_value name="$unbundle"/>
-        <!-- DEBUG ONLY START -->
-        <do_if value="$reserved?">
-          <add_ware_reservation object="this.container" entity="this" ware="$tradeware" amount="0" result="$d_reserved"/>
-          <do_if value="$d_reserved != $reserved">
-          </do_if>
-          <remove_value name="$d_reserved"/>
-        </do_if>
-        <!-- DEBUG ONLY END -->
-        <remove_value name="$reserved"/>
-        <remove_ware_reservation object="this.container" entity="this" ware="$tradeware"/>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 Manager Zonetrade Loop finished'.[player.age,this.name]"/>
+      <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
+      <do_if value="this.$orderlist.count lt 2 and player.age gt $next_zonetrade">
+        <set_value name="$next_zonetrade" exact="player.age + 2min"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.zonetrade',$repeat=false]"/>
+      </do_if>
       
-      <resume label="start"/>
+      <do_if value="this.$orderlist.count == 0">
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order='wait exact signal',$time=1min,$signalobject=this,$signalparam='request orders',$repeat=0]"/>
+      </do_if>
+      
+      <resume label="start with orderlist"/>
+      
     </actions>
   </attention>
   <on_abort>

@@ -32,7 +32,7 @@
   </params>
   <attention min="unknown">
     <actions>
-      <!-- first turn params param into the real params -->
+      <!-- first turn $params param into the real params -->
       <do_if value="$params">
         <do_if value="$params.$trade?">
           <set_value name="$trade" exact="$params.$trade"/>
@@ -185,11 +185,8 @@
           </do_if>- -->
             <!--wait min="30s" max="100s" />
             <resume label="check shoppinglist" /-->
-            <remove_trade_order object="this.ship" trade="$trade" />
-            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 no Tradeoffer to park to found - aborting'.[player.age,this.name,this.container.name]"/>
-            <return>
-              <retval name="repeat" value="$repeat"/>
-            </return>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 no Tradeoffer to park to found - docking anywhwere'.[player.age,this.name,this.container.name]"/>
+            <set_value name="$offer" exact="null" />
           </do_else>
         </do_if>
         <run_script name="'move.park'" result="$parkresult">
@@ -359,7 +356,7 @@
         </return>
       </do_else>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Trade finished'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Trade finished,\n$raderesult: %4 ware:%5 amount:%6'.[player.age,this.name,this.container.name,$traderesult,$trade.ware,$trade.amount]"/>
       
       <!-- If after execute there is no trade order(e.g. cleared by player) finish - should not happen since player is not supposed to remove trade Orders from CAC Ships! -->
       <do_if value="not $trade.exists">
