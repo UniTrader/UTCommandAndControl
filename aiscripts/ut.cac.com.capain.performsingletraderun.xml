@@ -1,5 +1,12 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.performsingletraderun" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this (also does not refresh Reservations from Trade List, call once before with 'refreshreservations' = true to do this)"/>
+    <param name="amount" default="null" comment="Specific Amount to Trade in case a specific Trade is ordered"/>
+    <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list ONLY (does not execute any Trade)"/>
+    <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
+  </params>
   <interrupts>
     <handler comment="Print Script Vars">
       <conditions>
@@ -23,13 +30,6 @@
       </actions>
     </handler>
   </interrupts>
-  <params>
-    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
-    <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this (also does not refresh Reservations from Trade List, call once before with 'refreshreservations' = true to do this)"/>
-    <param name="amount" default="null" comment="Specific Amount to Trade iin case a specific Trade is ordered"/>
-    <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list ONLY (does not execute any Trade)"/>
-    <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
-  </params>
   <attention min="unknown">
     <actions>
       <!-- first turn $params param into the real params -->
@@ -301,7 +301,7 @@
               </do_if>
             </do_all>
           </do_elseif>
-            <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to habben here, for now just remove Tradeorder and continue with next Order -->
+            <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to happen here, for now just remove Tradeorder and continue with next Order -->
           <do_if value="not $tradeoffer.available">
             <!-- no fitting Trade found -->
             <remove_trade_order object="this.ship" trade="$trade" />
@@ -323,7 +323,9 @@
 
       <!-- tradeoffer found, now transfer cargo -->
       <set_value name="$timeout" exact="player.age + 2h" />
-
+      
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Commencing Ware Transfer \nWare: %4 Amount here: %5 Amount Partner: %6'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count]"/>
+      
       <do_if value="$trade.seller.isoperational">
         <!-- BUY -->
         <set_value name="$seller" exact="$trade.seller" />
@@ -356,7 +358,7 @@
         </return>
       </do_else>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Trade finished,\n$raderesult: %4 ware:%5 amount:%6'.[player.age,this.name,this.container.name,$traderesult,$trade.ware,$trade.amount]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Trade finished,\nWare: %4 Amount here: %5 Amount Partner: %6\n$raderesult: %7 ware:%8 amount:%9'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count,$traderesult,$trade.ware,$trade.amount]"/>
       
       <!-- If after execute there is no trade order(e.g. cleared by player) finish - should not happen since player is not supposed to remove trade Orders from CAC Ships! -->
       <do_if value="not $trade.exists">
