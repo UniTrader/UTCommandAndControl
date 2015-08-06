@@ -1,10 +1,12 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.mining.ship.station" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="aiscripts.xsd" version="5">
+<aiscript name="ut.cac.com.captain.mining" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
   This script will try to automatically supply its homebase and will only work
   with valid warebasket and homebase parameters (defined via jobs). It can do
   gas and mineral mining and works for all ship classes.
   by Michael and Benedikt
+  modified by UniTrader to work with Order queues
+  ToDo: remove loop - its the Job of the base script to loop, not the commands.
   -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
@@ -28,8 +30,8 @@
 
       <!-- basic checks first -->
       <label name="init" />
-
-      <!-- command action -->
+      
+      <set_command command="command.mining" param="this.commander.zone"/>
       <set_command_action commandaction="commandaction.calculating" />
 
       <wait min="5s" max="15s" />
