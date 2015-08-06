@@ -12,8 +12,7 @@
         this.$legality = ' + this.$legality + '\n
         this.$orderlist = ' + this.$orderlist + '\n
         $bug = ' + $bug + '\n
-        NOTE: ONLY VALUES I CREATED MYSELF INCLUDED - nothing from C+P Code Snippets
-        '"/>
+        $idle_subordinates = ' + $idle_subordinates"/>
       </actions>
     </handler>
     <handler comment="Money Updated Handler">
@@ -21,7 +20,7 @@
         <event_object_money_updated object="this"/>
       </conditions>
     </handler>
-    <handler comment="Order Request Handler">
+    <handler comment="Order Request Handler - Handler Function changed - now just interrupts unimportant tasks - use $idle_subordinates group to pass the entity instead">
       <conditions>
         <check_any>
           <event_object_signalled object="this" param="'request orders'"/>
@@ -29,11 +28,8 @@
       </conditions>
       <actions>
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
-        <do_if value="true" comment="for when this is a Trading or mining Ship to give it Trade or Mining Orders - the only ones available currently." >
-          <!-- ToDo: be a bit more considerate about where to put this order - dont move orders from other requesters down for example or look if the manager already intends to look for trades for this Ship -->
-          <set_value name="this.$orderlist.{2}" exact="table[$script='ut.cac.com.manager.findjob.trade',$repeat=false,$entity=event.param2]" operation="insert"/>
-        </do_if>
-        <!-- Other possible Orders the Manager can give to be added here -->
+        <add_to_group groupname="this.$idle_subordinates" object="event.param2"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order=null]"/>
       </actions>
     </handler>
   </interrupts>
@@ -58,6 +54,11 @@
         <create_list name="this.$orderlist"/>
       </do_if>
       
+      <!-- set up Idle Subordinates Group for other Objects to register to -->
+      <do_if value="not $idle_subordinates?">
+        <create_group groupname="$idle_subordinates"/>
+      </do_if>
+      
       <!--immediately allow Zone Trading and Mining -->
         <set_value name="$next_zonetrade" exact="player.age"/>
         <set_value name="$next_miningstep" exact="player.age"/>
@@ -66,8 +67,10 @@
       <!-- feel free to set it to 0, but please dont spoil this trick and write a few comments in the Mod Topics :) -->
       <set_value name="$bug" exact="0"/>
       
-      <!-- add Fuelcells as Trade Ware so Energy Freighters will buy it and put it into the Station Cargo -->
-      <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false" />
+      <!-- add Fuelcells as Trade Ware if Sctation has Cargo for them so Energy Freighters will buy it and put it into the Station Cargo for Refueling of Station Ships -->
+      <do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
+        <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false"/>
+      </do_if>
       
       
       <!-- register Subordinates - see event Handlers for actual adding procedure -->
@@ -90,17 +93,7 @@
           <remove_value name="$repeat"/>
           <run_script name="$order.$script">
             <param name="params" value="$order" />
-            <save_retval name="repeat" variable="$repeat"/>
           </run_script>
-          <do_if value="not $repeat"/><!-- case 0/false - dont copy/re-execute the Order -->
-          <do_elseif value="$repeat == 1" >
-            <!-- case 1/true -> copy Order to the end of the list -->
-            <append_to_list name="this.$orderlist" exact="$order"/>
-          </do_elseif>
-          <do_else>
-            <!-- case other number -> copy Order to specified position (except 0/false, which says dont repeat) -->
-            <set_value name="this.$orderlist.{$repeat}" exact="$order" operation="insert"/>
-          </do_else>
         </do_if>
         <!-- remove current Order so we can get to the next one - after that wait a split-second to prevent Freezes should something go wrong-->
         <remove_value name="this.$orderlist.{1}" />
@@ -111,9 +104,17 @@
       
       <label name="find job"/>
       
+      <!-- check if we have Idle Subordinates and find Jobs for them (priority, immediately start with finding orders fo them) -->
+      <do_if value="this.$idle_subordinates.count gt 0">
+        <do_all exact="this.$idle_subordinates.count" counter="$i">
+          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.findjob',$entity=this.$idle_subordinates.{$i}]"/>
+        </do_all>
+        <resume label="start with orderlist"/>
+      </do_if>
+      
       <!-- check if we have gasses as ressource and can mine them directly (!!!Testing needed!!! )-->
       <do_if value="player.age gt $next_miningstep">
-        <set_value name="$next_miningstep" exact="player.age + 2min"/>
+        <set_value name="$next_miningstep" exact="player.age + 3min"/>
         <create_list name="$mineable_ressources"/>
         <do_all exact="this.container.resources.list.count" counter="$i">
           <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
@@ -132,13 +133,13 @@
       </do_if>
       
       <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
-      <do_if value="this.$orderlist.count lt 2 and player.age gt $next_zonetrade">
-        <set_value name="$next_zonetrade" exact="player.age + 2min"/>
+      <do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade">
+        <set_value name="$next_zonetrade" exact="player.age + 7min"/>
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.zonetrade',$repeat=false]"/>
       </do_if>
       
       <do_if value="this.$orderlist.count == 0">
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order='wait exact signal',$time=1min,$signalobject=this,$signalparam='request orders',$repeat=0]"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order='wait order',$time=5min]"/>
       </do_if>
       
       <resume label="start with orderlist"/>
@@ -146,6 +147,8 @@
     </actions>
   </attention>
   <on_abort>
-    <remove_tradeware object="this.container" ware="ware.fuelcells"/>
+    <do_if value="this.container.tradewares.{ware.fuelcells}.exists">
+      <remove_tradeware object="this.container" ware="ware.fuelcells"/>
+    </do_if>
   </on_abort>
 </aiscript>

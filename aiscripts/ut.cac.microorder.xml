@@ -3,6 +3,7 @@
   <!-- This Script contains all Single-Action-Scripts i intend to use in the queue of Objects to avoid having special cases for them in the main script and thereby cluttering it -->
   <!-- Currently implemented are:
   -> multiple variants of the wait command
+  (Note that the 'wait order' may wait longer than expected)
   -> signal Objects or Group Commands
   more to come if needed, but this should cover most purposes -->
   <params>
@@ -10,13 +11,15 @@
   </params>
   <attention min="unknown">
     <actions>
+      <set_command command="command.wait" />
+      <set_command_action commandaction="commandaction.standingby"/>
       <do_if value="not ( typeof $params == datatype.table )">
         <debug_text filter="error" text="'%1 %2 %3 Microorder passed was not a table'.[player.age,$actor.name,$actor.container.name]"/>
         <return>
           <retval name="repeat" value="false"/>
         </return>
       </do_if>
-      <do_elseif  value="$params.$order == 'wait exact'">
+      <do_elseif value="$params.$order == 'wait exact'">
         <wait exact="$params.$time"/>
       </do_elseif>
       <do_elseif value="$params.$order == 'wait minmax'">
@@ -56,22 +59,40 @@
           </wait>
         </do_while>
       </do_elseif>
+      <do_elseif value="$params.$order == 'wait order'">
+        <set_value name="$endtime" exact="player.age + $params.$time"/>
+        <set_value name="$waittime" exact="1s"/>
+        <do_while value="player.age lt $endtime">
+          <do_if value="this.$orderlist.{2}?">
+            <return/>
+          </do_if>
+          <wait exact="$waittime">
+            <interrupt>
+              <conditions>
+                <check_any>
+                  <event_object_signalled object="this" param="'new order'"/>
+                  <event_object_signalled object="this" param="'request orders'"/>
+                </check_any>
+              </conditions>
+            </interrupt>
+          </wait>
+          <set_value name="$waittime" exact="$waittime * 1.59" chance="(100 - $waittime)i" comment="slowly/randomly increase the checking interval to about 100s" />
+        </do_while>
+      </do_elseif>
       <do_elseif value="$params.$order == 'signalobject'">
         <signal_objects object="$params.$signalobject" param="$params.$signalparam" param2="@$params.$signalparam2" param3="@$params.$signalparam3"/>
       </do_elseif>
       <do_elseif value="$params.$order == 'signalgroup'">
         <signal_objects group="$params.$signalgroup" param="$params.$signalparam" param2="@$params.$signalparam2" param3="@$params.$signalparam3"/>
       </do_elseif>
-      <do_elseif value="$params.$order == null" comment="do-nothing order - used to terminate interrupt handlers"/>
+      <do_elseif value="$params.$order == null" comment="do-nothing order - eg used to terminate interrupt handlers"/>
       <do_else>
         <debug_text filter="error" text="'%1 %2 %3 Microorder passed was not a valid microorder:\n%4'.[player.age,$actor.name,$actor.container.name,$params]"/>
         <return>
           <retval name="repeat" value="false"/>
         </return>
       </do_else>
-      <return>
-        <retval name="repeat" value="@$params.$repeat"/>
-      </return>
+      <return/>
     </actions>
   </attention>
 </aiscript>

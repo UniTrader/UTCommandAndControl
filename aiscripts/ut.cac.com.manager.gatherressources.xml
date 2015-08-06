@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.manager.gatherressources" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="wareslist" default="false" comment="Wares to mine as List (un-mineable ones will be filtered out)"/>
+  </params>
+  <interrupts>
+    <handler comment="Print Script Vars">
+      <conditions>
+        <event_object_signalled object="this" param="'print script vars to logfile'"/>
+      </conditions>
+      <actions>
+        <debug_text filter="general" text="'\n
+        Manager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n'"/>
+      </actions>
+    </handler>
+  </interrupts>
+  <init>
+  </init>
+  <attention min="unknown">
+    <actions>
+      <do_if value="$params">
+        <do_if value="$params.$wareslist?">
+          <set_value name="$wareslist" exact="$params.$wareslist"/>
+        </do_if>
+        <remove_value name="$params"/>
+      </do_if>
+      
+      
+    </actions>
+  </attention>
+</aiscript>

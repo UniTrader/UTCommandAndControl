@@ -10,7 +10,13 @@
         <event_object_signalled object="this" param="'print script vars to logfile'"/>
       </conditions>
       <actions>
-        <debug_text filter="general" text="'\n          Manager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n          this.$legality = ' + this.$legality + '\n          $bug = ' + $bug + '\n          NOTE: ONLY VALUES I CREATED MYSELF INCLUDED - nothing from C+P Code Snippets          '"/>
+        <debug_text filter="general" text="'\nManager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
+$miningship= ' + $miningship + '\n
+$wareslist = ' + $wareslist + '\n
+$wareslist_prio = ' + $wareslist_prio + '\n
+$wareslist_buysell = ' + $wareslist_buysell + '\n
+$mininglist (@) = ' + @$mininglist + '\n
+$entity  = ' + $entity"/>
       </actions>
     </handler>
   </interrupts>
@@ -254,7 +260,7 @@
             <add_sell_order object="$entity.ship" trade="$buyoffer" amount="$amount" price="$selloffer.unitprice"/>
             <remove_trade_offer object="this.container" tradeoffer="$buyoffer"/>
             <!-- tell the Ship to get the Wares and bring them back ( ^= 2 single trade runs ) -->
-            <signal_objects object="$entity.ship" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0] , table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=0] , table[$script='ut.cac.microorder',$order='signalobject',$signalobject=this,$signalparam='new order',$signalparam2=$entity,$repeat=0], table[$script='ut.cac.com.captain.refuel',$repeat=0] ]"/>
+            <signal_objects object="$entity.ship" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0] , table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=0] , table[$script='ut.cac.com.captain.refuel',$repeat=0] ]"/>
             <break/>
           </do_if>
         </do_if>
@@ -274,7 +280,7 @@
               <debug_text filter="general" chance="this.$debug * 100" text="'possible amount is 0 - continuing with next ware'"/>
               <continue/>
             </do_if>
-            <create_trade_offer name="$selloffer" seller="this.container" object="this.container" amount="$amount" ware="$ware" price="0Cr" playeronly="true"/>
+            <create_trade_offer name="$selloffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="0Cr" playeronly="true"/>
             <debug_text filter="general" chance="this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $buyoffer.amount , this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count , this.container.cargo.{$ware}.target , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$buyoffer.unitprice)i , this.money , $buyoffer.unitprice ]"/>
             <do_if value="not $entity.hasownaccount">
               <set_actor_account actor="$entity"/>

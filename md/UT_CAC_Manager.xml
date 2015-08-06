@@ -125,20 +125,6 @@ Dialogue Tree - rough concept (for all Entity Types)
             <!--- ################################### -->
             <!--                       Settings Menu                          -->
             <!--- ################################### -->
-            <do_if value="event.param == 'comm_settings_take_playersquad'">
-              <!-- ToDo: Add Dialogue -->
-              <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
-              <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
-                <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
-                <set_value name="player.primaryship.subordinates.{$i}.pilot.$orders" exact="[
-                table[$script='ut.cac.microorder',$order='wait minmax',$mintime=5s,$maxtime=30s,$repeat=0],
-                table[$script='ut.cac.microorder',$order='signalobject',$signalobject=$actor,$signalparam='request orders',$signalparam2=player.primaryship.subordinates.{$i}.pilot,$repeat=0],
-                table[$script='ut.cac.microorder',$order='wait exact',$time=1s,$repeat=0]
-                ]"/>
-                <set_object_commander object="player.primaryship.subordinates.{$i}" commander="$actor.container" type="$actor.type"/>
-              </do_all>
-            </do_if>
             <do_if value="event.param == 'comm_settings_main'">
               <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
                 <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
@@ -153,6 +139,15 @@ Dialogue Tree - rough concept (for all Entity Types)
               <add_player_choice text="'Take all my direct Subordinates'" position="1" section="comm_settings_take_playersquad" selectable="player.primaryship.subordinates.{1}?"/>
               <add_player_choice_sub text="'Take this Ship and all its Subordinates'" position="2" section="comm_settings_take_shipsquad" selectable="false" comment="not implemented yet"/>
               <add_player_choice_return text="'(Back)'" position="close" />
+            </do_if>
+            <do_if value="event.param == 'comm_settings_take_playersquad'">
+              <!-- ToDo: Add Dialogue -->
+              <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+              <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
+                <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
+                <set_object_commander object="player.primaryship.subordinates.{$i}" commander="$actor.container" type="$actor.type"/>
+              </do_all>
             </do_if>
           </actions>
         </cue>

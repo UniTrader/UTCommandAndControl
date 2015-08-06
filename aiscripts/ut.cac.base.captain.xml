@@ -124,17 +124,7 @@
           <remove_value name="$repeat"/>
           <run_script name="$order.$script">
             <param name="params" value="$order" />
-            <save_retval name="repeat" variable="$repeat"/>
           </run_script>
-          <do_if value="not $repeat"/><!-- case 0/false - dont copy/re-execute the Order -->
-          <do_elseif value="$repeat == 1" >
-            <!-- case 1/true -> copy Order to the end of the list -->
-            <append_to_list name="this.$orderlist" exact="$order"/>
-          </do_elseif>
-          <do_else>
-            <!-- case other number -> copy Order to specified position (except 0/false, which says dont repeat) -->
-            <set_value name="this.$orderlist.{$repeat}" exact="$order" operation="insert"/>
-          </do_else>
         </do_if>
         <!-- remove current Order so we can get to the next one - after that wait a split-second to prevent Freezes should something go wrong-->
         <remove_value name="this.$orderlist.{1}" />
@@ -179,7 +169,8 @@
         </do_else>
       </do_if>
       <do_else>
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order='wait minmax signal',$mintime=10s,$maxtime=30s,$signalobject=this,$signalparam='new order']"/>
+        <!-- nothing to do - wait and add to Order request Group of Commander -->
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order='wait order',$time=10min]"/>
         <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
       </do_else>
       

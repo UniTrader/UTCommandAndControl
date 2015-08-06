@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.manager.findjob" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="entity" default="false" comment="Entity who needs (Trade)Orders (NOT as Ship)"/>
+  </params>
+  <interrupts>
+    <handler comment="Print Script Vars">
+      <conditions>
+        <event_object_signalled object="this" param="'print script vars to logfile'"/>
+      </conditions>
+      <actions>
+        <debug_text filter="general" text="'\nManager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
+$entity  = ' + $entity"/>
+      </actions>
+    </handler>
+  </interrupts>
+  <init>
+
+  </init>
+  <attention min="unknown">
+    <actions>
+      <do_if value="$params">
+        <do_if value="$params.$entity?">
+          <set_value name="$entity" exact="$params.$entity"/>
+        </do_if>
+      </do_if>
+      <remove_value name="$params"/>
+      <do_if value="not $entity.exists">
+        <return/>
+      </do_if>
+      
+      <set_command command="command.support" param="$entity.container"/>
+      
+      <!-- For now only Trading or Mining is supported, so just passing this to the related find order Script -->
+      <run_script name="'ut.cac.com.manager.findjob.trade'" >
+        <param name="entity" value="$entity"/>
+      </run_script>
+      
+      <remove_from_group group="this.$idle_subordinates" object="$entity"/>
+      
+    </actions>
+  </attention>
+</aiscript>
