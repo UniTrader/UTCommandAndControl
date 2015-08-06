@@ -23,9 +23,9 @@
           <param name="actor" value="$actor"/>
         </cue-->
         
-        <cue name="Account_Manager" ref="md.UT_CAC_Lib.Account_Manager">
+        <!--cue name="Account_Manager" ref="md.UT_CAC_Lib.Account_Manager">
           <param name="actor" value="$actor"/>
-        </cue>
+        </cue-->
 <!--
 Dialogue Tree - rough concept (for all Entity Types)
 1. Personal Managment
@@ -35,7 +35,7 @@ Dialogue Tree - rough concept (for all Entity Types)
 1.4 Pester Level (how important should something be before pestering the Player - note that this also depends on the Player Situation) - PLANNED Feature
 1.5 
 1.6 Go back
-2. Settings Managment - Entity Specific
+2. Settings Managment - Entity/Context Specific
 2.1
 2.2
 2.3
@@ -50,21 +50,21 @@ Dialogue Tree - rough concept (for all Entity Types)
 3.4 Superior
 3.5 Captain/Pilot/Manager
 3.6 Subordinates
-4.
-4.1
-4.2
-4.3
-4.4
-4.5
-4.6
-5.
+4. Subordinates Handling
+4.1 Take Playersquad
+4.2 Add Subordinate
+4.3 Take Object and its Subordinates
+4.4 Add Subordinates to Playersquad (All, Unused / Trade;Mine , Fight , All )
+4.5 Set Superior
+4.6 Go Back
+5. Commands - Entity/Context specific
 5.1
 5.2
 5.3
 5.4
 5.5
 5.6
-6.
+6. Goodbye / Reserved
 6.1
 6.2
 6.3
@@ -136,18 +136,7 @@ Dialogue Tree - rough concept (for all Entity Types)
                 </do_if>
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_elseif>
-              <add_player_choice text="'Take all my direct Subordinates'" position="1" section="comm_settings_take_playersquad" selectable="player.primaryship.subordinates.{1}?"/>
-              <add_player_choice_sub text="'Take this Ship and all its Subordinates'" position="2" section="comm_settings_take_shipsquad" selectable="false" comment="not implemented yet"/>
               <add_player_choice_return text="'(Back)'" position="close" />
-            </do_if>
-            <do_if value="event.param == 'comm_settings_take_playersquad'">
-              <!-- ToDo: Add Dialogue -->
-              <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
-              <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
-                <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
-                <set_object_commander object="player.primaryship.subordinates.{$i}" commander="$actor.container" type="$actor.type"/>
-              </do_all>
             </do_if>
           </actions>
         </cue>
@@ -169,7 +158,7 @@ Dialogue Tree - rough concept (for all Entity Types)
               </do_if>
               <do_else>
                 <!-- cannt use this Ship for anything - remove assignment (maybe add passing it to the right entity? ) -->
-                <!-- ToDo: Also add an obvious Error Message - currently this fails siltently -->
+                <!-- ToDo: Also add an obvious Error Message - currently this fails siltently for the player-->
                 <debug_text filter="error" text="'trying to add a non-trade Ship ( %1 ) to a Manager ( %2 , %3 in %4 ) - not supported yet!'.[event.param.name,$actor.name,$actor.station.name,$actor.zone.name]"/>
                 <remove_object_commander object="event.param"/>
               </do_else>

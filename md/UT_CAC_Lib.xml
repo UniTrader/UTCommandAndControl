@@ -186,9 +186,9 @@ Dialogue Tree - rough concept (for all Entity Types)
 3.5 Captain/Pilot/Manager
 3.6 Subordinates
 - - - - - - -
-4.
-4.1
-4.2
+4. Subordinates Handling
+4.1 Take all my direct Subordinates
+4.2 Take all Subordinates of ***
 4.3
 4.4
 4.5
@@ -219,6 +219,8 @@ Dialogue Tree - rough concept (for all Entity Types)
           <event_conversation_returned_to_section sectionprefix="comm_personal_" actor="$actor"/>
           <event_conversation_next_section sectionprefix="comm_connect_" actor="$actor"/>
           <event_conversation_returned_to_section sectionprefix="comm_connect_" actor="$actor"/>
+          <event_conversation_next_section sectionprefix="comm_subordinates_" actor="$actor"/>
+          <event_conversation_returned_to_section sectionprefix="comm_subordinates_" actor="$actor"/>
           <event_conversation_returned_to_section section="comm_goodbye" actor="$actor"/>
           <event_conversation_next_section sectionprefix="comm_debug_" actor="$actor"/>
           <event_conversation_returned_to_section sectionprefix="comm_debug_" actor="$actor"/>
@@ -394,9 +396,9 @@ Dialogue Tree - rough concept (for all Entity Types)
         <!--                        Connect Menu                          -->
         <!--- ################################### -->
         <do_elseif value="event.param == 'comm_connect_main'">
-          <!-- Slot1: Defense Officer -->
           <add_npc_line speaker="player.entity" line="[102081].random" hidechoices="false" comment="Just put him through." />
           <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          <!-- Slot1: Defense Officer -->
           <do_if value="$actor.container.defencenpc.exists">
             <add_player_choice text="'Defence: %s'.[$actor.container.defencenpc.name]" position="1" section="comm_connect_selected" choiceparam="$actor.container.defencenpc" selectable="$actor.container.defencenpc != this"/>
           </do_if>
@@ -485,6 +487,37 @@ Dialogue Tree - rough concept (for all Entity Types)
           </do_else>
           <cancel_conversation actor="$actor"/>
           <start_conversation actor="event.param2" conversation="default"/>
+        </do_elseif>
+        <!--- ################################### -->
+        <!--                            Goodbye                              -->
+        <!--- ################################### -->
+        <do_elseif value="event.param == 'comm_subordinates_main'">
+          <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+          <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+          <add_player_choice text="'Take all my direct Subordinates'" position="1" section="comm_subordinates_take_playersquad" selectable="player.primaryship.subordinates.{1}?"/>
+          <add_player_choice text="'Add Subordinate'" position="2" section="comm_subordinates_add_subordinate" selectable="false"/>
+          <add_player_choice_sub text="'Take this Ship and all its Subordinates'" position="3" section="comm_subordinates_take_shipsquad" selectable="false" comment="not implemented yet"/>
+          <add_player_choice text="'Give your Subordinates to me'" position="4" section="comm_subordinates_transfer_to_playersquad" selectable="false" comment="no practical usage for this yet"/>
+          <add_player_choice text="'Select Superior'" position="5" section="comm_subordinates_select_superior" selectable="false"/>
+          <add_player_choice_return text="'(Back)'" position="6" />
+          <add_player_choice_return text="'(Back)'" position="close" />
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_subordinates_take_playersquad'">
+          <!-- ToDo: Add Dialogue -->
+          <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+          <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+          <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
+            <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
+            <set_object_commander object="player.primaryship.subordinates.{$i}" commander="$actor.container" type="$actor.type"/>
+          </do_all>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_subordinates_transfer_to_playersquad'">
+          <!-- ToDo: Add Dialogue -->
+          <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+          <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+          <do_all exact="$actor.subordinates.count" counter="$i" reverse="true">
+            <add_to_player_squad object="$actor.subordinates.{$i}" />
+          </do_all>
         </do_elseif>
         <!--- ################################### -->
         <!--                            Goodbye                              -->
