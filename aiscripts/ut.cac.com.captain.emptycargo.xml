@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.com.captain.emptycargo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+    This Script attempts to empty the Cargo Bay of the current Ship.
+    -> first it looks which wares are inside the Cargobay to sell
+    -> then it finds Sell Orders in the current Sector and temporarily stores them
+    -> as next it adds these sell Orders (nearest first, them from this the nearest etc.) to the Trade List and adds a single Trade run per item to this.$orderlist
+    -> ToDo: next it looks in the Cluster for Tradeoffers of the remaining Wares which couldnt be sold and then continues in this Sector to Sell wares
+    -> as last all Cargo which cannt be sold is thrown out
+    
+    Note: this Script is not intended to look for Profits - it is just intended to empty the Cargobay somewhere without wasting it.
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="onlysector" default="false" comment="dont switch the Sector when looking for Sell Offers, prefer to throw cargo out" />
+    <param name="onlydrop" default="false" comment="just throw out all unneeded cargo, dont try to sell it first (far faster, but wasteful)"/>
+    <param name="ignorelist" default="[ware.fuelcells]" comment="a List with Wares to Ignore for sellling/dropping"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      <do_if value="$params">
+        <do_if value="$params.$onlysector?">
+          <set_value name="$onlysector" exact="$params.$onlysector"/>
+        </do_if>
+        <do_if value="$params.$onlydrop?">
+          <set_value name="$onlydrop" exact="$params.$onlydrop"/>
+        </do_if>
+        <do_if value="$params.$ignorelist?">
+          <set_value name="$ignorelist" exact="$params.$ignorelist"/>
+        </do_if>
+      </do_if>
+      
+      <!-- Create List of Wares to sell/drop-->
+      <set_value name="$warelist" exact="this.ship.cargo.list.clone"/>
+      <do_all exact="$ignorelist.count" counter="$i">
+        <do_if value="this.ship.cargo.{$ignorelist.{$i}}.count">
+          <remove_value name="$warelist.{$warelist.indexof.$ignorelist.{$i}}"/>
+        </do_if>
+      </do_all>
+      
+      <do_if value="$onlydrop">
+        <resume label="drop wares"/>
+      </do_if>
+      <!-- find buy Offers in current Sector where we can loos the whole amount in one trade run -->
+      <create_list name="$buyoffers"/>
+      <do_all exact="$warelist.count" counter="$i" reverse="true">
+        <find_buy_offer result="$buyoffer" space="this.sector" wares="$warelist.{$i}" multiple="false">
+          <amount min="this.ship.cargo.{$warelist.{$i}.count"/>
+        </find_buy_offer>
+        <do_if value="$buyoffer.available">
+          <append_to_list name="$buyoffers" exact="$buyoffer"/>
+          <remove_value name="$warelist.{$i}"/>
+        </do_if>
+      </do_all>
+      
+      <!-- add these Buy Orders to the Trading Queue sorted by shortest Distance to next Trade and add a Trade run order for each -->
+      <set_value name="$currentzone" exact="this.zone"/>
+      <set_value name="$mindistance" exact="1e12m"/>
+      <set_value name="$mindistindex" exact="null"/>
+      <do_while value="$buyoffers.count">
+        <do_all exact="$buyoffers.count" counter="$i">
+          <do_if value="$buyoffers.{$i}.owner.zone == $currentzone">
+            <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$warelist.{$i}.count" price="$buyoffers.{$i}.unitprice"/>
+            <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0]"/>
+            <remove_value name="$buyoffers.{$i}"/>
+          </do_if>
+          <do_elseif value="this.ship.distanceto.{$buyoffers.{$i}.owner} lt $mindistance">
+            <set_value name="$mindistance" exact="this.ship.distanceto.{$buyoffers.{$i}.owner}"/>
+            <set_value name="$mindistindex" exact="$i"/>
+          </do_elseif>
+        </do_all>
+        <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$warelist.{$mindistindex}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0]"/>
+        <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.zone"/>
+        <set_value name="$mindistance" exact="1e12m"/>
+        <set_value name="$mindistindex" exact="null"/>
+        <remove_value name="$buyoffers.{$mindistindex}"/>
+      </do_while>
+      
+      <!-- ToDo: add Cluster-wide search here and jump back to the Sector-search when the nearest Offer is found -->
+      
+      <label name="drop wares"/>
+      <do_all exact="$warelist.count" counter="$i">
+        <drop_cargo object="this.ship" ware="$warelist.{$i}"/>
+      </do_all>
+    </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>

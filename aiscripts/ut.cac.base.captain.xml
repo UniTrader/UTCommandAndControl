@@ -155,6 +155,12 @@
         <resume label="start"/>
       </do_if-->
       
+      <!-- Cargobay if (more than) half full without any other orders, so its dead weight - empty it. -->
+      <do_if value="this.ship.cargo.free lt this.ship.cargo.capacity">
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.emptycargo']"/>
+        <resume label="start"/>
+      </do_if>
+      
       <!-- Signal the Superior we are now Free and want something to do -->
       <do_if value="this.ship.commanderentity == player.entity" comment="Subordinate of the Player - currently not in my Plan, so either wait where you are (Trade Ships) or Patrol the current Sector (Battleships) until further Notice" >
         <do_if value="this.ship.primarypurpose == objectpurpose.fight">
