@@ -20,7 +20,7 @@
         <event_object_money_updated object="this"/>
       </conditions>
     </handler>
-    <handler comment="Order Request Handler - Handler Function changed - now just interrupts unimportant tasks - use $idle_subordinates group to pass the entity instead">
+    <handler comment="Order Request Handler - uses this.$idle_subordinates to let the manager finish what he is currently doing but not let him forget about outstanding order requests">
       <conditions>
         <check_any>
           <event_object_signalled object="this" param="'request orders'"/>
@@ -29,6 +29,7 @@
       <actions>
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <add_to_group groupname="this.$idle_subordinates" object="event.param2"/>
+        <!-- in case a script checks for the orderlist length for pausing/termination add a do-nothing order -->
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order=null]"/>
       </actions>
     </handler>
@@ -68,6 +69,7 @@
       <set_value name="$bug" exact="0"/>
       
       <!-- add Fuelcells as Trade Ware if Sctation has Cargo for them so Energy Freighters will buy it and put it into the Station Cargo for Refueling of Station Ships -->
+      <!-- note: will be unused in first release Version because i remove Energy/Fuel Cargo combination for now -->
       <do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
         <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false"/>
       </do_if>

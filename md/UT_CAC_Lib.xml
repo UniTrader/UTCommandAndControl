@@ -246,9 +246,8 @@ Dialogue Tree - rough concept (for all Entity Types)
           <add_player_choice_sub text="'Show me your Skills, please!'" position="1" section="comm_personal_skills" confidence="$actor.combinedskill / 20" />
           <add_player_choice_sub text="{10004,1611}" position="2" section="comm_personal_money" confidence="3" selectable="$actor.hasownaccount" comment="planned function for confidence: show if the Actor has not enough or too much money (optimum is 3)"/>
           <add_player_choice_sub text="'About your workplace..'" position="3" section="comm_personal_transfer" selectable="false" comment="planned, but not necesary yet" />
-          <add_player_choice_sub text="'About your verbosity...'" position="4" section="comm_personal_pester" confidence="$actor.$pesterlevel / 20" />
-          <add_player_choice_sub text="'About your Log Activity...'" position="5" section="comm_personal_log" confidence="$actor.$loglevel / 20" />
-          <!--add_player_choice_sub text="'Output to Logfile...'" position="6" section="comm_personal_logfile" confidence="$actor.$logfilelevel / 20" /-->
+          <add_player_choice_sub text="'About your verbosity...'" position="4" section="comm_personal_pester" selectable="false" confidence="$actor.$pesterlevel / 20" />
+          <add_player_choice_sub text="'About your Log Activity...'" position="5" section="comm_personal_log" selectable="false" confidence="$actor.$loglevel / 20" />
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_if>
         <!-- ##### Slot1: Skills #### -->
@@ -268,9 +267,10 @@ Dialogue Tree - rough concept (for all Entity Types)
             <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="Here you go." />
           </do_elseif>
           <add_player_choice_sub text="'Account Minimum: %1Cr'.[($actor.minbudget)Cr]" position="1" section="comm_personal_money_minbudget" selectable="false"/>
-          <add_player_choice_sub text="'%1Cr :Account Maximum'.[($actor.maxbudget)Cr]" position="4" section="comm_personal_money_maxbudget"/>
+          <add_player_choice_sub text="'%1Cr :Account Maximum'.[($actor.maxbudget)Cr]" position="4" section="comm_personal_money_maxbudget" selectable="false"/>
           <add_player_choice_sub text="'Current Account: %1Cr'.[($actor.money)Cr]" position="2" section="comm_personal_money_transfer"/>
           <add_player_choice_sub text="'%1Cr :Give wanted Money'.[($actor.container.wantedmoney)Cr]" position="5" section="comm_personal_money_wanted"/>
+          <add_player_choice_sub text="'Shate Account with..." position="3" section="comm_personal_money_shareaccount" selectable="false"/>
           <add_player_choice_return text="'(Back)'" position="6" returnparam="'no change'" />
           <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
         </do_elseif>
@@ -370,28 +370,6 @@ Dialogue Tree - rough concept (for all Entity Types)
           <add_player_choice text="'Log absolutely everything!'" position="6" section="comm_personal_log" choiceparam="100" confidence="5" selectable="$actor.$loglevel != 100" />
           <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
         </do_elseif>
-        <!-- #### Slot6: Logfile Level Settings #### -->
-        <do_elseif value="event.param == 'comm_personal_logfile'">
-          <!-- ToDo: more indicative feedback for the Player about the current Log Level (atm its simply the greyed out one) -->
-          <do_if value="typeof event.param2 != datatype.null">
-            <set_value name="$actor.$logfilelevel" exact="(event.param2)i"/>
-          </do_if>
-          <do_if value="event.name == 'event_conversation_next_section'">
-            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
-          </do_if>
-          <!--  (maybe replace this with a Slider?) -->
-          <add_player_choice text="'dont. log. anything. ever.'" position="1" section="comm_personal_logfile" choiceparam="0" confidence="0" selectable="$actor.$logfilelevel != 0" />
-          <add_player_choice text="'Write down only the really important stuff'" position="2" section="comm_personal_logfile" choiceparam="20" confidence="1" selectable="$actor.$logfilelevel != 20" />
-          <add_player_choice text="'Just Log important stuff'" position="3" section="comm_personal_logfile" choiceparam="40" confidence="2" selectable="$actor.$logfilelevel != 40" />
-          <add_player_choice text="'Write a usual Log file'" position="4" section="comm_personal_logfile" choiceparam="60" confidence="3" selectable="$actor.$logfilelevel != 60" />
-          <add_player_choice text="'Write something when something happens'" position="5" section="comm_personal_logfile" choiceparam="80" confidence="4" selectable="$actor.$logfilelevel != 80" />
-          <add_player_choice text="'Log absolutely everything!'" position="6" section="comm_personal_logfile" choiceparam="100" confidence="5" selectable="$actor.$logfilelevel != 100" />
-          <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
-        </do_elseif>
-
-        
-        <!-- #### Slot5: Destroy everything for Cleanup (tem during development) -->
         <!--- ################################### -->
         <!--                        Connect Menu                          -->
         <!--- ################################### -->
@@ -489,7 +467,7 @@ Dialogue Tree - rough concept (for all Entity Types)
           <start_conversation actor="event.param2" conversation="default"/>
         </do_elseif>
         <!--- ################################### -->
-        <!--                            Goodbye                              -->
+        <!-- Subordinate Managment (also assign to superior) -->
         <!--- ################################### -->
         <do_elseif value="event.param == 'comm_subordinates_main'">
           <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
@@ -537,7 +515,7 @@ Dialogue Tree - rough concept (for all Entity Types)
         <do_elseif value="event.param == 'comm_debug_main'">
           <add_player_choice text="'Restart Main Script'" position="1" section="comm_debug_script_restart"/>
           <add_player_choice text="'Print Script Values to Debuglog'" position="2" section="comm_debug_print_vars"/>
-          <add_player_choice text="'Toggle Debugging Log: '+ $actor.$debug" position="3" section="comm_debug_toggle"/>
+          <add_player_choice text="'Toggle Debugging to Log: '+ $actor.$debug" position="3" section="comm_debug_toggle"/>
           <add_player_choice text="'Destroy Object for complete cleanup \033R(USE WITH CARE)\033X'" position="4" section="comm_debug_cleanup_object"/>
           <add_player_choice text="'Destroy Actor for cleanup'" position="5" section="comm_debug_cleanup_actor"/>
           <add_player_choice_return text="'(Back)'" position="close" />

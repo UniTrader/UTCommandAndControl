@@ -39,12 +39,14 @@
       </do_all>
       
       <do_if value="$onlydrop">
-        <resume label="drop wares"/>
+        <resume label="drop wares" comment="goto line 95"/>
       </do_if>
+      <set_value name="$sector" exact="this.sector"/>
+      <label name="search sector"/>
       <!-- find buy Offers in current Sector where we can loos the whole amount in one trade run -->
       <create_list name="$buyoffers"/>
       <do_all exact="$warelist.count" counter="$i" reverse="true">
-        <find_buy_offer result="$buyoffer" space="this.sector" wares="$warelist.{$i}" multiple="false">
+        <find_buy_offer result="$buyoffer" space="$sector" wares="$warelist.{$i}" multiple="false">
           <amount min="this.ship.cargo.{$warelist.{$i}.count"/>
         </find_buy_offer>
         <do_if value="$buyoffer.available">
@@ -77,7 +79,18 @@
         <remove_value name="$buyoffers.{$mindistindex}"/>
       </do_while>
       
-      <!-- ToDo: add Cluster-wide search here and jump back to the Sector-search when the nearest Offer is found -->
+      <!-- Cluster-wide search for Offers - if one is found add it to the Trade list and continue in the Sector there with search for further Offers -->
+      <do_all exact="$warelist.count" counter="$i" reverse="true">
+        <find_buy_offer result="$buyoffer" space="this.cluster" wares="$warelist.{$i}" multiple="false">
+          <amount min="this.ship.cargo.{$warelist.{$i}.count"/>
+        </find_buy_offer>
+        <do_if value="$buyoffer.available">
+          <append_to_list name="$buyoffers" exact="$buyoffer"/>
+          <remove_value name="$warelist.{$i}"/>
+          <set_value name="$sector" exact="$buyoffer.owner.sector"/>
+          <resume label="search sector" comment="goto line 47"/>
+        </do_if>
+      </do_all>
       
       <label name="drop wares"/>
       <do_all exact="$warelist.count" counter="$i">
