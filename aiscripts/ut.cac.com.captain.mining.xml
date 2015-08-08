@@ -1,451 +1,101 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <aiscript name="ut.cac.com.captain.mining" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
-  This script will try to automatically supply its homebase and will only work
-  with valid warebasket and homebase parameters (defined via jobs). It can do
-  gas and mineral mining and works for all ship classes.
-  by Michael and Benedikt
-  modified by UniTrader to work with Order queues
-  ToDo: remove loop - its the Job of the base script to loop, not the commands.
+    Script which sends the Ship mining in a certain Zone for certain Wares and when done with this sells these Wares at the Homebase
   -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
-    <param name="warebasket" default="null" />
+    <param name="mininglist" default="null" />
+    <param name="zone" default="null" />
   </params>
-  <interrupts>
-    <handler ref="AttackHandler" />
-    <handler ref="ScannedHandler" />
-  </interrupts>
-  <init>
-    <set_command command="command.freemining" />
-  </init>
   <attention min="unknown">
     <actions>
       <do_if value="$params">
-        <do_if value="$params.$warebasket?">
-          <set_value name="$warebasket" exact="$params.$warebasket"/>
+        <do_if value="$params.$mininglist?">
+          <set_value name="$mininglist" exact="$params.$mininglist"/>
+        </do_if>
+        <do_if value="$params.$zone?">
+          <set_value name="$zone" exact="$params.$zone"/>
         </do_if>
       </do_if>
       <remove_value name="$params"/>
-
-      <!-- basic checks first -->
-      <label name="init" />
       
-      <set_command command="command.mining" param="this.commander.zone"/>
+      <set_command command="command.mining" param="$zone"/>
       <set_command_action commandaction="commandaction.calculating" />
-
+      
       <wait min="5s" max="15s" />
-
+      
       <do_if value="this.ship.cargo.capacity" max="0">
-        <debug_text text="'%1 has cargo capacity of %2!'.[this.ship.knownname, this.ship.cargo.capacity]" chance="this.$debug * 100" />
-        <set_value name="$failreason" exact="'ERR_NO_CARGOSPACE'" />
-        <resume label="finish" />
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Ship has Cargo Capacity of %4 - aborting'.[player.age,this.name,this.container.name,this.ship.cargo.capacity]"/>
+        <return/>
       </do_if>
       <do_if value="not this.ship.commander.exists">
-        <debug_text text="'%1 in %2: mining without commander not supported!'.[this.ship.knownname, this.ship.zone.knownname]" chance="this.$debug * 100" />
-        <set_value name="$failreason" exact="'ERR_NO_HOMEBASE'" />
-        <resume label="finish" />
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mining without commander not supported yet! - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
       </do_if>
       <set_value name="$homebase" exact="this.ship.commander" />
       <do_if value="this.ship.units.collect.count" exact="0">
-        <debug_text text="'mining ship does not have any units for collecting!'" chance="this.$debug * 100" />
-        <set_value name="$failreason" exact="'ERR_NO_COLLECT'" />
-        <resume label="finish" />
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mining ship does not have any units for collecting! - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
       </do_if>
       <do_if value="$warebasket == null">
         <set_value name="$warebasket" exact="this.ship.warebasket.list" />
       </do_if>
       <do_if value="$warebasket.count" exact="0">
-        <debug_text text="'mining without warebasket defined in jobs not supported!'" chance="this.$debug * 100" />
-        <set_value name="$failreason" exact="'ERR_NO_WAREBASKET'" />
-        <resume label="finish" />
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mining ship does not have Wares in Warebasket! - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
       </do_if>
-
-      <!-- unload first if less than 50% free cargo -->
       <do_if value="(this.ship.cargo.free)f / this.ship.cargo.capacity" max="0.5">
-        <resume label="returnhome" />
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Less than half of Cargo free, empty Ship first! - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
       </do_if>
-      <do_else>
-        <debug_text text="player.age + ' looking good, starting new mining run'" chance="this.$debug * 100" />
-      </do_else>
-
-      <!-- primary loop start -->
-      <label name="loop" />
-      <set_value name="$failcount" exact="0" />
-
-      <!-- update the wares we deal with for a new trade run - ensure that we don't miss any wares if the list has changed due to the homebase being expanded -->
-      <do_if value="this.ship.commander.isoperational">
-        <set_value name="$resources" exact="this.ship.commander.resources.list" />
-        <do_all exact="$resources.count" counter="$i">
-          <set_value name="$ware" exact="$resources.{$i}" />
-          <do_if value="($ware.tags.indexof.{tag.minable}) and (this.ship.cargo.{$ware}.max gt 0)">
-            <do_if value="this.ship.units.collect.{$ware}.count gt 0">
-              <do_if value="$warebasket.indexof.{$ware}" exact="0">
-                <append_to_list name="$warebasket" exact="$ware" />
-              </do_if>
-            </do_if>
-          </do_if>
-        </do_all>
-        <debug_text text="'updating warebasket on %1(%2) to collect %3'.[this.ship.knownname, this.ship, $warebasket]" chance="this.$debug * 100" />
-        <remove_value name="$resources" />
-      </do_if>
-
-      <!-- clear ware for new iteration -->
-      <set_value name="$ware" exact="null" />
-
-      <!-- we build our shopping list by intersecting our warebasket and the resources of our homebase -->
-      <label name="buildshoppinglist" />
-      <create_list name="$shoppinglist" exact="0" />
-      <find_buy_offer buyer="$homebase" multiple="1" result="$buyoffers" wares="$warebasket" tradepartner="this.ship" />
-      <debug_text text="player.age + ' homebase %1 [%2] has %3 offers for %4'.[$homebase.knownname, $homebase, $buyoffers.count, $warebasket]" chance="this.$debug * 100" />
-      <set_value name="$neededAmount" exact="0" />
-      <do_if value="$buyoffers.count" min="1">
-        <!-- use the buyoffers on our homebase to determine resource need -->
-        <set_value name="$needed" exact="-10000" comment="needpct can become negative if more than what is needed is already expected to be delivered, we don't want errors because $ware is not defined" />
-        <do_all counter="$b" exact="$buyoffers.count">
-          <set_value name="$buyoffer" exact="$buyoffers.{$b}" />
-          <get_ware_reservation object="$homebase" ware="$buyoffer.ware" virtual="true" result="$reserved" />
-          <debug_text text="player.age + ' %1 wants %5(want %2, expecting %4) units of %3'.[$homebase.knownname, $buyoffer.offeramount.{this}, $buyoffer.ware, $reserved, $buyoffer.offeramount.{this} - $reserved]" chance="this.$debug * 100" />
-          <do_if value="this.ship.units.collect.{$buyoffer.ware}.count" min="1">
-            <append_to_list name="$shoppinglist" exact="$buyoffer.ware" />
-            <set_value name="$needpct" exact="1f - (($homebase.cargo.{$buyoffer.ware}.count + @$reserved)f / ($buyoffer.offeramount.{this} + $homebase.cargo.{$buyoffer.ware}.count))" />
-            <do_if value="$needpct gt $needed">
-              <set_value name="$needed" exact="$needpct" />
-              <set_value name="$neededAmount" exact="$buyoffer.offeramount.{this}" />
-              <set_value name="$ware" exact="$buyoffer.ware" />
-            </do_if>
-          </do_if>
-        </do_all>
-        <do_if value="$reserved?">
-          <remove_value name="$reserved" />
-        </do_if>
-      </do_if>
-      <!-- if there are no valid buyoffers, look for the ware that our homebase has the least amount of (%-wise) -->
-      <!-- disabled because we don't want that at the moment (maybe we can use it later to continue mining slowly)
-      <do_else>
-        <set_value name="$maxcargopct" exact="1.0" />
-        <do_all counter="$w" exact="$homebase.cargo.count">
-          <do_all counter="$b" exact="$warebasket.count">
-            <do_if value="$homebase.cargo.list.{$w}" exact="$warebasket.{$b}">
-              <set_value name="$currentware" exact="$warebasket.{$b}" />
-              <do_if value="this.ship.units.collect.{$currentware}.count" min="1">
-                <append_to_list name="$shoppinglist" exact="$currentware" />
-                <set_value name="$warepct" exact="($homebase.cargo.{$currentware}.count)f / $homebase.cargo.{$currentware}.max" />
-                <debug_text text="player.age + ' %1 stores %2 (capacity: %3)'.[$homebase.knownname, $currentware, $warepct * 100]" chance="this.$debug * 100" />
-                <do_if value="$warepct lt $maxcargopct">
-                  <set_value name="$maxcargopct" exact="$warepct" />
-                  <set_value name="$ware" exact="$currentware" />
-                </do_if>
-              </do_if>
-            </do_if>
-          </do_all>
-        </do_all>
-      </do_else>
-      <do_if value="$shoppinglist.count" exact="0">
-        <debug_text text="'unable to find any ware that is useful to our homebase and can be collected by this ship!'" chance="this.$debug * 100" />
-        <set_value name="$failreason" exact="'ERR_NO_WARES'" />
-        <resume label="finish" />
-      </do_if>-->
-      <do_if value="$shoppinglist.count" exact="0">
-        <debug_text text="player.age + ' unable to find an appropriate buyoffer, waiting...'" chance="this.$debug * 100" />
-        <wait chance="0" />
-        <set_value name="$idletime" min="30s" max="90s"/>
-        <run_script name="'move.idle'" sinceversion="1">
-          <param name="TimeOut" value="$idletime" />
-        </run_script>
-        <resume label="loop"/>
-      </do_if>
-
-      <!-- min amount of ware. Default: max free space in cargo ship or amount homebase wants, whichever is the smaller value -->
-      <set_value name="$minAmountWare" exact="this.ship.cargo.{$ware}.free" />
-      <do_if value="$minAmountWare gt $neededAmount">
-        <set_value name="$minAmountWare" exact="$neededAmount" />
-      </do_if>
-      <add_ware_reservation amount="$minAmountWare" entity="this" object="$homebase" duration="5h" virtual="true" ware="$ware" />
-
-      <label name="findware" />
-
-      <!-- command action -->
-      <set_command_action commandaction="commandaction.searchingresources" />
-
-      <!-- now check if we can find a deposit of the needed resource nearby -->
-      <debug_text text="player.age + ' now looking for %1...'.[$ware]" chance="this.$debug * 100" />
-
-      <!-- only use the closest resource finder for player property - otherwise too many ships focus on very few zones causing issues with too many drones flying and killing performance -->
-      <do_if value="$homebase.isplayerowned">
-        <find_closest_resource ware="$ware" refobject="$homebase" zone="$zone" wares="$secwares" minamount="$minAmountWare" />
-      </do_if>
-      <do_else>
-        <find_resource ware="$ware" refobject="$homebase" zone="$zone" wares="$secwares" minamount="$minAmountWare" />
-      </do_else>
-      <!-- If a zone is found -->
-      <do_if value="not $zone.exists">
-        <!-- try other ware -->
-        <do_if value="$failcount lt $shoppinglist.count">
-          <set_value name="$failcount" exact="$failcount + 1" />
-          <debug_text text="player.age + ' could not find any zone that contains ' + $minAmountWare + ' of ' + $ware" chance="this.$debug * 100" />
-          <set_value name="$ware" exact="$shoppinglist.{$failcount}" />
-          <wait min="5s" max="30s" />
-          <resume label="findware" />
-        </do_if>
-        <do_else>
-
-          <!-- Try less ware amount, just for security -->
-          <do_if value="$minAmountWare gt 10">
-            <set_value name="$minAmountWare" exact="$minAmountWare / 2" />
-            <set_value name="$failcount" exact="0" />
-            <debug_text text="player.age + ' trying with less amount for all wares ' + $minAmountWare " chance="this.$debug * 100" />
-            <wait min="1s" max="5s" />
-            <resume label="findware" />
-          </do_if>
-
-          <!-- Impossible to find any resources with any amount (should not happends)-->
-          <run_script name="'move.idle'">
-            <param name="TimeOut" value="5min" />
-          </run_script>
-          <debug_text text=" 'end of idle script '" chance="this.$debug * 100" />
-          <set_value name="$firstIdle" exact="true" />
-          <resume label="loop"/>
-        </do_else>
-      </do_if>
-      <debug_text text="player.age + ' there is %1 in zone %2'.[$ware, $zone.knownname]" chance="this.$debug * 100" />
-
-      <label name="movetocollect" />
-      <!-- TODO: pre-flight check, calculate jump energy for trip to resource and back home, ensure we have enough fuel -->
-      <!-- TODO: don't just go to the zone center, find an asteroid/gas cloud... and go there -->
-      <do_if value="not $zone.exists">
-        <resume label="findware" />
-      </do_if>
-      <set_command command="command.mining" param="$zone" />
-
-      <run_script name="'move.generic'">
-        <param name="destination" value="$zone" />
-        <param name="endintargetzone" value="true" />
-        <param name="debugchance" value="this.$debug * 100" />
-      </run_script>
-      <wait min="1s" max="3s" />
-      <do_if value="this.zone == $zone" >
-        <debug_text text="player.age + ' destination reached'" chance="this.$debug * 100" />
-      </do_if>
-      <do_else>
-        <debug_text text="'Destination %1 not reached. Try other place'.[$zone]" />
-        <resume label="loop" />
-      </do_else>
-
-      <do_if value="not $zone.exists">
-        <resume label="findware" />
-      </do_if>
-
-      <label name="collect"/>
-      <!-- clean up secwares so we don't collect minerals our homebase does not need -->
-      <set_value name="$homebaseresources" exact="$homebase.resources.list" />
-      <do_all exact="$secwares.count" reverse="true" counter="$w">
-        <do_if value="$homebaseresources.indexof.{$secwares.{$w}} == 0">
-          <debug_text text="'miner not interested in ' + $secwares.{$w}" chance="this.$debug * 100" />
-          <remove_value name="$secwares.{$w}" />
-        </do_if>
+      
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Starting new mining Run'.[player.age,this.name,this.container.name]"/>
+      
+      <!-- make virtual Reservations for all the Wares we can mine (half amount we can carry) -->
+      <do_all exact="$mininglist.count" counter="$i">
+        <add_ware_reservation object="this.ship.commander" entity="this" ware="$mininglist.{$i}" amount="this.ship.cargo.{$mininglist.{$i}}.free/2" duration="2h" virtual="true" />
       </do_all>
-      <!-- collecting is done in an external script -->
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Reserved Wares:\n%4'.[player.age,this.name,this.container.name,$mininglist]"/>
+      
+      <!-- Go to Ordered Zone -->
+      <do_if value="this.zone != $zone">
+        <set_command_action commandaction="commandaction.flyingto" param="$zone"/>
+        <run_script name="'move.generic'">
+          <param name="destination" value="$zone" />
+          <param name="endintargetzone" value="true" />
+        </run_script>
+      </do_if>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Reached Zone where we mine'.[player.age,this.name,this.container.name]"/>
+      
+      <!-- start Mining -->
       <run_script name="'mining.ship.collect'">
         <param name="zone" value="$zone"/>
-        <param name="ware" value="$ware"/>
-        <param name="secwares" value="$secwares"/>
-        <param name="debugchance" value="this.$debug * 100"/>
+        <param name="ware" value="$mininglist.{1}"/>
+        <param name="secwares" value="$mininglist"/>
       </run_script>
-      <run_script name="'lib.recall.drones'" sinceversion="3" />
-
-      <label name="returnhome" />
-      <debug_text text="player.age + ' returning to %1 in %2...'.[$homebase.knownname, $homebase.zone.knownname]" chance="this.$debug * 100" />
-      <do_if value="$homebase.exists">
-
-        <do_if value="this.zone != $homebase.zone" >
-          <!-- TODO: pre-flight check, calculate jump energy for trip to resource and back home, ensure we have enough fuel -->
-          <run_script name="'move.generic'">
-            <param name="destination" value="$homebase" />
-            <param name="debugchance" value="this.$debug * 100" />
-          </run_script>
-          <wait min="1s" max="3s" />
-          <do_if value="(this.zone == $homebase.zone) or (this.ship.distanceto.{$homebase} lt ($homebase.size * 2f))" >
-            <debug_text text="player.age + ' destination reached'" chance="this.$debug * 100" />
-          </do_if>
-          <do_else>
-            <debug_text text="'Homebase is %1 in %2(%3), we are at %7 in %4(%5), distance to homebase is %6'.[$homebase.knownname, $homebase.zone.knownname, $homebase.sector.knownname, this.zone.knownname, this.sector.knownname, this.ship.distanceto.{$homebase}, this.ship.position]" />
-          </do_else>
-        </do_if>
-        <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l">
-          <find_buy_offer buyer="$homebase" result="$buyoffer" tradepartner="this.ship" wares="this.ship.cargo.list" comment="result may be null, that's ok" />
-          <do_if value="not $buyoffer.available">
-            <!-- we can't unload wares at the moment, idle for a while, then try again -->
-            <set_value name="$idletime" min="2min" max="5min"/>
-            <run_script name="'move.idle'" sinceversion="2">
-              <param name="TimeOut" value="$idletime" />
-            </run_script>
-            <resume label="loop"/>
-          </do_if>
-          <do_else>
-            <debug_text text="player.age + ' moving to park at homebase ' + $homebase.knownname" chance="this.$debug * 100" />
-            <run_script name="'move.park'" result="$parkresult">
-              <param name="destination" value="$homebase" />
-              <param name="tradeoffer" value="$buyoffer" />
-            </run_script>
-            <do_if value="$parkresult">
-              <debug_text text="player.age + ' now parked at homebase ' + $homebase.knownname" chance="this.$debug * 100" />
-            </do_if>
-            <do_elseif value="this.$reevaluate_parking?">
-              <remove_value name="this.$reevaluate_parking" />
-              <debug_text text="player.age + ' need to re-evaluate our reason for parking at' + $targetobject.knownname" chance="this.$debug * 100" />
-              <resume label="returnhome" />
-            </do_elseif>
-            <do_else>
-              <debug_text text="player.age + ' critical parking error!'" chance="this.$debug * 100" />
-              <resume label="loop" />
-            </do_else>
-          </do_else>
-        </do_if>
-        <do_else>
-          <debug_text text="player.age + ' moving to dock...'" chance="this.$debug * 100" />
-          <run_script name="'move.dockat'" result="$dockresult">
-            <param name="destination" value="$homebase" />
-          </run_script>
-          <do_if value="not $dockresult">
-            <wait chance="0" />
-            <set_value name="$idletime" min="30s" max="90s"/>
-            <run_script name="'move.idle'" sinceversion="1">
-              <param name="TimeOut" value="$idletime" />
-            </run_script>
-            <resume label="loop" />
-          </do_if>
-          <debug_text text="player.age + ' successfully docked'" chance="this.$debug * 100" />
-        </do_else>
-      </do_if>
-      <do_else>
-        <set_value name="$failreason" exact="'ERR_HOMEBASE_DEAD'" />
-        <resume label="finish" />
-      </do_else>
-
-      <label name="unload" />
-      <!-- unload our ware and any other ware that our homebase can use -->
-      <do_if value="$homebase.exists">
-        <do_while value="not $homebase.isoperational">
-          <wait chance="0" />
-          <set_value name="$idletime" min="30s" max="90s"/>
-          <run_script name="'move.idle'" sinceversion="1">
-            <param name="TimeOut" value="$idletime" />
-          </run_script>
-        </do_while>
-
-        <create_list name="$unloadlist" />
-        <!-- step 1: build list of stuff to unload and reserve amounts -->
-        <find_buy_offer buyer="$homebase" wares="this.ship.cargo.list" tradepartner="this.ship" result="$resourceoffers" multiple="true" />
-        <do_if value="$resourceoffers.count == 0">
-          <remove_value name="$resourceoffers" />
-          <!-- small ships can wait inside the dock until it can unload, big ships are idling before parking already -->
-          <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s">
-            <set_command_action commandaction="commandaction.standingby" />
-            <wait min="2min" max="5min" sinceversion="5" />
-            <resume label="unload" />
-          </do_if>
-        </do_if>
-        <do_else>
-          <do_all counter="$r" exact="$resourceoffers.count">
-            <set_value name="$offer" exact="$resourceoffers.{$r}" />
-            <do_if value="not $offer.available">
-              <continue />
-            </do_if>
-            <set_value name="$currentware" exact="$offer.ware" />
-            <set_value name="$amount" exact="$offer.offeramount.{this}" />
-            <do_if value="this.ship.cargo.{$currentware}.count lt $amount">
-              <set_value name="$amount" exact="this.ship.cargo.{$currentware}.count" />
-            </do_if>
-            <do_if value="$amount gt 0">
-              <add_ware_reservation ware="$currentware" amount="$amount" entity="this" object="$homebase" replace="true" result="$reserved" />
-              <do_if value="$reserved gt 0">
-                <debug_text text="player.age + ': reserved %1 %2 for unloading at homebase %5(%6) (have %3, homebase has room for %4)'.[$reserved, $currentware, this.ship.cargo.{$currentware}.count, $homebase.cargo.{$currentware}.free, $homebase.knownname, $homebase]" chance="this.$debug * 100" />
-                <append_to_list name="$unloadlist" exact="[$currentware, $reserved]" />
-              </do_if>
-            </do_if>
-          </do_all>
-          <remove_value name="$resourceoffers" />
-          <remove_value name="$reserved" />
-          <!-- step 2: unload wares -->
-          <set_value name="$leftovers" exact="false" />
-          <do_all exact="$unloadlist.count" counter="$u">
-            <set_value name="$currentware" exact="$unloadlist.{$u}.{1}" />
-            <set_value name="$amount" exact="$unloadlist.{$u}.{2}" />
-            <debug_text text="player.age + ' unloading %1 units of %2 to %3...'.[$amount, $currentware, $homebase.knownname]" chance="this.$debug * 100" />
-            <execute_custom_trade buyer="$homebase" seller="this.ship" amount="$amount" ware="$currentware" result="$traderesult" />
-            <do_if value="not $traderesult">
-              <debug_text text="player.age + ': unloading FAILED! tried to transfer %1 %2 to %3(%4)'.[$amount, $currentware, $homebase.knownname, $homebase]" chance="this.$debug * 100" />
-            </do_if>
-            <do_else>
-              <debug_text text="player.age + ' %1(job: \'%5\') unloaded %2 units of \'%3\' at \'%4\', traderesult: %5'.[this.ship.knownname, $amount, $currentware, $homebase.knownname, this.ship.job, $traderesult]" chance="this.$debug * 100" />
-            </do_else>
-            <remove_ware_reservation entity="this" object="$homebase" ware="$currentware" />
-            <detach_from_masstraffic object="this.ship" wait="true">
-              <interrupt_after_time time="5min" />
-            </detach_from_masstraffic>
-            <do_if value="not $unloadlist?">
-              <!-- when loading a save that was created while the above execute_custom_trade action was in progress in a < 1.24 game, the $unloadlist list might not exist, abort and start the unload process properly again -->
-              <resume label="unload" />
-            </do_if>
-          </do_all>
-        </do_else>
-        <detach_from_masstraffic object="this.ship" wait="true">
-          <interrupt_after_time time="5min" />
-        </detach_from_masstraffic>
-        <wait min="2s" max="5s" />
-        <!-- step 3: see what's left in the cargo hold -->
-        <!--
-        <set_value name="$cargolist" exact="this.ship.cargo.list" />
-        <do_all exact="$cargolist.count" counter="$c">
-          <set_value name="$currentware" exact="$cargolist.{$c}" />
-          <do_if value="($homebase.resources.{$currentware}.exists) or ($homebase.tradewares.{$currentware}.exists)">
-            
-          </do_if>
-        </do_all>
-        -->
-      </do_if>
-
-      <!-- ok, resource gathering run complete, start the next run -->
-      <debug_text text="player.age + ' unloading complete, clearing parking area.'" chance="this.$debug * 100" />
-      <remove_ware_reservation object="$homebase" entity="this" virtual="true" />
-      <remove_ware_reservation object="$homebase" entity="this" />
-      <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l">
-        <debug_text text="player.age + ' un-parking...'" chance="this.$debug * 100" />
-        <run_script name="'move.undock'" />
-      </do_if>
-      <wait chance="0" />
-      <set_value name="$idletime" min="30s" max="50s"/>
-      <run_script name="'move.idle'" sinceversion="1">
-        <param name="TimeOut" value="$idletime" />
-      </run_script>
-
-      <!-- check if this is a jobship at the end of its lifetime -->
-      <do_if value="this.ship.jobexpired">
-        <debug_text text="'%1 doing job %2 has expired, die!'.[this.ship.knownname, this.ship.job]" chance="this.$debug * 100" />
-        <set_value name="$bigship" exact="this.ship.isclass.ship_l or this.ship.isclass.ship_xl" />
-        <run_script name="'move.die'" sinceversion="4">
-          <param name="byjump" value="$bigship" />
-          <param name="byhighway" value="not $bigship" />
-          <param name="bydock" value="not $bigship" />
-          <param name="byidle" value="true" />
-        </run_script>
-      </do_if>
-
-      <debug_text text="player.age + ' starting new mining run'" chance="this.$debug * 100" />
-      <resume label="loop" />
-
-      <label name="finish" />
-      <!-- DEBUG DISABLED TEMPORARILY DUE TO MISSING REGIONS CAUSING SPAM -->
-      <debug_text text="player.age + ' script ends with reason ' + $failreason" />
-      <return />
-
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done mining, recalling Drones'.[player.age,this.name,this.container.name]"/>
+      
+      <run_script name="'lib.recall.drones'"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done Recalling Drones'.[player.age,this.name,this.container.name]"/>
+      
+      <!-- Check what we got effectively and plan Trade Orders to get the Wares to the Commander -->
+      <do_all exact="$mininglist.count" counter="$i">
+        <remove_ware_reservation object="$homebase" entity="this" virtual="true" ware="$mininglist.{$i}" />
+        <create_trade_offer name="$buyoffer" buyer="this.ship.commander" object="this.ship.commander" amount="this.ship.cargo.{$mininglist.{$i}}.count" ware="$mininglist.{$i}" price="0Cr" playeronly="true"/>
+        <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.$amount" price="0Cr"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
+        <remove_trade_offer object="this.ship.commander" tradeoffer="$buyoffer"/>
+      </do_all>
+      <!-- when last Ware is unloaded we want to undock -->
+      <set_value name="this.$orderlist.{this.$orderlist.count}.$undock" exact="true"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done Adding Trade Orders, exitig'.[player.age,this.name,this.container.name]"/>
+      
     </actions>
   </attention>
   <on_abort>
     <do_if value="$homebase.exists">
       <remove_ware_reservation object="$homebase" entity="this" virtual="true" />
-      <remove_ware_reservation object="$homebase" entity="this" />
     </do_if>
   </on_abort>
 </aiscript>

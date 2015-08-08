@@ -38,9 +38,8 @@ $entity  = ' + $entity"/>
       </do_if>
       <remove_value name="$params"/>
       <do_if value="not $entity.exists">
-        <return>
-          <retval name="repeat" value="false"/>
-        </return>
+        <debug_text filter="error" text="'%1 %2 %3 No Entity passed to give Trade Orders to - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
       </do_if>
       
       <set_command_action commandaction="commandaction.searchingtrades"/>
@@ -66,8 +65,8 @@ $entity  = ' + $entity"/>
       <create_list name="$wareslist_prio"/>
       <create_list name="$wareslist_buysell"/>
       <!-- first add the Ressources of the Station to the List of considered Wares -->
-      <do_all exact="this.container.resources.list.count" counter="$ii">
-        <set_value name="$ware" exact="this.container.resources.list.{$ii}"/>
+      <do_all exact="this.container.resources.list.count" counter="$i">
+        <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
         <!-- not interested in Wares which the Ship cannt transport -->
         <do_if value="$entity.ship.cargo.{$ware}.free le 0">
           <!--debug_text filter="general" chance="this.$debug * 100" text="'%1 Ship has no space for it'.[$ware]"/-->
@@ -114,11 +113,11 @@ $entity  = ' + $entity"/>
             <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
           </do_elseif>
           <do_else>
-            <do_all exact="$wareslist_prio.count" counter="$ij" reverse="true">
-              <do_if value="$wareslist_prio.{$ij} ge $prio">
-                <set_value name="$wareslist.{$ij+1}" exact="$ware" operation="insert"/>
-                <set_value name="$wareslist_prio.{$ij+1}" exact="$prio" operation="insert"/>
-                <set_value name="$wareslist_buysell.{$ij + 1}" exact="'buy'" operation="insert"/>
+            <do_all exact="$wareslist_prio.count" counter="$j" reverse="true">
+              <do_if value="$wareslist_prio.{$j} ge $prio">
+                <set_value name="$wareslist.{$j+1}" exact="$ware" operation="insert"/>
+                <set_value name="$wareslist_prio.{$j+1}" exact="$prio" operation="insert"/>
+                <set_value name="$wareslist_buysell.{$j + 1}" exact="'buy'" operation="insert"/>
                 <break/>
               </do_if>
             </do_all>
@@ -129,9 +128,9 @@ $entity  = ' + $entity"/>
       <!-- If it is a Miningship filter needed Wares for Mineables and save it to another List (doing it now prevents iterating through a longer Ware List)-->
       <do_if value="$miningship">
         <set_value name="$mininglist" exact="$wareslist.clone"/>
-        <do_all exact="$mininglist.count" counter="$ii" reverse="true">
-          <do_if value="not $mininglist.{$ii}.tags.indexof.{tag.minable}">
-            <remove_value name="$mininglist.{$ii}"/>
+        <do_all exact="$mininglist.count" counter="$i" reverse="true">
+          <do_if value="not $mininglist.{$i}.tags.indexof.{tag.minable}">
+            <remove_value name="$mininglist.{$i}"/>
           </do_if>
         </do_all>
         <debug_text filter="general" chance="this.$debug * 100" text="'Sorted Ware List to Mine: \n%1'.[$mininglist]"/>
@@ -149,8 +148,8 @@ $entity  = ' + $entity"/>
       
       <!-- now add Produced Wares to the List considered for Trading-->
       <!-- ToDo: Make this conditional for when the Manager is expierienced enough -->
-      <do_all exact="this.container.products.list.count" counter="$ii">
-        <set_value name="$ware" exact="this.container.products.list.{$ii}"/>
+      <do_all exact="this.container.products.list.count" counter="$i">
+        <set_value name="$ware" exact="this.container.products.list.{$i}"/>
         <!-- not interested in Wares which the Ship cannt transport -->
         <do_if value="$entity.ship.cargo.{$ware}.free le 0">
           <!--debug_text filter="general" chance="this.$debug * 100" text="'%1 Ship has no space for it'.[$ware]"/-->
@@ -192,11 +191,11 @@ $entity  = ' + $entity"/>
             <set_value name="$wareslist_buysell.{1}" exact="'sell'" operation="insert"/>
           </do_if>
           <do_else>
-            <do_all exact="$wareslist_prio.count" counter="$ij" reverse="true">
-              <do_if value="$wareslist_prio.{$ij} ge $prio">
-                <set_value name="$wareslist.{$ij+1}" exact="$ware" operation="insert"/>
-                <set_value name="$wareslist_prio.{$ij+1}" exact="$prio" operation="insert"/>
-                <set_value name="$wareslist_buysell.{$ij+1}" exact="'sell'" operation="insert"/>
+            <do_all exact="$wareslist_prio.count" counter="$j" reverse="true">
+              <do_if value="$wareslist_prio.{$j} ge $prio">
+                <set_value name="$wareslist.{$j+1}" exact="$ware" operation="insert"/>
+                <set_value name="$wareslist_prio.{$j+1}" exact="$prio" operation="insert"/>
+                <set_value name="$wareslist_buysell.{$j+1}" exact="'sell'" operation="insert"/>
                 <break/>
               </do_if>
             </do_all>
@@ -214,10 +213,11 @@ $entity  = ' + $entity"/>
       <!-- ================================ -->
       <!-- find possible Trades in order of priority -->
       <!-- ToDo: add Selling Products ($warelist already contains them, but they are not yet sold )-->
-      <do_all exact="$wareslist.count" counter="$ii" reverse="false">
-        <set_value name="$ware" exact="$wareslist.{$ii}"/>
+      <do_all exact="$wareslist.count" counter="$i" reverse="false">
+        <wait exact="5s" comment="to make it look like he is actually comparing Trades wait 5 seconds per Ware checked"/>
+        <set_value name="$ware" exact="$wareslist.{$i}"/>
         <!-- Aquire Products -->
-        <do_if value="$wareslist_buysell.{$ii} == 'buy'">
+        <do_if value="$wareslist_buysell.{$i} == 'buy'">
           <!-- If we encounter a mineable Ware and the Ship is considered a Miner send it mining for all Minerals needed -->
           <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
             <signal_objects object="$entity.ship" param="'new order'" param2="[ table[$script='mining.ship.station',$repeat=0,$warebasket=$mininglist] ]"/>
@@ -264,7 +264,7 @@ $entity  = ' + $entity"/>
             <break/>
           </do_if>
         </do_if>
-        <do_elseif value="$wareslist_buysell.{$ii} == 'sell'">
+        <do_elseif value="$wareslist_buysell.{$i} == 'sell'">
           <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="this.sector">
             <offeramount min="this.container.cargo.{$ware}.count / 10"/>
           </find_buy_offer>

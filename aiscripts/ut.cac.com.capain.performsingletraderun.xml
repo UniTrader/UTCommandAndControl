@@ -6,6 +6,7 @@
     <param name="amount" default="null" comment="Specific Amount to Trade in case a specific Trade is ordered"/>
     <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list ONLY (does not execute any Trade)"/>
     <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
+    <param name="command" default="command.trade" comment="command to display when executing this Script ( command.freetrade or command.trade would make sense, depending on context)"/>
   </params>
   <interrupts>
     <handler comment="Print Script Vars">
@@ -49,6 +50,9 @@
         <do_if value="$params.$repeat?">
           <set_value name="$repeat" exact="$params.$repeat"/>
         </do_if>
+        <do_if value="$params.$command?">
+          <set_value name="$command" exact="$params.$command"/>
+        </do_if>
       </do_if>
       <remove_value name="$params"/>
       
@@ -87,7 +91,7 @@
         <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="$i * 1h" mission="$trade.ismission"/>
       </do_else>
       
-      <set_command command="command.trade" param="$trade.owner"/>
+      <set_command command="$command" param="$trade.owner"/>
       <set_command_action commandaction="commandaction.calculating"/>
       
       <!--in case something went wrong while docking - jumps back from line 207 or 218 -->

@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.manager.findjob.mine" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="entity" default="false" comment="Entity who needs (Mine)Orders (NOT as Ship)"/>
+    <param name="mininglist" default="false" comment="List of Ressources to Mine, where first item is the really importat one but the others are fine, too"/>
+  </params>
+  <interrupts>
+    <handler comment="Print Script Vars">
+      <conditions>
+        <event_object_signalled object="this" param="'print script vars to logfile'"/>
+      </conditions>
+      <actions>
+        <debug_text filter="general" text="'\nManager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
+$entity  = ' + $entity + '\n
+$mininglist = ' + $mininglist"/>
+      </actions>
+    </handler>
+  </interrupts>
+  <init>
+
+  </init>
+  <attention min="unknown">
+    <actions>
+      <do_if value="$params">
+        <do_if value="$params.$entity?">
+          <set_value name="$entity" exact="$params.$entity"/>
+        </do_if>
+        <do_if value="$params.$mininglist?">
+          <set_value name="$mininglist" exact="$params.$mininglist"/>
+        </do_if>
+        <remove_value name="$params"/>
+      </do_if>
+      <do_if value="not $entity.exists">
+        <debug_text filter="error" text="'%1 %2 %3 No Entity passed to give Mine Orders to - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      <do_if value="not $mininglist.count">
+        <debug_text filter="error" text="'%1 %2 %3 No Ressources list passed to find Mining Zone - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      
+      <set_command_action commandaction="commandaction.searchingresources"/>
+      <wait min="3s" max="15s" />
+      <!-- check how much we actually need (either needed by Station or limited by Storage) -->
+      <get_ware_reservation ware="$mininglist.{1}" object="this.container" result="$incomingamount"/>
+      <set_value name="$amount" exact="[this.container.cargo.{$mininglist.{1}}.target - this.container.cargo.{$mininglist.{1}}.count - $incomingamount , $entity.ship.cargo.{$mininglist.{1}}.free].min"/>
+      <!-- $zone is a Return Value!!! -->
+      <find_closest_resource zone="$zone" ware="$mininglist.{1}" minamount="$amount" refobject="this.container" wares="$secwares" />
+      <signal_objects object="$entity.ship" param="'new order'" param2="table[$script='ut.cac.com.captain.mining,$zone=$zone,$mininglist=$mininglist]"/>
+      
+    </actions>
+  </attention>
+</aiscript>
