@@ -31,7 +31,7 @@
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 manager Gather Script called with: \n%4'.[player.age,this.name,this.container.name,$params]"/>
       
       <!-- first check if we already started gathering Ressources and add them to the Station -->
-      <do_if value="typeof $params.$gatherware == datatype.ware"/>
+      <do_if value="typeof @$params.$gatherware == datatype.ware"/>
         <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware" virtual="true"/>
         <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$params.$gatherware" />
         <set_value name="$gatherrate" exact="[$gatherrate,$params.$gatherrate].min"/>
@@ -56,8 +56,8 @@
         <do_if value="$wareslist.{$i}.tags.indexof.{tag.liquid}">
           <get_ware_reservation ware="$wareslist.{$i}" object="this.container" result="$incomingamount"/>
           <set_value name="$wareslist_prio.{$i}" exact="1 - ( ( this.container.cargo.{$wareslist.{$i}}.count + $incomingamount )f  / ( this.container.cargo.{$wareslist.{$i}}.target )f )"/>
-          <!-- filter out Wares we dont need and Wares which can not be mined here -->
-          <do_if value="$wareslist_prio.{$i} == 0.0 and not this.zone.yield.indexof.{$wareslist.{$i}}">
+          <!-- filter out Wares we dont need (very low demand) and Wares which can not be mined here -->
+          <do_if value="$wareslist_prio.{$i} lt 0.003 and not this.zone.yield.indexof.{$wareslist.{$i}}">
             <remove_value name="$wareslist.{$i}"/>
             <remove_value name="$wareslist_prio.{$i}"/>
           </do_if>
@@ -104,11 +104,18 @@
       <!-- launch drones to collect gas - only for show -->
       <do_if value="this.container.attention ge attention.visible">
         <debug_text filter="general" chance="this.$debug * 100" text="'launching Drones'"/>
-        <find_object_component name="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" />
-        <do_all exact="$dronelaunchbays.count" counter="$i">
-          <launch_drone name="$drone" object="this.container" group="unitcategory.gascollector" exact="1"/>
-          <do_if value="$drone.isoperational">
-            <start_script name="'ut.cac.mining.ship.drone'" object="$drone.pilot">
+        <find_object_component groupname="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true"/>
+        <create_group groupname="$drones"/>
+        <!-- launching about half the Drones available so we can also laumch some on the next cycle -->
+        <do_while value="$drones.count lt this.container.units.{unitcategory.gascollector}.count / 2">
+          <do_all exact="$dronelaunchbays.count" counter="$i">
+            <launch_drone groupname="$drones" object="$dronelaunchbays.{$i}" group="unitcategory.gascollector" exact="1"/>
+          </do_all>
+        </do_while>
+          <debug_text filter="general" chance="this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
+        <do_all exact="$drones.count" counter="$i">
+          <do_if value="$drones.{$i}.isoperational">
+            <start_script name="'ut.cac.mining.ship.drone'" object="$drones.{$i}.pilot">
               <param name="homebase" value="this.container"/>
               <param name="ware" value="$params.$gatherware"/>
             </start_script>
