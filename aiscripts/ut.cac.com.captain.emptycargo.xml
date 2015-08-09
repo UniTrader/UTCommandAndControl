@@ -41,7 +41,7 @@
       
       <!-- Jump forward to Drop Wares -->
       <do_if value="$onlydrop">
-        <resume label="drop wares" comment="goto line 95"/>
+        <resume label="drop wares" comment="goto line 103"/>
       </do_if>
       <set_value name="$sector" exact="this.sector"/>
       <label name="search sector"/>
@@ -60,15 +60,35 @@
       
       <!-- add these Buy Orders to the Trading Queue sorted by shortest Distance to next Trade and add a Trade run order for each -->
       <set_value name="$currentzone" exact="this.zone"/>
-      <set_value name="$mindistance" exact="1e12m"/>
+      <!-- Path Length for small Ships, raw Distance for Big Ships -->
+      <do_if value="this.ship.class == class.ship_m or this.ship.class == class.ship_s or this.ship.class == class.ship_xs">
+        <set_value name="$mindistance" exact="999"/>
+      </do_if>
+      <do_else>
+        <set_value name="$mindistance" exact="1e12m"/>
+      </do_else>
       <set_value name="$mindistindex" exact="null"/>
       <do_while value="$buyoffers.count">
         <do_all exact="$buyoffers.count" counter="$i">
+          <!-- Offer is in current Zone - just add it to the Trade Orders -->
           <do_if value="$buyoffers.{$i}.owner.zone == $currentzone">
             <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$warelist.{$i}}.count" price="$buyoffers.{$i}.unitprice"/>
             <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0]"/>
             <remove_value name="$buyoffers.{$i}"/>
           </do_if>
+          <!-- Offer is somewhere else - if its closer than the previous Offer save it, if not wait for next iteration -->
+          <!-- Use Tube Network for small Ships... -->
+          <do_if value="this.ship.class == class.ship_m or this.ship.class == class.ship_s or this.ship.class == class.ship_xs">
+            <get_global_path component="$result" multiple="true" usehighways="true">
+              <start object="this.ship"/>
+              <end object="$buyoffers.{$i}.owner"/>
+            </get_global_path>
+            <do_if value="$result.count lt $mindistance">
+              <set_value name="$mindistance" exact="this.ship.distanceto.{$buyoffers.{$i}.owner}"/>
+              <set_value name="$mindistindex" exact="$i"/>
+            </do_if>
+          </do_if>
+          <!-- ...or Raw Distance for Big Ships -->
           <do_elseif value="this.ship.distanceto.{$buyoffers.{$i}.owner} lt $mindistance">
             <set_value name="$mindistance" exact="this.ship.distanceto.{$buyoffers.{$i}.owner}"/>
             <set_value name="$mindistindex" exact="$i"/>
@@ -78,7 +98,13 @@
         <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$warelist.{$mindistindex}.count}" price="$buyoffers.{$mindistindex}.unitprice"/>
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$command=command.freetrade]"/>
         <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.zone"/>
-        <set_value name="$mindistance" exact="1e12m"/>
+        <!-- Path Length for small Ships, raw Distance for Big Ships -->
+        <do_if value="this.ship.class == class.ship_m or this.ship.class == class.ship_s or this.ship.class == class.ship_xs">
+          <set_value name="$mindistance" exact="999"/>
+        </do_if>
+        <do_else>
+          <set_value name="$mindistance" exact="1e12m"/>
+        </do_else>
         <set_value name="$mindistindex" exact="null"/>
         <remove_value name="$buyoffers.{$mindistindex}"/>
       </do_while>
