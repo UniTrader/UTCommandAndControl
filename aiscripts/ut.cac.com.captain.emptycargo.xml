@@ -49,7 +49,7 @@
       <create_list name="$buyoffers"/>
       <do_all exact="$warelist.count" counter="$i" reverse="true">
         <find_buy_offer result="$buyoffer" space="$sector" wares="$warelist.{$i}" multiple="false">
-          <amount min="this.ship.cargo.{$warelist.{$i}.count}"/>
+          <amount min="this.ship.cargo.{$warelist.{$i}}.count"/>
         </find_buy_offer>
         <do_if value="$buyoffer.available">
           <append_to_list name="$buyoffers" exact="$buyoffer"/>
@@ -65,7 +65,7 @@
       <do_while value="$buyoffers.count">
         <do_all exact="$buyoffers.count" counter="$i">
           <do_if value="$buyoffers.{$i}.owner.zone == $currentzone">
-            <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$warelist.{$i}.count}" price="$buyoffers.{$i}.unitprice"/>
+            <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$warelist.{$i}}.count" price="$buyoffers.{$i}.unitprice"/>
             <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0]"/>
             <remove_value name="$buyoffers.{$i}"/>
           </do_if>
@@ -87,7 +87,7 @@
       <do_if value="not $onlysector">
         <do_all exact="$warelist.count" counter="$i" reverse="true">
           <find_buy_offer result="$buyoffer" space="this.cluster" wares="$warelist.{$i}" multiple="false">
-            <amount min="this.ship.cargo.{$warelist.{$i}.count}"/>
+            <amount min="this.ship.cargo.{$warelist.{$i}}.count"/>
           </find_buy_offer>
           <do_if value="$buyoffer.available">
             <append_to_list name="$buyoffers" exact="$buyoffer"/>
@@ -103,7 +103,7 @@
       <label name="drop wares"/>
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Dropping Wares:\n%4'.[player.age,this.name,this.container.name,$warelist]"/>
       <do_all exact="$warelist.count" counter="$i">
-        <drop_cargo object="this.ship" ware="$warelist.{$i}" exact="this.ship.cargo.{$warelist.{$i}.count}"/>
+        <drop_cargo object="this.ship" ware="$warelist.{$i}" exact="this.ship.cargo.{$warelist.{$i}}.count"/>
       </do_all>
     </actions>
   </attention>
