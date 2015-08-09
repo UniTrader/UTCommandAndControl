@@ -31,7 +31,7 @@
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 manager Gather Script called with: \n%4'.[player.age,this.name,this.container.name,$params]"/>
       
       <!-- first check if we already started gathering Ressources and add them to the Station -->
-      <do_if value="not ( @$params.gatherware == null or @$params.$gatherstart == null or @$params.$gatherrate == null)"/>
+      <do_if value="typeof $params.$gatherware == datatype.ware"/>
         <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware" virtual="true"/>
         <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$params.$gatherware" />
         <set_value name="$gatherrate" exact="[$gatherrate,$params.$gatherrate].min"/>

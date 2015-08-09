@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.escort" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <!--
+  This Script is intended to move a Ship to a safe initial State for further Actions
+  (basically a cleanup for everything: 
+    a combination of move.unpark, move.undock, leave formations, stop boost and Engines etc.)
+  -->
+  <params>
+     <param name="fast" default="false" comment="Skip some actions (like moving to a safe pos) if possible to improve Speed - not implemented yet"/>
+  </params>
+  <attention min="visible">
+    <actions>
+      
+      <stop_moving object="this.ship" />
+      <stop_boost object="this.ship" />
+      <stop_shooting object="this.ship" slot="tag.primary_slot" />
+      <stop_shooting object="this.ship" slot="tag.secondary_slot" />
+      <!--stop_attack object="this.ship" target="?????"/-->
+      <!-- stop_observation object="this.ship" target="$target" /-->
+      
+      <!-- stolen from player.default and other scripts - will be re-implemented by me later -->
+      
+      <leave_formation object="this.ship" />
+      
+      <label name="init" />
+      <do_if value="this.$shiptrader_docking?">
+        <do_if value="this.$shiptrader_docking.component.isoperational">
+          <do_if value="not this.ship.dockslot">
+            <wait_for_prev_script action="$action"/>
+            <do_if value="$action == 'move_docking'">
+              <dock ship="this.ship" />
+            </do_if>
+            <do_else>
+              <run_script name="'move.dockat'">
+                <param name="dockingslot" value="this.$shiptrader_docking" />
+              </run_script>
+              <return />
+            </do_else>
+          </do_if>
+          <return />
+        </do_if>
+        <do_else>
+          <remove_value name="this.$shiptrader_docking" />
+        </do_else>
+      </do_if>
+      <detach_from_masstraffic object="this.ship"/>
+      <run_script name="'move.undock'" />
+      
+    </actions>
+  </attention>
+  </aiscript>
