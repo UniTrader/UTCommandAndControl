@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.mining.ship.drone" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <!--
+  This script can be either used with a target or a ware. If a target is provided,
+  the drone tries to collect the target and returns to its homebase with the pickup.
+  If instead the ware parameter is set, the drone flys to some random locations and
+  returns to the homebase afterwards. The corresponding ware is then added via script.
+  by Michael and Benedikt
+  -->
+  <params>
+    <param name="homebase" default="this.ship.commander.commander" comment="the homebase for this drone"/>
+    <param name="target" default="null" comment="the target pickup (if there is one for the corresponding resource)"/>
+    <param name="ware" default="null" comment="the resource this drone should collect (if there is no target)"/>
+  </params>
+  <interrupts>
+    <handler ref="TargetInvalidHandler" />
+  </interrupts>
+  <attention min="visible">
+    <actions>
+
+      <set_value name="$debugchance" exact="0" comment="the chance to display debug messages"/>
+      <set_value name="$gatherlocations" exact="3" comment="the number of locations required to gather a resource (no target)"/>
+      <set_value name="$gatherdistance" exact="2km" comment="the distance between the homebase and the first gather location (no target)"/>
+      <set_value name="$gatheroffset" exact="1km" comment="the distance between each gather location after the first one (no target)"/>
+
+      <label name="start" />
+      <!-- undock -->
+      <debug_text text="player.age+' undocking'" chance="$debugchance" />
+      <wait min="1min" max="2min">
+        <interrupt>
+          <conditions>
+            <check_any>
+              <!-- <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/> -->
+              <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+            </check_any>
+          </conditions>
+        </interrupt>
+      </wait>
+      <debug_text text="player.age+' successfully undocked'" chance="$debugchance" />
+      <clear_collision_filter object="this.ship" />
+
+      <label name="collect" />
+      <!-- collect -->
+      <do_if value="$target" exact="null">
+        <!-- there is no pickup, fly to random positions instead -->
+        <set_value name="$currentlocation" exact="0"/>
+        <create_position name="$nextlocation" object="this.ship" min="$gatherdistance - 0.5km" max="$gatherdistance + 0.5km"/>
+        <do_while value="$currentlocation lt $gatherlocations">
+          <!-- repeatedly move to random locations -->
+          <set_value name="$currentlocation" operation="add" exact="1"/>
+          <debug_text text="player.age+' moving to gather location #'+$currentlocation" chance="$debugchance" />
+          <move_to destination="this.ship.zone" object="this.ship" flightbehaviour="flightbehaviour.generic" finishonapproach="true" forcesteering="true">
+            <position value="$nextlocation"/>
+          </move_to>
+          <create_position name="$nextlocation" object="this.ship" min="$gatheroffset - 0.5km" max="$gatheroffset - 0.5km"/>
+        </do_while>
+        <!-- dock again -->
+        <run_script name="'move.dockat.drone'">
+          <param name="destination" value="$homebase" />
+        </run_script>
+        <assert value="false" text="'\'move.dockat.drone\' returned to visible-block of \'mining.ship.drone\' for drone %1 [%2] [ Michael ]'.[this.ship.knownname, this.ship]" />
+      </do_if>
+      <do_else>
+        <!-- there is a pickup, go and get it -->
+        <run_script name="'move.collect.drone'">
+          <param name="target" value="$target" />
+          <param name="homebase" value="$homebase" />
+          <param name="stayactive" value="true" />
+          <param name="launching" value="false" />
+          <param name="debugoutputchance" value="$debugchance" />
+        </run_script>
+        <!-- move.collect.drone also handles docking -->
+      </do_else>
+
+      <!-- we are only down here if docking didn't work, most likely because the homebase is dead, we just wait until the low-attention case cleans up -->
+      <stop_moving object="this.ship" />
+      <wait sinceversion="1" max="5s"  />
+
+      <resume label="collect"/>
+
+    </actions>
+  </attention>
+  <attention min="unknown">
+    <actions>
+      <!-- cleanup -->
+      <label name="start" />
+      <label name="collect" />
+
+      <do_if value="this.ship.commander.isoperational">
+        <run_script name="'move.dockat.drone'" sinceversion="1">
+          <param name="destination" value="this.ship.commander" />
+        </run_script>
+        <assert value="false" text="'\'move.dockat.drone\' returned to unknown-block of \'mining.ship.drone\' for drone %1 [%2] [ Michael ]'.[this.ship.knownname, this.ship]" />
+      </do_if>
+      <do_else>
+        <destroy_object object="this.ship" explosion="false" />
+      </do_else>
+
+      <!-- drone no longer exists if the drone docked successfully -->
+      <debug_text text="player.age+' drone docked.'" chance="@$debugchance"/>
+    </actions>
+  </attention>
+</aiscript>

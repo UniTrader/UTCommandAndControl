@@ -8,6 +8,20 @@
     <param name="mininglist" default="null" />
     <param name="zone" default="null" />
   </params>
+  <interrupts>
+    <handler comment="Print Script Vars">
+      <conditions>
+        <event_object_signalled object="this" param="'print script vars to logfile'"/>
+      </conditions>
+      <actions>
+        <debug_text filter="general" text="'\n
+        Captain Name ' + this.knownname + ' at Time ' + player.age + '\n
+        ut.cac.com.captain.mining Script Values:\n
+        $mininglist = ' + $mininglist + '\n
+        $zone = ' + $zone"/>
+      </actions>
+    </handler>
+  </interrupts>
   <attention min="unknown">
     <actions>
       <do_if value="$params">
@@ -38,10 +52,10 @@
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mining ship does not have any units for collecting! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
-      <do_if value="$warebasket == null">
-        <set_value name="$warebasket" exact="this.ship.warebasket.list" />
+      <do_if value="$mininglist == null">
+        <set_value name="$mininglist" exact="this.ship.warebasket.list" />
       </do_if>
-      <do_if value="$warebasket.count" exact="0">
+      <do_if value="$mininglist.count" exact="0">
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mining ship does not have Wares in Warebasket! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
@@ -73,6 +87,7 @@
         <param name="zone" value="$zone"/>
         <param name="ware" value="$mininglist.{1}"/>
         <param name="secwares" value="$mininglist"/>
+        <param name="debugchance" value="0"/>
       </run_script>
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done mining, recalling Drones'.[player.age,this.name,this.container.name]"/>
       
@@ -82,13 +97,16 @@
       <!-- Check what we got effectively and plan Trade Orders to get the Wares to the Commander -->
       <do_all exact="$mininglist.count" counter="$i">
         <remove_ware_reservation object="$homebase" entity="this" virtual="true" ware="$mininglist.{$i}" />
-        <create_trade_offer name="$buyoffer" buyer="this.ship.commander" object="this.ship.commander" amount="this.ship.cargo.{$mininglist.{$i}}.count" ware="$mininglist.{$i}" price="0Cr" playeronly="true"/>
-        <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.$amount" price="0Cr"/>
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
-        <remove_trade_offer object="this.ship.commander" tradeoffer="$buyoffer"/>
+        <do_if value="this.ship.cargo.{$mininglist.{$i}}.count">
+          <create_trade_offer name="$buyoffer" buyer="this.ship.commander" object="this.ship.commander" amount="this.ship.cargo.{$mininglist.{$i}}.count" ware="$mininglist.{$i}" price="0Cr" playeronly="true"/>
+          <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.amount" price="0Cr"/>
+          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
+          <remove_trade_offer object="this.ship.commander" tradeoffer="$buyoffer"/>
+        </do_if>
       </do_all>
       <!-- when last Ware is unloaded we want to undock -->
       <set_value name="this.$orderlist.{this.$orderlist.count}.$undock" exact="true"/>
+      <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.refuel',$repeat=0]"/>
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done Adding Trade Orders, exitig'.[player.age,this.name,this.container.name]"/>
       
     </actions>

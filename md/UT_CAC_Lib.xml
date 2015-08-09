@@ -198,8 +198,8 @@ Dialogue Tree - rough concept (for all Entity Types)
 5.2 Print all Script Values
 5.3 Toggle Entity Logfile Debugging (writes to same file as Logfile, but diffrent, more detailed Info)
 5.4 Destroy Object for Cleanup
-5.5
-5.6
+5.5 Destroy Actor for Cleanup
+5.6 make Actor a 5-Start-Employee
 6.
 6.1
 6.2
@@ -270,7 +270,7 @@ Dialogue Tree - rough concept (for all Entity Types)
           <add_player_choice_sub text="'%1Cr :Account Maximum'.[($actor.maxbudget)Cr]" position="4" section="comm_personal_money_maxbudget" selectable="false"/>
           <add_player_choice_sub text="'Current Account: %1Cr'.[($actor.money)Cr]" position="2" section="comm_personal_money_transfer"/>
           <add_player_choice_sub text="'%1Cr :Give wanted Money'.[($actor.container.wantedmoney)Cr]" position="5" section="comm_personal_money_wanted"/>
-          <add_player_choice_sub text="'Shate Account with..." position="3" section="comm_personal_money_shareaccount" selectable="false"/>
+          <add_player_choice_sub text="'Share Account with...'" position="3" section="comm_personal_money_shareaccount" selectable="false"/>
           <add_player_choice_return text="'(Back)'" position="6" returnparam="'no change'" />
           <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
         </do_elseif>
@@ -518,6 +518,7 @@ Dialogue Tree - rough concept (for all Entity Types)
           <add_player_choice text="'Toggle Debugging to Log: '+ $actor.$debug" position="3" section="comm_debug_toggle"/>
           <add_player_choice text="'Destroy Object for complete cleanup \033R(USE WITH CARE)\033X'" position="4" section="comm_debug_cleanup_object"/>
           <add_player_choice text="'Destroy Actor for cleanup'" position="5" section="comm_debug_cleanup_actor"/>
+          <add_player_choice text="'Max out Skills'" position="6" section="comm_debug_fivestars"/>
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_script_restart'">
@@ -551,6 +552,16 @@ Dialogue Tree - rough concept (for all Entity Types)
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_cleanup_actor'">
           <destroy_object object="$actor" explosion="false"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_debug_fivestars'">
+          <set_skill entity="$actor" type="skilltype.boarding" exact="5"/>
+          <set_skill entity="$actor" type="skilltype.combat" exact="5"/>
+          <set_skill entity="$actor" type="skilltype.engineering" exact="5"/>
+          <set_skill entity="$actor" type="skilltype.leadership" exact="5"/>
+          <set_skill entity="$actor" type="skilltype.management" exact="5"/>
+          <set_skill entity="$actor" type="skilltype.morale" exact="5"/>
+          <set_skill entity="$actor" type="skilltype.navigation" exact="5"/>
+          <set_skill entity="$actor" type="skilltype.science" exact="5"/>
         </do_elseif>
 
       </actions>

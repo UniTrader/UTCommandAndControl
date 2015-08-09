@@ -77,12 +77,12 @@
       
       <!-- find nearest Source for Fuel Cells (first check current Station and Home Station (Offers and Cargo), then Sector and as last the Cluster) -->
       <set_value name="$selloffer" exact="null"/>
-      <do_if value="this.ship.parkedat.exists">
-        <find_sell_offer result="$selloffer" seller="this.ship.parkedat" wares="ware.fuelcells">
+      <do_if value="this.ship.parkedat.container.exists">
+        <find_sell_offer result="$selloffer" seller="this.ship.parkedat.container" wares="ware.fuelcells">
           <offeramount min="$buyamount"/>
         </find_sell_offer>
-        <do_if value="not $selloffer.available and this.ship.parkedat.cargo.{ware.fuelcells}.count ge $buyamount and this.ship.parkedat.trueownner == this.ship.trueowner">
-          <execute_custom_trade buyer="this.ship" seller="this.ship.parkedat" amount="$buyamount" ware="ware.fuelcells" price="0Cr" result="$result" usecommandermoney="true">
+        <do_if value="not $selloffer.available and this.ship.parkedat.container.cargo.{ware.fuelcells}.count ge $buyamount and this.ship.parkedat.container.trueownner == this.ship.trueowner">
+          <execute_custom_trade buyer="this.ship" seller="this.ship.parkedat.container" amount="$buyamount" ware="ware.fuelcells" price="0Cr" result="$result" usecommandermoney="true">
             <interrupt_after_time time="121min"/>
           </execute_custom_trade>
           <!-- We have our Fuel - Continue with next Order -->
@@ -108,8 +108,8 @@
         <find_sell_offer result="$selloffer" seller="this.ship.dockslot.station" wares="ware.fuelcells">
           <offeramount min="$buyamount"/>
         </find_sell_offer>
-        <do_if value="not $selloffer.available and this.ship.station.cargo.{ware.fuelcells}.count ge $buyamount and this.ship.parkedat.trueownner == this.ship.trueowner">
-          <execute_custom_trade buyer="this.ship" seller="this.ship.parkedat" amount="$buyamount" ware="ware.fuelcells" price="0Cr" result="$result" usecommandermoney="true">
+        <do_if value="not $selloffer.available and this.ship.station.cargo.{ware.fuelcells}.count ge $buyamount and this.ship.parkedat.container.trueownner == this.ship.trueowner">
+          <execute_custom_trade buyer="this.ship" seller="this.ship.parkedat.container" amount="$buyamount" ware="ware.fuelcells" price="0Cr" result="$result" usecommandermoney="true">
             <interrupt_after_time time="121min"/>
           </execute_custom_trade>
           <!-- We have our Fuel - Continue with next Order -->

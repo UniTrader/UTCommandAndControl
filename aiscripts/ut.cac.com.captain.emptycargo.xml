@@ -34,7 +34,7 @@
       <set_value name="$warelist" exact="this.ship.cargo.list.clone"/>
       <do_all exact="$ignorelist.count" counter="$i">
         <do_if value="this.ship.cargo.{$ignorelist.{$i}}.count">
-          <remove_value name="$warelist.{$warelist.indexof.$ignorelist.{$i}}"/>
+          <remove_value name="$warelist.{$warelist.indexof.{$ignorelist.{$i}}}"/>
         </do_if>
       </do_all>
       
@@ -47,7 +47,7 @@
       <create_list name="$buyoffers"/>
       <do_all exact="$warelist.count" counter="$i" reverse="true">
         <find_buy_offer result="$buyoffer" space="$sector" wares="$warelist.{$i}" multiple="false">
-          <amount min="this.ship.cargo.{$warelist.{$i}.count"/>
+          <amount min="this.ship.cargo.{$warelist.{$i}.count}"/>
         </find_buy_offer>
         <do_if value="$buyoffer.available">
           <append_to_list name="$buyoffers" exact="$buyoffer"/>
@@ -62,7 +62,7 @@
       <do_while value="$buyoffers.count">
         <do_all exact="$buyoffers.count" counter="$i">
           <do_if value="$buyoffers.{$i}.owner.zone == $currentzone">
-            <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$warelist.{$i}.count" price="$buyoffers.{$i}.unitprice"/>
+            <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$warelist.{$i}.count}" price="$buyoffers.{$i}.unitprice"/>
             <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0]"/>
             <remove_value name="$buyoffers.{$i}"/>
           </do_if>
@@ -71,7 +71,7 @@
             <set_value name="$mindistindex" exact="$i"/>
           </do_elseif>
         </do_all>
-        <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$warelist.{$mindistindex}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
+        <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$warelist.{$mindistindex}.count}" price="$buyoffers.{$mindistindex}.unitprice"/>
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$command=command.freetrade]"/>
         <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.zone"/>
         <set_value name="$mindistance" exact="1e12m"/>
@@ -82,7 +82,7 @@
       <!-- Cluster-wide search for Offers - if one is found add it to the Trade list and continue in the Sector there with search for further Offers -->
       <do_all exact="$warelist.count" counter="$i" reverse="true">
         <find_buy_offer result="$buyoffer" space="this.cluster" wares="$warelist.{$i}" multiple="false">
-          <amount min="this.ship.cargo.{$warelist.{$i}.count"/>
+          <amount min="this.ship.cargo.{$warelist.{$i}.count}"/>
         </find_buy_offer>
         <do_if value="$buyoffer.available">
           <append_to_list name="$buyoffers" exact="$buyoffer"/>
@@ -94,7 +94,7 @@
       
       <label name="drop wares"/>
       <do_all exact="$warelist.count" counter="$i">
-        <drop_cargo object="this.ship" ware="$warelist.{$i}"/>
+        <drop_cargo object="this.ship" ware="$warelist.{$i}" exact="this.ship.cargo.{$warelist.{$i}.count}"/>
       </do_all>
     </actions>
   </attention>

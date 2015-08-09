@@ -104,6 +104,12 @@
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Trade Order not valid: %4'.[player.age,this.name,this.container.name,$trade]"/>
         <return/>
       </do_if>
+      <do_if value="$trade.amount == 0">
+        <!-- trading 0 amount - remove and abort -->
+        <remove_trade_order object="this.ship" trade="$trade" />
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Trade Order has Zero amount - aborting: %4'.[player.age,this.name,this.container.name,$trade]"/>
+        <return/>
+      </do_if>
       <do_if value="$trade.iswareexchange">
         <!-- Ware exchange not supported yet -->
         <remove_trade_order object="this.ship" trade="$trade" />

@@ -12,7 +12,7 @@
         this.$legality = ' + this.$legality + '\n
         this.$orderlist = ' + this.$orderlist + '\n
         $bug = ' + $bug + '\n
-        $idle_subordinates = ' + $idle_subordinates"/>
+        this.$idle_subordinates = ' + this.$idle_subordinates"/>
       </actions>
     </handler>
     <handler comment="Money Updated Handler">
@@ -56,33 +56,34 @@
       </do_if>
       
       <!-- set up Idle Subordinates Group for other Objects to register to -->
-      <do_if value="not $idle_subordinates?">
-        <create_group groupname="$idle_subordinates"/>
+      <do_if value="not this.$idle_subordinates?">
+        <create_group groupname="this.$idle_subordinates"/>
       </do_if>
+      
+      <!-- Set up mining Command (must re-use the same table since i am also using it to store persistent Values) - only $mininglist is updated with every iteration so the miningscript knows what is needed -->
+      <set_value name="$miningorder" exact="table[$script='ut.cac.com.manager.gatherressources',$active=false]"/>
       
       <!--immediately allow Zone Trading and Mining -->
         <set_value name="$next_zonetrade" exact="player.age"/>
         <set_value name="$next_miningstep" exact="player.age"/>
       
-      <!-- Chance of this Script to bug out to improve Feedback -->
-      <!-- feel free to set it to 0, but please dont spoil this trick and write a few comments in the Mod Topics :) -->
-      <set_value name="$bug" exact="0"/>
+      <!-- for debug purposes-->
+      <set_value name="this.$debug" exact="true"/>
       
       <!-- add Fuelcells as Trade Ware if Sctation has Cargo for them so Energy Freighters will buy it and put it into the Station Cargo for Refueling of Station Ships -->
-      <!-- note: will be unused in first release Version because i remove Energy/Fuel Cargo combination for now -->
+            <!-- note: will be unused in first release Version because i remove Energy/Fuel Cargo combination for now -->
       <do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
         <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false"/>
       </do_if>
       
       
       <!-- register Subordinates - see event Handlers for actual adding procedure -->
-      <!-- also add order to manager to look up their first assignment -->
       <do_all exact="this.container.subordinates.{this.type}.count" counter="$i">
         <signal_objects object="this" param="this.container.subordinates.{this.type}.{$i}" param2="'register subordinate'" />
         <wait exact="1ms"/>
       </do_all>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 init finished\nSet Values: this.$legalitiy= %3 $bug= %4 , Fuelcells added as Tradeware, Signalled %5 Subordinates'.[player.age,$actor.name,this.$legality,$bug,this.container.subordinates.{this.type}.count]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 init finished\nSet Values: this.$legalitiy= %3 , Fuelcells added as Tradeware, Signalled %4 Subordinates'.[player.age,this.name,this.$legality,this.container.subordinates.{this.type}.count]"/>
       
       
       <label name="start with orderlist"/>
@@ -116,22 +117,26 @@
       
       <!-- check if we have gasses as ressource and can mine them directly (!!!Testing needed!!! )-->
       <do_if value="player.age gt $next_miningstep">
-        <set_value name="$next_miningstep" exact="player.age + 3min"/>
+        <set_value name="$next_miningstep" exact="player.age + 1min"/>
         <create_list name="$mineable_ressources"/>
         <do_all exact="this.container.resources.list.count" counter="$i">
           <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
-          <do_if value="$ware.tags.indexof.{tag.minable} and this.container.cargo.{$ware}.count lt this.container.cargo.{$ware}.target">
+          <do_if value="$ware.tags.indexof.{tag.minable} and this.container.cargo.{$ware}.count lt this.container.cargo.{$ware}.target and this.zone.yield.indexof.{$ware}">
             <get_resource_gatherrate name="$gatherrate" refobject="this.container" ware="$ware" zone="this.zone" />
             <do_if value="$gatherrate">
               <append_to_list name="$mineable_ressources" exact="$ware"/>
             </do_if>
           </do_if>
         </do_all>
-        <do_if value="$mineable_ressources.count">
-          <set_value name="$next_miningstep" exact="player.age + 2min"/>
+        <do_if value="$mineable_ressources.count or ( $miningorder.gatherware? and $miningorder.$gatherstart? and $miningorder.$gatherrate? )">
           <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
-          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.gatherressources',$repeat=false,$wareslist=$mineable_ressources]" chance="0"/>
+          <set_value name="$miningorder.$wareslist" exact="$mineable_ressources"/>
+          <set_value name="$miningorder.$next_call" exact="5min"/>
+          <append_to_list name="this.$orderlist" exact="$miningorder"/>
         </do_if>
+        <do_else>
+          <set_value name="$next_miningstep" exact="player.age + 2min"/>
+        </do_else>
       </do_if>
       
       <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
