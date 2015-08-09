@@ -57,7 +57,7 @@
           <get_ware_reservation ware="$wareslist.{$i}" object="this.container" result="$incomingamount"/>
           <set_value name="$wareslist_prio.{$i}" exact="1 - ( ( this.container.cargo.{$wareslist.{$i}}.count + $incomingamount )f  / ( this.container.cargo.{$wareslist.{$i}}.target )f )"/>
           <!-- filter out Wares we dont need and Wares which can not be mined here -->
-          <do_if value="$wareslist_prio.{$i} == 0.0 and not this.zone.yield.indexof.{$ware}">
+          <do_if value="$wareslist_prio.{$i} == 0.0 and not this.zone.yield.indexof.{$wareslist.{$i}}">
             <remove_value name="$wareslist.{$i}"/>
             <remove_value name="$wareslist_prio.{$i}"/>
           </do_if>
@@ -80,6 +80,11 @@
         </do_all>
       </do_all>
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mineable List sorted:\n%4\n%5'.[player.age,this.name,this.container.name,$wareslist,$wareslist_prio]"/>
+      
+      <!-- nothing to mine - aborting -->
+      <do_if value="$wareslist.count == 0">
+        <return/>
+      </do_if>
       
       <label name="start mining"/>
       <!-- Starting Mining with the most important Ressource we can actively Mine -->
