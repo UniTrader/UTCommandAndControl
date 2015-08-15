@@ -61,7 +61,7 @@
       <!-- add these Buy Orders to the Trading Queue sorted by shortest Distance to next Trade and add a Trade run order for each -->
       <set_value name="$currentzone" exact="this.zone"/>
       <!-- Path Length for small Ships, raw Distance for Big Ships -->
-      <do_if value="this.ship.class == class.ship_m or this.ship.class == class.ship_s or this.ship.class == class.ship_xs">
+      <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
         <set_value name="$mindistance" exact="999"/>
       </do_if>
       <do_else>
@@ -78,7 +78,7 @@
           </do_if>
           <!-- Offer is somewhere else - if its closer than the previous Offer save it, if not wait for next iteration -->
           <!-- Use Tube Network for small Ships... -->
-          <do_if value="this.ship.class == class.ship_m or this.ship.class == class.ship_s or this.ship.class == class.ship_xs">
+          <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
             <get_global_path component="$result" multiple="true" usehighways="true">
               <start object="this.ship"/>
               <end object="$buyoffers.{$i}.owner"/>
@@ -99,7 +99,7 @@
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$command=command.freetrade]"/>
         <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.zone"/>
         <!-- Path Length for small Ships, raw Distance for Big Ships -->
-        <do_if value="this.ship.class == class.ship_m or this.ship.class == class.ship_s or this.ship.class == class.ship_xs">
+        <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
           <set_value name="$mindistance" exact="999"/>
         </do_if>
         <do_else>

@@ -1,8 +1,16 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.manager.gatherressources" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <!--
+  
+  Manager-Based Gas Mining Script by UniTrader
+  
+IMPORTANT NOTE:
+This Script is intended to be called regulary with >the same< Table as $params because it stores some needed Values there to actually Work. Please keep this in mind when using this Script. 
+
+
+-->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
-    <param name="wareslist" default="false" comment="Wares to mine as List (un-mineable ones will be filtered out)"/>
   </params>
   <interrupts>
     <handler comment="Print Script Vars">
@@ -31,7 +39,7 @@
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 manager Gather Script called with: \n%4'.[player.age,this.name,this.container.name,$params]"/>
       
       <!-- first check if we already started gathering Ressources and add them to the Station -->
-      <do_if value="typeof @$params.$gatherware == datatype.ware"/>
+      <do_if value="typeof(@$params.$gatherware) == datatype.ware"/>
         <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware" virtual="true"/>
         <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$params.$gatherware" />
         <set_value name="$gatherrate" exact="[$gatherrate,$params.$gatherrate].min"/>
@@ -94,8 +102,8 @@
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Gatherrate is 0 (should not happen) - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
-      <add_ware_reservation object="this.container" entity="this" ware="$wareslist.{1}" amount="$gatherrate * $next_call" virtual="true"/>
-      <!-- save value to params to add Ressources on the next call -->
+      <add_ware_reservation object="this.container" entity="this" ware="$wareslist.{1}" amount="$gatherrate * $next_call"/>
+      <!-- save values to $params to add Ressources on the next call -->
       <set_value name="$params.$gatherstart" exact="player.age" />
       <set_value name="$params.$gatherrate" exact="$gatherrate" />
       <set_value name="$params.$gatherware" exact="$wareslist.{1}" />
@@ -106,13 +114,13 @@
         <debug_text filter="general" chance="this.$debug * 100" text="'launching Drones'"/>
         <find_object_component groupname="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true"/>
         <create_group groupname="$drones"/>
-        <!-- launching about half the Drones available so we can also laumch some on the next cycle -->
+        <!-- launching about half the Drones available so we can also laumch some on the next cycle in case they didnt return yet -->
         <do_while value="$drones.count lt this.container.units.{unitcategory.gascollector}.count / 2">
           <do_all exact="$dronelaunchbays.count" counter="$i">
             <launch_drone groupname="$drones" object="$dronelaunchbays.{$i}" group="unitcategory.gascollector" exact="1"/>
           </do_all>
         </do_while>
-          <debug_text filter="general" chance="this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
         <do_all exact="$drones.count" counter="$i">
           <do_if value="$drones.{$i}.isoperational">
             <start_script name="'ut.cac.mining.ship.drone'" object="$drones.{$i}.pilot">

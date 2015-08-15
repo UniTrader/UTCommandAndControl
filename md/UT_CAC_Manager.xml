@@ -151,7 +151,9 @@ Dialogue Tree - rough concept (for all Entity Types)
             </check_any>
           </conditions>
           <actions>
-            <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+            <do_if value="not ( event.param.isclass.drone or  event.param.isclass.ship_xs or  event.param.isclass.ship_s )" comment="too much debug spam for all those mining drones!">
+              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+            </do_if>
             <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
               <do_if value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
                 <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
