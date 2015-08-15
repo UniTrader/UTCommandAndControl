@@ -293,7 +293,7 @@ $entity  = ' + $entity"/>
           </do_if>
           <do_if value="$buyoffer.available">
             <debug_text filter="general" chance="this.$debug * 100" text="'found buy offer: %1 ( %2 %3 %4 %5 )'.[$buyoffer,$buyoffer.owner.knownname,$buyoffer.owner.zone.knownname,$buyoffer.ware,$buyoffer.amount]"/>
-            <set_value name="$amount" exact="[ $buyoffer.amount, this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free,(this.money/$buyoffer.unitprice)i ].min"/>
+            <set_value name="$amount" exact="[ $buyoffer.amount, this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free ].min"/>
             <do_if value="$amount == 0">
               <debug_text filter="general" chance="this.$debug * 100" text="'possible amount is 0 - continuing with next ware'"/>
               <continue/>
