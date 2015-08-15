@@ -11,10 +11,10 @@
       </conditions>
       <actions>
         <debug_text filter="general" text="'\nManager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
-$miningship= ' + $miningship + '\n
-$wareslist = ' + $wareslist + '\n
-$wareslist_prio = ' + $wareslist_prio + '\n
-$wareslist_buysell = ' + $wareslist_buysell + '\n
+$miningship (@)= ' + @$miningship + '\n
+$wareslist (@) = ' + @$wareslist + '\n
+$wareslist_prio (@) = ' + @$wareslist_prio + '\n
+$wareslist_buysell (@) = ' + @$wareslist_buysell + '\n
 $mininglist (@) = ' + @$mininglist + '\n
 $entity  = ' + $entity"/>
       </actions>
@@ -298,7 +298,7 @@ $entity  = ' + $entity"/>
               <debug_text filter="general" chance="this.$debug * 100" text="'possible amount is 0 - continuing with next ware'"/>
               <continue/>
             </do_if>
-            <create_trade_offer name="$selloffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="0Cr" playeronly="true"/>
+            <create_trade_offer name="$selloffer" seller="this.container" object="this.container" amount="$amount" ware="$ware" price="0Cr" playeronly="true"/>
             <debug_text filter="general" chance="this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 station amount, %4 cargobay'.[ $amount , $buyoffer.amount , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free ]"/>
             <do_if value="not $entity.hasownaccount">
               <set_actor_account actor="$entity"/>
