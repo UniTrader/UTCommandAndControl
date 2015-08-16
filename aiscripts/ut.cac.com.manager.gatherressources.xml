@@ -39,7 +39,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 manager Gather Script called with: \n%4'.[player.age,this.name,this.container.name,$params]"/>
       
       <!-- first check if we already started gathering Ressources and add them to the Station -->
-      <do_if value="typeof(@$params.$gatherware) == datatype.ware"/>
+      <do_if value="$params.$gatherware?">
         <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware" virtual="true"/>
         <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$params.$gatherware" />
         <set_value name="$gatherrate" exact="[$gatherrate,$params.$gatherrate].min"/>
@@ -47,6 +47,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
         <set_value name="$gathered" exact="$gathertime * $gatherrate" />
         <do_if value="( this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count ) lt $gathered">
           <set_value name="$gathered" exact="this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count" />
+        </do_if>
         <deplete_yield zone="this.zone" container="this.container" ware="$params.$gatherware" amount="$gathered" />
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Gathered from previous run:\n%4 units of %5 in %6 seconds (%7 units/s)'.[player.age,this.name,this.container.name,$gathered, $params.$gatherware, $gathertime, $gatherrate]"/>
         <remove_value name="$params.$gatherstart"/>
@@ -123,6 +124,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
         <debug_text filter="general" chance="this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
         <do_all exact="$drones.count" counter="$i">
           <do_if value="$drones.{$i}.isoperational">
+            <!-- ToDo: needs a better Script -->
             <start_script name="'ut.cac.mining.ship.drone'" object="$drones.{$i}.pilot">
               <param name="homebase" value="this.container"/>
               <param name="ware" value="$params.$gatherware"/>
