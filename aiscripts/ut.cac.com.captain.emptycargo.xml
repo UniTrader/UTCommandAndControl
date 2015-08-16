@@ -73,7 +73,7 @@
           <!-- Offer is in current Zone - just add it to the Trade Orders -->
           <do_if value="$buyoffers.{$i}.owner.zone == $currentzone">
             <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$warelist.{$i}}.count" price="$buyoffers.{$i}.unitprice"/>
-            <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0]"/>
+            <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$repeat=0]"/>
             <remove_value name="$buyoffers.{$i}"/>
           </do_if>
           <!-- Offer is somewhere else - if its closer than the previous Offer save it, if not wait for next iteration -->
@@ -96,7 +96,7 @@
         </do_all>
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Adding Buy Offer to Trade List:\n%4'.[player.age,this.name,this.container.name,$buyoffers.{$mindistindex}]"/>
         <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$warelist.{$mindistindex}.count}" price="$buyoffers.{$mindistindex}.unitprice"/>
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$command=command.freetrade]"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$repeat=0,$command=command.freetrade]"/>
         <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.zone"/>
         <!-- Path Length for small Ships, raw Distance for Big Ships -->
         <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">

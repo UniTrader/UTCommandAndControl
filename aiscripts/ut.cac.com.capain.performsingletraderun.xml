@@ -156,7 +156,7 @@
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Move to correct Zone:\n$tradepartner.zone= %4'.[player.age,this.name,this.container.name,$tradepartner.zone.knownname]"/>
       <do_if value="this.zone != $tradepartner.zone">
         <set_command_action commandaction="commandaction.flyingto" param="$tradepartner.zone"/>
-        <run_script name="'move.generic'">
+        <run_script name="'ut.cac.move.generic'">
           <param name="destination" value="$tradepartner" />
           <param name="endintargetzone" value="true" />
         </run_script>
@@ -419,7 +419,7 @@
         </do_if>
         <!-- remove shoppinglist item, and check list again -->
         <remove_trade_order object="this.ship" trade="$trade" />
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Trade failed - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Trade failed - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
 

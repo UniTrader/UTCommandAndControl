@@ -193,23 +193,36 @@ Dialogue Tree - rough concept (for all Entity Types)
 4.4
 4.5
 4.6
-5. Debug Functions
-5.1 Restart Main Script
-5.2 Print all Script Values
-5.3 Toggle Entity Logfile Debugging (writes to same file as Logfile, but diffrent, more detailed Info)
-5.4 Destroy Object for Cleanup
-5.5 Destroy Actor for Cleanup
-5.6 make Actor a 5-Start-Employee
-6.
-6.1
-6.2
-6.3
-6.4
-6.5
-6.6
+5. Direct Orders (for Testing)
+(Displays all current Orders as first Menu, second Menu is what you can do with each Order, 1 is for the first/current Order which is a bis special, # is for New Order at end of the List (or replacement/Insert Orders)
+5.1.1 Insert Order / Finish current Order later
+5.1.2 Replace Order / Cancel current Order
+5.1.3 Move Order / Finish it later
+5.1.4 Cancel ALL Orders
+5.1.5 Cancel Order
+5.1.6 (back) - better get used to [Esc] though
+5.*.1 Insert Order
+5.*.2 Replace Order
+5.*.3 Move Order
+5.*.4 Cancel All Orders except the current one (number 1)
+5.*.5 Cancel Order
+5.*.6 (back) - better get used to [Esc] though
+5.#.1 
+5.#.2 
+5.#.3 
+5.#.4 
+5.#.5 
+5.#.6 
+6. Debug Functions
+6.1 Restart Main Script
+6.2 Print all Script Values
+6.3 Toggle Entity Logfile Debugging (writes to same file as Logfile, but diffrent, more detailed Info)
+6.4 Destroy Object for Cleanup
+6.5 Destroy Actor for Cleanup
+6.6 make Actor a 5-Start-Employee
 -->
-    <library name="Comm_Common" instantiate="true">
-      <!-- common Handler for all NPC Types (Hired) - includes general Options like Personal Managment and connecting to other people, and the goodbye Section -->
+    <library name="Comm_Common_Personal" instantiate="true">
+      <!-- common Handler for all NPC Types (Hired) - general Options for Personal Managment  -->
       <params>
         <param name="actor"/>
       </params>
@@ -217,13 +230,6 @@ Dialogue Tree - rough concept (for all Entity Types)
         <check_any>
           <event_conversation_next_section sectionprefix="comm_personal_" actor="$actor"/>
           <event_conversation_returned_to_section sectionprefix="comm_personal_" actor="$actor"/>
-          <event_conversation_next_section sectionprefix="comm_connect_" actor="$actor"/>
-          <event_conversation_returned_to_section sectionprefix="comm_connect_" actor="$actor"/>
-          <event_conversation_next_section sectionprefix="comm_subordinates_" actor="$actor"/>
-          <event_conversation_returned_to_section sectionprefix="comm_subordinates_" actor="$actor"/>
-          <event_conversation_returned_to_section section="comm_goodbye" actor="$actor"/>
-          <event_conversation_next_section sectionprefix="comm_debug_" actor="$actor"/>
-          <event_conversation_returned_to_section sectionprefix="comm_debug_" actor="$actor"/>
           <event_cue_signalled/>
         </check_any>
       </conditions>
@@ -370,10 +376,26 @@ Dialogue Tree - rough concept (for all Entity Types)
           <add_player_choice text="'Log absolutely everything!'" position="6" section="comm_personal_log" choiceparam="100" confidence="5" selectable="$actor.$loglevel != 100" />
           <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
         </do_elseif>
+      </actions>
+    </library>
+    <library name="Comm_Common_Connect" instantiate="true">
+      <!-- common Handler for all NPC Types (Hired) - General Options to connect to other People -->
+      <params>
+        <param name="actor"/>
+      </params>
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_connect_" actor="$actor"/>
+          <event_conversation_returned_to_section sectionprefix="comm_connect_" actor="$actor"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
         <!--- ################################### -->
         <!--                        Connect Menu                          -->
         <!--- ################################### -->
-        <do_elseif value="event.param == 'comm_connect_main'">
+        <do_if value="event.param == 'comm_connect_main'">
           <add_npc_line speaker="player.entity" line="[102081].random" hidechoices="false" comment="Just put him through." />
           <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
           <!-- Slot1: Defense Officer -->
@@ -438,7 +460,7 @@ Dialogue Tree - rough concept (for all Entity Types)
           <!-- Slot6: Subordinates -->
           <add_player_choice_sub text="'Subordinates: %s'.[$actor.container.subordinates.{$actor.type}.count]" position="6" section="comm_connect_subordinates" selectable="$actor.container.subordinates.{$actor.type}.count" confidence="[$actor.container.subordinates.{$actor.type}.count - 1,5].min"/>
           <add_player_choice_return text="'(Back)'" position="close" />
-        </do_elseif>
+        </do_if>
         <do_elseif value="event.param == 'comm_connect_subordinates'">
           <do_all exact="[$actor.container.subordinates.{$actor.type}.count,6].min" counter="$i">
             <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.isclass.station">
@@ -470,10 +492,25 @@ Dialogue Tree - rough concept (for all Entity Types)
           <cancel_conversation actor="$actor"/>
           <start_conversation actor="event.param2" conversation="default"/>
         </do_elseif>
+      </actions>
+    </library>
+    <library name="Comm_Common_Subordinates" instantiate="true">
+      <!-- common Handler for all NPC Types (Hired) - general Options for Subordinate Managment -->
+      <params>
+        <param name="actor"/>
+      </params>
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_subordinates_" actor="$actor"/>
+          <event_conversation_returned_to_section sectionprefix="comm_subordinates_" actor="$actor"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
         <!--- ################################### -->
         <!-- Subordinate Managment (also assign to superior) -->
         <!--- ################################### -->
-        <do_elseif value="event.param == 'comm_subordinates_main'">
+        <do_if value="event.param == 'comm_subordinates_main'">
           <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
           <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           <add_player_choice text="'Take all my direct Subordinates'" position="1" section="comm_subordinates_take_playersquad" selectable="player.primaryship.subordinates.{1}?"/>
@@ -483,7 +520,7 @@ Dialogue Tree - rough concept (for all Entity Types)
           <add_player_choice text="'Select Superior'" position="5" section="comm_subordinates_select_superior" selectable="false"/>
           <add_player_choice_return text="'(Back)'" position="6" />
           <add_player_choice_return text="'(Back)'" position="close" />
-        </do_elseif>
+        </do_if>
         <do_elseif value="event.param == 'comm_subordinates_take_playersquad'">
           <!-- ToDo: Add Dialogue -->
           <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
@@ -501,10 +538,84 @@ Dialogue Tree - rough concept (for all Entity Types)
             <add_to_player_squad object="$actor.subordinates.{$i}" />
           </do_all>
         </do_elseif>
+      </actions>
+    </library>
+    <library name="Comm_Common_Orders" instantiate="true">
+      <!-- common Handler for all NPC Types (Hired) - General Options to connect to other People -->
+      <params>
+        <param name="actor"/>
+      </params>
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_orders_" actor="$actor"/>
+          <event_conversation_returned_to_section sectionprefix="comm_orders_" actor="$actor"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+        <do_if value="event.param == 'comm_orders_main'">
+          <do_if value="event.name == 'event_conversation_next_section'">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+          </do_if>
+          <set_value name="$slot" exact="1"/>
+          <set_value name="$order_number" exact="1"/>
+          <do_while value="$slot le 6 and $order_number le $actor.$orderlist.count">
+            <set_value name="$order" exact="$actor.$orderlist.{$order_number}"/>
+            <do_if value="$order.$displayname?">
+              <add_player_choice_sub text="$order.$displayname" position="$slot" section="comm_orders_modify" choiceparam="[$slot , $order , $order_number]" selectable="$slot != 1"/>
+              <set_value name="$slot" operation="add"/>
+            </do_if>
+            <set_value name="$order_number" operation="add"/>
+          </do_while>
+          <do_if value="$slot le 5">
+            <add_player_choice_sub text="'\033YNew Order...\033X'" position="$slot" section="comm_orders_new" choiceparam="[$slot , null , null]" comment="see Entity-Specific main Script"/>
+          </do_if>
+          <show_help position="8" custom="'Orders not Displayed: %1\n(%2 because of missing Name)'.[$slot -1 - $actor.$orderlist.count,$order_number - $slot]" duration="10s" log="false"/>
+          <add_player_choice_return text="'(Back)'" position="6" />
+          <add_player_choice_return text="'(Back)'" position="close" />
+        </do_if>
+        <do_if value="event.param == 'comm_orders_modify'">
+          <do_if value="event.param2.{1} == 1" comment="current/first Order">
+            <add_player_choice_sub text="'Insert Order, finish current later'" position="1" section="comm_orders_new" choiceparam="event.param2"/>
+            <add_player_choice_sub text="'Replace Order - WiP, use Insert+Cancel for now'" position="2" section="comm_orders_new" choiceparam="event.param2" selectable="false"/>
+            <add_player_choice_sub text="'Move Order, finish it later'" position="3" section="comm_orders_move" choiceparam="event.param2"/>
+            <add_player_choice_sub text="'Cancel ALL Orders'" position="4" section="comm_orders_cancel_all" choiceparam="false"/>
+            <add_player_choice_sub text="'Cancel Order, continue with next'" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
+          </do_if>
+          <do_else>
+            <add_player_choice_sub text="'Insert Order'" position="1" section="comm_orders_new" choiceparam="event.param2"/>
+            <add_player_choice_sub text="'Replace Order - WiP, use Insert+Cancel for now'" position="2" section="comm_orders_new" choiceparam="event.param2" selectable="false"/>
+            <add_player_choice_sub text="'Move Order'" position="3" section="comm_orders_move" choiceparam="event.param2"/>
+            <add_player_choice_sub text="'Cancel All Orders except the current'" position="4" section="comm_orders_cancel_all" choiceparam="false"/>
+            <add_player_choice_sub text="'Cancel Order'" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
+          </do_else>
+          
+          <add_player_choice_return text="'(Back) - better get used to [Esc] though'" position="6" />
+          <add_player_choice_return text="'(Back)'" position="close" />
+        </do_if>
+      </actions>
+    </library>
+    
+    <library name="Comm_Common_Misc" instantiate="true">
+      <!-- common Handler for all NPC Types (Hired) - Goodbye Section and Debug Options -->
+      <params>
+        <param name="actor"/>
+      </params>
+      <conditions>
+        <check_any>
+          <event_conversation_returned_to_section section="comm_goodbye" actor="$actor"/>
+          <event_conversation_next_section sectionprefix="comm_debug_" actor="$actor"/>
+          <event_conversation_returned_to_section sectionprefix="comm_debug_" actor="$actor"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
         <!--- ################################### -->
         <!--                            Goodbye                              -->
         <!--- ################################### -->
-        <do_elseif value="event.param == 'comm_goodbye'">
+        <do_if value="event.param == 'comm_goodbye'">
           <add_npc_line speaker="player.entity" line="[1102,1103].random" hidechoices="false" comment="Goodbye. | See ya." />
           <do_if value="$actor.room != player.entity.room" >
             <add_npc_line speaker="$actor" line="[11,12,15,1005].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Closing Comms." />
@@ -512,7 +623,7 @@ Dialogue Tree - rough concept (for all Entity Types)
           <do_else>
             <add_npc_line speaker="$actor" line="[11,12,15,1006].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Goodbye, Sir." />
           </do_else>
-        </do_elseif>
+        </do_if>
         <!--- ################################### -->
         <!--                              Debug                                -->
         <!--- ################################### -->

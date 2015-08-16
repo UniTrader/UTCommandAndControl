@@ -93,23 +93,20 @@ Dialogue Tree - rough concept (for all Entity Types)
                 <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
               </do_else>
             </do_if>
+            <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
             <add_player_choice_sub text="'Lets talk about your Work / Personal Settings'" position="1" section="comm_personal_main"/>
             <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main" selectable="false"/>
             <add_player_choice_sub text="'Connect me with...'" position="3" section="comm_connect_main"/>
             <add_player_choice_sub text="'About your Subordinates...'" position="4" section="comm_subordinates_main"/>
-            <add_player_choice_sub text="'DEBUG'" position="5" section="comm_debug_main"/>
+            <add_player_choice_sub text="'About your current Orders...'" position="5" section="comm_orders_main" selectable="false"/>
+            <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
             <set_conversation_return_section section="comm_goodbye"/>
-            <add_player_choice_return text="'Goodbye'" position="6" />
             <add_player_choice_return text="'Goodbye'" position="close" />
           </actions>
         </cue>
         
         <!-- Menu 1: Personal Settings (as lib since its shared with other NPC Types) -->
-        <!-- Menu 3: Connect with other Actor-->
-        <!-- Menu 4: Subordinates Handling -->
-        <!-- Also the Goodbye Section is included here -->
-        <!-- (all these Slots are in a shared Lib) -->
-        <cue name="Comm_Common" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common">
+        <cue name="Comm_Common_Personal" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Personal">
           <param name="actor" value="$actor"/>
         </cue>
         <!-- Menu 2: Object Settings specific to Manager -->
@@ -141,6 +138,35 @@ Dialogue Tree - rough concept (for all Entity Types)
             </do_if>
           </actions>
         </cue>
+        <!-- Menu 3: Connect with other Actor-->
+        <cue name="Comm_Common_Connect" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Connect">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Menu 4: Subordinates Handling -->
+        <cue name="Comm_Common_Subordinates" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Subordinates">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Menu 5: Orders (Note: partially Entity-Specific, see cue Comm_Orders ) -->
+        <cue name="Comm_Common_Orders" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Orders">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <cue name="Comm_Orders" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_next_section sectionprefix="comm_orders_" actor="$actor"/>
+              <event_conversation_returned_to_section sectionprefix="comm_orders_" actor="$actor"/>
+              <event_cue_signalled/>
+            </check_any>
+          </conditions>
+          <actions>
+            
+          </actions>
+        </cue>
+        <!-- Misc Menu Items (Debug menu (6)) and Goodbye Section) -->
+        <cue name="Comm_Common_Misc" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Misc">
+          <param name="actor" value="$actor"/>
+        </cue>
+        
         
         <cue name="Subordinate_Added" instantiate="true">
           <conditions>

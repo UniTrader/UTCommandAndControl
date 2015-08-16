@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.move.gate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+ Routine for passing through Gates (was in move.jump and move.generic before)
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="gate" default="false" comment="Gate to go through"/>
+    <param name="cleargate" default="true" comment="Clear the Gate after Passage? (if set to 2 it will also skip the deactivation of Boosters so we can continue boosting without interruption)"/>
+  </params>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$gate?">
+          <set_value name="$gate" exact="$params.$gate"/>
+        </do_if>
+        <do_if value="$params.$cleargate?">
+          <set_value name="$cleargate" exact="$params.$cleargate"/>
+        </do_if>
+      </do_if>
+      
+      <!-- then check if the Gate is Valid  -->
+      <do_if value="not $gate.exists or not $gate.isclass.gate">
+        <debug_text filter="error" text="'%1 %2 %3 Gate not existent or not a gate - aborting!'.[player.age,this.name,this.container.name]"/>
+      </do_if>
+      
+      <!-- calculate Approach Position which lies behind the gate to use it as efficient as possible (not to be confused with <get_gate_approach_pos/> which lies inside the Gate -->
+      <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
+        <position x="0m" y="0m" z="0 - (this.ship.size + $gate.size )"/>
+      </transform_position>
+      <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="this.ship"/>
+      
+      
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Moving behind the Gate in %4 as preperation for passage'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
+      
+      <!-- fly to said position - temporary usage of vanilla scripts here -->
+      <run_script name="'move.generic'" >
+        <param name="destination" value="$gate.zone" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+        <param name="position" value="$safeposition" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+        <param name="lookat" value="$gate.position" comment="position the ship should point to - overridden by rotation"/>
+        <param name="nojump" value="true" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
+      </run_script>
+      
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
+      
+      <!-- enter gate - also using move.generic for now -->
+      <run_script name="'move.generic'" >
+        <param name="destination" value="$gate" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+        <param name="nojump" value="true" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
+      </run_script>
+      
+      <!-- a very short Boost forward to clear Entry Area (or if not possible right now clear in normal flight) -->
+      <do_if value="$cleargate">
+        <do_if value="this.ship.canboost">
+          <start_boost object="this.ship"/>
+        </do_if>
+        <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >
+          <position x="0m" y="0m" z="(this.ship.size *3)"/>
+        </transform_position>
+        <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
+        <move_to object="this.ship" destination="this.zone" >
+          <position value="$safeposition"/>
+        </move_to>
+        <do_if value="this.ship.isboostactive and $cleargate != 2">
+          <stop_boost object="this.ship"/>
+        </do_if>
+      </do_if>
+      
+    </actions>
+  </attention>
+</aiscript>

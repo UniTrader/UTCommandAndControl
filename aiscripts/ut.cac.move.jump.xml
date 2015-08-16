@@ -1,0 +1,321 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.move.jump" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+ Routine for Jumping (also takes care of Groups jumping simultaneously, just add a Signal Handler to your follow/Escort Script )
+
+ToDo:
+ currently doesnt check if we Jump to the same Sector or skip some on the way - similiar to nonstop and forcejump combined from the vanilla script (may keep this behavior though since it should be responsibility of the Nav Script to take care of this)
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="destination" default="false" comment="Destination Sector, or Object to Jump to (Jump Beacon or Object for random Jump in case of group Jumps) - will jump as close as possible and exit, finer movements are for other scripts"/>
+    <param name="type" default="false" comment="use a certain type of Jump, like 'beacon', 'random', 'auto' or 'emergency'"/>
+    <!-- explaination of the Jump Types: 
+    'beacon' - jump to the closest Jump Beacon of the Destination (random one if the Sector itself is the Destination)
+    'random' - jump to a random Object in the Sector (bigger object Sizes are more likely, but all are possible)
+    'auto' - prefer beacons, but if Enemies are on every location or the Destination is really remote (no JB nearby, but many Objects) try a random jump, maybe you are lucky
+      -> in case no JBs are available in the destination Sector a random Jump will be performed
+    'object' - jump to a certain Object, like a JB (same as 'random' just with a certain Object) - only to be used internally for Group Jumps
+    -->
+    
+    <param name="skipcharge" default="false" comment="skip the jump drive charge time (only to be used in special cases e.g. plot missions)"/>
+    <param name="ignorefuel" default="false" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
+    
+    <!-- Stuff necesary for coordinated Group Jumps -->
+    <param name="leader" default="null" comment="the formation leader/object which coordinates the Jump"/>
+    <param name="leader_preparegroup" default="null" comment="the group of Ships the Leader waits for (if you dont specify a leader this will be the Group the Ship waits for to prepare as if it were the leader)"/>
+    
+  </params>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$destination?">
+          <set_value name="$destination" exact="$params.$destination"/>
+        </do_if>
+        <do_if value="$params.$type?">
+          <set_value name="$type" exact="$params.$type"/>
+        </do_if>
+        <do_if value="$params.$skipcharge?">
+          <set_value name="$skipcharge" exact="$params.$skipcharge"/>
+        </do_if>
+        <do_if value="$params.$ignorefuel?">
+          <set_value name="$ignorefuel" exact="$params.$ignorefuel"/>
+        </do_if>
+        <do_if value="$params.$leader?">
+          <set_value name="$leader" exact="$params.$leader"/>
+        </do_if>
+        <do_if value="$params.$leader_preparegroup?">
+          <set_value name="$leader_preparegroup" exact="$params.$leader_preparegroup"/>
+        </do_if>
+      </do_if>
+      
+      <!-- if Jump Type hat not been set - use Entity default Value or fall back to general defaults depending on Faction -->
+      <do_if value="not $type">
+        <do_if value="this.$jumptype?">
+          <set_value name="$type" exact="this.$jumptype"/>
+        </do_if>
+        <do_else>
+          <!-- Criminal Factions prefer random Jumps to surprise (is a bit hacky because it doesnt take EXP into account)-->
+          <do_if value="this.owner == faction.enemy or this.owner == faction.smuggler or this.owner == faction.criminal or this.owner == faction.sovereignsyndicate or this.owner == faction.hereticvanguards or this.owner == faction.reivers">
+            <set_value name="$type" exact="'random'"/>
+          </do_if>
+          <!-- Police Factions always prefer Beacon Jumps because they guarantee arrival time, also Inexpierienced Captains use this as default mode of operation (or player ones if not told otherwise)-->
+          <do_elseif value="this.owner.ispolice or this.skill.navigation le 3 or this.owner == faction.player">
+            <set_value name="$type" exact="'beacon'"/>
+          </do_elseif>
+          <!-- Expierienced Captains may do Random Jumps if there are Enemies near all beacons -->
+          <do_else>
+            <set_value name="$type" exact="'auto'"/>
+          </do_else>
+        </do_else>
+      </do_if>
+      
+      
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Jump Script started with parameters:\n$destination: %4, $type: %5, $skipcharge: %6, $ignorefuel: %7, $leader: %8, $leader_preparegroup: %9'.[player.age,this.name,this.container.name,$destination,$type,$skipcharge,$ignorefuel,$leader,$leader_preparegroup]"/>
+      
+      <set_command_action commandaction="commandaction.jumping" />
+      
+      <!-- maybe use a light variant which only undocks and cancels boosters, not the other stuff with leaving formations etc. -->
+      <run_script name="'ut.cac.move.free'" />
+      
+      <!-- sanitize Input -->
+      <!-- abort in case we try to jump into a tube -->
+      <do_if value="$destination.isclass.highway">
+        <debug_text filter="error" text="'%1 %2 %3 tried to Jump into Tube - aborting!'.[player.age,this.name,this.container.name]"/>
+        <return value="false"/>
+      </do_if>
+      <!-- in case the Destination is a Ship inside a Tube get its Exit Waypoint and jump as near as possible there -->
+      <!-- no special behavior in case the Pilot ddnt annnunce his Target - just jump to him as close as possible -->
+      <do_if value="$destination.isclass.ship">
+        <do_if value="$destination.zone.isclass.highway">
+          <do_if value="$destination.pilot.$waypoint?">
+            <set_value name="$destination" exact="$destination.pilot.$waypoint"/>
+          </do_if>
+        </do_if>
+      </do_if>
+      <do_if value="not ( $destination.isclass.sector or @$destination.sector.exists ) or not this.sector.exists">
+        <debug_text filter="error" text="'%1 %2 %3 Jumpsectors invalid - aborting!'.[player.age,this.name,this.container.name]"/>
+        <return value="false"/>
+      </do_if>
+      
+      <!-- check if we really can do this Jump -->
+      <find_object_component name="$jumpdrive" object="this.ship" class="class.jumpdrive"/>
+      <do_if value="not $jumpdrive.isoperational">
+        <debug_text filter="error" text="'%1 %2 %3 No operational Jumpdrive - aborting!'.[player.age,this.name,this.container.name]"/>
+        <return value="false"/>
+      </do_if>
+      
+      <!-- save the slow charge effect in a var for later use -->
+      <do_if value="$jumpdrive.macro.ismacro.props_surf_ar_jumpdrive_macro">
+        <set_value name="$slowchargeeffect" exact ="'jump_activation_jumpdrive_slow'"/>
+      </do_if>
+      <do_elseif value="$jumpdrive.macro.ismacro.props_surf_ar_jumpdrive_l_macro">
+        <set_value name="$slowchargeeffect" exact ="'jump_activation_jumpdrive_l_slow'"/>
+      </do_elseif>
+      
+      <!-- get the Object which acts as Jump Beacon -->
+      <do_if value="$type == 'beacon' or $type == 'auto'">
+        <!-- get a regular JB -->
+        <do_if value="$destination.isclass.sector">
+          <!-- just passing through the Cluster -->
+          <!-- find a random beacon were are no Enemies nearby -->
+          <find_object name="$beacons" space="$destination" class="class.jumpbeacon" knownto="this.owner" checkoperational="true" multiple="true"/>
+          <do_all exact="$beacons.count">
+            <set_value name="$beacon" exact="$beacons.random"/>
+            <find_object name="$enemy" space="$beacon.zone" knownto="this.owner" >
+              <match_relation object="this.ship" comparison="le" relation="kill"/>
+              <match_size min="100m"/>
+            </find_object>
+            <!-- get the first beacon without enemies nearby (fallback in case there are enemies everywhere is the last one checked ) -->
+            <do_if value="not $enemy.exists">
+              <set_value name="$beacon_clear"/>
+              <break/>
+            </do_if>
+          </do_all>
+          <!-- we dont know any beacons in the Destination Sector - lock onto a random one -->
+          <do_if value="not @$beacon.exists">
+            <find_object name="$beacon" space="$destination" class="class.jumpbeacon" checkoperational="true"/>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
+          </do_if>
+          <do_else>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon %4 from set of %5 (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
+          </do_else>
+        </do_if>
+        <do_else>
+          <!-- final Cluster on Path - jump to the closest beacon, but also watch for enemies -->
+          <find_object name="$beacons" space="$destination.sector" class="class.jumpbeacon" knownto="this.owner" checkoperational="true" multiple="true"/>
+          <set_value name="$distance" exact="1e12m"/>
+          <do_all exact="$beacons.count">
+            <do_if value="$destination.distanceto.{$beacons.{$i}} lt $distance"/>
+              <set_value name="$distance" exact="$destination.distanceto.{$beacons.{$i}}"/>
+              <set_value name="$nearbeacon"/>
+              <find_object name="$enemy" space="$beacons.{$i}.zone" knownto="this.owner" >
+                <match_relation object="this.ship" comparison="le" relation="kill"/>
+                <match_size min="100m"/>
+              </find_object>
+              <do_if value="not $enemy.exists">
+                <set_value name="$safebeacon"/>
+              </do_if>
+          </do_all>
+          <do_if value="$safebeacon?">
+            <set_value name="$beacon_clear"/>
+            <set_value name="$beacon" exact="$safebeacon"/>
+          </do_if>
+          <do_elseif value="$nearbeacon?">
+            <set_value name="$beacon" exact="$nearbeacon"/>
+          </do_elseif>
+          <!-- we dont know any beacons in the Destination Sector - lock onto a random one -->
+          <do_if value="not @$beacon.exists">
+            <find_object name="$beacon" space="$destination.sector" class="class.jumpbeacon" checkoperational="true"/>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Final Approach Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
+          </do_if>
+          <do_else>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon %4 from set of %5 (final Approach case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
+          </do_else>
+        </do_else>
+      </do_if>
+      <do_if value="$type == 'random' or ( $type == 'auto' and not $beacon_clear? ) or ( $type == 'beacon' and not @$beacon.exists )">
+        <!-- use any Object as JB (either on purpose or if there are enemies near all known beacons or if there are no beacons in destination Sector) -->
+        <!-- prefer big Objects - pick a random min size and find something bigger acting as JB resulting in an increasing probability with increasing size -->
+        <!-- if no Object is found try again with half the size 4 times and then leave out the minsize requirement to guarantee finding an object -->
+        <do_if value="$destination.isclass.sector">
+          <set_value name="$space" exact="$destination"/>
+        </do_if>
+        <do_else>
+          <set_value name="$space" exact="$destination.sector"/>
+        </do_else>
+        <set_value name="$minsize" min="1m" max="5km"/>
+        <find_object name="$beacon" space="$space">
+          <match_size min="$minsize"/>
+        </find_object>
+        <do_if value="not $beacon.exists">
+          <do_all exact="4">
+            <set_value name="$minsize" exact="$minsize / 2"/>
+            <find_object name="$beacon" space="$space">
+              <match_size min="$minsize"/>
+            </find_object>
+            <do_if value="$beacon.exists">
+              <break/>
+            </do_if>
+          </do_all>
+          <do_if value="not $beacon.exists">
+            <find_object name="$beacon" space="$space"/>
+          </do_if>
+        </do_if>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Random Beacon %4'.[player.age,this.name,this.container.name,$beacon.knownname]"/>
+      </do_if>
+      <do_if value="$type == 'object'">
+        <set_value name="$beacon" exact="$destination"/>
+        <find_object name="$enemy" space="$beacon.zone" knownto="this.owner" >
+          <match_relation object="this.ship" comparison="le" relation="kill"/>
+          <match_size min="100m"/>
+        </find_object>
+        <do_if value="not $enemy.exists">
+          <set_value name="$beacon_clear"/>
+        </do_if>
+      </do_if>
+      
+      <do_if value="not $beacon.exists">
+        <debug_text filter="error" text="'%1 %2 %3 Jumping Aborted - no valid beacon Found (should not be possible) $destination: %4'.[player.age,this.name,this.container.name,$destination.knownname]"/>
+      </do_if>
+      
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination Beacon: %4 in %5 // %6'.[player.age,this.name,this.container.name,$beacon.knownname,$beacon.sector.knownname,$beacon.zone.knownname]"/>
+      
+      <!-- Signal our Intention to Jump and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
+      <do_if value="not $leader and $leader_preparegroup">
+        <set_value name="$followers_preparing" exact="$leader_preparegroup"/>
+        <remove_value name="$leader_preparegroup"/>
+      </do_if>
+      <do_else>
+        <create_group groupname="$followers_preparing"/>
+      </do_else>
+      <signal_objects object="this.ship" param="'travel jump prep'" param2="$beacon" param3="$followers_preparing"/>
+      <wait min="900ms" max="1100ms"/>
+      
+      <!-- Slow Jumpdrive Charge in case we dont have enough Fuel - fuel check and refueling are somewhere else -->
+      <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{$destination}">
+        <!-- not enough fuel, don't use fuel and delay the jump -->
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Not enough Fuel, slow charge'.[player.age,this.name,this.container.name]"/>
+        <set_value name="$ignorefuel" exact="true"/>
+        <do_if value="$skipcharge" exact="false">
+          <!-- slow charge jump effects - will be removed just before firing up the JD -->
+          <do_if value="$slowchargeeffect?">
+            <add_effect object="$jumpdrive" effect="$slowchargeeffect"/>
+            <set_value name="$slowcharge"/>
+          </do_if>
+          <wait min="590s" max="610s"/>
+        </do_if>
+      </do_if>
+      
+      <!-- wait till JD has cooled down for the next Jump -->
+      <do_while value="$jumpdrive.cooldowntimeleft gt 0">
+        <wait min="($jumpdrive.cooldowntimeleft + 2)s" max="($jumpdrive.cooldowntimeleft + 4)s"/>
+      </do_while>
+      
+      <!-- Jumpdrive ready - wait till everyone following has also prepared to actually jump -->
+      <do_while value="$followers_preparing.count">
+        <wait min="5s" max="8s"/>
+      </do_while>
+      
+      <!-- if we are a follower in a Group Jump - remove ourselves from the Group to signal we are ready and wait for the Start Signal -->
+      <do_if value="$leader.exists">
+        <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+        <wait>
+          <interrupt>
+            <conditions>
+                <event_object_signalled object="$leader" param="'travel jump start'" param2="$beacon"/>
+            </conditions>
+          </interrupt>
+          <!--interrupt>
+            <conditions>
+                <event_object_changed_zone object="$leader"/>
+            </conditions>
+            <actions>
+              <!- - what the hell? the leader has flown away or jumped without telling anyone! - ->
+              <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone!'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+              <return/>
+            </actions>
+          </interrupt-->
+        </wait>
+      </do_if>
+      
+      
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Charging Jump Drive! 10 Precent, 20, 30....'.[player.age,this.name,this.container.name]"/>
+      <!-- actually JUMP!!! -->
+      <do_if value="$slowcharge?">
+        <remove_effect object="$jumpdrive" effect="$slowchargeeffect"/>
+      </do_if>
+      <signal_objects object="this.ship" param="'travel jump start'" param2="$beacon"/>
+      <activate_battlestate object="this.ship" state="battlestate_jumpprep"/>
+      <jump result="$result" object="this.ship" zone="$beacon.zone" ignorefuel="$ignorefuel" skipcharge="$skipcharge">
+        <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
+        <orientation refobject="$beacon" orientation="look_away_bbox"/>
+      </jump>
+      <do_if value="$result">
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
+        <do_if value="not $beacon_clear?">
+          <activate_battlestate object="this.ship" state="battlestate_red"/>
+        </do_if>
+      </do_if>
+      <do_else>
+        <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!!'.[player.age,this.name,this.container.name]"/>
+      </do_else>
+      
+      <return value="$result"/>
+      
+    </actions>
+  </attention>
+  <on_abort>
+    <signal_objects object="this.ship" param="'travel jump aborted'"/>
+    <do_if value="event.name != 'event_object_destroyed'">
+      <abort_jump object="this.ship" />
+    </do_if>
+  </on_abort>
+</aiscript>

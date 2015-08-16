@@ -1,0 +1,299 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.move.generic" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+  Generic routine for moving to a specific location.
+  
+  IMPORTANT NOTE: Only Stationary Objects for now, will fall back to Vanilla Script in case the Destination switches Zone Context! (will restart from the beginning when everything works, and exit if both have the same zone context - no cheap follow anymore!)
+  
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="destination" default="null" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+    <param name="position" default="null" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+    <param name="rotation" default="null" comment="rotation the ship should have - overrides lookat"/>
+    <param name="lookat" default="null" comment="position the ship should point to - overridden by rotation"/>
+    <param name="nojump" default="false" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
+    <param name="skipcharge" default="false" comment="skip the jump drive charge time (only to be used in special cases e.g. plot missions)"/>
+    <param name="ignorefuel" default="false" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
+    <param name="autorefuel" default="true" comment="automatically take steps to re-fuel if necessary"/>
+    <param name="disablecollisionavoidance" default="false" comment="HACK - disable collisionavoidance for this ship"/>
+    <param name="abortpath" default="true" comment="disable aborting existing path"/>
+    <param name="forcesteering" default="false" comment="force steering flight control model"/>
+    <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
+  </params>
+  <interrupts>
+    <handler ref="TargetInvalidHandler" />
+    <!-- switching to Vanilla Script in case destination is moving -->
+    <!--handler>
+      <conditions>
+        <event_object_changed_zone object="$destination"/>
+      </conditions>
+      <actions>
+        <run_interrupt_script name="move.generic" abortscripts="true" resume="finish">
+          <param name="destination" value="$destination" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+          <param name="position" value="$position" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+          <param name="rotation" value="$rotation" comment="rotation the ship should have - overrides lookat"/>
+          <param name="lookat" value="$lookat" comment="position the ship should point to - overridden by rotation"/>
+          <param name="nojump" value="$nojump" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
+          <param name="skipcharge" value="$skipcharge" comment="skip the jump drive charge time (only to be used in special cases e.g. plot missions)"/>
+          <param name="ignorefuel" value="$ignorefuel" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
+          <param name="autorefuel" value="$autorefuel" comment="automatically take steps to re-fuel if necessary"/>
+          <param name="disablecollisionavoidance" value="$disablecollisionavoidance" comment="HACK - disable collisionavoidance for this ship"/>
+          <param name="abortpath" value="$abortpath" comment="disable aborting existing path"/>
+          <param name="forcesteering" value="$forcesteering" comment="force steering flight control model"/>
+          <param name="endintargetzone" value="$endintargetspace" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
+        </run_interrupt_script>
+      </actions>
+    </handler-->
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <!-- first turn params param into the real params -->
+      <do_if value="$params">
+        <do_if value="$params.$destination?">
+          <set_value name="$destination" exact="$params.$destination"/>
+        </do_if>
+        <do_if value="$params.$position?">
+          <set_value name="$position" exact="$params.$position"/>
+        </do_if>
+        <do_if value="$params.$rotation?">
+          <set_value name="$rotation" exact="$params.$rotation"/>
+        </do_if>
+        <do_if value="$params.$nojump?">
+          <set_value name="$nojump" exact="$params.$nojump"/>
+        </do_if>
+        <do_if value="$params.$skipcharge?">
+          <set_value name="$skipcharge" exact="$params.$skipcharge"/>
+        </do_if>
+        <do_if value="$params.$ignorefuel?">
+          <set_value name="$ignorefuel" exact="$params.$ignorefuel"/>
+        </do_if>
+        <do_if value="$params.$autorefuel?">
+          <set_value name="$autorefuel" exact="$params.$autorefuel"/>
+        </do_if>
+        <do_if value="$params.$disablecollisionavoidance?">
+          <set_value name="$disablecollisionavoidance" exact="$params.$disablecollisionavoidance"/>
+        </do_if>
+        <do_if value="$params.$abortpath?">
+          <set_value name="$abortpath" exact="$params.$abortpath"/>
+        </do_if>
+        <do_if value="$params.$forcesteering?">
+          <set_value name="$forcesteering" exact="$params.$forcesteering"/>
+        </do_if>
+        <do_if value="$params.$endintargetspace?">
+          <set_value name="$endintargetspace" exact="$params.$endintargetspace"/>
+        </do_if>
+        <do_if value="$params.$repeat?">
+          <set_value name="$repeat" exact="$params.$repeat"/>
+        </do_if>
+        <do_else>
+          <set_value name="$repeat" exact="false"/>
+        </do_else>
+      </do_if>
+      <remove_value name="$params"/>
+      
+      <do_if value="$disablecollisionavoidance">
+        <set_avoid_collisions object="this.ship" enabled="false"/>
+      </do_if>
+      <set_value name="$bigship" exact="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" />
+      
+      
+      <!-- first Validate Input -
+      A) was a correct/existent Destination passed
+      B) can this Object go to that Destination (Bigships cannt enter Tubes)
+      -->
+      
+      <label name="start"/>
+      
+      <do_if value="not $destination.exists">
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination does not exist - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      
+      <!-- if destination is a Space (galaxy, Cluster, Sector, Zone) use it as targetspace, otherwise get its Zone as first Destination and care about the fine movements only in the last step -->
+      <do_if value="$destination.isclass.galaxy or $destination.isclass.cluster or $destination.isclass.sector or $destination.isclass.zone">
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination is a Space - Move until we have the right Context'.[player.age,this.name,this.container.name]"/>
+        <set_value name="$targetspace" exact="$destination"/>
+      </do_if>
+      <do_elseif value="$destination.isclass.ship and $destination.pilot.$waypoint?">
+        <set_value name="$targetspace" exact="$destination.pilot.$waypoint"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination is a Ship which has announced its next movement Step - follow it to %4 to meet up'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
+      </do_elseif>
+      <do_else>
+        <set_value name="$targetspace" exact="$destination.zone"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination is an Object - First move into right Zone, but regulary check if the Destination Object switched Zones'.[player.age,this.name,this.container.name]"/>
+      </do_else>
+      <!-- Second if input is valid: Undock -->
+      <run_script name="'ut.cac.move.free'">
+        <param name="fast" value="true"/>
+      </run_script>
+      
+      <!-- then check if we maybe already have the right Context in which case we can just exit / go to the fine movements -->
+      <do_if value="this.ship.hascontext.{$targetspace}">
+        <do_if value="$destination == $targetspace">
+          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Already has right Context - Exit without movement'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_if>
+        <do_elseif value="$endintargetspace">
+          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Exit without movement'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_elseif>
+        <do_else>
+          <!-- ToDo: Fine Movements -->
+          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Skipping to fine movement'.[player.age,this.name,this.container.name]"/>
+          <resume label="fine movement"/>
+        </do_else>
+      </do_if>
+      
+      <!-- for Ships which can Jump: Jump Path -->
+      <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" >
+        <do_if value="this.sector ==$targetspace.sector" >
+          <resume label="fine movement"/>
+        </do_if>
+        <get_jump_path component="$waypoints" multiple="true" start="this.sector" end="$targetspace.sector" />
+        <!-- set last Entry with the Target Sector to the exact Target Space so we can determine the closest Beacon -->
+        <set_value name="$waypoints.{$waypoints.count}" exact="$targetspace"/>
+        
+        <!-- For Testing: print the full Path to Debuglog -->
+        <set_value name="$LogMessage" exact="'%1 %2 %3 Jump Path:'.[player.age,this.name,this.container.name]"/>
+        <do_all exact="$waypoints.count" counter="$i">
+          <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,$waypoints.{$i}.cluster.knownname]"/>
+        </do_all>
+        <debug_text filter="general" chance="this.$debug * 100" text="$LogMessage"/>
+        
+        <!-- filter the Jump Path for the relevant Path Waypoints (Filter out Sectors where next Waypoint is a Gate in the same Sector, filter out Exit Gate in case we already have an Entry Gate, filter out Exit Gate Sector)-->
+        <!--  remove the first item which is always the Start that we dont need in any case -->
+        <remove_value name="$waypoints.{1}" />
+        <set_value name="$id" exact="1"/>
+        <do_while value="$id lt $waypoints.count">
+          <do_if value="$waypoints.{$id}.isclass.gate">
+            <do_if value="$waypoints.{$id}.destination == $waypoints.{$id+1}.zone">
+              <!-- remove Exit Gate Sector -->
+              <do_if value="$waypoints.{$id+1}.sector == $waypoints.{$id+2}">
+                <remove_value name="$waypoints.{$id+2}"/>
+              </do_if>
+              <do_else>
+                <debug_text filter="general" chance="this.$debug * 100" text="'Next Gate waypoint not in same Sector ( %1) as next+1 Sector ( %2 ) Waypoint - skipping removal'.[$waypoints.{$id+1}.sector.knownname,$waypoints.{$id+2}.sector.knownname]"/>
+              </do_else>
+              <!-- remove Exit Gate -->
+              <remove_value name="$waypoints.{$id+1}"/>
+              <!-- remove Entry Gate Sector-->
+              <do_if value="$waypoints.{$id}.sector == @$waypoints.{$id-1}">
+                <remove_value name="$waypoints.{$id-1}"/>
+                <set_value name="$id" operation="subtract"/>
+              </do_if>
+              <do_else>
+                <debug_text filter="general" chance="this.$debug * 100" text="'Previous Sector waypoint not in same Sector as current Gate - skipping removal!'"/>
+              </do_else>
+            </do_if>
+          </do_if>
+          <set_value name="$id" operation="add"/>
+        </do_while>
+        
+        <!-- For Testing: print the full Path to Debuglog -->
+        <set_value name="$LogMessage" exact="'%1 %2 %3 Jump Path cleared:'.[player.age,this.name,this.container.name]"/>
+        <do_all exact="$waypoints.count" counter="$i">
+          <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,$waypoints.{$i}.cluster.knownname]"/>
+        </do_all>
+        <debug_text filter="general" chance="this.$debug * 100" text="$LogMessage"/>
+        
+        
+        <!-- follow the Waypoints to the Destination Zone/Space, when we reached the right Cluster or Sector Exit (no need to follow remaining waypoints), when Destination is a Zone or Object continue with boosting towards Destination in a seperate script -->
+        <do_while value="$waypoints.count gt 1">
+          <set_value name="this.$waypoint" exact="$waypoints.{1}"/>
+          <do_if value="this.$waypoint.isclass.sector">
+            <!-- Idea: if sector is very close -maybe consider boosting? requires a specialized boost script which handles the context change though -->
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Jumping to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <!-- JUMP!! -->
+            <run_script name="'ut.cac.move.jump'" result="$result" >
+              <param name="destination" value="this.$waypoint"/>
+            </run_script>
+          </do_if>
+          <do_elseif value="this.$waypoint.isclass.gate">
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Jumping near to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <run_script name="'ut.cac.move.jump'" result="$result" >
+              <param name="destination" value="this.$waypoint.zone"/>
+            </run_script>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 moving through Gate in %4'.[player.age,this.name,this.container.name,this.$waypoint.zone.knownname]"/>
+            <!-- Move through Gate -->
+            <run_script name="'ut.cac.move.gate'">
+              <param name="gate" value="this.$waypoint" />
+            </run_script>
+          </do_elseif>
+          <do_elseif value="this.$waypoint.isclass.zone">
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone and then Boosting to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <!-- next is the Target Zone/Sector - First jump to the closest Beacon, then go to Fine Movement for the Destination (with Boosting) -->
+            <run_script name="'ut.cac.move.jump'" result="$result" >
+              <param name="destination" value="this.$waypoint"/>
+            </run_script>
+            <resume label="fine movement"/>
+            <return/>
+          </do_elseif>
+          <do_if value="this.ship.hascontext.{$targetspace}">
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 We have Destination Context in %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <!-- we have reached the Target Space (which is a Sector or Cluster) - Exit -->
+            <return/>
+         </do_if>
+        <remove_value name="$waypoints.{1}"/>
+        <!-- check if $destination object has switched context and if yes restart pathing to keep up -->
+        <do_if value="$targetspace != $destination.zone and $targetspace != $destination">
+          <!-- goes back to line 110 -->
+          <resume label="start"/>
+        </do_if>
+      </do_while>
+        
+      </do_if>
+      <do_else>
+        <!-- small ships not implemented yet - skipping over to Vanilla Script -->
+        <debug_text filter="error" text="'%1 %2 %3 Small Ships not implemented yet - defaulting to vanilla movement script'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+        <run_script name="'move.generic'">
+          <param name="destination" value="$destination" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+          <param name="position" value="$position" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+          <param name="rotation" value="$rotation" comment="rotation the ship should have - overrides lookat"/>
+          <param name="lookat" value="$lookat" comment="position the ship should point to - overridden by rotation"/>
+          <param name="nojump" value="$nojump" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
+          <param name="skipcharge" value="$skipcharge" comment="skip the jump drive charge time (only to be used in special cases e.g. plot missions)"/>
+          <param name="ignorefuel" value="$ignorefuel" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
+          <param name="autorefuel" value="$autorefuel" comment="automatically take steps to re-fuel if necessary"/>
+          <param name="disablecollisionavoidance" value="$disablecollisionavoidance" comment="HACK - disable collisionavoidance for this ship"/>
+          <param name="abortpath" value="$abortpath" comment="disable aborting existing path"/>
+          <param name="forcesteering" value="$forcesteering" comment="force steering flight control model"/>
+          <param name="endintargetzone" value="$endintargetspace" comment="complete this script if we have the correct Zone context, no matter where"/>
+        </run_script>
+      </do_else>
+      
+      
+      <label name="fine movement"/>
+      
+      <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 40 km away) and boost to a generous safe spot nearby the Target -->
+      
+      
+      <!-- second move slowly near the Target (may not be necesary if we are satisfied with the Target Zone) -->
+      
+      
+      
+      <run_script name="'move.generic'">
+        <param name="destination" value="$destination" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+        <param name="position" value="$position" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+        <param name="rotation" value="$rotation" comment="rotation the ship should have - overrides lookat"/>
+        <param name="lookat" value="$lookat" comment="position the ship should point to - overridden by rotation"/>
+        <param name="nojump" value="$nojump" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
+        <param name="skipcharge" value="$skipcharge" comment="skip the jump drive charge time (only to be used in special cases e.g. plot missions)"/>
+        <param name="ignorefuel" value="$ignorefuel" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
+        <param name="autorefuel" value="$autorefuel" comment="automatically take steps to re-fuel if necessary"/>
+        <param name="disablecollisionavoidance" value="$disablecollisionavoidance" comment="HACK - disable collisionavoidance for this ship"/>
+        <param name="abortpath" value="$abortpath" comment="disable aborting existing path"/>
+        <param name="forcesteering" value="$forcesteering" comment="force steering flight control model"/>
+        <param name="endintargetzone" value="$endintargetspace" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
+      </run_script>
+      
+      
+      
+      <label name="finish"/>
+    </actions>
+  </attention>
+</aiscript>
