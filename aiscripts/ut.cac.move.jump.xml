@@ -58,8 +58,8 @@ ToDo:
       
       <!-- if Jump Type hat not been set - use Entity default Value or fall back to general defaults depending on Faction -->
       <do_if value="not $type">
-        <do_if value="this.$jumptype?">
-          <set_value name="$type" exact="this.$jumptype"/>
+        <do_if value="this.$ut_cac_settings.$jumptype?">
+          <set_value name="$type" exact="this.$ut_cac_settings.$jumptype"/>
         </do_if>
         <do_else>
           <!-- Criminal Factions prefer random Jumps to surprise (is a bit hacky because it doesnt take EXP into account)-->
@@ -142,6 +142,7 @@ ToDo:
           <!-- we dont know any beacons in the Destination Sector - lock onto a random one -->
           <do_if value="not @$beacon.exists">
             <find_object name="$beacon" space="$destination" class="class.jumpbeacon" checkoperational="true"/>
+            <set_known object="@$beacon" known="true"/>
             <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
           </do_if>
           <do_else>
@@ -152,7 +153,7 @@ ToDo:
           <!-- final Cluster on Path - jump to the closest beacon, but also watch for enemies -->
           <find_object name="$beacons" space="$destination.sector" class="class.jumpbeacon" knownto="this.owner" checkoperational="true" multiple="true"/>
           <set_value name="$distance" exact="1e12m"/>
-          <do_all exact="$beacons.count">
+          <do_all exact="$beacons.count" counter="$i">
             <do_if value="$destination.distanceto.{$beacons.{$i}} lt $distance"/>
               <set_value name="$distance" exact="$destination.distanceto.{$beacons.{$i}}"/>
               <set_value name="$nearbeacon"/>
@@ -174,6 +175,7 @@ ToDo:
           <!-- we dont know any beacons in the Destination Sector - lock onto a random one -->
           <do_if value="not @$beacon.exists">
             <find_object name="$beacon" space="$destination.sector" class="class.jumpbeacon" checkoperational="true"/>
+            <set_known object="@$beacon" known="true"/>
             <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Final Approach Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
           </do_if>
           <do_else>
@@ -289,6 +291,10 @@ ToDo:
       
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Charging Jump Drive! 10 Precent, 20, 30....'.[player.age,this.name,this.container.name]"/>
       <!-- actually JUMP!!! -->
+      <do_if value="this.ship == player.ship">
+        <!-- cache Assets of destination if player is on board to make transition smooth -->
+        <precache_hint zone="$beacon.zone"/>
+      </do_if>
       <do_if value="$slowcharge?">
         <remove_effect object="$jumpdrive" effect="$slowchargeeffect"/>
       </do_if>
@@ -316,6 +322,9 @@ ToDo:
     <signal_objects object="this.ship" param="'travel jump aborted'"/>
     <do_if value="event.name != 'event_object_destroyed'">
       <abort_jump object="this.ship" />
+    </do_if>
+    <do_if value="$slowcharge">
+      <remove_effect object="$jumpdrive" effect="$slowchargeeffect"/>
     </do_if>
   </on_abort>
 </aiscript>

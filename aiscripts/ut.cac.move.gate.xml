@@ -9,7 +9,7 @@
   -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
-    <param name="gate" default="false" comment="Gate to go through"/>
+    <param name="gate" default="false" comment="Gate to go through (Must be in the same Zone)"/>
     <param name="cleargate" default="true" comment="Clear the Gate after Passage? (if set to 2 it will also skip the deactivation of Boosters so we can continue boosting without interruption)"/>
   </params>
   <interrupts>
@@ -26,39 +26,79 @@
         </do_if>
       </do_if>
       
-      <!-- then check if the Gate is Valid  -->
+      <!-- then check if the Input and Situation is Valid  -->
       <do_if value="not $gate.exists or not $gate.isclass.gate">
         <debug_text filter="error" text="'%1 %2 %3 Gate not existent or not a gate - aborting!'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      <do_if value="this.zone != $gate.zone">
+        <debug_text filter="error" text="'%1 %2 %3 Not in Gate Zone - aborting!'.[player.age,this.name,this.container.name]"/>
       </do_if>
       
-      <!-- calculate Approach Position which lies behind the gate to use it as efficient as possible (not to be confused with <get_gate_approach_pos/> which lies inside the Gate -->
+      <!-- calculate Approach Position and rotation which lies behind the gate to use it as efficient as possible  -->
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
         <position x="0m" y="0m" z="0 - (this.ship.size + $gate.size )"/>
       </transform_position>
       <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="this.ship"/>
+      <create_orientation name="$rotation" orientation="look_at" refobject="$gate">
+        <position value="$safeposition"/>
+      </create_orientation>
       
       
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Moving behind the Gate in %4 as preperation for passage'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
+      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="false">
+        <position value="$safeposition" />
+        <rotation value="$rotation" />
+      </move_to>
       
+      <!-- ======= Old Temp Code ======== -->
       <!-- fly to said position - temporary usage of vanilla scripts here -->
-      <run_script name="'move.generic'" >
+      <!-- will be replaced by my own Movement Script -->
+      <!--run_script name="'move.generic'" >
         <param name="destination" value="$gate.zone" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
         <param name="position" value="$safeposition" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
         <param name="lookat" value="$gate.position" comment="position the ship should point to - overridden by rotation"/>
         <param name="nojump" value="true" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
-      </run_script>
+      </run_script-->
+      <!-- ======= End Old Temp Code ======== -->
       
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
       
-      <!-- enter gate - also using move.generic for now -->
-      <run_script name="'move.generic'" >
-        <param name="destination" value="$gate" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
-        <param name="nojump" value="true" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
-      </run_script>
+      <!-- enter gate -->
+      <!-- we already have arrived at an approach pos, altough slightly farther away than the one returned here - no need for this step. -->
+      <!--get_gate_approach_pos ship="this.ship" gate="$gate" position="$positon" rotation="$rotation" /-->
+      <do_if value="this.ship == player.ship">
+        <!-- cache Assets of destination if player is on board to make transition smooth -->
+        <precache_hint zone="$gate.destination"/>
+      </do_if>
+      <set_value name="$moveintogate" exact="true" />
+      <move_gate object="this.ship" gate="$gate" abortpath="true" >
+        <interrupt>
+          <conditions>
+            <event_object_changed_cluster object="this.ship" />
+          </conditions>
+          <actions>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (moved through gate)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+            <set_value name="$moveintogate" exact="false" />
+          </actions>
+        </interrupt>
+      </move_gate>
+      <do_if value="$moveintogate">
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_object_changed_cluster object="this.ship" />
+            </conditions>
+            <actions>
+              <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (wait)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+            </actions>
+          </interrupt>
+        </wait>
+      </do_if>
       
       <!-- a very short Boost forward to clear Entry Area (or if not possible right now clear in normal flight) -->
-      <do_if value="$cleargate">
-        <do_if value="this.ship.canboost">
+      <do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
+        <do_if value="this.ship.canboost" comment=" and this.ship.pilot.skill.navigation ge 3">
           <start_boost object="this.ship"/>
         </do_if>
         <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >

@@ -121,13 +121,16 @@
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}" />
         <do_if value="typeof $order == datatype.table">
-          <remove_value name="$repeat"/>
+          <set_value name="$order.$interruptable" exact="false"/>
           <run_script name="$order.$script">
             <param name="params" value="$order" />
           </run_script>
         </do_if>
-        <!-- remove current Order so we can get to the next one - after that wait a split-second to prevent Freezes should something go wrong-->
-        <remove_value name="this.$orderlist.{1}" />
+        <!-- If current first Order is still the same as before executing it - remove it from Orderlist so we can continue with the next one - after that wait a split-second to prevent Freezes should something go wrong -->
+        <!-- (if its a diffrent Order the first Order was moved or replaced, which should cause an abort of it and a the new first Order should be executed immediately) -->
+        <do_if value="this.$orderlist.{1} == $order">
+          <remove_value name="this.$orderlist.{1}" />
+        </do_if>
         <wait exact="100ms"/>
       </do_while>
       
@@ -138,7 +141,7 @@
       <!-- if there are outstanding Trade Orders: do trade. -->
       <get_trade_from_shoppinglist object="this.ship" result="$trade"/>
       <do_if value="$trade.exists">
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (default)',$repeat=0]"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (default)',$repeat=0,$interruptable=true]"/>
         <resume label="start"/>
       </do_if>
       
@@ -157,7 +160,7 @@
       
       <!-- Cargobay (more than) half full without any other orders, so its dead weight - empty it. -->
       <do_if value="this.ship.cargo.free lt this.ship.cargo.capacity/2">
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.emptycargo',$displayname='Empty Cargobay (default)',$onlysector=true]"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.emptycargo',$displayname='Empty Cargobay (default)',$onlysector=true,$interruptable=true]"/>
         <resume label="start"/>
       </do_if>
       
@@ -176,7 +179,7 @@
       </do_if>
       <do_else>
         <!-- nothing to do - wait and add to Order request Group of Commander -->
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=10min]"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=10min,$interruptable=true]"/>
         <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
       </do_else>
       
