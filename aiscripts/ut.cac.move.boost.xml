@@ -10,13 +10,16 @@
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="destination" default="null" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
-    <param name="position" default="null" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+    <param name="position" default="null" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination"/>
     <param name="rotation" default="null" comment="rotation the ship should have - overrides lookat"/>
     <param name="lookat" default="null" comment="position the ship should point to - overridden by rotation"/>
-    <param name="disablecollisionavoidance" default="false" comment="HACK - disable collisionavoidance for this ship"/>
-    <param name="abortpath" default="true" comment="disable aborting existing path"/>
     <param name="forcesteering" default="false" comment="force steering flight control model"/>
     <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
+    
+    <!-- Stuff necesary for coordinated Group Boosts -->
+    <param name="leader" default="null" comment="the formation leader/object which coordinates the Boost"/>
+    <param name="leader_preparegroup" default="null" comment="the group of Ships the Leader waits for (if you dont specify a leader this will be the Group the Ship waits for to prepare as if it were the leader)"/>
+    
   </params>
   <interrupts>
   </interrupts>
@@ -32,12 +35,6 @@
         </do_if>
         <do_if value="$params.$rotation?">
           <set_value name="$rotation" exact="$params.$rotation"/>
-        </do_if>
-        <do_if value="$params.$disablecollisionavoidance?">
-          <set_value name="$disablecollisionavoidance" exact="$params.$disablecollisionavoidance"/>
-        </do_if>
-        <do_if value="$params.$abortpath?">
-          <set_value name="$abortpath" exact="$params.$abortpath"/>
         </do_if>
         <do_if value="$params.$forcesteering?">
           <set_value name="$forcesteering" exact="$params.$forcesteering"/>
@@ -86,8 +83,8 @@
         <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size/2" >
           <position object="this.ship" />
         </get_zone_exit_pos>
-        <check_object result="$result" object="$targetzone">
-          <match_is_in_view_of object="this.ship" vertical="10deg" horizontal="10deg"/>
+        <check_object result="$result" object="this.ship">
+          <match_is_in_view_of object="$targetzone" vertical="10deg" horizontal="10deg"/>
         </check_object>
         <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately -->
         <do_if value="$result and this.ship.distanceto.{$startpos} lt this.ship.size *2">
@@ -101,7 +98,7 @@
         
         <!-- figure out an arrival position in the target zone -->
         <get_zone_exit_pos zone="$targetzone" destination="this.ship" position="$targetpos" radius="this.ship.size" >
-          <position object="$destination" value="$startpos" />
+          <position object="$destination"/>
         </get_zone_exit_pos>
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Calculated Params for Boost:\nstartpos: %4 startrot: %5 targetpos: %6'.[player.age,this.name,this.container.name,@startpos,@startrot,$targetpos]"/>
       </do_if>
@@ -146,21 +143,67 @@
       <!-- Execute Movements -->
       <!-- ================= -->
       
+      
+      <!-- Signal our Intention to Jump and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
+      <do_if value="not $leader and $leader_preparegroup">
+        <set_value name="$followers_preparing" exact="$leader_preparegroup"/>
+        <remove_value name="$leader_preparegroup"/>
+      </do_if>
+      <do_else>
+        <create_group groupname="$followers_preparing"/>
+      </do_else>
+      <signal_objects object="this.ship" param="'travel boost prep'" param2="$destination" param3="$followers_preparing"/>
+      
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos">
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Moving to Start Position'.[player.age,this.name,this.container.name]"/>
-        <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="false" finishonapproach="false">
+        <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="false" finishonapproach="true">
           <position value="$startpos" />
           <rotation value="$startrot" />
         </move_to>
       </do_if>
+      <!-- for coordinated boost - wait a split-second so everyone can add himself to the group if there is no movement first -->
+      <do_else>
+        <wait min="100ms" max="200ms"/>
+      </do_else>
+      
+      <!-- Ready for Boost - wait till everyone following has also prepared to actually boost -->
+      <do_if value="$followers_preparing?">
+        <do_while value="$followers_preparing.count">
+          <wait min="5s" max="8s"/>
+        </do_while>
+      </do_if>
+      
+      <!-- if we are a follower in a Group Boost - remove ourselves from the Group to signal we are ready and wait for the Start Signal -->
+      <do_if value="$leader.exists">
+        <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+        <wait>
+          <interrupt>
+            <conditions>
+                <event_object_signalled object="$leader" param="'travel boost start'" param2="$destination"/>
+            </conditions>
+          </interrupt>
+          <!--interrupt>
+            <conditions>
+                <event_object_changed_zone object="$leader"/>
+            </conditions>
+            <actions>
+              <!- - what the hell? the leader has flown away or jumped without telling anyone! - ->
+              <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone!'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+              <return/>
+            </actions>
+          </interrupt-->
+        </wait>
+      </do_if>
+      <signal_objects object="this.ship" param="'travel boost start'" param2="$destination"/>
+      
       <do_while value="this.zone != $targetzone and this.ship.distanceto.{$targetpos} gt 100m">
         <do_if value="this.ship.canboost or this.ship.isboostactive">
           <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 START BOOST!'.[player.age,this.name,this.container.name]"/>
           <do_if value="this.ship.canboost and not this.ship.isboostactive">
             <start_boost object="this.ship"/>
           </do_if>
-          <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" forcerotation="false" finishonapproach="false">
+          <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" forcerotation="false" finishonapproach="true">
             <position value="$targetpos" />
             <interrupt>
               <conditions>
@@ -178,7 +221,7 @@
         </do_if>
         <do_else>
           <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Cannt activate Booster - Snail movement'.[player.age,this.name,this.container.name]"/>
-          <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" forcerotation="false" finishonapproach="false">
+          <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" forcerotation="false" finishonapproach="true">
             <position value="$targetpos" />
             <interrupt_after_time time="1min"/>
           </move_to>

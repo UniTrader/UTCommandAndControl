@@ -239,7 +239,7 @@ ToDo:
         <create_group groupname="$followers_preparing"/>
       </do_else>
       <signal_objects object="this.ship" param="'travel jump prep'" param2="$beacon" param3="$followers_preparing"/>
-      <wait min="900ms" max="1100ms"/>
+      <wait min="100ms" max="200ms"/>
       
       <!-- Slow Jumpdrive Charge in case we dont have enough Fuel - fuel check and refueling are somewhere else -->
       <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{$destination}">
@@ -262,9 +262,11 @@ ToDo:
       </do_while>
       
       <!-- Jumpdrive ready - wait till everyone following has also prepared to actually jump -->
-      <do_while value="$followers_preparing.count">
-        <wait min="5s" max="8s"/>
-      </do_while>
+      <do_if value="$followers_preparing?">
+        <do_while value="$followers_preparing.count">
+          <wait min="5s" max="8s"/>
+        </do_while>
+      </do_if>
       
       <!-- if we are a follower in a Group Jump - remove ourselves from the Group to signal we are ready and wait for the Start Signal -->
       <do_if value="$leader.exists">

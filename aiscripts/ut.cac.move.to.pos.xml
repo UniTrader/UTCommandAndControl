@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.move.to.pos" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+ Routine for Moving InZone to:
+ -> an exact Position (if its safe)
+ -> near an Object
+ -> to a Position relative to an Object
+with a given Rotation or Orientation
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="destination" default="null" comment="Object to move relative to - will default to relative to Zone if not set"/>
+    <param name="position" default="null" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+    <param name="rotation" default="null" comment="rotation the ship should have - overridden by lookat"/>
+    <param name="lookat" default="null" comment="position the ship should point to - overrides rotation"/>
+    <param name="forceendpos" default="false" comment="force moving until exact end position is reached"/>
+  </params>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$destination?">
+          <set_value name="$destination" exact="$params.$destination"/>
+        </do_if>
+        <do_if value="$params.$position?">
+          <set_value name="$position" exact="$params.$position"/>
+        </do_if>
+        <do_if value="$params.$rotation?">
+          <set_value name="$rotation" exact="$params.$rotation"/>
+        </do_if>
+        <do_if value="$params.$lookat?">
+          <set_value name="$lookat" exact="$params.$lookat"/>
+        </do_if>
+        <do_if value="$params.$forceendpos?">
+          <set_value name="$forceendpos" exact="$params.$forceendpos"/>
+        </do_if>
+      </do_if>
+      
+      <!-- Verify Input and Situation -->
+<!-- => no Movement out of Zone
+      => 
+      -->
+      <do_if value="not $destination.exists">
+        <set_value name="$destination" exact="this.zone"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination not given or non-existent - defaulting to current Zone %4'.[player.age,this.name,this.container.name,this.zone.knownname]"/>
+      </do_if>
+      <do_elseif value="not $destination.isclass.zone">
+        <do_if value="$destination.zone != this.zone">
+          <debug_text filter="error" text="'%1 %2 %3 Destination Object not in this Zone. Aborting!'.[ player.age,this.name,this.container.name]" />
+          <return/>
+        </do_if>
+      </do_elseif>
+      
+      <!-- Calculate actually used parameters -->
+      <!-- Transform relative Position to Position in Zone and get a near safe pos (or get near safe pos if we dont have a ref pos)-->
+      <do_if value="not $destination.isclass.zone">
+        <do_if value="$position">
+          <transform_position name="$position" refposition="$destination.position" refrotation="$destination.rotation">
+            <position value="$position"/>
+          </transform_position>
+        </do_if>
+        <do_else>
+          <set_value name="$position" exact="$destination.position"/>
+        </do_else>
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
+      </do_if>
+      <do_elseif value="$position">
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
+      </do_elseif>
+      <do_else>
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
+      </do_else>
+      
+      <do_if value="$lookat">
+        <create_orientation name="$rotation" orientation="look_at" refposition="$lookat">
+          <position value="$safepos"/>
+        </create_orientation>
+      </do_if>
+      
+      
+      <!-- Do actual movement -->
+      <!-- check if we are near destination safepos and if it makes sense to strafe or fly backwards -->
+      <!--do_if value="this.ship.distanceto.{$safepos} lt this.ship.size * 1.5">
+        <is_in_quadrant result="$reverse" object="this.ship" target="$safepos" back="true"/>
+        <do_if value="not $reverse">
+          <is_in_quadrant result="$forward" object="this.ship" target="$safepos" front="true"/>
+        </do_if>
+        <do_if value="$reverse or $forward">
+          <do_if value="not $rotation">
+            <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" reverse="$reverse">
+              <position value="$safepos"/>
+            </move_to>
+          </do_if>
+          <do_else>
+            <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" forcerotation="$forceendpos" reverse="$reverse">
+              <position value="$safepos"/>
+              <rotation value="$rotation"/>
+            </move_to>
+          </do_else>
+        </do_if>
+        <do_else>
+          <do_if value="not $rotation">
+            <move_strafe object="this.ship" destination="this.zone" >
+              <position value="$safepos"/>
+            </move_strafe>
+          </do_if>
+          <do_else>
+            <move_strafe object="this.ship" destination="this.zone" >
+              <position value="$safepos"/>
+              <rotation value="$rotation"/>
+            </move_strafe>
+          </do_else>
+        </do_else>
+      </do_if-->
+      <do_if value="not $rotation">
+        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos">
+          <position value="$safepos"/>
+        </move_to>
+      </do_if>
+      <do_else>
+        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" forcerotation="$forceendpos">
+          <position value="$safepos"/>
+          <rotation value="$rotation"/>
+        </move_to>
+      </do_else>
+      
+      
+      
+    </actions>
+  </attention>
+  <on_abort>
+    
+  </on_abort>
+</aiscript>

@@ -218,12 +218,9 @@
             
             <!-- Boost to Gate Position -->
             <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Boosting near to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
-            <transform_position name="$approachposition" refposition="this.$waypoint.position" refrotation="this.$waypoint.rotation" >
-              <position x="0m" y="0m" z="0 - (this.ship.size + this.$waypoint.size )"/>
-            </transform_position>
-            <get_safe_pos result="$approachposition" allowyaxis="true" zone="this.$waypoint.zone" value="$approachposition" radius="this.ship.size*4" ignored="this.ship" min="this.ship.size*2"/>
             <run_script name="'ut.cac.move.boost'">
-              <param name="destination" value="this.$waypoint.zone"/>
+              <param name="destination" value="this.$waypoint"/>
+              <param name="position" value="position.[0m,0m,(this.ship.size + this.$waypoint.size)*2]" comment="relative to destination! (including its rotation)"/>
               <param name="endintargetspace" value="true"/>
             </run_script>
             
@@ -285,24 +282,17 @@
         <run_script name="'ut.cac.move.boost'">
           <param name="destination" value="$destination"/>
           <param name="position" value="$position"/>
-          <param name="endintargetspace" value="true"/>
+          <param name="endintargetspace" value="false"/>
         </run_script>
       </do_if>
       
       <!-- second move slowly near the Target (may not be necesary if we are satisfied with the Target Zone) -->
-      <run_script name="'move.generic'">
-        <param name="destination" value="$destination" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+      <run_script name="'ut.cac.move.to.pos'">
+        <param name="destination" value="$destination" comment="Object to move relative to - will default to relative to Zone if not set"/>
         <param name="position" value="$position" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
-        <param name="rotation" value="$rotation" comment="rotation the ship should have - overrides lookat"/>
-        <param name="lookat" value="$lookat" comment="position the ship should point to - overridden by rotation"/>
-        <param name="nojump" value="$nojump" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
-        <param name="skipcharge" value="$skipcharge" comment="skip the jump drive charge time (only to be used in special cases e.g. plot missions)"/>
-        <param name="ignorefuel" value="$ignorefuel" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
-        <param name="autorefuel" value="$autorefuel" comment="automatically take steps to re-fuel if necessary"/>
-        <param name="disablecollisionavoidance" value="$disablecollisionavoidance" comment="HACK - disable collisionavoidance for this ship"/>
-        <param name="abortpath" value="$abortpath" comment="disable aborting existing path"/>
-        <param name="forcesteering" value="$forcesteering" comment="force steering flight control model"/>
-        <param name="endintargetzone" value="$endintargetspace" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
+        <param name="rotation" value="$rotation" comment="rotation the ship should have - overridden by lookat"/>
+        <param name="lookat" value="$lookat" comment="position the ship should point to - overrides rotation"/>
+        <param name="forceendpos" value="true" comment="force moving until exact end position is reached"/>
       </run_script>
       
       

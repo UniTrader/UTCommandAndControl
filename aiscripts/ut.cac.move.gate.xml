@@ -11,6 +11,11 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="gate" default="false" comment="Gate to go through (Must be in the same Zone)"/>
     <param name="cleargate" default="true" comment="Clear the Gate after Passage? (if set to 2 it will also skip the deactivation of Boosters so we can continue boosting without interruption)"/>
+    
+    
+    <!-- Stuff necesary for coordinated Group Gate Passage - WiP Feature-->
+    <param name="formationlist" default="null" comment="The List of Ships passing through the Gate in the Order defined by the List - will Signal the next on the List when entering the Gate so each of them can go ASAP (no Group because i want to manually order them)"/>
+    
   </params>
   <interrupts>
   </interrupts>
@@ -24,6 +29,9 @@
         <do_if value="$params.$cleargate?">
           <set_value name="$cleargate" exact="$params.$cleargate"/>
         </do_if>
+        <do_if value="$params.$formationlist?">
+          <set_value name="$formationlist" exact="$params.$formationlist"/>
+        </do_if>
       </do_if>
       
       <!-- then check if the Input and Situation is Valid  -->
@@ -35,6 +43,33 @@
         <debug_text filter="error" text="'%1 %2 %3 Not in Gate Zone - aborting!'.[player.age,this.name,this.container.name]"/>
       </do_if>
       
+      
+      <!-- if we have a Formation list put us in a Spot that makes sense (battle Ships first; Trade/Mine Ships last), if not create one and wait one or two split-seconds for followers to add themselves to this list, too-->
+      <do_if value="not $formationlist">
+        <set_value name="$formationlist" exact="[this.ship]"/>
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$formationlist"/>
+        <wait exact="100ms"/>
+      </do_if>
+      <do_elseif value="this.ship.primarypurpose == objectpurpose.fight">
+        <set_value name="$formationlist.{1}" exact="this.ship" operation="insert"/>
+      </do_elseif>
+      <do_else>
+        <append_to_list name="$formationlist" exact="this.ship"/>
+      </do_else>
+      <wait exact="100ms"/>
+      
+      
+      <!-- wait until we are next going through the Gate and then move to entry approach pos -->
+      <do_if value="$formationlist.indexof.{this.ship} gt 1">
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="this.ship" param="'travel gate next'"/>
+            </conditions>
+          </interrupt>
+        </wait>
+      </do_if>
+      
       <!-- calculate Approach Position and rotation which lies behind the gate to use it as efficient as possible  -->
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
         <position x="0m" y="0m" z="0 - (this.ship.size + $gate.size )"/>
@@ -44,12 +79,12 @@
         <position value="$safeposition"/>
       </create_orientation>
       
-      
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Moving behind the Gate in %4 as preperation for passage'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
-      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="false">
+      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true">
         <position value="$safeposition" />
         <rotation value="$rotation" />
       </move_to>
+      
       
       <!-- ======= Old Temp Code ======== -->
       <!-- fly to said position - temporary usage of vanilla scripts here -->
@@ -63,6 +98,13 @@
       <!-- ======= End Old Temp Code ======== -->
       
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
+      
+      <!-- remove ourselves from the Waiting List, signal the next to go and remove List (we dont need it anymore; the others who still need it already have it) -->
+      <remove_value name="$formationlist.{1}"/>
+      <do_if value="$formationlist.count">
+        <signal_objects object="$formationlist.{1}" param="'travel gate next'"/>
+      </do_if>
+      <remove_value name="$formationlist"/>
       
       <!-- enter gate -->
       <!-- we already have arrived at an approach pos, altough slightly farther away than the one returned here - no need for this step. -->
