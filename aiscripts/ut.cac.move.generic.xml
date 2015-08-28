@@ -221,7 +221,6 @@
             <run_script name="'ut.cac.move.boost'">
               <param name="destination" value="this.$waypoint"/>
               <param name="position" value="position.[0m,0m,(this.ship.size + this.$waypoint.size)*2]" comment="relative to destination! (including its rotation)"/>
-              <param name="endintargetspace" value="true"/>
             </run_script>
             
             <!-- Move through Gate -->
@@ -281,8 +280,7 @@
       <do_if value="this.zone != $targetspace or this.ship.distanceto.{$destination} gt 20km">
         <run_script name="'ut.cac.move.boost'">
           <param name="destination" value="$destination"/>
-          <param name="position" value="$position"/>
-          <param name="endintargetspace" value="false"/>
+          <param name="position" value="$position" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
         </run_script>
       </do_if>
       
