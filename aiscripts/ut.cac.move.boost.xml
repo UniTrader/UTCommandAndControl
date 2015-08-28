@@ -199,7 +199,7 @@
       </do_if>
       <signal_objects object="this.ship" param="'travel boost start'" param2="$destination"/>
       
-      <do_while value="( this.zone != $targetzone ) and ( this.ship.distanceto.{$targetpos} gt 5000 )">
+      <do_while value="( this.zone != $targetzone ) or ( this.ship.distanceto.{$targetpos} gt 5000 )">
         <do_if value="this.ship.canboost or this.ship.isboostactive">
           <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 START BOOST!'.[player.age,this.name,this.container.name]"/>
           <do_if value="this.ship.canboost and not this.ship.isboostactive">
