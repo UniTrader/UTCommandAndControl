@@ -58,18 +58,26 @@
       
       <!-- first refresh the Reservations -->
       <get_trade_from_shoppinglist result="$trades" object="this.ship" multiple="true"/>
-      <do_all exact="$trades.count" counter="$i" >
-        <!-- reserve Trades - 1 hour is assumed per Trade, so duration for first is 1h, for second trade is 2h, third trade is 3h etc. -->
-        <!-- ToDo: should the entity maybe be the Manager? need to know for using the proper Actor Account -->
-        <!-- Note: trade Orders for the same ware with the same Station are not supported - always just grab the amount you can get in one run. -->
-        <do_if value="$trades.{$i}.seller.exists">
-          <!-- is this really correct? its the same as in buyer, even the amount, so i wonder how the game differs between sell and buy? -->
-          <add_ware_reservation object="$trades.{$i}.seller" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission"/>
-        </do_if>
-        <do_elseif value="not $trades.{$i}.unbundle">
-          <add_ware_reservation object="$trades.{$i}.buyer" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission"/>
-        </do_elseif>
-      </do_all>
+      <do_if value="$trades.count">
+        <do_all exact="$trades.count" counter="$i" >
+          <!-- reserve Trades - 1 hour is assumed per Trade, so duration for first is 1h, for second trade is 2h, third trade is 3h etc. -->
+          <!-- ToDo: should the entity maybe be the Manager? need to know for using the proper Actor Account -->
+          <!-- Note: trade Orders for the same ware with the same Station are not supported - always just grab the amount you can get in one run. -->
+          <do_if value="$trades.{$i}.seller.exists">
+            <!-- is this really correct? its the same as in buyer, even the amount, so i wonder how the game differs between sell and buy? -->
+            <add_ware_reservation object="$trades.{$i}.seller" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission"/>
+          </do_if>
+          <do_elseif value="$trades.{$i}.buyer.exists">
+            <do_if value="not $trades.{$i}.unbundle">
+              <add_ware_reservation object="$trades.{$i}.buyer" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission"/>
+            </do_if>
+           </do_elseif>
+          <do_else>
+            <debug_text filter="error" text="'%1 %2 %3 Ordered Trade %4 (ware: %5 amount: %6 unitprice: %7 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[player.age,this.name,this.container.name,$trades.{$i},$trades.{$i}.ware,$trades.{$i}.amount,$trades.{$i}.unitprice]"/>
+            <remove_trade_order object="this.ship" trade="$trades.i"/>
+          </do_else>
+        </do_all>
+      </do_if>
       <do_if value="$refreshreservations == true">
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Refreshed Reservations, thats all'.[player.age,this.name,this.container.name]"/>
         <return/>
@@ -82,13 +90,13 @@
       <do_if value="not $trade">
         <get_trade_from_shoppinglist result="$trade" object="this.ship"/>
         <do_if value="not $trade.exists">
-          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 No Trade to do given'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 %3 No Trade to do given'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
         <set_value name="$amount" exact="$trade.amount"/>
       </do_if>
       <do_else>
-        <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="$i * 1h" mission="$trade.ismission"/>
+        <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission"/>
       </do_else>
       
       <set_command command="$command" param="$trade.owner"/>
@@ -147,7 +155,7 @@
       <!-- move to correct zone -->
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Move to correct Zone:\n$tradepartner.zone= %4'.[player.age,this.name,this.container.name,$tradepartner.zone.knownname]"/>
       <do_if value="this.zone != $tradepartner.zone">
-        <set_command_action commandaction="commandaction.flyingto" param="$trade.owner.zone"/>
+        <set_command_action commandaction="commandaction.flyingto" param="$tradepartner.zone"/>
         <run_script name="'move.generic'">
           <param name="destination" value="$tradepartner" />
           <param name="endintargetzone" value="true" />
