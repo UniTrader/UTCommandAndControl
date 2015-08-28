@@ -3,7 +3,7 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this">
+    <cue name="Main" instantiate="true" namespace="this" version="2">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
@@ -11,13 +11,24 @@
         <!-- set up Variables -->
         <set_value name="$actor" exact="event.param" />
         <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
-        <set_value name="$actor.$pesterlevel" exact="60" comment="default value for pestering the Player about issues"/>
-        <set_value name="$actor.$loglevel" exact="0" comment="default value for Playerlog verbosity"/>
+        <set_value name="$actor.$ut_cac_settings" exact="table[
+        $insectorjump=false,
+        $pesterlevel=60,
+        $loglevel=0
+        ]"/>
         <debug_text filter="general" text="'%1 now uses UT CAC comm handlers'.[$actor.name]" />
         <set_comm_handler actor="$actor" customhandler="true" />
         <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
         <start_script object="$actor" name="'ut.cac.base.manager'"/>
       </actions>
+      <patch sinceversion="2" state="complete">
+        <set_value name="$actor.$ut_cac_settings" exact="table[
+        $pesterlevel=$actor.$pesterlevel,
+        $loglevel=$actor.$loglevel
+        ]"/>
+        <remove_value name="$actor.$pesterlevel"/>
+        <remove_value name="$actor.$loglevel"/>
+      </patch>
       <cues>
         <!--cue name="Payment" ref="md.UT_CAC_Lib.Payment">
           <param name="actor" value="$actor"/>
