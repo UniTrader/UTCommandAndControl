@@ -298,10 +298,10 @@ Dialogue Tree - rough concept (for all Entity Types)
         <do_elseif value="event.param == 'comm_personal_money_wanted'">
           <!-- set budgets to a fitting range to avoid back-transfers -->
           <do_if value="$actor.container.wantedmoney gt $actor.maxbudget">
-            <set_actor_max_budget actor="$actor" amount="$actor.container.wantedmoney * 1.25"/>
+            <set_actor_max_budget actor="$actor" amount="$actor.container.wantedmoney * 2"/>
           </do_if>
           <do_if value="$actor.container.wantedmoney/3 lt $actor.minbudget">
-            <set_actor_min_budget actor="$actor" amount="$actor.container.wantedmoney/10"/>
+            <set_actor_min_budget actor="$actor" amount="$actor.container.wantedmoney / 10"/>
           </do_if>
           <transfer_money from="player.entity" to="$actor" amount="( $actor.container.wantedmoney * 1.25 ) - $actor.money"/>
           <do_if value="$actor.container.wantedmoney lt $actor.money" comment="Player has not enough Money - modify dialogue to indicate this">
