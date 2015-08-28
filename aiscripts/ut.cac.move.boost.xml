@@ -68,7 +68,7 @@
       <!-- calculate Offset if we want to get to an Object and set the Destination Zone Var-->
       <do_if value="$destination.isclass.zone">
         <do_if value="not $position">
-          <get_safe_pos result="$position" allowyaxis="true" zone="$destination" value="position.[0,0,0]" radius="this.ship.size" ignored="this.ship" directionobject="this.ship" min="20km"/>
+          <get_safe_pos result="$position" allowyaxis="true" zone="$destination" value="position.[0,0,0]" radius="this.ship.size" ignored="this.ship" directionobject="this.zone" min="20km"/>
         </do_if>
         <set_value name="$targetzone" exact="$destination"/>
       </do_if>
@@ -109,7 +109,7 @@
         <!--get_zone_exit_pos zone="$targetzone" destination="this.ship" position="$targetpos" radius="this.ship.size/2" >
           <position value="$position"/>
         </get_zone_exit_pos-->
-        <get_safe_pos result="$targetpos" allowyaxis="true" zone="$targetzone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship" min="2000m"/>
+        <get_safe_pos result="$targetpos" allowyaxis="true" zone="$targetzone" value="$position" radius="this.ship.size" ignored="this.ship" min="3000m"/>
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Calculated Params for IS-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
       </do_if>
       <do_else>
@@ -136,7 +136,7 @@
             <position object="this.ship"/>
           </create_position_outside_boundingbox>
         </do_else>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Calculated Params for IZ-Boost:\nstartpos: %4 startrot: %5 targetzone:%6 targetpos: %7'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Calculated Params for IZ-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
       </do_else>
       
       <!-- ================= -->
