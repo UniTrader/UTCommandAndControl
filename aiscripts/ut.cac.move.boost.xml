@@ -112,20 +112,8 @@
       </do_if>
       <do_else>
         <!-- InZone-Boost - move a bit in Direction of the Target to align (if not already) - and Boost to nearby it -->
-        <check_object result="$result" object="$destination">
-          <match_is_in_view_of object="this.ship" vertical="10deg" horizontal="10deg"/>
-        </check_object>
-        <!-- if Destination is already in our View dont move first, boost immediately (dont create startpos and startrot) -->
-        <do_if value="not $result">
-          <!--create_position_outside_boundingbox name="$startpos" component="this.ship" distance="this.ship.size" >
-            <position object="$destination"/>
-          </create_position_outside_boundingbox-->
-          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="$destination" min="this.ship.size"/>
-          <create_orientation name="$startrot" orientation="look_at" refobject="$destination">
-            <position value="$startpos" />
-          </create_orientation>
-        </do_if>
         
+        <!-- create boost Target Pos -->
         <do_if value="$position">
           <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship" min="this.ship.size"/>
         </do_if>
@@ -134,6 +122,22 @@
             <position object="this.ship"/>
           </create_position_outside_boundingbox>
         </do_else>
+        
+        <!-- check if we need a Boost Start Pos and create it -->
+        <check_object result="$result" object="$destination">
+          <match_is_in_view_of object="this.ship" vertical="10deg" horizontal="10deg"/>
+        </check_object>
+        <!-- if Destination is already in our View dont move first, boost immediately (dont create startpos and startrot) -->
+        <do_if value="not $result">
+          <!--create_position_outside_boundingbox name="$startpos" component="this.ship" distance="this.ship.size" >
+            <position object="$destination"/>
+          </create_position_outside_boundingbox-->
+          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
+          <create_orientation name="$startrot" orientation="look_at" refposition="$targetpos">
+            <position value="$startpos" />
+          </create_orientation>
+        </do_if>
+        
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Calculated Params for IZ-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
       </do_else>
       
