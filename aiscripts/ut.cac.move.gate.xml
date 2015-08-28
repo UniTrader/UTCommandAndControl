@@ -34,6 +34,8 @@
         </do_if>
       </do_if>
       
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$gate: %4 ; $cleargate: %5 $formationlist: %6'.[player.age,this.name,this.container.name,$gate,$cleargate,$formationlist]"/>
+      
       <!-- then check if the Input and Situation is Valid  -->
       <do_if value="not $gate.exists or not $gate.isclass.gate">
         <debug_text filter="error" text="'%1 %2 %3 Gate not existent or not a gate - aborting!'.[player.age,this.name,this.container.name]"/>
@@ -43,6 +45,7 @@
         <debug_text filter="error" text="'%1 %2 %3 Not in Gate Zone - aborting!'.[player.age,this.name,this.container.name]"/>
       </do_if>
       
+      <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
       
       <!-- If we dont have received a formationlist we are the formation Leader and first get behind the Gate in a safe Distance, create a formation List and Signal it to others so they can prepare -->
       <do_if value="not $formationlist">

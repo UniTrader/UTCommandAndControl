@@ -29,16 +29,15 @@
         <do_if value="$params.$position?">
           <set_value name="$position" exact="$params.$position"/>
         </do_if>
-        <do_if value="$params.$rotation?">
-          <set_value name="$rotation" exact="$params.$rotation"/>
+        <do_if value="$params.$leader?">
+          <set_value name="$leader" exact="$params.$leader"/>
         </do_if>
-        <do_if value="$params.$forcesteering?">
-          <set_value name="$forcesteering" exact="$params.$forcesteering"/>
-        </do_if>
-        <do_if value="$params.$endintargetspace?">
-          <set_value name="$endintargetspace" exact="$params.$endintargetspace"/>
+        <do_if value="$params.$leader_preparegroup?">
+          <set_value name="$leader_preparegroup" exact="$params.$leader_preparegroup"/>
         </do_if>
       </do_if>
+      
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $leader: %6 , $leader_preparegroup: %7'.[player.age,this.name,this.container.name,$destination,$position,$leader,$leader_preparegroup]"/>
       
       <!-- =========== -->
       <!-- Validate Input -->
@@ -58,6 +57,7 @@
       <!-- check if we *CAN* Boost -->
       <find_object_component class="class.enginebooster" object="this.ship" name="$booster" />
       <do_if value="not $booster.exists">
+      
         <debug_text filter="error" text="'%1 %2 %3 Ship has no engine booster. Flight from %4(%5) to %6(%7) will take a looong time!'.[ player.age,this.name,this.container.name , this.zone.knownname, this.sector.knownname, $destination.zone.knownname, $destination.sector.knownname]" />
       </do_if>
       
@@ -82,12 +82,13 @@
         <set_value name="$position" exact="$destination.position"/>
         <set_value name="$targetzone" exact="$destination.zone"/>
       </do_else>
-      
-      
       <!-- Boost Start and End Positions (both InSector and InZone-Boost) -->
       <do_if value="this.zone != $targetzone">
         <!-- In-Sector-Boost - Get Boost Destination Position -->
         <!-- figure out position to leave this zone at -->
+        
+        <set_command_action commandaction="commandaction.flyingto" param="$targetzone"/>
+        
         <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size/2" >
           <position object="this.ship" />
         </get_zone_exit_pos>
@@ -112,6 +113,8 @@
       </do_if>
       <do_else>
         <!-- InZone-Boost - move a bit in Direction of the Target to align (if not already) - and Boost to nearby it -->
+        
+        <set_command_action commandaction="commandaction.flyingto" param="$destination"/>
         
         <!-- create boost Target Pos -->
         <do_if value="$position">

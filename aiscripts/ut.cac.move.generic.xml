@@ -91,6 +91,8 @@
         </do_if>
       </do_if>
       
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n%4'.[player.age,this.name,this.container.name,$params]"/>
+      
       <do_if value="$disablecollisionavoidance">
         <set_avoid_collisions object="this.ship" enabled="false"/>
       </do_if>
@@ -122,6 +124,9 @@
         <set_value name="$targetspace" exact="$destination.zone"/>
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination is an Object - First move into right Zone, but regulary check if the Destination Object switched Zones'.[player.age,this.name,this.container.name]"/>
       </do_else>
+      
+      <set_command_action commandaction="commandaction.flyingto" param="$targetspace"/>
+      
       <!-- Second if input is valid: Undock -->
       <run_script name="'ut.cac.move.free'">
         <param name="fast" value="true"/>
@@ -275,7 +280,7 @@
       
       <label name="fine movement"/>
       
-      <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 40 km away) and boost to a generous safe spot nearby the Target -->
+      <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 20 km away) and boost to a generous safe spot nearby the Target -->
       <!-- Final boost to nearby the Destination Object -->
       <do_if value="this.zone != $targetspace or this.ship.distanceto.{$destination} gt 20km">
         <run_script name="'ut.cac.move.boost'">

@@ -42,6 +42,8 @@ with a given Rotation or Orientation
         </do_if>
       </do_if>
       
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7 , $forceendpos: %0'.[player.age,this.name,this.container.name,$destination,$position,$rotation,$lookat,$forceendpos]"/>
+      
       <!-- Verify Input and Situation -->
 <!-- => no Movement out of Zone
       => 
@@ -56,6 +58,8 @@ with a given Rotation or Orientation
           <return/>
         </do_if>
       </do_elseif>
+      
+      <set_command_action commandaction="commandaction.flyingto" param="$destination"/>
       
       <!-- Calculate actually used parameters -->
       <!-- Transform relative Position to Position in Zone and get a near safe pos (or get near safe pos if we dont have a ref pos)-->
