@@ -6,51 +6,22 @@
   
   Generic routine for moving to a specific location.
   Will get the Path and call the relevant scripts for each movement Step.
-  No Movement done here directly.
-  
-  IMPORTANT NOTE: Only Stationary Objects for now, will fall back to Vanilla Script in case the Destination switches Zone Context! (will restart from the beginning when everything works, and exit if both have the same zone context - no cheap follow anymore!)
-  
+  Will also start from the beginning if Target Object switched Zone Context to follow it until both are in the same Zone
+  But will terminate if $destination is reached (no cheap follow mode, just getting there)
+  No Movement done here directly, all is in a specific sub-script pere movement type (Gate passage, Jump, Boost, normal/exact
 
   -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="destination" default="null" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
     <param name="position" default="null" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
-    <param name="rotation" default="null" comment="rotation the ship should have - overrides lookat"/>
-    <param name="lookat" default="null" comment="position the ship should point to - overridden by rotation"/>
-    <param name="nojump" default="false" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
-    <param name="skipcharge" default="false" comment="skip the jump drive charge time (only to be used in special cases e.g. plot missions)"/>
-    <param name="ignorefuel" default="false" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
-    <param name="autorefuel" default="true" comment="automatically take steps to re-fuel if necessary"/>
-    <param name="disablecollisionavoidance" default="false" comment="HACK - disable collisionavoidance for this ship"/>
+    <param name="rotation" default="null" comment="rotation the ship should have - overridden by lookat"/>
+    <param name="lookat" default="null" comment="position the ship should point to - overrides rotation"/>
     <param name="abortpath" default="true" comment="disable aborting existing path"/>
-    <param name="forcesteering" default="false" comment="force steering flight control model"/>
     <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
   </params>
   <interrupts>
     <handler ref="TargetInvalidHandler" />
-    <!-- switching to Vanilla Script in case destination is moving -->
-    <!--handler>
-      <conditions>
-        <event_object_changed_zone object="$destination"/>
-      </conditions>
-      <actions>
-        <run_interrupt_script name="move.generic" abortscripts="true" resume="finish">
-          <param name="destination" value="$destination" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
-          <param name="position" value="$position" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
-          <param name="rotation" value="$rotation" comment="rotation the ship should have - overrides lookat"/>
-          <param name="lookat" value="$lookat" comment="position the ship should point to - overridden by rotation"/>
-          <param name="nojump" value="$nojump" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
-          <param name="skipcharge" value="$skipcharge" comment="skip the jump drive charge time (only to be used in special cases e.g. plot missions)"/>
-          <param name="ignorefuel" value="$ignorefuel" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
-          <param name="autorefuel" value="$autorefuel" comment="automatically take steps to re-fuel if necessary"/>
-          <param name="disablecollisionavoidance" value="$disablecollisionavoidance" comment="HACK - disable collisionavoidance for this ship"/>
-          <param name="abortpath" value="$abortpath" comment="disable aborting existing path"/>
-          <param name="forcesteering" value="$forcesteering" comment="force steering flight control model"/>
-          <param name="endintargetzone" value="$endintargetspace" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
-        </run_interrupt_script>
-      </actions>
-    </handler-->
   </interrupts>
   <attention min="unknown">
     <actions>
@@ -65,34 +36,18 @@
         <do_if value="$params.$rotation?">
           <set_value name="$rotation" exact="$params.$rotation"/>
         </do_if>
-        <do_if value="$params.$nojump?">
-          <set_value name="$nojump" exact="$params.$nojump"/>
-        </do_if>
-        <do_if value="$params.$skipcharge?">
-          <set_value name="$skipcharge" exact="$params.$skipcharge"/>
-        </do_if>
-        <do_if value="$params.$ignorefuel?">
-          <set_value name="$ignorefuel" exact="$params.$ignorefuel"/>
-        </do_if>
-        <do_if value="$params.$autorefuel?">
-          <set_value name="$autorefuel" exact="$params.$autorefuel"/>
-        </do_if>
-        <do_if value="$params.$disablecollisionavoidance?">
-          <set_value name="$disablecollisionavoidance" exact="$params.$disablecollisionavoidance"/>
+        <do_if value="$params.$lookat?">
+          <set_value name="$lookat" exact="$params.$lookat"/>
         </do_if>
         <do_if value="$params.$abortpath?">
           <set_value name="$abortpath" exact="$params.$abortpath"/>
-        </do_if>
-        <do_if value="$params.$forcesteering?">
-          <set_value name="$forcesteering" exact="$params.$forcesteering"/>
         </do_if>
         <do_if value="$params.$endintargetspace?">
           <set_value name="$endintargetspace" exact="$params.$endintargetspace"/>
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7 , $nojump: %8 , $skipcharge: %9\n'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$nojump,
-      $skipcharge] + '$ignorefuel: %1 , $autorefuel %2 , $disablecollisionavoidance %3 , $abortpath %4 , $forcesteering %5 , $endintargetspace: %6'.[$ignorefuel,$autorefuel,$disablecollisionavoidance,$abortpath,$forcesteering,$endintargetspace]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7 , $abortpath %8 , $endintargetspace: %9'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$abortpath,$endintargetspace]"/>
       
       <do_if value="$disablecollisionavoidance">
         <set_avoid_collisions object="this.ship" enabled="false"/>

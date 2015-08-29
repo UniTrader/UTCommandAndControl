@@ -10,7 +10,7 @@
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="destination" default="null" comment="can be a zone or an object in a zone."/>
-    <param name="position" default="null" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
+    <param name="position" default="null" comment="position is treated as (safe) position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
     
     <!-- Stuff necesary for coordinated Group Boosts -->
     <param name="leader" default="null" comment="the formation leader/object which coordinates the Boost"/>
@@ -118,7 +118,7 @@
         
         <!-- create boost Target Pos -->
         <do_if value="$position">
-          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship" min="this.ship.size"/>
+          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship" min="this.ship.size * 2"/>
         </do_if>
         <do_else>
           <create_position_outside_boundingbox name="$targetpos" component="$destination" distance="this.ship.size * 2">
