@@ -17,7 +17,6 @@
     <param name="position" default="null" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
     <param name="rotation" default="null" comment="rotation the ship should have - overridden by lookat"/>
     <param name="lookat" default="null" comment="position the ship should point to - overrides rotation"/>
-    <param name="abortpath" default="true" comment="disable aborting existing path"/>
     <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
   </params>
   <interrupts>
@@ -38,9 +37,6 @@
         </do_if>
         <do_if value="$params.$lookat?">
           <set_value name="$lookat" exact="$params.$lookat"/>
-        </do_if>
-        <do_if value="$params.$abortpath?">
-          <set_value name="$abortpath" exact="$params.$abortpath"/>
         </do_if>
         <do_if value="$params.$endintargetspace?">
           <set_value name="$endintargetspace" exact="$params.$endintargetspace"/>
@@ -226,7 +222,6 @@
           <param name="ignorefuel" value="$ignorefuel" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
           <param name="autorefuel" value="$autorefuel" comment="automatically take steps to re-fuel if necessary"/>
           <param name="disablecollisionavoidance" value="$disablecollisionavoidance" comment="HACK - disable collisionavoidance for this ship"/>
-          <param name="abortpath" value="$abortpath" comment="disable aborting existing path"/>
           <param name="forcesteering" value="$forcesteering" comment="force steering flight control model"/>
           <param name="endintargetzone" value="$endintargetspace" comment="complete this script if we have the correct Zone context, no matter where"/>
         </run_script>
