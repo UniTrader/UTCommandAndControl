@@ -22,7 +22,6 @@ ToDo:
     'object' - jump to a certain Object, like a JB (same as 'random' just with a certain Object) - only to be used internally for Group Jumps
     -->
     
-    <param name="skipcharge" default="false" comment="skip the jump drive charge time (only to be used in special cases e.g. plot missions)"/>
     <param name="ignorefuel" default="false" comment="ignore jump fuel requirements (only to be used in special cases e.g. plot missions)"/>
     
     <!-- Stuff necesary for coordinated Group Jumps -->
@@ -42,9 +41,6 @@ ToDo:
         <do_if value="$params.$type?">
           <set_value name="$type" exact="$params.$type"/>
         </do_if>
-        <do_if value="$params.$skipcharge?">
-          <set_value name="$skipcharge" exact="$params.$skipcharge"/>
-        </do_if>
         <do_if value="$params.$ignorefuel?">
           <set_value name="$ignorefuel" exact="$params.$ignorefuel"/>
         </do_if>
@@ -56,7 +52,7 @@ ToDo:
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $type: %5 , $skipcharge: %6 , $ignorefuel: %7 , $leader: %8 , $leader_preparegroup: %9'.[player.age,this.name,this.container.name,$destination,$type,$skipcharge,$ignorefuel,$leader,$leader_preparegroup]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $type: %5 , $ignorefuel: %6 , $leader: %7 , $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination.knownname,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
       
       <!-- if Jump Type hat not been set - use Entity default Value or fall back to general defaults depending on Faction -->
       <do_if value="not $type">
@@ -248,14 +244,12 @@ ToDo:
         <!-- not enough fuel, don't use fuel and delay the jump -->
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Not enough Fuel, slow charge'.[player.age,this.name,this.container.name]"/>
         <set_value name="$ignorefuel" exact="true"/>
-        <do_if value="$skipcharge" exact="false">
-          <!-- slow charge jump effects - will be removed just before firing up the JD -->
-          <do_if value="$slowchargeeffect?">
-            <add_effect object="$jumpdrive" effect="$slowchargeeffect"/>
-            <set_value name="$slowcharge"/>
-          </do_if>
-          <wait min="590s" max="610s"/>
+        <!-- slow charge jump effects - will be removed just before firing up the JD -->
+        <do_if value="$slowchargeeffect?">
+          <add_effect object="$jumpdrive" effect="$slowchargeeffect"/>
+          <set_value name="$slowcharge"/>
         </do_if>
+        <wait min="590s" max="610s"/>
       </do_if>
       
       <!-- wait till JD has cooled down for the next Jump -->
@@ -304,7 +298,7 @@ ToDo:
       </do_if>
       <signal_objects object="this.ship" param="'travel jump start'" param2="$beacon"/>
       <activate_battlestate object="this.ship" state="battlestate_jumpprep"/>
-      <jump result="$result" object="this.ship" zone="$beacon.zone" ignorefuel="$ignorefuel" skipcharge="$skipcharge">
+      <jump result="$result" object="this.ship" zone="$beacon.zone" ignorefuel="$ignorefuel">
         <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
         <orientation refobject="$beacon" orientation="look_away_bbox"/>
       </jump>
