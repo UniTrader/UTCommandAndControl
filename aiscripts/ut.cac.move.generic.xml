@@ -230,22 +230,23 @@
       
       <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 20 km away) and boost to a generous safe spot nearby the Target -->
       <!-- Final boost to nearby the Destination Object -->
-      <do_if value="this.zone != $targetspace or this.ship.distanceto.{$destination} gt 20km">
+      <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 20km and $destinaton != $targetspace )">
         <run_script name="'ut.cac.move.boost'">
           <param name="destination" value="$destination"/>
           <param name="position" value="$position" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
         </run_script>
       </do_if>
       
-      <!-- second move slowly near the Target (may not be necesary if we are satisfied with the Target Zone) -->
-      <run_script name="'ut.cac.move.to.pos'">
-        <param name="destination" value="$destination" comment="Object to move relative to - will default to relative to Zone if not set"/>
-        <param name="position" value="$position" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
-        <param name="rotation" value="$rotation" comment="rotation the ship should have - overridden by lookat"/>
-        <param name="lookat" value="$lookat" comment="position the ship should point to - overrides rotation"/>
-        <param name="forceendpos" value="true" comment="force moving until exact end position is reached"/>
-      </run_script>
-      
+      <do_if value="not $endintargetspace">
+        <!-- second move slowly near the Target (may not be necesary if we are satisfied with the Target Zone) -->
+        <run_script name="'ut.cac.move.to.pos'">
+          <param name="destination" value="$destination" comment="Object to move relative to - will default to relative to Zone if not set"/>
+          <param name="position" value="$position" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+          <param name="rotation" value="$rotation" comment="rotation the ship should have - overridden by lookat"/>
+          <param name="lookat" value="$lookat" comment="position the ship should point to - overrides rotation"/>
+          <param name="forceendpos" value="true" comment="force moving until exact end position is reached"/>
+        </run_script>
+      </do_if>
       
       
       <label name="finish"/>
