@@ -1,0 +1,510 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<mdscript name="NPC_Engineer" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="md.xsd">
+
+  <cues>
+
+    <cue name="OnPlatformPopulation_Engineer" instantiate="true" namespace="this">
+      <conditions>
+        <event_platform_actor_created type="entitytype.engineer" />
+      </conditions>
+      <actions>
+        <!-- <debug_text text="'Actor %1 (%2) was created, type=%3, at docking bay %4 (distance=%5m)'.[event.param, event.param.knownname, event.param2, event.param.parent.knownname, event.param.distanceto.{player.entity}]" /> -->
+        <set_value name="$actor" exact="event.param" />
+        <set_comm_handler actor="$actor" customhandler="true" />
+        <include_actions ref="md.NPC_Staff.FeeCalculation" />
+        <!-- From now on, only this instance tree is responsible for handling the architect conversation -->
+      </actions>
+      <cues>
+
+        <cue name="NormalActor" onfail="cancel">
+          <conditions>
+            <check_value value="not $actor.iscontrolentity" />
+          </conditions>
+          <cues>
+            <cue name="EngineerTimeout" ref="md.GenericMissions.PlatformActor">
+              <param name="BaseCue" value="OnPlatformPopulation_Engineer" />
+              <param name="Actor" value="$actor" />
+              <param name="TimeoutMin" value="10min"/>
+              <param name="TimeoutMax" value="20min"/>
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="ControlEntity" onfail="cancel">
+          <conditions>
+            <check_value value="$actor.iscontrolentity" />
+            <check_value value="$actor.owner != faction.player"/>
+          </conditions>
+          <cues>
+            <cue name="ControlEntityHandling" ref="md.GenericMissions.PersistentPlatformActor">
+              <param name="BaseCue" value="OnPlatformPopulation_Engineer" />
+              <param name="Actor" value="$actor" />
+            </cue>
+          </cues>
+        </cue>
+
+        <cue name="NPC_Destroyed">
+          <conditions>
+            <event_object_destroyed object="$actor"/>
+          </conditions>
+          <delay exact="1s" comment="delay as the PlatformActor library may also take care of this"/>
+          <actions>
+            <debug_text text="'NPC_Destroyed'"/>
+            <cancel_cue cue="OnPlatformPopulation_Engineer"/>
+          </actions>
+        </cue>
+
+        <!-- Check if actor was destroyed in the past and not detected -->
+        <cue name="NPC_IsDestroyed" onfail="cancel">
+          <conditions>
+            <check_value value="not $actor.exists" />
+          </conditions>
+          <actions>
+            <cancel_cue cue="OnPlatformPopulation_Engineer"/>
+          </actions>
+        </cue>
+        
+        <!-- Engineer specific cues -->
+
+        <!-- Start handler for default conversation -->
+        <cue name="DefaultComm" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_started actor="$actor" />
+              <event_conversation_returned_to_section actor="$actor" />
+            </check_any>
+            <check_value value="event.param == 'default'" />
+            <check_value value="$actor.ship != player.primaryship" />
+          </conditions>
+          <actions>
+            <!-- Check 'kill' relation first, exit conversation if true. -->
+            <do_if value="event.object.hasrelation.enemy.{faction.player}">
+              <add_npc_line line="4" comment="(greeting rejected)" />
+            </do_if>
+            <do_else>
+              <do_if value="event.name == 'event_conversation_started'">
+                <debug_text text="'Engineer conversation started: %1, actor=%2, %3'.[event.param, event.object, event.object.knownname]" />
+                <set_conversation_return_section section="g_goodbye" />
+                <!-- Greeting -->
+                <!-- <add_npc_line speaker="player.entity" line="1100" comment="Hi there." /> -->
+                <add_npc_line line="4100" comment="Hello pilot. Is there anything I can offer you?" />
+              </do_if>
+              <do_else>
+                <add_conversation_view view="facecopilot" comment="Hide detail monitor" />
+              </do_else>
+              <!-- Player choices:
+                1: Repair ship
+                2: Show me your skills
+                3: I want to hire you / Come back on board
+                4: Where can I find ...? / Engage: Smalltalk
+                5:
+                6: Goodbye
+              -->
+              <do_if value="not $actor.isplayerowned">
+                <add_player_choice_sub text="{1002,8003}" section="cEngineer_repair" position="top_left" choiceparam="[0, 0, player.primaryship, $actor]" baseparam="event.param2" selectable="player.room == $actor.room" comment="Repair Ship"/>
+              </do_if>
+              <do_if value="not $actor.iscontrolentity or $actor.isplayerowned">
+                <add_player_choice_sub text="{1002,3003}" section="gMain_charProfileMenu" position="left" choiceparam="[0, 0, $actor, 0]" baseparam="event.param2" comment="Show me your skills!" />
+              </do_if>
+              <get_num_incoming_remote_transport_items result="$count" type="passenger" />
+              <do_if value="not $actor.iscontrolentity">
+                <do_if value="player.primaryship.engineer">
+                  <add_player_choice_sub text="{1002,3001}" section="cEngineer_hasengineer" position="bottom_left" comment="I want to hire you."/>
+                </do_if>
+                <do_elseif value="(player.primaryship.numfreeactorslots - $count) ge 1">
+                  <add_player_choice_sub text="{1002,3001}" section="cEngineer_transfer" position="bottom_left" choiceparam="[0, 0, $actor, $fee]" comment="I want to hire you."/>
+                </do_elseif>
+                <do_else>
+                  <add_player_choice_sub text="{1002,3001}" section="cEngineer_nofreeslots" position="bottom_left" comment="I want to hire you."/>
+                </do_else>
+              </do_if>
+              <do_elseif value="not $actor.isplayerowned">
+                <add_player_choice_sub text="{1002,3001}" section="cEngineer_controlentity" position="bottom_left" comment="I want to hire you." />
+              </do_elseif>
+              <do_elseif value="(player.primaryship.numfreeactorslots - $count) ge 1">
+                <add_player_choice_sub text="{1002,3012}" section="cEngineer_move" position="bottom_left" comment="Come back on board" selectable="$actor.container.distanceto.{player.primaryship} lt 60km" />
+              </do_elseif>
+              <do_if value="not $actor.isplayerowned">
+                <do_if value="not $actor.$SmalltalkDone? and player.age lt @$actor.$TopicTimeout">
+                  <add_player_choice_sub text="{1002,900000}" section="gSmalltalk_start" position="top_right" baseparam="event.param2" />
+                </do_if>
+                <do_else>
+                  <add_player_choice_sub text="{1002,12008}" comment="Where can I find ...?" section="g_askforway" position="top_right" baseparam="event.param2" />
+                </do_else>
+              </do_if>
+              <add_player_choice_return text="{1002,2}" position="bottom_right" comment="Goodbye"/>
+            </do_else>
+          </actions>
+        </cue>
+
+        <!-- Start handler for on board conversation -->
+        <cue name="OnBoardComm" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_started actor="$actor" />
+              <event_conversation_returned_to_section actor="$actor" />
+            </check_any>
+            <check_value value="event.param == 'default'" />
+            <check_value value="$actor.ship == player.primaryship" />
+          </conditions>
+          <actions>
+            <do_if value="event.name == 'event_conversation_started'">
+              <debug_text text="'Engineer conversation started: %1, actor=%2, %3'.[event.param, event.object, event.object.knownname]" />
+              <set_conversation_return_section section="g_goodbye" />
+              <!-- Greeting -->
+              <add_npc_line line="1" comment="Greeting" />
+            </do_if>
+            <!-- Player choices:
+              1: Ship status
+              2: Show me your skills
+              3: You're fired!
+              4: Work here
+              5: Please work on this ship
+              6: Goodbye
+            -->
+            <do_if value="$actor == player.primaryship.engineer">
+              <add_player_choice_sub text="{1002,1203}" position="top_left" section="cEngineer_repair_onboard" choiceparam="[0, 0,  $actor.container, $actor]" baseparam="event.param2" comment="Ship status"/>
+            </do_if>
+            <add_player_choice_sub text="{1002,3003}" position="left" section="gMain_charProfileMenu" choiceparam="[0, 0, $actor, 0, 1, $actor.container]" baseparam="event.param2" comment="Show me your skills!"/>
+            <do_if value="not player.primaryship.engineer">
+              <add_player_choice_sub text="{1002,3005}" section="cEngineer_takeover" position="right" comment="Please work on this ship."/>
+            </do_if>
+            <add_player_choice text="{1002,3004}" section="cEngineer_fire" position="bottom_left" comment="You\'re fired!"/>
+            <do_if value="@player.platform.container.isplayerowned and @player.platform.container.isclass.ship">
+              <do_if value="not @player.platform.container.engineer">
+                <add_player_choice text="{1002,3006}" section="cEngineer_workhere" position="top_right" comment="Work here"/>
+              </do_if>
+              <do_else>
+                <add_player_choice text="{1002,3006}" section="cEngineer_hasengineerplatform" position="top_right" comment="Work here"/>
+              </do_else>
+            </do_if>
+            <do_elseif value="not player.platform">
+              <add_player_choice text="{1002,3008}" section="cEngineer_worksomewhere" position="top_right" choiceparam="[0, 0, 'zone', player.primaryship.zone, null, null, 'selectplayerobject', ['cEngineer_worksomewhere_objectselected', null, null, true, false, true, false, true]]" comment="Work somewhere else"/>
+            </do_elseif>
+            <add_player_choice_return text="{1002,2}" position="bottom_right" comment="Goodbye"/>
+          </actions>
+        </cue>
+
+        <!-- Section handler for engineer -->
+        <cue name="SectionHandler" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_next_section sectionprefix="cEngineer_" actor="$actor" />
+              <event_conversation_returned_to_section sectionprefix="cEngineer_" actor="$actor" />
+            </check_any>
+          </conditions>
+          <actions>
+            <debug_text text="'&lt;%1&gt; section: \'%2\''.[event.name, event.param]" />
+
+            <do_if value="event.param == 'cEngineer_fire'">
+              <add_npc_line line="3166" view="facenormal" />
+              <!-- TODO: Don't use text from the passenger mission -->
+              <signal_cue_instantly cue="md.NPC_Staff.LogFired" param="$actor" />
+              <do_if value="$actor.hasownaccount">
+                <remove_actor_account actor="$actor" transfer="true" />
+              </do_if>
+              <abort_scripts entity="$actor" />
+              <do_if value="player.platform">
+                <play_cutscene key="'LeavePlayerShip'">
+                  <param name="npcref" object="$actor" />
+                </play_cutscene>
+                <destroy_object object="$actor" />
+              </do_if>
+            </do_if>
+
+            <do_elseif value="event.param == 'cEngineer_hasengineer'">
+              <add_player_choice text="{1002,3007}" section="cEngineer_transfer" position="top_left" choiceparam="[0, 0, $actor, $fee, 'replace']" comment="Work on my ship." />
+              <get_num_incoming_remote_transport_items result="$count" type="passenger" />
+              <do_if value="player.primaryship.numfreeactorslots - $count" min="1">
+                <add_player_choice text="{1002,3008}" section="cEngineer_transfer" position="left" choiceparam="[0, 0, $actor, $fee, 'store']" comment="Work somewhere else for me."/>
+              </do_if>
+              <add_player_choice text="{1002,3009}" section="cEngineer_goodbye" position="bottom_left" comment="Nevermind."/>
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_transfer'">
+              <open_conversation_menu menu="HireMenu" param="event.param2" param2="event.param3" />
+              <add_conversation_view view="closeupdetailmonitor" />
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_nofreeslots'">
+              <add_npc_line line="260" speaker="player.computer" comment="Ship has no more room for passengers." view="facenormal" />
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_controlentity'">
+              <add_npc_line line="1020" comment="No." view="facenormal" />
+            </do_elseif>
+
+            <do_elseif value="(event.param == 'cEngineer_hire') or (event.param == 'cEngineer_hireandstore')">
+              <add_npc_line line="1520" comment="Thank you for hiring me, sir. You will not be disappointed." view="facenormal" />
+              <do_if value="$actor.iscontrolentity">
+                <cancel_cue cue="ControlEntityHandling" />
+              </do_if>
+              <do_else>
+                <cancel_cue cue="EngineerTimeout" />
+              </do_else>
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_hireandreplace'">
+              <add_npc_line line="1520" comment="Thank you for hiring me, sir. You will not be disappointed." view="facenormal" />
+              <do_if value="$actor.iscontrolentity">
+                <cancel_cue cue="ControlEntityHandling" />
+              </do_if>
+              <do_else>
+                <cancel_cue cue="EngineerTimeout" />
+              </do_else>
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_takeover'">
+              <abort_scripts entity="player.primaryship.engineer" />
+              <assign_engineer actor="$actor" object="player.primaryship" />
+              <start_script object="$actor" name="'engineer.player'" />
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_workhere'">
+              <add_npc_line line="3167" view="facenormal" comment="OK, sir. I'll move into my new quarters now." />
+              <set_value name="$container" exact="player.platform.container" />
+              <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$actor, $container]" />
+              <add_actor_to_platform actor="$actor" dockingbay="player.platform" />
+              <do_if value="player.primaryship.engineer == $actor">
+                <abort_scripts entity="$actor" />
+                <dismiss_control_entity object="player.primaryship" actor="$actor" />
+              </do_if>
+              <do_if value="@$container.engineer">
+                <set_value name="$oldengineer" exact="$container.engineer" />
+                <do_if value="$oldengineer.customhandler">
+                  <add_actor_to_playership actor="$oldengineer" />
+                  <play_cutscene key="'ReplaceNPConPlayerShip'">
+                    <param name="npcref" object="$oldengineer" />
+                    <param name="npcref2" object="$actor" />
+                  </play_cutscene>
+                  <abort_scripts entity="$oldengineer" />
+                  <dismiss_control_entity object="$container" actor="$oldengineer" />
+                  <do_if value="not player.primaryship.engineer">
+                    <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$oldengineer, player.primaryship]" />
+                    <assign_engineer object="player.primaryship" actor="$oldengineer" />
+                    <start_script object="$oldengineer" name="'engineer.player'"/>
+                  </do_if>
+                  <do_else>
+                    <signal_cue_instantly cue="md.NPC_Staff.LogTransferredToPlayerShip" param="$oldengineer" />
+                  </do_else>
+                </do_if>
+                <do_else>
+                  <destroy_object object="$oldengineer" />
+                  <play_cutscene key="'LeavePlayerShip'">
+                    <param name="npcref" object="$actor" />
+                  </play_cutscene>
+                </do_else>
+                <remove_value name="$oldengineer" />
+              </do_if>
+              <do_else>
+                <play_cutscene key="'LeavePlayerShip'">
+                  <param name="npcref" object="$actor" />
+                </play_cutscene>
+              </do_else>
+              <assign_engineer object="$container" actor="$actor" />
+              <start_script object="$actor" name="'engineer.ai'"/>
+              <remove_value name="$container" />
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_worksomewhere'">
+              <open_conversation_menu menu="MapMenu" param="event.param2" param2="event.param3" />
+              <add_conversation_view view="closeupdetailmonitor" />
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_worksomewhere_objectselected'">
+              <add_npc_line line="3167" view="facenormal" comment="OK, sir. I'll move into my new quarters now." />
+              <set_value name="$selectedobject" exact="event.param2.{3}" />
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_hasengineerplatform'">
+              <add_player_choice text="{1002,3010}" section="cEngineer_workhere" position="top_left" comment="Replace the other employee" />
+              <add_player_choice text="{1002,3009}" section="cEngineer_goodbye" position="bottom_left" comment="Nevermind."/>
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_repair'">
+              <add_conversation_view view="closeupdetailmonitor" />
+              <open_conversation_menu menu="RepairMenu" param="event.param2" param2="event.param3" />
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_repair_onboard'">
+              <add_conversation_view view="closeupdetailmonitor" />
+              <open_conversation_menu menu="RepairOnboardMenu" param="event.param2" param2="event.param3" />
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_move'">
+              <abort_scripts entity="$actor" />
+              <dismiss_control_entity actor="$actor" object="$actor.container" />
+            </do_elseif>
+
+            <do_elseif value="event.param == 'cEngineer_goodbye'">
+              <add_npc_line line="1006" view="facenormal" />
+            </do_elseif>
+
+            <do_else>
+              <debug_text text="'ERROR: Unexpected section \'' + event.param + '\''" filter="general" />
+            </do_else>
+          </actions>
+        </cue>
+
+        <cue name="OnHired" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_finished actor="$actor" outcome="cEngineer_hire" />
+              <event_conversation_finished actor="$actor" outcome="cEngineer_hireandstore" />
+              <event_conversation_finished actor="$actor" outcome="cEngineer_hireandreplace" />
+              <event_conversation_finished actor="$actor" outcome="cEngineer_move" />
+            </check_any>
+          </conditions>
+          <delay exact="1s" />
+          <actions>
+            <do_if value="event.param == 'cEngineer_move'">
+              <do_if value="not player.primaryship.engineer">
+                <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$actor, player.primaryship]" />
+              </do_if>
+              <do_else>
+                <signal_cue_instantly cue="md.NPC_Staff.LogTransferredToPlayerShip" param="$actor" />
+              </do_else>
+            </do_if>
+            <do_else>
+              <signal_cue_instantly cue="md.NPC_Staff.LogHired" param="$actor" />
+              <do_if value="event.param != 'cEngineer_hireandstore'">
+                <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$actor, player.primaryship]" />
+              </do_if>
+            </do_else>
+            <do_if value="player.room == $actor.room">
+              <play_cutscene key="'EnterPlayerShip'">
+                <param name="npcref" object="$actor" />
+              </play_cutscene>
+              <!-- <start_conversation actor="$actor" conversation="Speak" type="normal" convparam="3163" /> -->
+              <abort_scripts entity="$actor" />
+              <set_owner object="$actor" faction="faction.player" />
+              <do_if value="event.param == 'cEngineer_hireandreplace'">
+                <signal_cue_instantly cue="md.NPC_Staff.LogFired" param="player.primaryship.engineer" />
+                <destroy_object object="player.primaryship.engineer" />
+              </do_if>
+              <add_actor_to_playership actor="$actor" />
+              <do_if value="(event.param == 'cEngineer_hire') or (event.param == 'cEngineer_hireandreplace') or ((event.param == 'cEngineer_move') and not player.primaryship.engineer)">
+                <assign_engineer actor="$actor" object="player.primaryship" />
+                <start_script object="$actor" name="'engineer.player'" />
+              </do_if>
+            </do_if>
+            <do_else>
+              <do_if value="event.param == 'cEngineer_hire'">
+                <set_value name="$hiretype" exact="'hire'" />
+              </do_if>
+              <do_elseif value="event.param == 'cEngineer_hireandstore'">
+                <set_value name="$hiretype" exact="'hireandstore'" />
+              </do_elseif>
+              <do_elseif value="event.param == 'cEngineer_hireandreplace'">
+                <set_value name="$hiretype" exact="'hireandreplace'" />
+                <signal_cue_instantly cue="md.NPC_Staff.LogFired" param="player.primaryship.engineer" />
+                <do_if value="player.primaryship.engineer.room == player.room">
+                  <play_cutscene key="'LeavePlayerShipWithDrone'">
+                    <param name="npcref" object="player.primaryship.engineer" />
+                  </play_cutscene>
+                  <start_actor_transport actor="player.primaryship.engineer" />
+                </do_if>
+                <do_else>
+                  <destroy_object object="player.primaryship.engineer" />
+                </do_else>
+              </do_elseif>
+              <start_actor_transport actor="$actor" target="player.primaryship" />
+            </do_else>
+          </actions>
+        </cue>
+
+        <cue name="OnSendAway" instantiate="true">
+          <conditions>
+            <event_conversation_finished actor="$actor" outcome="cEngineer_worksomewhere_objectselected" />
+          </conditions>
+          <delay exact="1s" />
+          <actions>
+            <set_value name="$hiretype" exact="'worksomewhere'" />
+            <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$actor, $selectedobject]" />
+            <play_cutscene key="'LeavePlayerShipWithDrone'">
+              <param name="npcref" object="$actor" />
+            </play_cutscene>
+            <start_actor_transport actor="$actor" target="$selectedobject" />
+            <do_if value="@$selectedobject.engineer">
+              <set_value name="$oldengineer" exact="$selectedobject.engineer" />
+              <do_if value="$oldengineer.customhandler">
+                <do_if value="not player.primaryship.engineer">
+                  <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$oldengineer, player.primaryship]" />
+                </do_if>
+                <do_else>
+                  <signal_cue_instantly cue="md.NPC_Staff.LogTransferredToPlayerShip" param="$oldengineer" />
+                </do_else>
+                <start_actor_transport actor="$oldengineer" target="player.primaryship" />
+              </do_if>
+              <do_else>
+                <destroy_object object="$oldengineer" />
+              </do_else>
+              <remove_value name="$oldengineer" />
+            </do_if>
+
+            <remove_value name="$selectedobject" />
+          </actions>
+        </cue>
+
+        <cue name="OnFired" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_finished actor="$actor" outcome="cEngineer_fire" />
+            </check_any>
+          </conditions>
+          <delay exact="1s" />
+          <actions>
+            <play_cutscene key="'LeavePlayerShipWithDrone'">
+              <param name="npcref" object="$actor" />
+            </play_cutscene>
+            <do_if value="not player.platform">
+              <start_actor_transport actor="$actor" />
+            </do_if>
+          </actions>
+        </cue>
+
+        <cue name="OnDroneArrival" instantiate="true">
+          <conditions>
+            <event_object_signalled object="$actor" param="'remote_passenger_arrived'" />
+          </conditions>
+          <delay exact="1ms" />
+          <actions>
+            <do_if value="@$hiretype">
+              <do_if value="$hiretype == 'hire'">
+                <debug_text text="'Engineer NPC arrived - executing hire script'" />
+                <do_if value="not player.primaryship.engineer">
+                  <assign_engineer actor="$actor" object="player.primaryship" />
+                  <start_script object="$actor" name="'engineer.player'" />
+                </do_if>
+              </do_if>
+              <do_elseif value="$hiretype == 'hireandreplace'">
+                <debug_text text="'Engineer NPC arrived - executing hireandreplace script'" />
+                <assign_engineer actor="$actor" object="player.primaryship" />
+                <start_script object="$actor" name="'engineer.player'" />
+              </do_elseif>
+              <do_elseif value="$hiretype == 'hireandstore'">
+                <debug_text text="'Engineer NPC arrived - executing hireandstore script'" />
+              </do_elseif>
+              <do_elseif value="$hiretype == 'worksomewhere'">
+                <debug_text text="'Engineer NPC arrived - executing worksomewhere script'" />
+                <assign_engineer object="$actor.container" actor="$actor" />
+                <start_script object="$actor" name="'engineer.ai'"/>
+              </do_elseif>
+            </do_if>
+            <do_else>
+              <debug_text text="'Engineer NPC arrived - executing moved to playership script'" />
+              <do_if value="($actor.container == player.primaryship) and (not player.primaryship.engineer)">
+                <assign_engineer actor="$actor" object="player.primaryship" />
+                <start_script object="$actor" name="'engineer.player'" />
+              </do_if>
+            </do_else>
+
+            <remove_value name="$hiretype" />
+          </actions>
+        </cue>
+      </cues>
+    </cue>
+
+  </cues>
+
+</mdscript>

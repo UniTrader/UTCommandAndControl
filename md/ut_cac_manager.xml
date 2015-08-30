@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<mdscript name="UT_CAC_Manager" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
+
+  <cues>
+
+    <cue name="Main" instantiate="true" namespace="this" version="2">
+      <conditions>
+        <event_cue_signalled cue="this"/>
+      </conditions>
+      <actions>
+        <!-- set up Variables -->
+        <set_value name="$actor" exact="event.param" />
+        <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
+        <set_value name="$actor.$ut_cac_settings" exact="table[
+        $insectorjump=false,
+        $pesterlevel=60,
+        $loglevel=0
+        ]"/>
+        <debug_text filter="general" text="'%1 now uses UT CAC comm handlers'.[$actor.name]" />
+        <set_comm_handler actor="$actor" customhandler="true" />
+        <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
+        <start_script object="$actor" name="'ut.cac.base.manager'"/>
+      </actions>
+      <patch sinceversion="2" state="complete">
+        <set_value name="$actor.$ut_cac_settings" exact="table[
+        $pesterlevel=$actor.$pesterlevel,
+        $loglevel=$actor.$loglevel
+        ]"/>
+        <remove_value name="$actor.$pesterlevel"/>
+        <remove_value name="$actor.$loglevel"/>
+      </patch>
+      <cues>
+        <!--cue name="Payment" ref="md.UT_CAC_Lib.Payment">
+          <param name="actor" value="$actor"/>
+        </cue-->
+        
+        <!--cue name="Account_Manager" ref="md.UT_CAC_Lib.Account_Manager">
+          <param name="actor" value="$actor"/>
+        </cue-->
+<!--
+Dialogue Tree - rough concept (for all Entity Types)
+1. Personal Managment
+1.1 Show Skills
+1.2 Show Finances (Actor account, Account Owner, Wages and Bonusses) -> also Options for Money Transfer, Account Sharing (and seperation)
+1.3 Transfer Entity (not just from/to Skunk, but also tangential as long as its InZone)
+1.4 Pester Level (how important should something be before pestering the Player - note that this also depends on the Player Situation) - PLANNED Feature
+1.5 
+1.6 Go back
+2. Settings Managment - Entity/Context Specific
+2.1
+2.2
+2.3
+2.4
+2.5
+2.6
+3. Connect to other People   - Maybe also include an Option to connect to Subordinates with no consistent Position (move around as necesary)
+      -> note that Station and CV are counted as the same in this Menu
+3.1 Defense
+3.2 Engineer
+3.3 Architect
+3.4 Superior
+3.5 Captain/Pilot/Manager
+3.6 Subordinates
+4. Subordinates Handling
+4.1 Take Playersquad
+4.2 Add Subordinate
+4.3 Take Object and its Subordinates
+4.4 Add Subordinates to Playersquad (All, Unused / Trade;Mine , Fight , All )
+4.5 Set Superior
+4.6 Go Back
+5. Commands - Entity/Context specific
+5.1
+5.2
+5.3
+5.4
+5.5
+5.6
+6. Goodbye / Reserved
+6.1
+6.2
+6.3
+6.4
+6.5
+6.6
+-->
+
+        <cue name="Comm_MainMenu" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_started actor="$actor"/>
+              <event_conversation_returned_to_section actor="$actor" section="default"/>
+              <event_cue_signalled/>
+            </check_any>
+          </conditions>
+          <actions>
+            <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+            <do_if value="event.name == 'event_conversation_started'">
+              <do_if value="$actor.room == player.entity.room">
+                <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
+                <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
+              </do_if>
+              <do_else>
+                <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi." />
+                <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
+              </do_else>
+            </do_if>
+            <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
+            <add_player_choice_sub text="'About your current Orders...'" position="1" section="comm_orders_main" selectable="false"/>
+            <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main" selectable="false"/>
+            <add_player_choice_sub text="'Connect me with...'" position="3" section="comm_connect_main"/>
+            <add_player_choice_sub text="'About your Subordinates...'" position="4" section="comm_subordinates_main"/>
+            <add_player_choice_sub text="'Lets talk about your Work / Personal Settings'" position="5" section="comm_personal_main"/>
+            <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
+            <set_conversation_return_section section="comm_goodbye"/>
+            <add_player_choice_return text="'Goodbye'" position="close" />
+          </actions>
+        </cue>
+        
+        <!-- Menu 1: Orders (Note: partially Entity-Specific, see cue Comm_Orders ) -->
+        <cue name="Comm_Common_Orders" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Orders">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <cue name="Comm_Orders" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_next_section sectionprefix="comm_orders_" actor="$actor"/>
+              <event_conversation_returned_to_section sectionprefix="comm_orders_" actor="$actor"/>
+              <event_cue_signalled/>
+            </check_any>
+          </conditions>
+          <actions>
+            
+          </actions>
+        </cue>
+        <!-- Menu 2: Object Settings specific to Manager -->
+        <cue name="Comm_Settings" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_next_section sectionprefix="comm_settings_" actor="$actor"/>
+              <event_conversation_returned_to_section sectionprefix="comm_settings_" actor="$actor"/>
+              <event_cue_signalled/>
+            </check_any>
+          </conditions>
+          <actions>
+            <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+            <!--- ################################### -->
+            <!--                       Settings Menu                          -->
+            <!--- ################################### -->
+            <do_if value="event.param == 'comm_settings_main'">
+              <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
+                <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+                <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+              </do_if>
+              <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+                <do_if value="event.param2 == 'no change'">
+                  <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+                </do_if>
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_elseif>
+              <add_player_choice_return text="'(Back)'" position="close" />
+            </do_if>
+          </actions>
+        </cue>
+        <!-- Menu 3: Connect with other Actor-->
+        <cue name="Comm_Common_Connect" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Connect">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Menu 4: Subordinates Handling -->
+        <cue name="Comm_Common_Subordinates" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Subordinates">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Menu 5: Personal Settings (as lib since its shared with other NPC Types) -->
+        <cue name="Comm_Common_Personal" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Personal">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Misc Menu Items (Debug menu (6)) and Goodbye Section) -->
+        <cue name="Comm_Common_Misc" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Misc">
+          <param name="actor" value="$actor"/>
+        </cue>
+        
+        
+        <cue name="Subordinate_Added" instantiate="true">
+          <conditions>
+            <check_any>
+              <!--event_object_signalled object="this" param2="'register subordinate'"/-->
+              <event_object_subordinate_added object="$actor.container" commandertype="entitytype.manager"/>
+              <event_object_subordinate_removed object="$actor.container" />
+            </check_any>
+          </conditions>
+          <actions>
+            <do_if value="not ( event.param.isclass.drone or  event.param.isclass.ship_xs or  event.param.isclass.ship_s )" comment="too much debug spam for all those mining drones!">
+              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+            </do_if>
+            <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
+              <do_if value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
+                <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
+                <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
+              </do_if>
+              <do_else>
+                <!-- cannt use this Ship for anything - remove assignment (maybe add passing it to the right entity? ) -->
+                <!-- ToDo: Also add an obvious Error Message - currently this fails siltently for the player-->
+                <debug_text filter="error" text="'trying to add a non-trade Ship ( %1 ) to a Manager ( %2 , %3 in %4 ) - not supported yet!'.[event.param.name,$actor.name,$actor.station.name,$actor.zone.name]"/>
+                <remove_object_commander object="event.param"/>
+              </do_else>
+            </do_if>
+            <do_elseif value="event.name == 'event_object_subordinate_removed'">
+              <remove_actor_account actor="event.param.pilot"/>
+            </do_elseif>
+          </actions>
+        </cue>
+        
+        <cue name="NPC_Destroyed">
+          <conditions>
+            <event_object_destroyed object="$actor"/>
+          </conditions>
+          <!--delay exact="1s" comment="delay as the PlatformActor library may also take care of this"/ currently not included, so commented out -->
+          <actions>
+            <debug_text text="'NPC_Destroyed'"/>
+            <cancel_cue cue="Main"/>
+          </actions>
+        </cue>
+        
+      </cues>
+    </cue>
+
+  </cues>
+
+</mdscript>
