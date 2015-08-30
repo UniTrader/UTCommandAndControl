@@ -12,9 +12,7 @@
     <param name="gate" default="false" comment="Gate to go through (Must be in the same Zone)"/>
     <param name="cleargate" default="true" comment="Clear the Gate after Passage? (if set to 2 it will also skip the deactivation of Boosters so we can continue boosting without interruption)"/>
     
-    
-    <!-- Stuff necesary for coordinated Group Gate Passage - WiP Feature-->
-    <param name="formationlist" default="null" comment="The List of Ships passing through the Gate in the Order defined by the List - will Signal the next on the List when entering the Gate so each of them can go ASAP (no Group because i want to manually order them)"/>
+    <param name="queue_position" default="false" comment="position in the Gate queue where Fight Ships add themselves to to pass the Gate before unarmed Ships (false will assume this is the leader and add to the End)"/>
     
   </params>
   <interrupts>
@@ -47,10 +45,19 @@
       
       <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
       
-      <!-- If we dont have received a formationlist we are the formation Leader and first get behind the Gate in a safe Distance, create a formation List and Signal it to others so they can prepare -->
-      <do_if value="not $formationlist">
+      <!-- check if global Var for Gate Passage exists and create if necesary -->
+      <do_if value="not global.$gate_queue?">
+        <set_value name="global.$gate_queue" exact="table[$gate=[]]"/>
+      </do_if>
+      <do_elseif value="not global.$gate_queue.{$gate}?">
+        <set_value name="global.$gate_queue.{$gate}" exact="[]"/>
+      </do_elseif>
       
-        <!-- check if we are somewhere behind the Gate and if not move there first (followers should be nearby and and therfore dont need this) -->
+      
+      <!-- If we dont have received a queue Position we add ourselves to the End and signal our Position in the List -->
+      <do_if value="not $queue_position">
+      
+        <!-- check if we are somewhere behind the Gate and if not move there first (followers should remain nearby and and therfore dont need this) -->
         <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
           <position x="0m" y="0m" z="-7km"/>
         </transform_position>
@@ -62,23 +69,29 @@
           </move_to>
         </do_if>
         
-        <!-- create Formation List and pass it to everyone -->
-        <set_value name="$formationlist" exact="[this.ship]"/>
-        <signal_objects object="this.ship" param="'travel gate prep'" param2="$formationlist"/>
+        <!-- Add ourselves to the End of the Queue -->
+        <append_to_list name="global.$gate_queue.{$gate}"/>
+        <set_value name="$queue_position" exact="global.$gate_queue.{$gate}.count"/>
+        <!-- signal everyone with our Position in the List -->
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$queue_position"/>
         <wait exact="100ms"/>
       </do_if>
       <!-- we are a follower - add us to formationlist as apporiate position -->
       <do_elseif value="this.ship.primarypurpose == objectpurpose.fight">
-        <set_value name="$formationlist.{1}" exact="this.ship" operation="insert"/>
+        <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="this.ship" operation="insert"/>
+        <!-- signal everyone with Position in the List to add fight ships to (for recursion) -->
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$queue_position"/>
       </do_elseif>
       <do_else>
-        <append_to_list name="$formationlist" exact="this.ship"/>
+        <append_to_list name="global.$gate_queue.{$gate}" exact="this.ship"/>
+        <!-- signal everyone with Position in the List to add fight ships to (for recursion) -->
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$queue_position"/>
       </do_else>
       <wait exact="100ms"/>
       
       
       <!-- wait until we are next going through the Gate and then move to entry approach pos -->
-      <do_if value="$formationlist.indexof.{this.ship} gt 1">
+      <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship} gt 1">
         <wait>
           <interrupt>
             <conditions>
@@ -117,12 +130,11 @@
       
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
       
-      <!-- remove ourselves from the Waiting List, signal the next to go and remove List (we dont need it anymore; the others who still need it already have it) -->
-      <remove_value name="$formationlist.{1}"/>
-      <do_if value="$formationlist.count">
-        <signal_objects object="$formationlist.{1}" param="'travel gate next'"/>
+      <!-- remove ourselves from the Waiting List, signal the next to go -->
+      <remove_value name="global.$gate_queue.{$gate}.{1}"/>
+      <do_if value="global.$gate_queue.{$gate}.count">
+        <signal_objects object="global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
       </do_if>
-      <remove_value name="$formationlist"/>
       
       <!-- enter gate -->
       <!-- we already have arrived at an approach pos, altough slightly farther away than the one returned here - no need for this step. -->
@@ -175,4 +187,10 @@
       
     </actions>
   </attention>
+  <on_abort>
+    <!-- remove ourselves from the waiting List if we are in it -->
+    <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
+      <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
+    </do_if>
+  </on_abort>
 </aiscript>
