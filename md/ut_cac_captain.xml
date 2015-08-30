@@ -3,7 +3,7 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this">
+    <cue name="Main" instantiate="true" namespace="this" version="2">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
@@ -11,8 +11,14 @@
         <!-- set up Variables -->
         <set_value name="$actor" exact="event.param" />
         <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
-        <set_value name="$actor.$pesterlevel" exact="60" comment="default value for pestering the Player about issues"/>
-        <set_value name="$actor.$loglevel" exact="0" comment="default value for Playerlog verbosity"/>
+        <!--set_value name="$actor.$pesterlevel" exact="60" comment="default value for pestering the Player about issues"/>
+        <set_value name="$actor.$loglevel" exact="0" comment="default value for Playerlog verbosity"/-->
+        <set_value name="$actor.$ut_cac_settings" exact="table[
+        $jumptype='beacon',
+        $insectorjump=false,
+        $pesterlevel=60,
+        $loglevel=0
+        ]"/>
         <!-- cancel Vanilla Dialogue -->
         <signal_objects object="$actor" param="'cancel Vanilla dialogue tree'"/>
         <set_comm_handler actor="$actor" customhandler="true" />
@@ -20,6 +26,16 @@
         <!-- start default Scripts -->
         <debug_text filter="general" chance="$actor.$debug*100" text="'%1 now uses UT CAC comm handlers'.[$actor.name]" />
       </actions>
+      <patch sinceversion="2" state="complete">
+        <set_value name="$actor.$ut_cac_settings" exact="table[
+        $jumptype='beacon',
+        $insectorjump=false,
+        $pesterlevel=$actor.$pesterlevel,
+        $loglevel=$actor.$loglevel
+        ]"/>
+        <remove_value name="$actor.$pesterlevel"/>
+        <remove_value name="$actor.$loglevel"/>
+      </patch>
       <cues>
         <cue name="Delayed_scriptstart">
           <delay exact="100ms"/>
@@ -125,24 +141,113 @@ Dialogue Tree - rough concept (for all Entity Types)
                 <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
               </do_else>
             </do_if>
-            <add_player_choice_sub text="'Lets talk about your Work / Personal Settings'" position="1" section="comm_personal_main"/>
+            <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
+            <add_player_choice_sub text="'About your current Orders...'" position="1" section="comm_orders_main"/>
             <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main"/>
             <add_player_choice_sub text="'Connect me with...'" position="3" section="comm_connect_main"/>
             <add_player_choice_sub text="'About your Subordinates...'" position="4" section="comm_subordinates_main" selectable="false"/>
-            <add_player_choice_sub text="'DEBUG'" position="5" section="comm_debug_main"/>
+            <add_player_choice_sub text="'Lets talk about your Work / Personal Settings'" position="5" section="comm_personal_main"/>
+            <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
             <set_conversation_return_section section="comm_goodbye"/>
-            <add_player_choice_return text="'Goodbye'" position="6" />
             <add_player_choice_return text="'Goodbye'" position="close" />
           </actions>
         </cue>
         
-        <!-- Menu 1: Personal Settings -->
-        <!-- Menu 3: Connect with other Actor-->
-        <!-- Menu 4: Subordinates Handling -->
-        <!-- Also the Goodbye Section is included here -->
-        <!-- (all these Slots are in a shared Lib) -->
-        <cue name="Comm_Common" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common">
+        <!-- Menu 1: Orders (Note: partially Entity-Specific, see cue Comm_Orders ) -->
+        <cue name="Comm_Common_Orders" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Orders">
           <param name="actor" value="$actor"/>
+        </cue>
+        <cue name="Comm_Orders" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_next_section sectionprefix="comm_orders_" actor="$actor"/>
+              <event_conversation_returned_to_section sectionprefix="comm_orders_" actor="$actor"/>
+              <event_cue_signalled/>
+            </check_any>
+          </conditions>
+          <actions>
+            <!-- Append a Note what shall happen to the Selected Order if there is one -->
+            <do_if value="event.param == 'comm_orders_new'">
+              <set_value name="$prev_order" exact="null"/>
+            </do_if>
+            <do_elseif value="event.param == 'comm_orders_insert'">
+              <set_value name="$prev_order" exact="event.param2"/>
+              <append_to_list name="$prev_order" exact="'insert'"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_replace'">
+              <set_value name="$prev_order" exact="event.param2"/>
+              <append_to_list name="$prev_order" exact="'replace'"/>
+            </do_elseif>
+            
+            <!-- Select new Order -->
+            <do_if value="event.param == 'comm_orders_new' or event.param == 'comm_orders_insert' or event.param == 'comm_orders_replace'">
+              <add_player_choice_sub text="'Combat'" position="1" section="comm_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
+              <add_player_choice_sub text="'Signalling'" position="3" section="comm_orders_signals" />
+              <add_player_choice_sub text="'Fly to...'" position="4" section="comm_orders_select_zone" choiceparam="'comm_orders_flyto_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice_return text="'(Back)'" position="6" />
+              <add_player_choice_return text="'(Back)'" position="close" />
+            </do_if>
+            <do_elseif value="event.param == 'comm_orders_combat'">
+              <add_player_choice_return text="'(Back)'" position="6" />
+              <add_player_choice_return text="'(Back)'" position="close" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_flyto_selected'">
+              <set_value name="$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$interruptable=true]"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_signals'">
+              <add_player_choice_sub text="'Send Signal'" position="1" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
+              <add_player_choice_sub text="'Send Signal to'" position="2" section="comm_orders_select_playerobject" choiceparam="'comm_orders_send_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice_sub text="'Send Signal to Commander'" position="3" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
+              <add_player_choice_sub text="'Wait for Signal'" position="4" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
+              <add_player_choice_sub text="'Wait for Signal on'" position="5" section="comm_orders_select_playerobject" choiceparam="'comm_orders_wait_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice_sub text="'Wait for Signal on Commander'" position="6" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_send_signal_selected'">
+              <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='signalobject',$interruptable=true,$displayname='Send Signal to %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
+              <signal_cue_instantly cue="Comm_MainMenu"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_wait_signal_selected'">
+              <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='wait signal',$interruptable=true,$displayname='Wait for Signal on %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
+              <signal_cue_instantly cue="Comm_MainMenu"/>
+            </do_elseif>
+            
+            <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
+            <do_if value="$prev_order? and $new_order?">
+              <!-- Player selected no Previous Order so he wants to attach it at the End of the List -->
+              <do_if value="$prev_order == null">
+                <append_to_list name="$actor.$orderlist" exact="$new_order"/>
+              </do_if>
+              <do_else>
+              <!-- Player selected a Specific Order to replace or insert - if it hasnt Moved just get its index, otherwise use the first fit in the List -->
+                <do_if value="$actor.$orderlist.{$prev_order.{3}} == $prev_order.{2}">
+                  <set_value name="$index" exact="$prev_order.{3}"/>
+                </do_if>
+                <!-- Order to replace moved down - a common occurence probably -->
+                <do_elseif value="$actor.$orderlist.indexof.{$prev_order.{2}} lt $prev_order.{3}">
+                  <set_value name="$index" exact="$actor.$orderlist.indexof.{$prev_order.{2}}"/>
+                </do_elseif>
+                <!-- Order moved Up - Unusual, leave a Note in the Log -->
+                <do_elseif value="$actor.$orderlist.indexof.{$prev_order.{2}}">
+                  <set_value name="$index" exact="$actor.$orderlist.indexof.{$prev_order.{2}}"/>
+                </do_elseif>
+                <!-- Order not in Orderlist anymore - Dont change anything -->
+                <do_else>
+                  <set_value name="$index" exact="null"/>
+                </do_else>
+                <do_if value="$index">
+                  <do_if value="$prev_order.{4} == 'insert'">
+                    <set_value name="$actor.$orderlist.{$index}" exact="$new_order" operation="insert"/>
+                  </do_if>
+                  <do_elseif value="$prev_order.{4} == 'replace'">
+                    <set_value name="$actor.$orderlist.{$index}" exact="$new_order"/>
+                  </do_elseif>
+                </do_if>
+              </do_else>
+              
+              <remove_value name="$prev_order"/>
+              <remove_value name="$new_order"/>
+            </do_if>
+          </actions>
         </cue>
         <!-- Menu 2: Object Settings specific to Captain -->
         <cue name="Comm_Settings" instantiate="true">
@@ -165,24 +270,48 @@ Dialogue Tree - rough concept (for all Entity Types)
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_elseif>
               <add_player_choice_sub text="'About your Jumping behavior'" position="1" section="comm_settings_jump" selectable="$actor.skill.navigation gt 3"
-                confidence="( @$actor.$jumptype == 'random' ) * 1 + ( @$actor.$jumptype == 'auto' ) * 3 + ( @$actor.$jumptype == 'beacon' ) * 5" comment="confidence shows current Setting: 0 - not set, beacon: 5, Auto: 3, always Random: 1; Selection is only available when Nav Skill is greater than 3" />
+                confidence="( @$actor.$ut_cac_settings.$jumptype == 'random' ) * 1 + ( @$actor.$ut_cac_settings.$jumptype == 'auto' ) * 3 + ( @$actor.$ut_cac_settings.$jumptype == 'beacon' ) * 5" comment="confidence shows current Setting: 0 - not set, beacon: 5, Auto: 3, always Random: 1; Selection is only available when Nav Skill is greater than 3" />
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_jump'">
               <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
               <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
-              <add_player_choice text="'Always use the Jump Beacons'" position="1" section="comm_settings_jump_set" choiceparam="'beacon'" selectable="not ( @$actor.$jumptype == 'beacon' or $actor.$jumptype? )"/>
-              <add_player_choice text="'Decide yourself'" position="2" section="comm_settings_jump_set" choiceparam="'auto'" selectable="not ( @$actor.$jumptype == 'auto' )"/>
-              <add_player_choice text="'Always make Jumps to a random Object'" position="3" section="comm_settings_jump_set" choiceparam="'random'" selectable="not ( @$actor.$jumptype == 'random' )"/>
+              <add_player_choice text="'Always use the Jump Beacons'" position="1" section="comm_settings_jump_type_set" choiceparam="'beacon'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'beacon' or $actor.$ut_cac_settings.$jumptype? )"/>
+              <add_player_choice text="'Decide yourself'" position="2" section="comm_settings_jump_type_set" choiceparam="'auto'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'auto' )"/>
+              <add_player_choice text="'Always make Jumps to a random Object'" position="3" section="comm_settings_jump_type_set" choiceparam="'random'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'random' )"/>
+              <add_player_choice text="'Also consider In-Sector-Jumps'" position="4" section="comm_settings_jump_insector_toggle" confidence="1" chance="(not $actor.$ut_cac_settings.$insectorjump) *100"/>
+              <add_player_choice text="'Dont Jump for In-Sector Travel'" position="4" section="comm_settings_jump_insector_toggle" confidence="5" chance="$actor.$ut_cac_settings.$insectorjump *100"/>
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_elseif>
-            <do_elseif value="event.param == 'comm_settings_jump_set'">
+            <do_elseif value="event.param == 'comm_settings_jump_type_set'">
               <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
-              <set_value name="$actor.$jumptype" exact="event.param2"/>
+              <set_value name="$actor.$ut_cac_settings.$jumptype" exact="event.param2"/>
+              <signal_cue_instantly cue="Comm_MainMenu"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_jump_insector_toggle'">
+              <set_value name="$actor.$ut_cac_settings.$insectorjump" exact="not $actor.$ut_cac_settings.$insectorjump"/>
+              <signal_cue_instantly cue="Comm_MainMenu"/>
             </do_elseif>
           </actions>
+        </cue>
+        
+        <!-- Menu 3: Connect with other Actor-->
+        <cue name="Comm_Common_Connect" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Connect">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Menu 4: Subordinates Handling -->
+        <cue name="Comm_Common_Subordinates" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Subordinates">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Menu 5: Personal Settings (as lib since its shared with other NPC Types) -->
+        <cue name="Comm_Common_Personal" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Personal">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Misc Menu Items (Debug menu (6)) and Goodbye Section) -->
+        <cue name="Comm_Common_Misc" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Misc">
+          <param name="actor" value="$actor"/>
         </cue>
         
         <cue name="NPC_Destroyed">
