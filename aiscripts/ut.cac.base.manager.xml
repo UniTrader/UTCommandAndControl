@@ -61,17 +61,16 @@
       </do_if>
       
       <!-- Set up mining Command (must re-use the same table since i am also using it to store persistent Values) - only $mininglist is updated with every iteration so the miningscript knows what is needed -->
-      <set_value name="$miningorder" exact="table[$script='ut.cac.com.manager.gatherressources']"/>
+      <set_value name="$miningorder" exact="table[$script='ut.cac.com.manager.gatherressources',$displayname='Gather Ressources (default)',$interruptable=false]"/>
       
       <!--immediately allow Zone Trading and Mining -->
         <set_value name="$next_zonetrade" exact="player.age"/>
         <set_value name="$next_miningstep" exact="player.age"/>
       
       <!-- for debug purposes-->
-      <set_value name="this.$debug" exact="true"/>
+      <!--set_value name="this.$debug" exact="true"/-->
       
       <!-- add Fuelcells as Trade Ware if Sctation has Cargo for them so Energy Freighters will buy it and put it into the Station Cargo for Refueling of Station Ships -->
-            <!-- note: will be unused in first release Version because i remove Energy/Fuel Cargo combination for now -->
       <do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
         <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false"/>
       </do_if>
@@ -93,13 +92,16 @@
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}" />
         <do_if value="typeof $order == datatype.table">
-          <remove_value name="$repeat"/>
+          <set_value name="$order.$interruptable" exact="false"/>
           <run_script name="$order.$script">
             <param name="params" value="$order" />
           </run_script>
         </do_if>
-        <!-- remove current Order so we can get to the next one - after that wait a split-second to prevent Freezes should something go wrong-->
-        <remove_value name="this.$orderlist.{1}" />
+        <!-- If current first Order is still the same as before executing it - remove it from Orderlist so we can continue with the next one - after that wait a split-second to prevent Freezes should something go wrong -->
+        <!-- (if its a diffrent Order the first Order was moved or replaced, which should cause an abort of it and a the new first Order should be executed immediately) -->
+        <do_if value="this.$orderlist.{1} == $order">
+          <remove_value name="this.$orderlist.{1}" />
+        </do_if>
         <wait exact="100ms"/>
       </do_while>
       
@@ -110,12 +112,12 @@
       <!-- check if we have Idle Subordinates and find Jobs for them (priority, immediately start with finding orders fo them) -->
       <do_if value="this.$idle_subordinates.count gt 0">
         <do_all exact="this.$idle_subordinates.count" counter="$i">
-          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.findjob',$entity=this.$idle_subordinates.{$i}]"/>
+          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=this.$idle_subordinates.{$i},$interruptable=false]"/>
         </do_all>
         <resume label="start with orderlist"/>
       </do_if>
       
-      <!-- check if we have gasses as ressource and can mine them directly (!!!Testing needed!!! )-->
+      <!-- check if we have gasses as ressource and can mine them directly -->
       <do_if value="player.age gt $next_miningstep">
         <set_value name="$next_miningstep" exact="player.age + 1min"/>
         <create_list name="$mineable_ressources"/>
@@ -142,11 +144,11 @@
       <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
       <do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade">
         <set_value name="$next_zonetrade" exact="player.age + 7min"/>
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.zonetrade',$repeat=false]"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.zonetrade',$displayname='Perform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
       </do_if>
       
       <do_if value="this.$orderlist.count == 0">
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order='wait order',$time=5min]"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>
       </do_if>
       
       <resume label="start with orderlist"/>
