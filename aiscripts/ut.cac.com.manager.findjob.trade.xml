@@ -58,10 +58,25 @@ $entity  = ' + $entity"/>
           <set_value name="$miningship" exact="true"/>
         </do_if>
       </do_else>
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Finding Trade order for: %4 on %5'.[player.age,this.name,this.container.name,$entity.name,$entity.container.name]"/>
       
       <!-- to suppress unnecesary debug output (dont want to remove it completely yet, but its too verbose) -->
-      <set_value name="$debug_detailoutput" exact="0" comment="this.$debug * 100" />
+      <set_value name="$debug_detailoutput" exact="this.$debug * 100" comment="this.$debug * 100" />
+      
+      
+      <!-- Get Range to be used - either Jump Range or Tube Range -->
+      <do_if value="$entity.ship.isclass.ship_xl or $entity.ship.isclass.ship_l">
+        <set_value name="$range" exact="this.$ut_cac_settings.$range_j"/>
+      </do_if>
+      <do_if value="$entity.ship.canenterhighway">
+        <set_value name="$range" exact="this.$ut_cac_settings.$range_h"/>
+      </do_if>
+      <!-- fallback case: ship can neither jump nor enter tubes - restricted to Zone Trade -->
+      <do_else>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Fallback: Zone Range'.[player.age,this.name,this.container.name]"/>
+        <set_value name="$range" exact="[this.zone]"/>
+      </do_else>
+      
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Finding Trade order for: %4 on %5 in range %6'.[player.age,this.name,this.container.name,$entity.name,$entity.container.name,$range]"/>
       
       <!-- get List of Wares traded by Station and order them by Wanted Amount Ratio - their priority (inverse value for selled Wares -->
       <create_list name="$wareslist"/>
@@ -75,30 +90,36 @@ $entity  = ' + $entity"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'%1 Ship has no space for it'.[$ware]"/>
           <continue/>
         </do_if>
+        
         <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
-        <do_if value="this.$legality == 0 and not $ware.illegalto.{this.zone.policefaction}.{this.owner}" comment="trades with everything - wheter legal or illegal">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 legal, illegal shitegal'.[$ware]"/>
+        <do_if value="$ware.illegal and this.$ut_cac_settings.$legality ge 3">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal'.[$ware]"/>
           <continue/>
         </do_if>
-        <do_if value="this.$legality == 1 and $ware.illegalto.{this.zone.policefaction}.{this.owner}" comment="no goods which are considered illegal in this Zone taking licenses into account">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 is licensed'.[$ware]"/>
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac_settings.$legality ge 2">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal in this Zone'.[$ware]"/>
           <continue/>
-        </do_if>
-        <do_if value="this.$legality == 2 and $ware.illegalto.{this.zone.policefaction}.{null}" comment="no goods which are considered illegal in this Zone">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 is illegal but has license'.[$ware]"/>
+        </do_elseif>
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac_settings.$legality ge 1">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal in this Zone and we dont have a license'.[$ware]"/>
           <continue/>
-        </do_if>
-        <do_if value="this.$legality == 3 and $ware.illegal" comment="no goods which are considered illegal anywhere">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 is illegal'.[$ware]"/>
-          <continue/>
-        </do_if>
-        <do_if value="not $ware.illegal" comment="legal goods">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 is legal'.[$ware]"/>
-        </do_if>
-        <debug_text filter="general" chance="$debug_detailoutput" text="'buying it'"/>
+        </do_elseif>
+        <do_elseif value="this.$ut_cac_settings.$legality == 0">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'Buying anything - including %1'.[$ware]"/>
+        </do_elseif>
+        <do_else>
+          <debug_text filter="general" chance="$debug_detailoutput" text="'Buying %1'.[$ware]"/>
+        </do_else>
+        
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
         <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.container.cargo.{$ware}.target )f )"/>
-        <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Ware is: ' + $prio"/>
+        <do_if value="this.container.resources.{$ware}.secondary">
+          <set_value name="$prio" exact="$prio * 0.75"/>
+          <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Secondary ressource is: ' + $prio"/>
+        </do_if>
+        <do_else>
+          <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Primary Ressource is: ' + $prio"/>
+        </do_else>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
           <!-- prio 1.0, so always in the beginning (higher prios are possible for products, see the respective part) -->
@@ -107,6 +128,7 @@ $entity  = ' + $entity"/>
             <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
             <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
             <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
+            <!-- set value to indicate that a mineable ware is needed with prio 1.0 right now to prevent looking for other Wares even if they have the same prio -->
             <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
               <set_value name="$miningpriority"/>
             </do_if>
@@ -171,51 +193,131 @@ $entity  = ' + $entity"/>
           <continue/>
         </do_if>
         <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
-        <do_if value="this.$legality == 0 and not $ware.illegalto.{this.zone.policefaction}.{this.owner}" comment="trades with everything - wheter legal or illegal">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 legal, illegal shitegal'.[$ware]"/>
+        <do_if value="$ware.illegal and this.$ut_cac_settings.$legality ge 3">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'not selling %1 because it is illegal'.[$ware]"/>
           <continue/>
         </do_if>
-        <do_if value="this.$legality == 1 and $ware.illegalto.{this.zone.policefaction}.{this.owner}" comment="no goods which are considered illegal in this Zone taking licenses into account">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 is licensed'.[$ware]"/>
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac_settings.$legality ge 2">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'not selling %1 because it is illegal in this Zone'.[$ware]"/>
           <continue/>
-        </do_if>
-        <do_if value="this.$legality == 2 and $ware.illegalto.{this.zone.policefaction}.{null}" comment="no goods which are considered illegal in this Zone">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 is illegal but has license'.[$ware]"/>
+        </do_elseif>
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac_settings.$legality ge 1">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'not selling %1 because it is illegal in this Zone and we dont have a license'.[$ware]"/>
           <continue/>
-        </do_if>
-        <do_if value="this.$legality == 3 and $ware.illegal" comment="no goods which are considered illegal anywhere">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 is illegal'.[$ware]"/>
-          <continue/>
-        </do_if>
-        <do_if value="not $ware.illegal" comment="legal goods">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 is legal'.[$ware]"/>
-        </do_if>
-        <debug_text filter="general" chance="$debug_detailoutput" text="'buying it'"/>
+        </do_elseif>
+        <do_elseif value="this.$ut_cac_settings.$legality == 0">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'Selling anything - including %1'.[$ware]"/>
+        </do_elseif>
+        <do_else>
+          <debug_text filter="general" chance="$debug_detailoutput" text="'Selling %1'.[$ware]"/>
+        </do_else>
+        
         <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount"/>
         <set_value name="$prio" exact="( this.container.cargo.{$ware}.count - $reservedamount )f / ( this.container.cargo.{$ware}.target )f"/>
         <!-- modify prio value (-1.0, but not negative) in case of intermediate ware (should only be sold over the target value ) -->
         <do_if value="this.container.products.{$ware}.intermediate">
           <set_value name="$prio" exact="[0.0,$prio-1.0].max"/>
         </do_if>
+        <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Product is: ' + $prio"/>
         <!-- no need to include the Wares we dont have in cargo -->
         <do_if value="$prio gt 0.0">
           <!-- first Value in the Target List, no need for any Sorting-->
           <do_if value="$wareslist.count == 0">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'Starting the List with it'"/>
             <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
             <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
             <set_value name="$wareslist_buysell.{1}" exact="'sell'" operation="insert"/>
           </do_if>
           <do_else>
+            <set_value name="$inserted" exact="false"/>
             <do_all exact="$wareslist_prio.count" counter="$j" reverse="true">
               <do_if value="$wareslist_prio.{$j} ge $prio">
+                <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List At Position ' + $j"/>
                 <set_value name="$wareslist.{$j+1}" exact="$ware" operation="insert"/>
                 <set_value name="$wareslist_prio.{$j+1}" exact="$prio" operation="insert"/>
                 <set_value name="$wareslist_buysell.{$j+1}" exact="'sell'" operation="insert"/>
+                <set_value name="$inserted" exact="true"/>
                 <break/>
               </do_if>
             </do_all>
+            <do_if value="not $inserted">
+              <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List As first item'"/>
+              <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
+              <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
+              <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
+            </do_if>
           </do_else>
         </do_if>
+      </do_all>
+      
+      <!-- now add Trade Wares to the List considered for Trading ( neither Product nor Ressource )-->
+      <!-- ToDo: Make this conditional for when the Manager is expierienced enough or this is a Trade Station -->
+      <do_all exact="this.container.tradewares.list.count" counter="$i">
+        <set_value name="$ware" exact="this.container.tradewares.list.{$i}"/>
+        <!-- not interested in Wares which the Ship cannt transport -->
+        <do_if value="$entity.ship.cargo.{$ware}.free le 0">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 Ship has no space for it'.[$ware]"/>
+          <continue/>
+        </do_if>
+        <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
+        <do_if value="$ware.illegal and this.$ut_cac_settings.$legality ge 3">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'not trading with %1 because it is illegal'.[$ware]"/>
+          <continue/>
+        </do_if>
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac_settings.$legality ge 2">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'not trading with %1 because it is illegal in this Zone'.[$ware]"/>
+          <continue/>
+        </do_elseif>
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac_settings.$legality ge 1">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'not trading with %1 because it is illegal in this Zone and we dont have a license'.[$ware]"/>
+          <continue/>
+        </do_elseif>
+        <do_elseif value="this.$ut_cac_settings.$legality == 0">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'Trading with anything - including %1'.[$ware]"/>
+        </do_elseif>
+        <do_else>
+          <debug_text filter="general" chance="$debug_detailoutput" text="'Trading with %1'.[$ware]"/>
+        </do_else>
+        
+        <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount"/>
+        <set_value name="$prio" exact="( 1 - ( this.container.cargo.{$ware}.count - $reservedamount )f / ( this.container.cargo.{$ware}.target )f ) *0.5"/>
+        <do_if value="$prio gt 0.0">
+          <set_value name="$buysell" exact="'sell'"/>
+        </do_if>
+        <do_elseif value="$prio lt 0.0">
+          <set_value name="$buysell" exact="'buy'"/>
+          <set_value name="$prio" exact="0 - $prio"/>
+        </do_elseif>
+        <do_else>
+          <continue comment="exactly wanted amount - dont consider trading "/>
+        </do_else>
+        <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Tradeware is: ' + $prio + $buysell"/>
+        <!-- first Value in the Target List, no need for any Sorting-->
+        <do_if value="$wareslist.count == 0">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'Starting the List with it'"/>
+          <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
+          <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
+          <set_value name="$wareslist_buysell.{1}" exact="$buysell" operation="insert"/>
+        </do_if>
+        <do_else>
+          <set_value name="$inserted" exact="false"/>
+          <do_all exact="$wareslist_prio.count" counter="$j" reverse="true">
+            <do_if value="$wareslist_prio.{$j} ge $prio">
+              <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List At Position ' + $j"/>
+              <set_value name="$wareslist.{$j+1}" exact="$ware" operation="insert"/>
+              <set_value name="$wareslist_prio.{$j+1}" exact="$prio" operation="insert"/>
+              <set_value name="$wareslist_buysell.{$j+1}" exact="$buysell" operation="insert"/>
+              <set_value name="$inserted" exact="true"/>
+              <break/>
+            </do_if>
+          </do_all>
+          <do_if value="not $inserted">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List As first item'"/>
+            <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
+            <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
+            <set_value name="$wareslist_buysell.{1}" exact="$buysell" operation="insert"/>
+          </do_if>
+        </do_else>
       </do_all>
       
       <debug_text filter="general" chance="this.$debug * 100" text="'Sorted Ware List to grab: \n%1\n%2\n%3'.[$wareslist,$wareslist_prio,$wareslist_buysell]"/>
@@ -224,6 +326,8 @@ $entity  = ' + $entity"/>
       <remove_value name="$ware"/>
       <remove_value name="$prio"/>
       <remove_value name="$wareslist_prio"/>
+      <remove_value name="$buysell"/>
+      <remove_value name="$inserted"/>
       
       <!-- ================================ -->
       <!-- find possible Trades in order of priority -->
@@ -242,14 +346,30 @@ $entity  = ' + $entity"/>
             </run_script>
             <return/>
           </do_if>
-          <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="this.sector">
-            <offeramount min="this.container.cargo.{$ware}.target / 10"/>
-          </find_sell_offer>
-          <do_if value="not $selloffer.available " comment="and $entity.ship.hasjumpdrive  //// ToDo: Cluster Range only with Jumpdrive and Radar set up">
-            <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="this.cluster">
-              <offeramount min="this.container.cargo.{$ware}.target / 10"/>
-            </find_sell_offer>
+          
+          <!-- Get Price we want to get this Ware for - either from Station Offer to respect player Settings or, if none available, use Ware average price -->
+          <!-- ToDo: Find a method to aquire the Player Settings instead -->
+          <find_buy_offer result="$buyoffer" seller="this.container" wares="$ware"/>
+          <do_if value="$buyoffer.available">
+            <set_value name="$price" exact="$buyoffer.price"/>
           </do_if>
+          <do_else>
+            <set_value name="$price" exact="$ware.price"/>
+          </do_else>
+          <remove_value name="$buyoffer"/>
+          
+          <!-- check all Ranges if there is an Offer there -->
+          <do_all exact="$range.count" counter="$j" reverse="false">
+            <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
+              <offeramount min="this.container.cargo.{$ware}.target / 10"/>
+              <price min="$price"/>
+            </find_sell_offer>
+            <wait exact="2s"/>
+            <do_if value="$selloffer.available">
+              <break/>
+            </do_if>
+          </do_all>
+          
           <do_if value="$selloffer.available">
             <debug_text filter="general" chance="this.$debug * 100" text="'found sell offer: %1 ( %2 %3 %4 %5 )'.[$selloffer,$selloffer.owner.knownname,$selloffer.owner.zone.knownname,$selloffer.ware,$selloffer.amount]"/>
             <!--find_buy_offer buyer="this.container" wares="$ware" result="$buyoffer" />
@@ -283,14 +403,30 @@ $entity  = ' + $entity"/>
           </do_if>
         </do_if>
         <do_elseif value="$wareslist_buysell.{$i} == 'sell'">
-          <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="this.sector">
-            <offeramount min="this.container.cargo.{$ware}.count / 10"/>
-          </find_buy_offer>
-          <do_if value="not $buyoffer.available" comment="and $entity.ship.hasjumpdrive  //// ToDo: Cluster Range only with Jumpdrive and Radar set up">
-            <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="this.cluster">
-              <offeramount min="this.container.cargo.{$ware}.count / 10"/>
-            </find_buy_offer>
+          
+          <!-- Get Price we want to sell this Ware for - either from Station Offer to respect player Settings or, if none available, use Ware average price -->
+          <!-- ToDo: Find a method to aquire the Player Settings instead -->
+          <find_sell_offer result="$selloffer" buyer="this.container" wares="$ware"/>
+          <do_if value="$selloffer.available">
+            <set_value name="$price" exact="$selloffer.price"/>
           </do_if>
+          <do_else>
+            <set_value name="$price" exact="$ware.price"/>
+          </do_else>
+          <remove_value name="$selloffer"/>
+          
+          <!-- check all Ranges if there is an Offer there -->
+          <do_all exact="$range.count" counter="$j" reverse="false">
+            <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
+              <offeramount min="this.container.cargo.{$ware}.count / 10"/>
+              <price min="$price"/>
+            </find_buy_offer>
+            <wait exact="2s"/>
+            <do_if value="$buyoffer.available">
+              <break/>
+            </do_if>
+          </do_all>
+          
           <do_if value="$buyoffer.available">
             <debug_text filter="general" chance="this.$debug * 100" text="'found buy offer: %1 ( %2 %3 %4 %5 )'.[$buyoffer,$buyoffer.owner.knownname,$buyoffer.owner.zone.knownname,$buyoffer.ware,$buyoffer.amount]"/>
             <set_value name="$amount" exact="[ $buyoffer.amount, this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free ].min"/>

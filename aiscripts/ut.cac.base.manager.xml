@@ -9,7 +9,7 @@
       <actions>
         <debug_text filter="general" text="'\n
         Manager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
-        this.$legality = ' + this.$legality + '\n
+        this.$ut_cac_settings = ' + this.$ut_cac_settings + '\n
         this.$orderlist = ' + this.$orderlist + '\n
         $bug = ' + $bug + '\n
         this.$idle_subordinates = ' + this.$idle_subordinates"/>
@@ -40,16 +40,6 @@
     <actions>
       <label name="init"/>
       
-      <!-- set up legality levels:
-      3 - no goods which are considered illegal anywhere
-      2 - no goods which are considered illegal in this Zone or Sector
-      1 - no goods which are considered illegal in this Zone or Sector taking licenses into account (default for now; will change to 3 when interface is ready)
-      0 - trades with everything - wheter legal or illegal
-      -->
-      <do_if value="not this.$legality?">
-        <set_value name="this.$legality" exact="1"/>
-      </do_if>
-      
       <!-- set up orderlist -->
       <do_if value="not this.$orderlist?">
         <create_list name="this.$orderlist"/>
@@ -64,16 +54,13 @@
       <set_value name="$miningorder" exact="table[$script='ut.cac.com.manager.gatherressources',$displayname='Gather Ressources (default)',$interruptable=false]"/>
       
       <!--immediately allow Zone Trading and Mining -->
-        <set_value name="$next_zonetrade" exact="player.age"/>
-        <set_value name="$next_miningstep" exact="player.age"/>
-      
-      <!-- for debug purposes-->
-      <!--set_value name="this.$debug" exact="true"/-->
+      <set_value name="$next_zonetrade" exact="player.age"/>
+      <set_value name="$next_miningstep" exact="player.age"/>
       
       <!-- add Fuelcells as Trade Ware if Sctation has Cargo for them so Energy Freighters will buy it and put it into the Station Cargo for Refueling of Station Ships -->
-      <do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
+      <!--do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
         <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false"/>
-      </do_if>
+      </do_if-->
       
       
       <!-- register Subordinates - see event Handlers for actual adding procedure -->
@@ -82,7 +69,7 @@
         <wait exact="1ms"/>
       </do_all>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 init finished\nSet Values: this.$legalitiy= %3 , Fuelcells added as Tradeware, Signalled %4 Subordinates'.[player.age,this.name,this.$legality,this.container.subordinates.{this.type}.count]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 init finished\nSet Values: this.$legalitiy= %3, Signalled %4 Subordinates'.[player.age,this.name,this.$legality,this.container.subordinates.{this.type}.count]"/>
       
       
       <label name="start with orderlist"/>

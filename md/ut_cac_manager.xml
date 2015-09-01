@@ -3,7 +3,7 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="2">
+    <cue name="Main" instantiate="true" namespace="this" version="3">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
@@ -12,9 +12,11 @@
         <set_value name="$actor" exact="event.param" />
         <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
         <set_value name="$actor.$ut_cac_settings" exact="table[
-        $insectorjump=false,
         $pesterlevel=60,
         $loglevel=0
+        $legality=1
+        $range_h=[$actor.sector]
+        $range_j=[$actor.sector]
         ]"/>
         <debug_text filter="general" text="'%1 now uses UT CAC comm handlers'.[$actor.name]" />
         <set_comm_handler actor="$actor" customhandler="true" />
@@ -28,6 +30,12 @@
         ]"/>
         <remove_value name="$actor.$pesterlevel"/>
         <remove_value name="$actor.$loglevel"/>
+      </patch>
+      <patch sinceversion="3" state="complete">
+        <set_value name="$actor.$ut_cac_settings.$legality" exact="$actor.$legality"/>
+        <remove_value name="$actor.$legality"/>
+        <set_value name="$actor.$ut_cac_settings.$range_h" exact="$actor.$sector"/>
+        <set_value name="$actor.$ut_cac_settings.$range_j" exact="$actor.$sector"/>
       </patch>
       <cues>
         <!--cue name="Payment" ref="md.UT_CAC_Lib.Payment">
@@ -157,8 +165,28 @@ Dialogue Tree - rough concept (for all Entity Types)
                 </do_if>
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_elseif>
+              <add_player_choice_sub text="'About your Operations Range...'" position="1" section="comm_settings_range"/>
+              <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
+            <do_elseif value="event.param == 'comm_settings_range'">
+              <do_all exact="[$actor.$ut_cac_settings.$range_j.count,6].min" counter="$i">
+                <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range_j.{$i}}">
+                  <add_player_choice_sub text="'\033G%1\033X'.[$actor.$ut_cac_settings.$range_j.{$i}.name]" position="$i" section="comm_settings_range_set" choiceparam="$actor.$ut_cac_settings.$range_j.{$i}"/>
+                </do_if>
+                <do_else>
+                  <add_player_choice_sub text="'\033B%1\033X'.[$actor.$ut_cac_settings.$range_j.{$i}.name]" position="$i" section="comm_settings_range_set" choiceparam="$actor.$ut_cac_settings.$range_j.{$i}"/>
+                </do_else>
+              </do_all>
+              <do_all exact="$actor.$ut_cac_settings.$range_h.count" counter="$i">
+                <do_if value="not $actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range_h.{$i}}">
+                  <add_player_choice_sub text="'\033Y%1\033X'.[$actor.$ut_cac_settings.$range_h.{$i}.name]" section="comm_settings_range_set" choiceparam="$actor.$ut_cac_settings.$range_j.{$i}"/>
+                </do_if>
+              </do_all>
+              
+              <add_player_choice_return text="'(Back)'" position="6" />
+              <add_player_choice_return text="'(Back)'" position="close" />
+            </do_elseif>
           </actions>
         </cue>
         <!-- Menu 3: Connect with other Actor-->
