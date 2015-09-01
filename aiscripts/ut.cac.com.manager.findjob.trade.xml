@@ -360,13 +360,15 @@ $entity  = ' + $entity"/>
           
           <!-- check all Ranges if there is an Offer there -->
           <do_all exact="$range.count" counter="$j" reverse="false">
-            <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
-              <offeramount min="this.container.cargo.{$ware}.target / 10"/>
-              <price min="$price"/>
-            </find_sell_offer>
-            <wait exact="2s"/>
-            <do_if value="$selloffer.available">
-              <break/>
+            <do_if value="$range.{$j} != null and $range.{$j} != player.galaxy" comment="ignore empty slots and galaxy Range">
+              <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
+                <offeramount min="this.container.cargo.{$ware}.target / 10"/>
+                <price min="$price"/>
+              </find_sell_offer>
+              <wait exact="2s"/>
+              <do_if value="$selloffer.available">
+                <break/>
+              </do_if>
             </do_if>
           </do_all>
           
@@ -417,13 +419,15 @@ $entity  = ' + $entity"/>
           
           <!-- check all Ranges if there is an Offer there -->
           <do_all exact="$range.count" counter="$j" reverse="false">
-            <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
-              <offeramount min="this.container.cargo.{$ware}.count / 10"/>
-              <price min="$price"/>
-            </find_buy_offer>
-            <wait exact="2s"/>
-            <do_if value="$buyoffer.available">
-              <break/>
+            <do_if value="$range.{$j} != null and $range.{$j} != player.galaxy" comment="ignore empty slots and galaxy Range">
+              <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
+                <offeramount min="this.container.cargo.{$ware}.count / 10"/>
+                <price min="$price"/>
+              </find_buy_offer>
+              <wait exact="2s"/>
+              <do_if value="$buyoffer.available">
+                <break/>
+              </do_if>
             </do_if>
           </do_all>
           
