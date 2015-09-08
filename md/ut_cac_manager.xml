@@ -170,6 +170,9 @@ Dialogue Tree - rough concept (for all Entity Types)
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_range'">
+              <do_if value="event.name == 'event_cue_signalled'">
+                <signal_cue cue="Verify_Range"/>
+              </do_if>
               <do_all exact="6" counter="$i">
                 <!-- unused Range Slot -->
                 <do_if value="$actor.$ut_cac_settings.$range_j.{$i} == null and $actor.$ut_cac_settings.$range_h.{$i} == null">
@@ -217,6 +220,7 @@ Dialogue Tree - rough concept (for all Entity Types)
                 <do_else>
                   <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="$actor.$ut_cac_settings.$range_h.{$slot}"/>
                 </do_else>
+                <signal_cue_instantly cue="this" param="'comm_settings_range'"/>
               </do_if>
               <do_elseif value="event.param2 == 'jump'">
                 <do_if value="$actor.$ut_cac_settings.$range_h.{$slot} != null">
@@ -247,6 +251,7 @@ Dialogue Tree - rough concept (for all Entity Types)
             <do_elseif value="event.param == 'comm_settings_range_selected'">
               <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="event.param2.{3}"/>
               <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="event.param2.{3}"/>
+              <signal_cue_instantly cue="this" param="'comm_settings_range'"/>
             </do_elseif>
               <!-- Confirm that the Ranges work out!!! -->
           </actions>
@@ -296,6 +301,104 @@ Dialogue Tree - rough concept (for all Entity Types)
             <do_elseif value="event.name == 'event_object_subordinate_removed'">
               <remove_actor_account actor="event.param.pilot"/>
             </do_elseif>
+          </actions>
+        </cue>
+        
+        <cue name="Verify_Range">
+          <conditions>
+            <event_cue_signalled/>
+          </conditions>
+          <actions>
+            <!-- checking Jump Range for continuty (monodirectional is enough in this case because the way back is the same) -->
+            <set_value name="$range" exact="$actor.$ut_cac_settings.$range_j"/>
+            <do_all exact="$range.count" counter="$i">
+              <do_if value="$range.{$i}.exists">
+                <!-- for each range Setting get the Jump Path from the Actor/Station Zone to the Range-defining Space -->
+                <get_jump_path component="$waypoints" start="$actor.zone" end="$range.{$i}" multiple="true"/>
+                <do_all exact="$waypoints.count"  counter="$j">
+                  <set_value name="$verified" exact="false"/>
+                  <!-- and for each waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting and this always uses the last slot -->
+                  <do_all exact="$range.count" counter="$k" reverse="true">
+                    <do_if value="$range.{$k}.exists">
+                      <!-- if $range.{$k} is a Zone invert the context Check and find out if it has a JB (only in this case its a valid waypoint) -->
+                      <do_if value="$range.{$k}.isclass.zone and $range.{$k}.hascontext.{$waypoints.{$j}}">
+                        <find_object name="$beacon" space="$range.{$k}" class="class.jumpbeacon" knownto="this.owner" checkoperational="true"/>
+                        <do_if value="$beacon.exists">
+                          <set_value name="$verified" exact="true"/>
+                          <break/>
+                        </do_if>
+                      </do_if>
+                      <do_elseif value="$waypoint.{$j}.hascontext.{$range.{$k}}">
+                        <set_value name="$verified" exact="true"/>
+                        <break/>
+                      </do_elseif>
+                    </do_if>
+                  </do_all>
+                  <do_if value="not $verified">
+                    <break/>
+                  </do_if>
+                </do_all>
+                <!-- remove Range Setting for Jumping if the continuty condition doesnt apply -->
+                <do_if value="not $verified">
+                  <set_value name="$range.{$i}" exact="null"/>
+                </do_if>
+              </do_if>
+            </do_all>
+            <!-- checking Highway Range - similiar to Jump Range, but bi-directional and conditions are slightly diffrent -->
+            <set_value name="$range" exact="$actor.$ut_cac_settings.$range_h"/>
+            <do_all exact="$range.count" counter="$i">
+              <do_if value="$range.{$i}.exists">
+                <!-- for each range Setting get the Jump Path from the Actor/Station Zone to the Range-defining Space -->
+                <get_global_path component="$waypoints" multiple="true"><start object="$actor.zone"/><end object="$range.{$i}"/></get_global_path>
+                <do_all exact="$waypoints.count"  counter="$j">
+                  <!-- if $waypoints.{$j} is a Highway skip check (irrelevant for continuty) -->
+                  <do_if value="$waypoints.{$j}.isclass.highway">
+                    <continue/>
+                  </do_if>
+                  <set_value name="$verified" exact="false"/>
+                  <!-- and for each other waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting (always has context) and this always uses the last slot -->
+                  <do_all exact="$range.count" counter="$k" reverse="true">
+                    <do_if value="$range.{$k}.exists">
+                      <do_if value="$waypoints.{$j}.hascontext.{$range.{$k}}">
+                        <set_value name="$verified" exact="true"/>
+                        <break/>
+                      </do_if>
+                    </do_if>
+                  </do_all>
+                  <do_if value="not $verified">
+                    <break/>
+                  </do_if>
+                </do_all>
+                <!-- remove Range Setting for Highways if the continuty condition doesnt apply -->
+                <do_if value="not $verified">
+                  <set_value name="$range.{$i}" exact="null"/>
+                  <continue/>
+                </do_if>
+                <!-- now the same for the other direction (swapped start and end) - code and comments see above-->
+                <get_global_path component="$waypoints" multiple="true"><start object="$range.{$i}"/><end object="$actor.zone"/></get_global_path>
+                <do_all exact="$waypoints.count"  counter="$j">
+                  <do_if value="$waypoints.{$j}.isclass.highway">
+                    <continue/>
+                  </do_if>
+                  <set_value name="$verified" exact="false"/>
+                  <do_all exact="$range.count" counter="$k" reverse="true">
+                    <do_if value="$range.{$k}.exists">
+                      <do_if value="$waypoints.{$j}.hascontext.{$range.{$k}}">
+                        <set_value name="$verified" exact="true"/>
+                        <break/>
+                      </do_if>
+                    </do_if>
+                  </do_all>
+                  <do_if value="not $verified">
+                    <break/>
+                  </do_if>
+                </do_all>
+                <do_if value="not $verified">
+                  <set_value name="$range.{$i}" exact="null"/>
+                  <continue/>
+                </do_if>
+              </do_if>
+            </do_all>
           </actions>
         </cue>
         

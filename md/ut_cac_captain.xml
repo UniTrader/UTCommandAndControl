@@ -193,6 +193,7 @@ Dialogue Tree - rough concept (for all Entity Types)
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_flyto_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$interruptable=true]"/>
+              <signal_cue_instantly cue="Comm_Common_Orders"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_signals'">
               <add_player_choice_sub text="'Send Signal'" position="1" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
@@ -204,11 +205,11 @@ Dialogue Tree - rough concept (for all Entity Types)
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_send_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='signalobject',$interruptable=true,$displayname='Send Signal to %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <signal_cue_instantly cue="Comm_MainMenu"/>
+              <signal_cue_instantly cue="Comm_Common_Orders"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_wait_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='wait signal',$interruptable=true,$displayname='Wait for Signal on %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <signal_cue_instantly cue="Comm_MainMenu"/>
+              <signal_cue_instantly cue="Comm_Common_Orders"/>
             </do_elseif>
             
             <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
