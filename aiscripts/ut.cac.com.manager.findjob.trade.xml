@@ -176,11 +176,17 @@ $entity  = ' + $entity"/>
       <!-- if it is a mining Ship and Mining is very important right now send it directly to mining, no need to search for other stuff yet -->
       <do_if value="$miningpriority?">
         <debug_text filter="general" chance="this.$debug * 100" text="'Sending Ship to mine %1 (Priority Case)'.[$mininglist]"/>
-        <run_script name="'ut.cac.com.manager.findjob.mine'">
+        <run_script name="'ut.cac.com.manager.findjob.mine'" result="$success">
           <param name="entity" value="$entity"/>
+          <param name="range" value="$range"/>
           <param name="mininglist" value="$mininglist"/>
         </run_script>
-        <return/>
+        <do_if value="$sucess">
+          <return/>
+        </do_if>
+        <do_else>
+          <remove_value name="$success"/>
+        </do_else>
       </do_if>
       
       <!-- now add Produced Wares to the List considered for Trading-->
@@ -340,11 +346,17 @@ $entity  = ' + $entity"/>
           <!-- If we encounter a mineable Ware and the Ship is considered a Miner send it mining for all Minerals needed -->
           <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
             <debug_text filter="general" chance="this.$debug * 100" text="'Sending Ship to mine %1'.[$mininglist]"/>
-            <run_script name="'ut.cac.com.manager.findjob.mine'">
+            <run_script name="'ut.cac.com.manager.findjob.mine'" result="$success">
               <param name="entity" value="$entity"/>
+              <param name="range" value="$range"/>
               <param name="mininglist" value="$mininglist"/>
             </run_script>
-            <return/>
+            <do_if value="$sucess">
+              <return/>
+            </do_if>
+            <do_else>
+              <remove_value name="$success"/>
+            </do_else>
           </do_if>
           
           <!-- Get Price we want to get this Ware for - either from Station Offer to respect player Settings or, if none available, use Ware average price -->
@@ -455,9 +467,6 @@ $entity  = ' + $entity"/>
           </do_if>
         </do_elseif>
       </do_all>
-      <return>
-        <retval name="repeat" value="false"/>
-      </return>
     </actions>
   </attention>
 </aiscript>
