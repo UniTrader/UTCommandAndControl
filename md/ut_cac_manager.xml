@@ -192,56 +192,63 @@ Dialogue Tree - rough concept (for all Entity Types)
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_mod'">
-              <add_player_choice_sub text="'\033GSet as Jump and Highway Range\033X'" position="1" section="comm_settings_range_set" choiceparam="[ event.param2 , 'both']"/>
-              <add_player_choice_sub text="'\033BSet as Jump Range only\033X'" position="2" section="comm_settings_range_set" choiceparam="[ event.param2 , 'jump']"/>
-              <add_player_choice_sub text="'\033YSet as Highway Range only\033X'" position="3" section="comm_settings_range_set" choiceparam="[ event.param2 , 'highway']"/>
-              <add_player_choice_sub text="'Remove Range'" position="4" section="comm_settings_range_set" choiceparam="[ event.param2 , 'remove']"/>
-              <add_player_choice_sub text="'Change Range'" position="5" section="comm_settings_range_set" choiceparam="[ event.param2 , 'set']"/>
+              <set_value name="$slot" exact="event.param2"/>
+              <add_player_choice_sub text="'\033GSet as Jump and Highway Range\033X'" position="1" section="comm_settings_range_set" choiceparam="'both'"/>
+              <add_player_choice_sub text="'\033BSet as Jump Range only\033X'" position="2" section="comm_settings_range_set" choiceparam="'jump'"/>
+              <add_player_choice_sub text="'\033YSet as Highway Range only\033X'" position="3" section="comm_settings_range_set" choiceparam="'highway'"/>
+              <add_player_choice_sub text="'Remove Range'" position="4" section="comm_settings_range_set" choiceparam="'remove'"/>
+              <add_player_choice_sub text="'Change Range'" position="5" section="comm_orders_select_zone" choiceparam="comm_settings_range_zone_selected"/>
+              <!--When implemented Sector and Cluster Choice use this: <add_player_choice_sub text="'Change Range'" position="5" section="comm_settings_range_set" choiceparam="'set'"/>-->
+              <!--When implemented Space Selection use this: <add_player_choice_sub text="'Change Range'" position="5" section="comm_orders_select_space" choiceparam="comm_settings_range_selected"/>-->
               <do_if value="event.param2 == 6">
-                <add_player_choice_sub text="'Switch off continuty test'" position="6" section="comm_settings_range_set" choiceparam="[ event.param2 , 'galaxy']"/>
+                <add_player_choice_sub text="'Switch off continuty test'" position="6" section="comm_settings_range_set" choiceparam="'galaxy'"/>
               </do_if>
             </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_range_zone_selected'" comment="Temporary Code until Sector/Cluster or Space Selection is available">
+              <add_player_choice_sub text="'Select Zone: %1'.[event.param2.{3}.name]" position="1" section="comm_settings_range_selected" choiceparam="[0,0,event.param2.{3}]" baseparam="event.param2"/>
+              <add_player_choice_sub text="'Select Sector: %1'.[event.param2.{3}.sector.name]" position="2" section="comm_settings_range_selected" choiceparam="[0,0,event.param2.{3}.sector]" baseparam="event.param2"/>
+              <add_player_choice_sub text="'Select Cluster: %1'.[event.param2.{3}.cluster.name]" position="3" section="comm_settings_range_selected" choiceparam="[0,0,event.param2.{3}.cluster]" baseparam="event.param2"/>
+            </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set'">
-              <do_if value="event.param2.{2} == 'both'">
-                <do_if value="$actor.$ut_cac_settings.$range_j.{event.param2.{1}} != null">
-                  <set_value name="$actor.$ut_cac_settings.$range_h.{event.param2.{1}}" exact="$actor.$ut_cac_settings.$range_j.{event.param2.{1}}"/>
+              <do_if value="event.param2 == 'both'">
+                <do_if value="$actor.$ut_cac_settings.$range_j.{$slot} != null">
+                  <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="$actor.$ut_cac_settings.$range_j.{$slot}"/>
                 </do_if>
                 <do_else>
-                  <set_value name="$actor.$ut_cac_settings.$range_j.{event.param2.{1}}" exact="$actor.$ut_cac_settings.$range_h.{event.param2.{1}}"/>
+                  <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="$actor.$ut_cac_settings.$range_h.{$slot}"/>
                 </do_else>
               </do_if>
-              <do_elseif value="event.param2.{2} == 'jump'">
-                <do_if value="$actor.$ut_cac_settings.$range_h.{event.param2.{1}} != null">
-                  <set_value name="$actor.$ut_cac_settings.$range_j.{event.param2.{1}}" exact="$actor.$ut_cac_settings.$range_h.{event.param2.{1}}"/>
+              <do_elseif value="event.param2 == 'jump'">
+                <do_if value="$actor.$ut_cac_settings.$range_h.{$slot} != null">
+                  <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="$actor.$ut_cac_settings.$range_h.{$slot}"/>
                 </do_if>
-                <set_value name="$actor.$ut_cac_settings.$range_h.{event.param2.{1}}" exact="null"/>
+                <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="null"/>
               </do_elseif>
-              <do_elseif value="event.param2.{2} == 'highway'">
-                <do_if value="$actor.$ut_cac_settings.$range_j.{event.param2.{1}} != null">
-                  <set_value name="$actor.$ut_cac_settings.$range_h.{event.param2.{1}}" exact="$actor.$ut_cac_settings.$range_j.{event.param2.{1}}"/>
+              <do_elseif value="event.param2 == 'highway'">
+                <do_if value="$actor.$ut_cac_settings.$range_j.{$slot} != null">
+                  <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="$actor.$ut_cac_settings.$range_j.{$slot}"/>
                 </do_if>
-                <set_value name="$actor.$ut_cac_settings.$range_j.{event.param2.{1}}" exact="null"/>
+                <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="null"/>
               </do_elseif>
-              <do_elseif value="event.param2.{2} == 'remove'">
-                <set_value name="$actor.$ut_cac_settings.$range_j.{event.param2.{1}}" exact="null"/>
-                <set_value name="$actor.$ut_cac_settings.$range_h.{event.param2.{1}}" exact="null"/>
+              <do_elseif value="event.param2 == 'remove'">
+                <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="null"/>
+                <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="null"/>
               </do_elseif>
-              <do_elseif value="event.param2.{2} == 'set'">
-                <set_value name="$slot" exact="event.param2.{1}"/>
+              <do_elseif value="event.param2 == 'set'" comment="Temporary Code when Sector/Cluster Selection is available - keep it until Space Selection is available">
                 <add_player_choice_sub text="'Select Zone'" position="1" section="comm_orders_select_zone" choiceparam="'comm_settings_range_selected'" baseparam="event.param2"/>
                 <add_player_choice_sub text="'Select Sector'" position="2" section="comm_orders_select_sector" choiceparam="'comm_settings_range_selected'" baseparam="event.param2"/>
                 <add_player_choice_sub text="'Select Cluster'" position="3" section="comm_orders_select_cluster" choiceparam="'comm_settings_range_selected'" baseparam="event.param2"/>
               </do_elseif>
-              <do_elseif value="event.param2.{2} == 'galaxy'">
-                <set_value name="$actor.$ut_cac_settings.$range_j.{event.param2.{1}}" exact="player.galaxy"/>
-                <set_value name="$actor.$ut_cac_settings.$range_h.{event.param2.{1}}" exact="player.galaxy"/>
+              <do_elseif value="event.param2 == 'galaxy'">
+                <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="player.galaxy"/>
+                <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="player.galaxy"/>
               </do_elseif>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_selected'">
               <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="event.param2.{3}"/>
               <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="event.param2.{3}"/>
-              <!-- Confirm that the Ranges work out!!! -->
             </do_elseif>
+              <!-- Confirm that the Ranges work out!!! -->
           </actions>
         </cue>
         <!-- Menu 3: Connect with other Actor-->
