@@ -250,7 +250,12 @@ Dialogue Tree - rough concept (for all Entity Types)
             <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
           </do_elseif>
           <add_player_choice_sub text="'Show me your Skills, please!'" position="1" section="comm_personal_skills" confidence="$actor.combinedskill / 20" />
-          <add_player_choice_sub text="{10004,1611}" position="2" section="comm_personal_money" confidence="3" selectable="$actor.hasownaccount" comment="planned function for confidence: show if the Actor has not enough or too much money (optimum is 3)"/>
+          <do_if value="$actor.type != entitytype.commander or $actor.type != entitytype.pilot">
+            <add_player_choice_sub text="{10004,1611}" position="2" section="comm_personal_money" confidence="3" selectable="$actor.hasownaccount" comment="planned function for confidence: show if the Actor has not enough or too much money (optimum is 3)"/>
+          </do_if>
+          <do_else>
+            <add_player_choice text="'Money: %1Cr'.[if $actor.hasownaccount then ($actor.money)Cr else 'No Account']" position="2" section="comm_personal_money" selectable="false" comment="Not Selectable because Pilots/Commanders only have the Money which is reserved for a Job."/>
+          </do_else>
           <add_player_choice_sub text="'About your workplace..'" position="3" section="comm_personal_transfer" selectable="false" comment="planned, but not necesary yet" />
           <add_player_choice_sub text="'About your verbosity...'" position="4" section="comm_personal_pester" selectable="false" confidence="$actor.$ut_cac_settings.$pesterlevel / 20" />
           <add_player_choice_sub text="'About your Log Activity...'" position="5" section="comm_personal_log" selectable="false" confidence="$actor.$ut_cac_settings.$loglevel / 20" />
