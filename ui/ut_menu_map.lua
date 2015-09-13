@@ -151,9 +151,6 @@ function menu.buttonDetails()
 	elseif menu.mode == "selectcluster" then
 		Helper.closeMenuForSection(menu, false, menu.modeparam[1], { 0, 0, menu.selectedcomponent })
 		menu.cleanup()
-	elseif menu.mode == "selectspace" then
-		Helper.closeMenuForSection(menu, false, menu.modeparam[1], { 0, 0, menu.selectedcomponent })
-		menu.cleanup()
 	else
 		Helper.closeMenuForSection(menu, false, "gMain_object_closeup", { 0, 0, menu.selectedcomponent, menu.history })
 		menu.cleanup()
@@ -1598,7 +1595,7 @@ function menu.onRowChanged(row, rowdata)
 					if menu.mode == "selectspace" then
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
 						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3102), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
-						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonDetails)
+						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspace)
 					else
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
 						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(IsSameComponent(GetActiveGuidanceMissionComponent(), menu.selectedcomponent) and ReadText(1001, 1110) or ReadText(1001, 1109), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, (not menu.mode) and (not IsSameComponent(menu.selectedcomponent, GetComponentData(menu.playership, "zoneid"))), 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
@@ -1613,7 +1610,7 @@ function menu.onRowChanged(row, rowdata)
 					if menu.mode == "selectspace" then
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
 						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3102), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
-						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonDetails)
+						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspace)
 					end
 					-- DETAILS
 					Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)
@@ -1624,7 +1621,7 @@ function menu.onRowChanged(row, rowdata)
 					if menu.mode == "selectspace" then
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
 						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3102), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
-						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.menu.buttonDetails)
+						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspace)
 					end
 					-- DETAILS
 					Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)

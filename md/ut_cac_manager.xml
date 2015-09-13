@@ -15,9 +15,9 @@
         $pesterlevel=60,
         $loglevel=0,
         $legality=1,
-        $range=[$actor.sector,null,null,null,null,null]
-        $range_h=[$actor.sector],
-        $range_j=[$actor.sector]
+        $range=[$actor.sector,null,null,null,null,null],
+        $range_h=[$actor.sector,null,null,null,null,null],
+        $range_j=[$actor.sector,null,null,null,null,null]
         ]"/>
         <debug_text filter="general" text="'%1 now uses UT CAC comm handlers'.[$actor.name]" />
         <set_comm_handler actor="$actor" customhandler="true" />
@@ -104,6 +104,7 @@ Dialogue Tree - rough concept (for all Entity Types)
           <actions>
             <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
             <do_if value="event.name == 'event_conversation_started'">
+              <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
               <do_if value="$actor.room == player.entity.room">
                 <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
                 <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
@@ -113,7 +114,6 @@ Dialogue Tree - rough concept (for all Entity Types)
                 <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
               </do_else>
             </do_if>
-            <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
             <add_player_choice_sub text="'About your current Orders...'" position="1" section="comm_orders_main" selectable="false"/>
             <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main"/>
             <add_player_choice_sub text="'Connect me with...'" position="3" section="comm_connect_main"/>
@@ -174,27 +174,36 @@ Dialogue Tree - rough concept (for all Entity Types)
               <do_all exact="$actor.$ut_cac_settings.$range.count" counter="$i">
                 <!-- Text Block is for apporiate Coloring of Range Entry - see also deactivated doif/elseif version below (wanted to try stacked inline ifs :D )-->
                 <add_player_choice_sub position="$i" section="comm_settings_range_mod" choiceparam="$i" text="
-                if $actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}} then 
-                ( if $actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$i}} then 
+                if $actor.$ut_cac_settings.$range.{$i} then
+                ( if $actor.$ut_cac_settings.$range_h.{$i} then 
+                  ( if $actor.$ut_cac_settings.$range_j.{$i} then 
                     '\033G%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name] else 
                     '\033Y%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name] )
-                else 
-                ( if $actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$i}} then 
+                  else 
+                  ( if $actor.$ut_cac_settings.$range_j.{$i} then 
                     '\033B%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name] else 
-                    '\033A&gt; &gt; unused &lt; &lt;\033X' )" />
+                    '\033A%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name] )
+                )
+                else '&gt; &gt; unused &lt; &lt;\033X'" />
                 <do_if value="false">
-                  <!-- jump and highway Range Slot -->
-                  <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}} and $actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}}">
-                    <add_player_choice_sub text="'\033G%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                  <do_if value="$actor.$ut_cac_settings.$range.{$i}" >
+                    <!-- jump and highway Range Slot -->
+                    <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}} and $actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}}">
+                      <add_player_choice_sub text="'\033G%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                    </do_if>
+                    <!-- jump Range Slot -->
+                    <do_elseif value="$actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$i}}">
+                      <add_player_choice_sub text="'\033B%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                    </do_elseif>
+                    <!-- highway Range Slot -->
+                    <do_elseif value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}}">
+                      <add_player_choice_sub text="'\033Y%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                    </do_elseif>
+                    <!-- only passthrough Range -->
+                    <do_else>
+                      <add_player_choice_sub text="'\033A%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                    </do_else>
                   </do_if>
-                  <!-- jump Range Slot -->
-                  <do_elseif value="$actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$i}}">
-                    <add_player_choice_sub text="'\033B%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
-                  </do_elseif>
-                  <!-- highway Range Slot -->
-                  <do_elseif value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}}">
-                    <add_player_choice_sub text="'\033Y%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
-                  </do_elseif>
                   <!-- unused Range Slot -->
                   <do_else>
                     <add_player_choice_sub text="'\033A&gt; &gt; unused &lt; &lt;\033X'" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
@@ -207,13 +216,13 @@ Dialogue Tree - rough concept (for all Entity Types)
             <do_elseif value="event.param == 'comm_settings_range_mod'">
               <set_value name="$slot" exact="event.param2"/>
               <do_if value="$actor.$ut_cac_settings.$range.{$slot}">
-                <add_player_choice_sub text="if $actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$slot}} then 'Remove Jump Range' else '\033BSet as Jump Range\033X'" position="1" section="comm_settings_range_set" choiceparam="'jump'"/>
-                <add_player_choice_sub text="if $actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$slot}} then 'Remove Highway Range' else '\033YSet as Higway Range\033X'" position="2" section="comm_settings_range_set" choiceparam="'highway'"/>
-                <add_player_choice_sub text="'Copy Range Setting to all Stations here'" position="3" section="null" selectable="false"/>
-                <add_player_choice_sub text="'Remove Range'" position="4" section="comm_settings_range_set" choiceparam="'remove'"/>
-                <add_player_choice_sub text="'Change Range'" position="5" section="comm_orders_select_space" choiceparam="'comm_settings_range_selected'" comment="refering to re-useable Menu Call"/>
+                <add_player_choice text="if $actor.$ut_cac_settings.$range_j.{$slot} then 'Remove Jump Range' else '\033BSet as Jump Range\033X'" position="1" section="comm_settings_range_toggle_jump"/>
+                <add_player_choice text="if $actor.$ut_cac_settings.$range_h.{$slot} then 'Remove Highway Range' else '\033YSet as Higway Range\033X'" position="2" section="comm_settings_range_toggle_highway"/>
+                <add_player_choice text="'Copy Range Setting to all Stations here'" position="3" section="null" selectable="false"/>
+                <add_player_choice text="'Remove Range'" position="4" section="comm_settings_range_remove"/>
+                <add_player_choice text="'Change Range'" position="5" section="comm_orders_select_space" choiceparam="'comm_settings_range_set'" comment="refering to re-useable Menu Call"/>
                 <do_if value="$actor.hascontext.{$actor.$ut_cac_settings.$range.{$slot}}">
-                  <add_player_choice_sub text="'Share Range Settings on all Stations in this Area'" position="6" section="null" selectable="false"/>
+                  <add_player_choice text="'Share Range Settings on all Stations in this Area'" position="6" section="null" selectable="false"/>
                 </do_if>
                 <do_else>
                   <add_player_choice_return text="'(Back)'" position="6" />
@@ -221,58 +230,53 @@ Dialogue Tree - rough concept (for all Entity Types)
                 <add_player_choice_return text="'(Back)'" position="close" />
               </do_if>
               <do_else>
-                <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, null, 'selectspace', ['comm_settings_range_selected']]"/>
+                <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, null, 'selectspace', ['comm_settings_range_set']]"/>
                 <add_conversation_view view="closeupdetailmonitor" />
               </do_else>
             </do_elseif>
-            <do_elseif value="event.param == 'comm_settings_range_set'">
               <!-- Toggle Jump range/Not Jump Range by removing/Adding the Space to the related List (same for highway Range) -->
-              <do_if value="event.param2 == 'jump'">
-                <do_if value="$actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$slot}}">
-                  <remove_value name="$actor.$ut_cac_settings.$range_j.{$actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$slot}}}"/>
-                </do_if>
-                <do_else>
-                  <append_to_list name="$actor.$ut_cac_settings.$range_j" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
-                </do_else>
+            <do_elseif value="event.param == 'comm_settings_range_toggle_jump'">
+              <do_if value="$actor.$ut_cac_settings.$range_j.{$slot}">
+                <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="null"/>
               </do_if>
-              <do_elseif value="event.param2 == 'highway'">
-                <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$slot}}">
-                  <remove_value name="$actor.$ut_cac_settings.$range_h.{$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$slot}}}"/>
-                </do_if>
-                <do_else>
-                  <append_to_list name="$actor.$ut_cac_settings.$range_h" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
-                </do_else>
-              </do_elseif>
-              <!-- Remove Range entirely -->
-              <do_elseif value="event.param2 == 'remove'">
-                <do_if value="$actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$slot}}">
-                  <remove_value name="$actor.$ut_cac_settings.$range_j.{$actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$slot}}}"/>
-                </do_if>
-                <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$slot}}">
-                  <remove_value name="$actor.$ut_cac_settings.$range_h.{$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$slot}}}"/>
-                </do_if>
-                <set_value name="$actor.$ut_cac_settings.$range.{$slot}" exact="null"/>
-              </do_elseif>
-              <do_elseif value="event.param2 == 'set'" comment="Temporary Code when Sector/Cluster Selection is available - keep it until Space Selection is available">
-                <add_player_choice_sub text="'Select Zone'" position="1" section="comm_orders_select_zone" choiceparam="'comm_settings_range_selected'" baseparam="event.param2"/>
-                <add_player_choice_sub text="'Select Sector'" position="2" section="comm_orders_select_sector" choiceparam="'comm_settings_range_selected'" baseparam="event.param2"/>
-                <add_player_choice_sub text="'Select Cluster'" position="3" section="comm_orders_select_cluster" choiceparam="'comm_settings_range_selected'" baseparam="event.param2"/>
-                <add_player_choice_sub text="'Select Space'" position="5" section="comm_orders_select_space" choiceparam="'comm_settings_range_selected'" baseparam="event.param2"/>
-              </do_elseif>
-              <do_elseif value="event.param2 == 'galaxy'">
-                <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="player.galaxy"/>
-                <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="player.galaxy"/>
-              </do_elseif>
-              <signal_cue_instantly cue="Signalcue" param="'comm_settings_range'"/>
+              <do_else>
+                <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
+              </do_else>
+              <set_value name="$return"/>
             </do_elseif>
-            <do_elseif value="event.param == 'comm_settings_range_selected'">
+            <do_elseif value="event.param == 'comm_settings_range_toggle_highway'">
+              <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$slot}}">
+                <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="null"/>
+              </do_if>
+              <do_else>
+                <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
+              </do_else>
+              <set_value name="$return"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_range_remove'">
+              <set_value name="$actor.$ut_cac_settings.$range.{$slot}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="null"/>
+              <set_value name="$return"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_range_set'">
               <set_value name="$actor.$ut_cac_settings.$range.{$slot}" exact="event.param2.{3}"/>
-              <append_to_list name="$actor.$ut_cac_settings.$range_j" exact="event.param2.{3}"/>
-              <append_to_list name="$actor.$ut_cac_settings.$range_h" exact="event.param2.{3}"/>
-              <signal_cue cue="Verify_Range"/>
-              <signal_cue_instantly cue="Signalcue" param="'comm_settings_range'"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="event.param2.{3}"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="event.param2.{3}"/>
+              <set_value name="$return"/>
             </do_elseif>
-              <!-- Confirm that the Ranges work out!!! -->
+            <!-- return to Main Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
+            <do_if value="$return?">
+              <remove_value name="$return"/>
+              <signal_cue cue="Verify_Range" comment="confirm that the Ranges are continonous"/>
+              <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
+              <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
+              <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
+              <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
+              <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
+              <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
+              <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
+            </do_if>
           </actions>
         </cue>
         <!-- Menu 3: Connect with other Actor-->
@@ -328,7 +332,8 @@ Dialogue Tree - rough concept (for all Entity Types)
             <event_cue_signalled/>
           </conditions>
           <actions>
-            <!-- checking Jump Range for continuty (monodirectional is enough in this case because the way back is the same) -->
+            <!-- checking Jump Range Path to be completely in the whitelist and removing all Ranges which divert from this -->
+            <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
             <set_value name="$range" exact="$actor.$ut_cac_settings.$range_j"/>
             <do_all exact="$range.count" counter="$i">
               <do_if value="$range.{$i}.exists">
@@ -341,17 +346,17 @@ Dialogue Tree - rough concept (for all Entity Types)
                 <do_all exact="$waypoints.count"  counter="$j">
                   <set_value name="$verified" exact="false"/>
                   <!-- and for each waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting and this always uses the last slot -->
-                  <do_all exact="$range.count" counter="$k" reverse="true">
-                    <do_if value="$range.{$k}.exists">
-                      <!-- if $range.{$k} is a Zone invert the context Check and find out if it has a JB (only in this case its a valid waypoint) -->
-                      <do_if value="$range.{$k}.isclass.zone and $range.{$k}.hascontext.{$waypoints.{$j}}">
-                        <find_object name="$beacon" space="$range.{$k}" class="class.jumpbeacon" knownto="this.owner" checkoperational="true"/>
+                  <do_all exact="$baserange.count" counter="$k" reverse="true">
+                    <do_if value="$baserange.{$k}.exists">
+                      <!-- if $baserange.{$k} is a Zone invert the context Check and find out if it has a JB (only in this case its a valid waypoint) -->
+                      <do_if value="$baserange.{$k}.isclass.zone and $baserange.{$k}.hascontext.{$waypoints.{$j}}">
+                        <find_object name="$beacon" space="$baserange.{$k}" class="class.jumpbeacon" knownto="this.owner" checkoperational="true"/>
                         <do_if value="$beacon.exists">
                           <set_value name="$verified" exact="true"/>
                           <break/>
                         </do_if>
                       </do_if>
-                      <do_elseif value="$waypoints.{$j}.hascontext.{$range.{$k}} or $waypoints.{$j} == $range.{$k}">
+                      <do_elseif value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
                         <set_value name="$verified" exact="true"/>
                         <break/>
                       </do_elseif>
@@ -391,8 +396,8 @@ Dialogue Tree - rough concept (for all Entity Types)
                   <set_value name="$verified" exact="false"/>
                   <!-- and for each other waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting (always has context) and this always uses the last slot -->
                   <do_all exact="$range.count" counter="$k" reverse="true">
-                    <do_if value="$range.{$k}.exists">
-                      <do_if value="$waypoints.{$j}.hascontext.{$range.{$k}} or $waypoints.{$j} == $range.{$k}">
+                    <do_if value="$baserange.{$k}.exists">
+                      <do_if value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
                         <set_value name="$verified" exact="true"/>
                         <break/>
                       </do_if>
@@ -415,8 +420,8 @@ Dialogue Tree - rough concept (for all Entity Types)
                   </do_if>
                   <set_value name="$verified" exact="false"/>
                   <do_all exact="$range.count" counter="$k" reverse="true">
-                    <do_if value="$range.{$k}.exists">
-                      <do_if value="$waypoints.{$j}.hascontext.{$range.{$k}} or $waypoints.{$j} == $range.{$k}">
+                    <do_if value="$baserange.{$k}.exists">
+                      <do_if value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
                         <set_value name="$verified" exact="true"/>
                         <break/>
                       </do_if>

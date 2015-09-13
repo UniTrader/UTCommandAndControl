@@ -584,18 +584,18 @@ Dialogue Tree - rough concept (for all Entity Types)
         </do_if>
         <do_elseif value="event.param == 'comm_orders_modify'">
           <do_if value="event.param2.{1} == 1" comment="current/first Order">
-            <add_player_choice_sub text="'Replace Order - WiP, use Insert+Cancel for now'" position="1" section="comm_orders_replace" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
-            <add_player_choice_sub text="'Insert Order, finish current later'" position="2" section="comm_orders_insert" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
-            <add_player_choice_sub text="'Move Order, finish it later'" position="3" section="comm_orders_move" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
-            <add_player_choice_sub text="'Cancel ALL Orders'" position="4" section="comm_orders_cancel_all" choiceparam="true" comment="choiceparam true tells com_orders_cancel_all to cancel all orders including the first"/>
-            <add_player_choice_sub text="'Cancel Order, continue with next'" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
+            <add_player_choice text="'Replace Order - WiP, use Insert+Cancel for now'" position="1" section="comm_orders_replace" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
+            <add_player_choice text="'Insert Order, finish current later'" position="2" section="comm_orders_insert" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
+            <add_player_choice text="'Move Order, finish it later'" position="3" section="comm_orders_move" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
+            <add_player_choice text="'Cancel ALL Orders'" position="4" section="comm_orders_cancel_all" choiceparam="true" comment="choiceparam true tells com_orders_cancel_all to cancel all orders including the first"/>
+            <add_player_choice text="'Cancel Order, continue with next'" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
           </do_if>
           <do_else>
-            <add_player_choice_sub text="'Replace Order'" position="1" section="comm_orders_replace" choiceparam="event.param2"/>
-            <add_player_choice_sub text="'Insert Order'" position="2" section="comm_orders_insert" choiceparam="event.param2"/>
-            <add_player_choice_sub text="'Move Order'" position="3" section="comm_orders_move" choiceparam="event.param2"/>
-            <add_player_choice_sub text="'Cancel All Orders except Number 1'" position="4" section="comm_orders_cancel_all" choiceparam="false" comment="choiceparam false tells com_orders_cancel_all not the first order"/>
-            <add_player_choice_sub text="'Cancel Order'" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
+            <add_player_choice text="'Replace Order'" position="1" section="comm_orders_replace" choiceparam="event.param2"/>
+            <add_player_choice text="'Insert Order'" position="2" section="comm_orders_insert" choiceparam="event.param2"/>
+            <add_player_choice text="'Move Order'" position="3" section="comm_orders_move" choiceparam="event.param2"/>
+            <add_player_choice text="'Cancel All Orders except Number 1'" position="4" section="comm_orders_cancel_all" choiceparam="false" comment="choiceparam false tells com_orders_cancel_all not the first order"/>
+            <add_player_choice text="'Cancel Order'" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
           </do_else>
           <add_player_choice_return text="'(Back) - better get used to [Esc] though'" position="6" />
           <add_player_choice_return text="'(Back)'" position="close" />
@@ -630,6 +630,7 @@ Dialogue Tree - rough concept (for all Entity Types)
             </do_if>
             <remove_value name="$selected_order_A"/>
             <remove_value name="$selected_order_B"/>
+            <set_value name="$return"/>
           </do_if>
           <do_else>
             <set_value name="$selected_order_A" exact="event.param2"/>
@@ -642,14 +643,14 @@ Dialogue Tree - rough concept (for all Entity Types)
               <do_if value="$order.$displayname?">
                 <do_if value="$order_number == 1">
                   <!-- first Order is never selectable because i dont want to handle the interrupt stuff yet. -->
-                  <add_player_choice_sub text="$order.$displayname" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="false"/>
+                  <add_player_choice text="$order.$displayname" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="false"/>
                 </do_if>
                 <do_if value="$order != $selected_order_A">
-                  <add_player_choice_sub text="$order.$displayname" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="@$order.$interruptable"/>
+                  <add_player_choice text="$order.$displayname" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="@$order.$interruptable"/>
                 </do_if>
                 <do_else>
                   <!-- This is the Order already selected - its not selectable, but highlighted in Blue to make clear its the already selected one -->
-                  <add_player_choice_sub text="'\033B%1\033X'.[$order.$displayname]" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="false"/>
+                  <add_player_choice text="'\033B%1\033X'.[$order.$displayname]" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="false"/>
                 </do_else>
                 <set_value name="$slot" operation="add"/>
               </do_if>
@@ -678,6 +679,7 @@ Dialogue Tree - rough concept (for all Entity Types)
               <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Trying to remove Order %4 from Orderlist, but its not interruptable anymore and on a lower position'.[player.age,$actor.name,$actor.$orderlist.event.param2.{3}.$displayname]"/>
             </do_else>
           </do_elseif>
+          <set_value name="$return"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_cancel_all'">
           <do_all exact="$actor.$orderlist.count" counter="$i" reverse="true">
@@ -685,9 +687,9 @@ Dialogue Tree - rough concept (for all Entity Types)
               <remove_value name="$actor.$orderlist.{$i}"/>
             </do_if>
           </do_all>
+          <set_value name="$return"/>
         </do_elseif>
-        
-        <!--re-useable Object Selection Stuff -->
+        <!--re-useable Object Selection Stuff - maybe add this to an own Cue because it may be used anywhere? -->
         <do_elseif value="event.param == 'comm_orders_select_playerobject'">
           <open_conversation_menu menu="MapMenu" param="[0, 0, 'sector', $actor.container.sector, [player.galaxy,$actor.container.cluster,$actor.container.sector], null, 'selectplayerobject', [event.param2, null, false, false, true, false, false, false, false, false, false, true, false, false, false, false]]" param2="event.param3" />
           <add_conversation_view view="closeupdetailmonitor" />
@@ -712,6 +714,18 @@ Dialogue Tree - rough concept (for all Entity Types)
           <open_conversation_menu menu="MapMenu" param="[0, 0, 'sector', $actor.container.sector, [player.galaxy,$actor.container.cluster,$actor.container.sector], null, 'selectobject', [event.param2]]"/>
           <add_conversation_view view="closeupdetailmonitor" />
         </do_elseif>
+        
+        <!-- return to Main Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
+        <do_if value="$return?">
+          <remove_value name="$return"/>
+          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
+          <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
+          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
+          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
+          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
+          <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
+          <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
+        </do_if>
       </actions>
     </library>
     
@@ -755,7 +769,6 @@ Dialogue Tree - rough concept (for all Entity Types)
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_script_restart'">
           <do_if value="$actor.type == entitytype.manager">
-            <remove_value name="$actor.$orderlist"/>
             <start_script object="$actor" name="'ut.cac.base.manager'"/>
           </do_if>
           <do_elseif value="$actor.type == entitytype.pilot">

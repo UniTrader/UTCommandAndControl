@@ -132,6 +132,7 @@ Dialogue Tree - rough concept (for all Entity Types)
           <actions>
             <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
             <do_if value="event.name == 'event_conversation_started'">
+              <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
               <do_if value="$actor.room == player.entity.room">
                 <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
                 <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
@@ -141,7 +142,6 @@ Dialogue Tree - rough concept (for all Entity Types)
                 <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
               </do_else>
             </do_if>
-            <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
             <add_player_choice_sub text="'About your current Orders...'" position="1" section="comm_orders_main"/>
             <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main"/>
             <add_player_choice_sub text="'Connect me with...'" position="3" section="comm_connect_main"/>
@@ -181,9 +181,9 @@ Dialogue Tree - rough concept (for all Entity Types)
             
             <!-- Select new Order -->
             <do_if value="event.param == 'comm_orders_new' or event.param == 'comm_orders_insert' or event.param == 'comm_orders_replace'">
-              <add_player_choice_sub text="'Combat'" position="1" section="comm_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
-              <add_player_choice_sub text="'Signalling'" position="3" section="comm_orders_signals" />
-              <add_player_choice_sub text="'Fly to...'" position="4" section="comm_orders_select_zone" choiceparam="'comm_orders_flyto_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice text="'Combat'" position="1" section="comm_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
+              <add_player_choice text="'Signalling'" position="3" section="comm_orders_signals" />
+              <add_player_choice text="'Fly to...'" position="4" section="comm_orders_select_zone" choiceparam="'comm_orders_flyto_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
@@ -193,23 +193,23 @@ Dialogue Tree - rough concept (for all Entity Types)
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_flyto_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$interruptable=true]"/>
-              <signal_cue_instantly cue="Comm_Common_Orders"/>
+              <set_value name="$return"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_signals'">
-              <add_player_choice_sub text="'Send Signal'" position="1" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
-              <add_player_choice_sub text="'Send Signal to'" position="2" section="comm_orders_select_playerobject" choiceparam="'comm_orders_send_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
-              <add_player_choice_sub text="'Send Signal to Commander'" position="3" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
-              <add_player_choice_sub text="'Wait for Signal'" position="4" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
-              <add_player_choice_sub text="'Wait for Signal on'" position="5" section="comm_orders_select_playerobject" choiceparam="'comm_orders_wait_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
-              <add_player_choice_sub text="'Wait for Signal on Commander'" position="6" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
+              <add_player_choice text="'Send Signal'" position="1" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
+              <add_player_choice text="'Send Signal to'" position="2" section="comm_orders_select_playerobject" choiceparam="'comm_orders_send_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice text="'Send Signal to Commander'" position="3" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
+              <add_player_choice text="'Wait for Signal'" position="4" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
+              <add_player_choice text="'Wait for Signal on'" position="5" section="comm_orders_select_playerobject" choiceparam="'comm_orders_wait_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice text="'Wait for Signal on Commander'" position="6" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_send_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='signalobject',$interruptable=true,$displayname='Send Signal to %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <signal_cue_instantly cue="Comm_Common_Orders"/>
+              <set_value name="$return"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_wait_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='wait signal',$interruptable=true,$displayname='Wait for Signal on %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <signal_cue_instantly cue="Comm_Common_Orders"/>
+              <set_value name="$return"/>
             </do_elseif>
             
             <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
@@ -247,6 +247,17 @@ Dialogue Tree - rough concept (for all Entity Types)
               
               <remove_value name="$prev_order"/>
               <remove_value name="$new_order"/>
+            </do_if>
+            <!-- return to Main Menu Point? (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
+            <do_if value="$return?">
+              <remove_value name="$return"/>
+              <add_player_choice_return text="'Just Ignore this'" position="1"/>
+              <add_player_choice_return text="'and select any Item'" position="4"/>
+              <add_player_choice_return text="'This is just a Workaround'" position="2"/>
+              <add_player_choice_return text="'for a missing Scrip function'" position="5"/>
+              <add_player_choice_return text="'to go back one Menu Level'" position="3"/>
+              <add_player_choice_return text="'without selection'" position="6"/>
+              <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
             </do_if>
           </actions>
         </cue>
