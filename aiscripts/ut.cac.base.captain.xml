@@ -104,6 +104,8 @@
   </init>
   <attention min="unknown">
     <actions>
+      <wait min="0.1s" max="10s" comment="to avoid multiple order requests at the same moment"/>
+      
       <label name="start"/>
       <do_if value="not this.$orderlist?">
         <create_list name="this.$orderlist"/>
@@ -111,8 +113,6 @@
       
       <!-- first get to free Space/Undock, leave formations etc. to have a safe initial state -->
       <run_script name="'ut.cac.com.captain.move.free'"/>
-      
-      <wait min="0.1s" max="10s" comment="to avoid multiple order requests at the same moment"/>
       
       <label name="start with orderlist"/>
       

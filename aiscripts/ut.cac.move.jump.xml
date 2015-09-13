@@ -254,6 +254,11 @@ ToDo:
       
       <!-- wait till JD has cooled down for the next Jump -->
       <do_while value="$jumpdrive.cooldowntimeleft gt 0">
+        <!-- slow charge jump effects - will be removed just before firing up the JD - now also used during cooldown -->
+        <do_if value="$slowchargeeffect? and not $slowcharge?">
+          <add_effect object="$jumpdrive" effect="$slowchargeeffect"/>
+          <set_value name="$slowcharge"/>
+        </do_if>
         <wait min="($jumpdrive.cooldowntimeleft + 2)s" max="($jumpdrive.cooldowntimeleft + 4)s"/>
       </do_while>
       

@@ -29,12 +29,6 @@ $entity  = ' + $entity"/>
         <do_if value="$params.$entity?">
           <set_value name="$entity" exact="$params.$entity"/>
         </do_if>
-        <do_if value="$params.$repeat?">
-          <set_value name="$repeat" exact="$params.$repeat"/>
-        </do_if>
-        <do_else>
-          <set_value name="$repeat" exact="false"/>
-        </do_else>
       </do_if>
       <remove_value name="$params"/>
       <do_if value="not $entity.exists">
@@ -64,12 +58,12 @@ $entity  = ' + $entity"/>
       
       
       <!-- Get Range to be used - either Jump Range or Tube Range -->
-      <do_if value="$entity.ship.isclass.ship_xl or $entity.ship.isclass.ship_l">
+      <do_if value="$entity.ship.isclass.{[class.ship_xl , class.ship_l]}">
         <set_value name="$range" exact="this.$ut_cac_settings.$range_j"/>
       </do_if>
-      <do_if value="$entity.ship.canenterhighway">
+      <do_elseif value="$entity.ship.canenterhighway">
         <set_value name="$range" exact="this.$ut_cac_settings.$range_h"/>
-      </do_if>
+      </do_elseif>
       <!-- fallback case: ship can neither jump nor enter tubes - restricted to Zone Trade -->
       <do_else>
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Fallback: Zone Range'.[player.age,this.name,this.container.name]"/>
@@ -181,7 +175,7 @@ $entity  = ' + $entity"/>
           <param name="range" value="$range"/>
           <param name="mininglist" value="$mininglist"/>
         </run_script>
-        <do_if value="$sucess">
+        <do_if value="$success">
           <return/>
         </do_if>
         <do_else>
@@ -331,7 +325,6 @@ $entity  = ' + $entity"/>
       <remove_value name="$incomingamount"/>
       <remove_value name="$ware"/>
       <remove_value name="$prio"/>
-      <remove_value name="$wareslist_prio"/>
       <remove_value name="$buysell"/>
       <remove_value name="$inserted"/>
       
@@ -351,7 +344,7 @@ $entity  = ' + $entity"/>
               <param name="range" value="$range"/>
               <param name="mininglist" value="$mininglist"/>
             </run_script>
-            <do_if value="$sucess">
+            <do_if value="$success">
               <return/>
             </do_if>
             <do_else>
@@ -361,18 +354,19 @@ $entity  = ' + $entity"/>
           
           <!-- Get Price we want to get this Ware for - either from Station Offer to respect player Settings or, if none available, use Ware average price -->
           <!-- ToDo: Find a method to aquire the Player Settings instead -->
-          <find_buy_offer result="$buyoffer" seller="this.container" wares="$ware"/>
+          <find_buy_offer result="$buyoffer" buyer="this.container" wares="$ware"/>
           <do_if value="$buyoffer.available">
             <set_value name="$price" exact="$buyoffer.price"/>
           </do_if>
           <do_else>
-            <set_value name="$price" exact="$ware.price"/>
+            <set_value name="$price" exact="$ware.averageprice"/>
           </do_else>
           <remove_value name="$buyoffer"/>
           
           <!-- check all Ranges if there is an Offer there -->
           <do_all exact="$range.count" counter="$j" reverse="false">
             <do_if value="$range.{$j} != null and $range.{$j} != player.galaxy" comment="ignore empty slots and galaxy Range">
+              <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Searching %4 for Sell Offers'.[player.age,this.name,this.container.name,$range.{$j}.knownname]"/>
               <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
                 <offeramount min="this.container.cargo.{$ware}.target / 10"/>
                 <price min="$price"/>
@@ -420,7 +414,7 @@ $entity  = ' + $entity"/>
           
           <!-- Get Price we want to sell this Ware for - either from Station Offer to respect player Settings or, if none available, use Ware average price -->
           <!-- ToDo: Find a method to aquire the Player Settings instead -->
-          <find_sell_offer result="$selloffer" buyer="this.container" wares="$ware"/>
+          <find_sell_offer result="$selloffer" seller="this.container" wares="$ware"/>
           <do_if value="$selloffer.available">
             <set_value name="$price" exact="$selloffer.price"/>
           </do_if>
@@ -432,6 +426,7 @@ $entity  = ' + $entity"/>
           <!-- check all Ranges if there is an Offer there -->
           <do_all exact="$range.count" counter="$j" reverse="false">
             <do_if value="$range.{$j} != null and $range.{$j} != player.galaxy" comment="ignore empty slots and galaxy Range">
+              <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Searching %4 for Buy Offers'.[player.age,this.name,this.container.name,$range.{$j}.knownname]"/>
               <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
                 <offeramount min="this.container.cargo.{$ware}.count / 10"/>
                 <price min="$price"/>
