@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.captain" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.captain" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="2">
   <!-- this is basically just a Script which executes previously given Orders in order and falls back to a logical default behavior depending on context (a very stupid script - the logic is to be implemented in other scripts) -->
   <interrupts>
     <handler comment="Print Script Vars">
@@ -104,7 +104,7 @@
   </init>
   <attention min="unknown">
     <actions>
-      <wait min="0.1s" max="10s" comment="to avoid multiple order requests at the same moment"/>
+      <wait min="0.1s" max="10s" comment="to avoid multiple order requests at the same moment" sinceversion="2"/>
       
       <label name="start"/>
       <do_if value="not this.$orderlist?">
@@ -113,6 +113,8 @@
       
       <!-- first get to free Space/Undock, leave formations etc. to have a safe initial state -->
       <run_script name="'ut.cac.com.captain.move.free'"/>
+      
+      <wait exact="100ms" />
       
       <label name="start with orderlist"/>
       

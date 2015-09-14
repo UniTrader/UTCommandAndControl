@@ -33,6 +33,21 @@
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order=null]"/>
       </actions>
     </handler>
+    <handler comment="Zonetrade Cleanup">
+      <conditions>
+        <check_any>
+          <event_trade_order_cancelled buyer="this.container"/>
+          <event_trade_order_completed buyer="this.container"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <do_if value="event.param == this.$ut_cac_settings.$currenttrade">
+          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Manager Zonetrade %4 finally finished!!'.[player.age,this.name,this.container.name,$finalselloffer] )"/>
+          <remove_ware_reservation object="this.container" entity="this" ware="event.param.ware"/>
+          <set_value name="entity.$ut_cac_settings.$currenttrade" exact="null"/>
+        </do_if>
+      </actions>
+    </handler>
   </interrupts>
   <init>
   </init>
@@ -129,10 +144,10 @@
       </do_if>
       
       <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
-      <!--do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade">
+      <do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade and not entity.$ut_cac_settings.$currenttrade">
         <set_value name="$next_zonetrade" exact="player.age + 7min"/>
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.zonetrade',$displayname='Perform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
-      </do_if-->
+      </do_if>
       
       <do_if value="this.$orderlist.count == 0">
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>

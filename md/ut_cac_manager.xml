@@ -17,7 +17,8 @@
         $legality=1,
         $range=[$actor.sector,null,null,null,null,null],
         $range_h=[$actor.sector,null,null,null,null,null],
-        $range_j=[$actor.sector,null,null,null,null,null]
+        $range_j=[$actor.sector,null,null,null,null,null],
+        $currenttrade=null
         ]"/>
         <debug_text filter="general" text="'%1 now uses UT CAC comm handlers'.[$actor.name]" />
         <set_comm_handler actor="$actor" customhandler="true" />
@@ -27,7 +28,8 @@
       <patch sinceversion="2" state="complete">
         <set_value name="$actor.$ut_cac_settings" exact="table[
         $pesterlevel=$actor.$pesterlevel,
-        $loglevel=$actor.$loglevel
+        $loglevel=$actor.$loglevel,
+        $currenttrade=null
         ]"/>
         <remove_value name="$actor.$pesterlevel"/>
         <remove_value name="$actor.$loglevel"/>
