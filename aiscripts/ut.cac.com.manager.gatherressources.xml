@@ -100,7 +100,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
       <set_command command="command.freemining"/>
       <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$wareslist.{1}" />
       <do_if value="$gatherrate" max="0">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Gatherrate is 0 (should not happen) - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Gatherrate is 0 (should not happen) - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       <add_ware_reservation object="this.container" entity="this" ware="$wareslist.{1}" amount="$gatherrate * $next_call"/>

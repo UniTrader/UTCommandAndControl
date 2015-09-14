@@ -124,7 +124,7 @@ $entity  = ' + $entity"/>
             <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
             <!-- set value to indicate that a mineable ware is needed with prio 1.0 right now to prevent looking for other Wares even if they have the same prio -->
             <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
-              <set_value name="$miningpriorityware"/>
+              <set_value name="$miningpriority"/>
             </do_if>
           </do_if>
           <!-- first Value in the Target List, no need for any Sorting-->
@@ -156,13 +156,25 @@ $entity  = ' + $entity"/>
         </do_if>
       </do_all>
       
+      <!-- If it is a Miningship filter needed Wares for Mineables and save it to another List (doing it now prevents iterating through a longer Ware List)-->
+      <do_if value="$miningship">
+        <set_value name="$mininglist" exact="$wareslist.clone"/>
+        <do_all exact="$mininglist.count" counter="$i" reverse="true">
+          <do_if value="not $mininglist.{$i}.tags.indexof.{tag.minable}">
+            <remove_value name="$mininglist.{$i}"/>
+          </do_if>
+        </do_all>
+        <debug_text filter="general" chance="this.$debug * 100" text="'Sorted Ware List to Mine: \n%1'.[$mininglist]"/>
+      </do_if>
+      
       <!-- if it is a mining Ship and Mining is very important right now send it directly to mining, no need to search for other stuff yet -->
-      <do_if value="$miningpriorityware?">
+      <do_if value="$miningpriority?">
         <debug_text filter="general" chance="this.$debug * 100" text="'Checking Ressorce for mining: %1 (Priority Case)'.[$miningpriorityware]"/>
         <run_script name="'ut.cac.com.manager.findjob.mine'" result="$success">
           <param name="entity" value="$entity"/>
           <param name="range" value="$range"/>
-          <param name="ware" value="$miningpriorityware"/>
+          <param name="ware" value="$mininglist.{1}"/>
+          <param name="mininglist" value="$mininglist"/>
         </run_script>
         <do_if value="$success">
           <return/>
@@ -332,6 +344,7 @@ $entity  = ' + $entity"/>
               <param name="entity" value="$entity"/>
               <param name="range" value="$range"/>
               <param name="ware" value="$ware"/>
+              <param name="mininglist" value="$mininglist"/>
             </run_script>
             <do_if value="$success">
               <return/>

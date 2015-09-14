@@ -5,6 +5,7 @@
     <param name="entity" default="false" comment="Entity who needs (Mine)Orders (NOT as Ship)"/>
     <param name="range" default="false" comment="List of Spaces where the Ressource should be found inside (lower index, higher prio)"/>
     <param name="ware" default="false" comment="Ressource to look for"/>
+    <param name="mininglist" default="false" comment="Other Ressources which may be mined if nearby"/>
   </params>
   <interrupts>
     <handler comment="Print Script Vars">
@@ -27,8 +28,14 @@ $ware = ' + $ware"/>
         <do_if value="$params.$entity?">
           <set_value name="$entity" exact="$params.$entity"/>
         </do_if>
+        <do_if value="$params.$range?">
+          <set_value name="$range" exact="$params.$range"/>
+        </do_if>
         <do_if value="$params.$ware?">
           <set_value name="$ware" exact="$params.$ware"/>
+        </do_if>
+        <do_if value="$params.$mininglist?">
+          <set_value name="$mininglist" exact="$params.$mininglist"/>
         </do_if>
         <remove_value name="$params"/>
       </do_if>
@@ -41,6 +48,9 @@ $ware = ' + $ware"/>
       <do_if value="not $range">
         <debug_text filter="error" text="'%1 %2 %3 No Range passed to check for Ressources - aborting'.[player.age,this.name,this.container.name]"/>
         <return value="false"/>
+      </do_if>
+      <do_if value="not $ware">
+        <set_value name="$ware" exact="$mininglist.{1}"/>
       </do_if>
       <do_if value="not $ware">
         <debug_text filter="error" text="'%1 %2 %3 No Ware passed to find Mining Zone - aborting'.[player.age,this.name,this.container.name]"/>
@@ -60,7 +70,7 @@ $ware = ' + $ware"/>
           <!-- found Ressource in Range - exit with success -->
           <do_if value="$zone.exists and ( $zone.hascontext.{$range.{$i}} or $zone == $range.{$i} )">
             <debug_text filter="general" chance="this.$debug *100" text="'%1 %2 %3 Found wanted Ressource in Range:\nRange: %4 - Zone: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$zone]"/>
-            <signal_objects object="$entity.ship" param="'new order'" param2="table[$script='ut.cac.com.captain.mining',$displayname='Mining in %1 (Manager)'.[$zone.knownname],$zone=$zone,$ware=$ware,$amount=$amount,$interruptable=false]"/>
+            <signal_objects object="$entity.ship" param="'new order'" param2="table[$script='ut.cac.com.captain.mining',$displayname='Mining in %1 (Manager)'.[$zone.knownname],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=false]"/>
             <return value="true"/>
           </do_if>
         </do_if>
