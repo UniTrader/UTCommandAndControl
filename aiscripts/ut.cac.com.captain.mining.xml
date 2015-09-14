@@ -5,8 +5,9 @@
   -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
-    <param name="mininglist" default="null" />
+    <param name="ware" default="null" />
     <param name="zone" default="null" />
+    <param name="amount" default="null" />
   </params>
   <interrupts>
     <handler comment="Print Script Vars">
@@ -17,19 +18,20 @@
         <debug_text filter="general" text="'\n
         Captain Name ' + this.knownname + ' at Time ' + player.age + '\n
         ut.cac.com.captain.mining Script Values:\n
-        $mininglist = ' + $mininglist + '\n
-        $zone = ' + $zone"/>
+        $ware = ' + $ware + '\n
+        $zone = ' + $zone + '\n
+        $amount = ' + $amount"/>
       </actions>
     </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
       <do_if value="$params">
-        <do_if value="$params.$mininglist?">
-          <set_value name="$mininglist" exact="$params.$mininglist"/>
-        </do_if>
         <do_if value="$params.$zone?">
           <set_value name="$zone" exact="$params.$zone"/>
+        </do_if>
+        <do_if value="$params.$amount?">
+          <set_value name="$amount" exact="$params.$amount"/>
         </do_if>
       </do_if>
       <remove_value name="$params"/>
@@ -40,80 +42,76 @@
       <wait min="5s" max="15s" />
       
       <do_if value="this.ship.cargo.capacity" max="0">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Ship has Cargo Capacity of %4 - aborting'.[player.age,this.name,this.container.name,this.ship.cargo.capacity]"/>
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 Ship has Cargo Capacity of %4 - aborting'.[player.age,this.name,this.container.name,this.ship.cargo.capacity]"/>
         <return/>
       </do_if>
       <do_if value="not this.ship.commander.exists">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mining without commander not supported yet! - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 Mining without commander not supported yet! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       <set_value name="$homebase" exact="this.ship.commander" />
       <do_if value="this.ship.units.collect.count" exact="0">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mining ship does not have any units for collecting! - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 Mining ship does not have any units for collecting! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
-      <do_if value="$mininglist == null">
-        <set_value name="$mininglist" exact="this.ship.warebasket.list" />
-      </do_if>
-      <do_if value="$mininglist.count" exact="0">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mining ship does not have Wares in Warebasket! - aborting'.[player.age,this.name,this.container.name]"/>
+      <!--do_if value="$ware == null">
+        <set_value name="$ware" exact="this.ship.warebasket.list" />
+      </do_if-->
+      <do_if value="not $ware">
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 No Ware passed to Mine! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       <do_if value="(this.ship.cargo.free)f / this.ship.cargo.capacity" max="0.5">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Less than half of Cargo free, empty Ship first! - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 Less than half of Cargo free, empty Ship first! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Starting new mining Run'.[player.age,this.name,this.container.name]"/>
       
-      <!-- make virtual Reservations for all the Wares we can mine (half amount we can carry) -->
-      <do_all exact="$mininglist.count" counter="$i">
-        <add_ware_reservation object="this.ship.commander" entity="this" ware="$mininglist.{$i}" amount="this.ship.cargo.{$mininglist.{$i}}.free/2" duration="2h" virtual="true" />
-      </do_all>
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Reserved Wares:\n%4'.[player.age,this.name,this.container.name,$mininglist]"/>
+      <!-- make Reservations for the Wares we mine  -->
+      <add_ware_reservation object="this.ship.commander" entity="this" ware="$ware}" amount="$amount" duration="2h"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Reserved Space for %4 units of %5'.[player.age,this.name,this.container.name,$amount,$ware]"/>
       
-      <!-- Go to Ordered Zone -->
-      <do_if value="this.zone != $zone">
-        <set_command_action commandaction="commandaction.flyingto" param="$zone"/>
-        <run_script name="'ut.cac.move.generic'">
-          <param name="destination" value="$zone" />
-          <param name="endintargetspace" value="true" />
-        </run_script>
-      </do_if>
+      <!-- Go to Ordered Zone near any Asteroid with the desired Ware to speed up collection start -->
+      <set_command_action commandaction="commandaction.flyingto" param="$zone"/>
+      <find_asteroid_in_cluster name="$asteroid" cluster="$zone.cluster" refobject="$zone" maxdistance="50km" ware="$ware" />
+      <run_script name="'ut.cac.move.generic'">
+        <param name="destination" value="$asteroid" />
+        <param name="endintargetspace" value="true" />
+      </run_script>
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Reached Zone where we mine'.[player.age,this.name,this.container.name]"/>
       
-      <!-- start Mining -->
+      <!-- start Mining - ToDo: Write own Script which serves your Purpose better and where you dont have to throw out unwanted ressources-->
       <run_script name="'mining.ship.collect'">
         <param name="zone" value="$zone"/>
-        <param name="ware" value="$mininglist.{1}"/>
-        <param name="secwares" value="$mininglist"/>
+        <param name="ware" value="$ware"/>
         <param name="debugchance" value="0"/>
       </run_script>
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done mining, recalling Drones'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done mining, recalling Drones and throwing out unwanted Amount'.[player.age,this.name,this.container.name]"/>
+      <do_if value="$entity.ship.cargo.{$ware}.count gt $amount">
+        <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$amount - $entity.ship.cargo.{$ware}.count" />
+      </do_if>
       
       <run_script name="'lib.recall.drones'"/>
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done Recalling Drones'.[player.age,this.name,this.container.name]"/>
       
+      
       <!-- Check what we got effectively and plan Trade Orders to get the Wares to the Commander -->
-      <do_all exact="$mininglist.count" counter="$i">
-        <remove_ware_reservation object="$homebase" entity="this" virtual="true" ware="$mininglist.{$i}" />
-        <do_if value="this.ship.cargo.{$mininglist.{$i}}.count">
-          <create_trade_offer name="$buyoffer" buyer="this.ship.commander" object="this.ship.commander" amount="this.ship.cargo.{$mininglist.{$i}}.count" ware="$mininglist.{$i}" price="0Cr" playeronly="true"/>
-          <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.amount" price="0Cr"/>
-          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
-          <remove_trade_offer object="this.ship.commander" tradeoffer="$buyoffer"/>
-        </do_if>
-      </do_all>
-      <!-- when last Ware is unloaded we want to undock -->
-      <set_value name="this.$orderlist.{this.$orderlist.count}.$undock" exact="true"/>
-      <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.refuel',$repeat=0]"/>
+      <remove_ware_reservation object="$homebase" entity="this" ware="$ware" />
+      <do_if value="this.ship.cargo.{$ware}.count">
+        <create_trade_offer name="$buyoffer" buyer="this.ship.commander" object="this.ship.commander" amount="this.ship.cargo.{$ware}.count" ware="$ware" price="0Cr" playeronly="true"/>
+        <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.amount" price="0Cr"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
+        <remove_trade_offer object="this.ship.commander" tradeoffer="$buyoffer"/>
+      </do_if>
+      <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Mining Run)',$undock=1,$interruptable=true]"/>
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done Adding Trade Orders, exitig'.[player.age,this.name,this.container.name]"/>
       
     </actions>
   </attention>
   <on_abort>
     <do_if value="$homebase.exists">
-      <remove_ware_reservation object="$homebase" entity="this" virtual="true" />
+      <remove_ware_reservation object="$homebase" entity="this" ware="$ware"/>
     </do_if>
   </on_abort>
 </aiscript>
