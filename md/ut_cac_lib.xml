@@ -40,8 +40,9 @@
     <cue name="Payment_Timer">
       <!--cues>
         <cue name="Payment_Timer_Reset"-->
-          <delay exact="1h - (player.age % 1h)"/>
+          <delay exact="if not @$payment_time then 1min else $payment_time"/>
           <actions>
+            <set_value name="$payment_time" exact="(3600 - ((player.age)i % 3600) )s"/>
             <reset_cue cue="Payment_Timer"/>
             <signal_cue cue="this"/>
           </actions>
@@ -193,7 +194,7 @@
             <set_value name="$actor.$ut_cac_settings.$loglevel" exact="param.ut_cac.setting_defaults.$loglevel"/>
           </do_if>
           <do_if value="not $actor.$ut_cac_settings.$legality?">
-            <set_value name="$actor.$ut_cac_settings.$legality" exact="param.ut_cac.setting_defaults$legality."/>
+            <set_value name="$actor.$ut_cac_settings.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
           </do_if>
           <do_if value="not $actor.$ut_cac_settings.$jumptype?">
             <set_value name="$actor.$ut_cac_settings.$jumptype" exact="param.ut_cac.setting_defaults.$jumptype"/>
@@ -213,7 +214,7 @@
           <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.leadership}" exact="param.ut_cac.experience.{skilltype.leadership}.{$actor.skill.leadership}"/>
           <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.management}" exact="param.ut_cac.experience.{skilltype.management}.{$actor.skill.management}"/>
           <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.morale}" exact="param.ut_cac.experience.{skilltype.morale}.{$actor.skill.morale}"/>
-          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.navigation}" exact="param.ut_cac.experience.{skilltype.}.{$actor.skill.navigation}"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.navigation}" exact="param.ut_cac.experience.{skilltype.navigation}.{$actor.skill.navigation}"/>
           <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.science}" exact="param.ut_cac.experience.{skilltype.science}.{$actor.skill.science}"/>
         </do_if>
       </actions>

@@ -46,7 +46,7 @@
       
       <set_command command="command.mining" param="$zone"/>
       <set_command_action commandaction="commandaction.calculating" />
-      <set_value name="this.$ut_cac_settings.$isactive"/>
+      <set_value name="@this.$ut_cac_settings.$isactive"/>
       
       <wait min="5s" max="15s" />
       
@@ -87,7 +87,7 @@
       
       <!-- Go to Ordered Zone near any Asteroid with the desired Ware to speed up collection start -->
       <set_command_action commandaction="commandaction.flyingto" param="$zone"/>
-      <set_value name="this.$ut_cac_settings.$isactive"/>
+      <set_value name="@this.$ut_cac_settings.$isactive"/>
       <find_asteroid_in_cluster name="$asteroid" cluster="$zone.cluster" refobject="$zone" maxdistance="50km" ware="$ware" />
       <run_script name="'ut.cac.move.generic'">
         <param name="destination" value="$asteroid" />
@@ -117,16 +117,20 @@
         <remove_trade_offer object="this.ship.commander" tradeoffer="$buyoffer"/>
         <!-- throw out Minerals we didnt want -->
         <do_if value="$amount and this.ship.cargo.{$ware}.count gt $amount">
-          <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$amount - this.ship.cargo.{$ware}.count" />
+          <set_value name="$removeamount" exact="$amount - this.ship.cargo.{$ware}.count"/>
+          <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$removeamount" />
+          <remove_cargo object="this.ship" ware="$ware" exact="this.ship.cargo.{$ware}.count - $amount"/>
         </do_if>
       </do_if>
       <do_all exact="$mininglist.count" counter="$i">
         <do_if value="this.ship.cargo.{$mininglist.{$i}}.count">
           <!-- throw out Stuff the Commander doesnt need -->
           <get_ware_reservation ware="$mininglist.{$i}" object="this.commander" result="$incomingamount"/>
-          <set_value name="$amount" exact="this.commander.cargo.{$ware}.target - this.commander.cargo.{$ware}.count - $incomingamount , this.ship.cargo.{$ware}.count].min"/>
+          <set_value name="$amount" exact="[this.commander.cargo.{$ware}.target - this.commander.cargo.{$ware}.count - $incomingamount , this.ship.cargo.{$ware}.count].min"/>
           <do_if value="this.ship.cargo.{$ware}.count gt $amount">
-            <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$amount - this.ship.cargo.{$ware}.count" />
+            <set_value name="$removeamount" exact="$amount - this.ship.cargo.{$ware}.count"/>
+            <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$removeamount" />
+            <remove_cargo object="this.ship" ware="$ware" exact="this.ship.cargo.{$ware}.count - $amount"/>
           </do_if>
           
           <create_trade_offer name="$buyoffer" buyer="this.ship.commander" object="this.ship.commander" amount="this.ship.cargo.{$mininglist.{$i}}.count" ware="$mininglist.{$i}" price="0Cr" playeronly="true"/>
