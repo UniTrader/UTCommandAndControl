@@ -369,7 +369,7 @@ $entity  = ' + $entity"/>
           <do_all exact="$range.count" counter="$j" reverse="false">
             <do_if value="$range.{$j} != null and $range.{$j} != player.galaxy" comment="ignore empty slots and galaxy Range">
               <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Searching %4 for Sell Offers'.[player.age,this.name,this.container.name,$range.{$j}.knownname]"/>
-              <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
+              <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
                 <offeramount min="this.container.cargo.{$ware}.target / 10"/>
                 <price min="$price"/>
               </find_sell_offer>
@@ -429,7 +429,7 @@ $entity  = ' + $entity"/>
           <do_all exact="$range.count" counter="$j" reverse="false">
             <do_if value="$range.{$j} != null and $range.{$j} != player.galaxy" comment="ignore empty slots and galaxy Range">
               <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Searching %4 for Buy Offers'.[player.age,this.name,this.container.name,$range.{$j}.knownname]"/>
-              <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}">
+              <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
                 <offeramount min="this.container.cargo.{$ware}.count / 10"/>
                 <price min="$price"/>
               </find_buy_offer>
@@ -452,6 +452,8 @@ $entity  = ' + $entity"/>
             <do_if value="not $entity.hasownaccount">
               <set_actor_account actor="$entity"/>
             </do_if>
+            <!-- Captain doesnt need any money if he sells something -->
+            <transfer_money from="$entity" to="this" amount="$entity.money"/>
             <add_buy_order object="$entity.ship" trade="$selloffer" amount="$amount" price="0Cr"/>
             <add_sell_order object="$entity.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
             <remove_trade_offer object="this.container" tradeoffer="$selloffer"/>

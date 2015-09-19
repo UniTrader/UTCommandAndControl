@@ -48,7 +48,7 @@
       <!-- find buy Offers in current Sector where we can loos the whole amount in one trade run -->
       <create_list name="$buyoffers"/>
       <do_all exact="$warelist.count" counter="$i" reverse="true">
-        <find_buy_offer result="$buyoffer" space="$sector" wares="$warelist.{$i}" multiple="false">
+        <find_buy_offer result="$buyoffer" space="$sector" wares="$warelist.{$i}" multiple="false" knowntoplayer="this.owner == faction.player">
           <amount min="this.ship.cargo.{$warelist.{$i}}.count"/>
         </find_buy_offer>
         <do_if value="$buyoffer.available">
@@ -112,7 +112,7 @@
       <!-- Cluster-wide search for Offers - if one is found add it to the Trade list and continue in the Sector there with search for further Offers -->
       <do_if value="not $onlysector">
         <do_all exact="$warelist.count" counter="$i" reverse="true">
-          <find_buy_offer result="$buyoffer" space="this.cluster" wares="$warelist.{$i}" multiple="false">
+          <find_buy_offer result="$buyoffer" space="this.cluster" wares="$warelist.{$i}" multiple="false" knowntoplayer="this.owner == faction.player">
             <amount min="this.ship.cargo.{$warelist.{$i}}.count"/>
           </find_buy_offer>
           <do_if value="$buyoffer.available">
