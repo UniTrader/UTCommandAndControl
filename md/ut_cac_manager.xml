@@ -264,6 +264,8 @@ Rest is shared between all Actor types
             <do_if value="not ( event.param.isclass.drone or  event.param.isclass.ship_xs or  event.param.isclass.ship_s )" comment="too much debug spam for all those mining drones!">
               <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
             </do_if>
+            <!-- Re-Adjust Wanted Amount for Fuel Cells (consumable, but neither involved in the Production nor in Trading ) - keep a complete refill for everyone in storage -->
+            <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}" exact="$actor.container.subordinates.count * 2500"/>
             <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
               <do_if value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
                 <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
@@ -319,7 +321,7 @@ Rest is shared between all Actor types
                     <do_if value="$baserange.{$k}.exists">
                       <!-- if $baserange.{$k} is a Zone invert the context Check and find out if it has a JB (only in this case its a valid waypoint) -->
                       <do_if value="$baserange.{$k}.isclass.zone and $baserange.{$k}.hascontext.{$waypoints.{$j}}">
-                        <find_object name="$beacon" space="$baserange.{$k}" class="class.jumpbeacon" knownto="this.owner" checkoperational="true"/>
+                        <find_object name="$beacon" space="$baserange.{$k}" class="class.jumpbeacon" knownto="$actor.owner" checkoperational="true"/>
                         <do_if value="$beacon.exists">
                           <set_value name="$verified"/>
                           <break/>

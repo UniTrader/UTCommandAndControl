@@ -42,9 +42,15 @@
         <cue name="Payment_Timer_Reset"-->
           <delay exact="if not @$payment_time then 1min else $payment_time"/>
           <actions>
+            <do_if value="not $payment_sink?">
+              <create_cue_actor name="$payment_sink" cue="this"/>
+            </do_if>
+            <do_else>
+              <remove_actor_account actor="$payment_sink"/>
+            </do_else>
+            <set_actor_account actor="$payment_sink"/>
             <set_value name="$payment_time" exact="(3600 - ((player.age)i % 3600) )s"/>
             <reset_cue cue="Payment_Timer"/>
-            <signal_cue cue="this"/>
           </actions>
         <!--/cue>
       </cues-->
@@ -62,7 +68,7 @@
       <cues>
         <cue name="Wage" comment="Wages are paid hourly">
           <conditions>
-            <event_cue_signalled cue="Payment_Timer"/>
+            <event_cue_completed cue="md.UT_CAC_Lib.Payment_Timer"/>
           </conditions>
           <actions>
             <!-- Wage when Active and inactive are diffrent - $isactive is regulary set by Active Scripts so checking this var confirms that an active script has been running during the last payment period-->
@@ -75,16 +81,16 @@
             </do_else>
             <!-- ToDo: Check if there is enough Money available and do apporiate steps if not (for example reduce skill or stop working for the Player altogether) -->
             <do_if value="$actor.hasownaccount and $actor.money gt $wage and $actor.type == entitytype.manager">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his own Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-              <set_value name="$actor.money" exact="$actor.money - $wage"/>
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his own Acc'.[player.age,$actor.name,$actor.container.name,$wage]"/>
+              <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
             </do_if>
-            <do_elseif value="$actor.commanderentity.hasownaccount and $actor.commanderentity.money gt $wage">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his Commanders Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-              <set_value name="$actor.commanderentity.money" exact="$actor.commanderentity.money - $wage"/>
+            <do_elseif value="$actor.commanderentity? and $actor.commanderentity.hasownaccount and $actor.commanderentity.money gt $wage">
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his Commanders Acc'.[player.age,$actor.name,$actor.container.name,$wage]"/>
+              <transfer_money from="$actor.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
             </do_elseif>
             <do_elseif value="player.money gt $wage">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from Player Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-              <set_value name="player.money" exact="player.money - $wage"/>
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from Player Acc'.[player.age,$actor.name,$actor.container.name,$wage]"/>
+              <transfer_money from="player" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
             </do_elseif>
           </actions>
         </cue>
@@ -97,16 +103,16 @@
             <!-- ToDo: Check if there is enough Money available and do apporiate steps if not (for example reduce skill or stop working for the Player altogether) -->
             <!-- ToDo: Check if the Attack is serious by comparing Attack Forces with nearby own Forces - if it is no serious Attack reset this cue without demanding any bonus -->
             <do_if value="$actor.hasownaccount and $actor.money gt $riskbonus and $actor.type == entitytype.manager">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his own Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-              <set_value name="$actor.money" exact="$actor.money - $riskbonus"/>
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his own Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
+              <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
             </do_if>
-            <do_elseif value="$actor.commanderentity.hasownaccount and $actor.commanderentity.money gt $riskbonus">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his Commanders Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-              <set_value name="$actor.commanderentity.money" exact="$actor.commanderentity.money - $riskbonus"/>
+            <do_elseif value="$actor.commanderentity? and $actor.commanderentity.hasownaccount and $actor.commanderentity.money gt $riskbonus">
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his Commanders Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
+              <transfer_money from="$actor.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
             </do_elseif>
             <do_elseif value="player.money gt $riskbonus">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from Player Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-              <set_value name="player.money" exact="player.money - $riskbonus"/>
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from Player Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
+              <transfer_money from="player" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
             </do_elseif>
           </actions>
           <cues>
@@ -208,14 +214,14 @@
         </do_else>
         <do_if value="not $actor.$ut_cac_settings.$experience?">
           <set_value name="$actor.$ut_cac_settings.$experience" exact="table[]"/>
-          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.boarding}" exact="param.ut_cac.experience.{skilltype.boarding}.{$actor.skill.boarding}"/>
-          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.combat}" exact="param.ut_cac.experience.{skilltype.combat}.{$actor.skill.combat}"/>
-          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.engineering}" exact="param.ut_cac.experience.{skilltype.engineering}.{$actor.skill.engineering}"/>
-          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.leadership}" exact="param.ut_cac.experience.{skilltype.leadership}.{$actor.skill.leadership}"/>
-          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.management}" exact="param.ut_cac.experience.{skilltype.management}.{$actor.skill.management}"/>
-          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.morale}" exact="param.ut_cac.experience.{skilltype.morale}.{$actor.skill.morale}"/>
-          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.navigation}" exact="param.ut_cac.experience.{skilltype.navigation}.{$actor.skill.navigation}"/>
-          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.science}" exact="param.ut_cac.experience.{skilltype.science}.{$actor.skill.science}"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.boarding}" exact="if $actor.skill.boarding then param.ut_cac.experience.{$actor.skill.boarding} else 0"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.combat}" exact="if $actor.skill.combat then param.ut_cac.experience.{$actor.skill.combat} else 0"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.engineering}" exact="if $actor.skill.engineering then param.ut_cac.experience.{$actor.skill.engineering} else 0"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.leadership}" exact="if $actor.skill.leadership then param.ut_cac.experience.{$actor.skill.leadership} else 0"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.management}" exact="if $actor.skill.management then param.ut_cac.experience.{$actor.skill.management} else 0"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.morale}" exact="if $actor.skill.morale then param.ut_cac.experience.{$actor.skill.morale} else 0"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.navigation}" exact="if $actor.skill.navigation then param.ut_cac.experience.{$actor.skill.navigation} else 0"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.science}" exact="if $actor.skill.science then param.ut_cac.experience.{$actor.skill.science} else 0"/>
         </do_if>
       </actions>
     </library>
@@ -300,16 +306,16 @@ Which Orders are available depends on entity Type
             </do_if>
             <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
           </do_elseif>
-          <add_player_choice_sub text="'Show me your Skills, please!'" position="1" section="comm_personal_skills" confidence="$actor.combinedskill / 20" />
+          <add_player_choice_sub text="'About your verbosity...'" position="1" section="comm_personal_pester" selectable="false" confidence="$actor.$ut_cac_settings.$pesterlevel / 20" />
+          <add_player_choice_sub text="'About your Log Activity...'" position="2" section="comm_personal_log" selectable="false" confidence="$actor.$ut_cac_settings.$loglevel / 20" />
+          <add_player_choice_sub text="'About your workplace..'" position="3" section="comm_personal_transfer" selectable="false" comment="planned, but not necesary yet" />
+          <add_player_choice_sub text="'Show me your Skills, please!'" position="4" section="comm_personal_skills" confidence="$actor.combinedskill / 20" />
           <do_if value="$actor.type != entitytype.commander or $actor.type != entitytype.pilot">
-            <add_player_choice_sub text="{10004,1611}" position="2" section="comm_personal_money" confidence="3" selectable="$actor.hasownaccount" comment="planned function for confidence: show if the Actor has not enough or too much money (optimum is 3)"/>
+            <add_player_choice_sub text="{10004,1611}" position="5" section="comm_personal_money" confidence="3" selectable="$actor.hasownaccount" comment="planned function for confidence: show if the Actor has not enough or too much money (optimum is 3)"/>
           </do_if>
           <do_else>
-            <add_player_choice text="'Money: %1Cr'.[if $actor.hasownaccount then ($actor.money)Cr else 'No Account']" position="2" section="comm_personal_money" selectable="false" comment="Not Selectable because Pilots/Commanders only have the Money which is reserved for a Job."/>
+            <add_player_choice text="'Money: %1Cr'.[if $actor.hasownaccount then ($actor.money)Cr else 'No Account']" position="5" section="comm_personal_money" selectable="false" comment="Not Selectable because Pilots/Commanders only have the Money which is reserved for a Job."/>
           </do_else>
-          <add_player_choice_sub text="'About your workplace..'" position="3" section="comm_personal_transfer" selectable="false" comment="planned, but not necesary yet" />
-          <add_player_choice_sub text="'About your verbosity...'" position="4" section="comm_personal_pester" selectable="false" confidence="$actor.$ut_cac_settings.$pesterlevel / 20" />
-          <add_player_choice_sub text="'About your Log Activity...'" position="5" section="comm_personal_log" selectable="false" confidence="$actor.$ut_cac_settings.$loglevel / 20" />
           <add_player_choice_return text="'(Back)'" position="6" />
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_if>

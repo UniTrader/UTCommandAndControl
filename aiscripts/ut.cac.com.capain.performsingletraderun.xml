@@ -101,7 +101,7 @@
       
       <set_command command="$command" param="$trade.owner"/>
       <set_command_action commandaction="commandaction.calculating"/>
-      <set_value name="@this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
       
       <!--in case something went wrong while docking - jumps back from line 207 or 218 -->
       <label name="retry"/>
@@ -157,7 +157,7 @@
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Move to correct Zone:\n$tradepartner.zone= %4'.[player.age,this.name,this.container.name,$tradepartner.zone.knownname]"/>
       <do_if value="this.zone != $tradepartner.zone">
         <set_command_action commandaction="commandaction.flyingto" param="$tradepartner.zone"/>
-        <set_value name="@this.$ut_cac_settings.$isactive"/>
+        <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
         <run_script name="'ut.cac.move.generic'">
           <param name="destination" value="$tradepartner" />
           <param name="endintargetspace" value="true" />
@@ -167,7 +167,7 @@
       <!-- dock/park at target -->
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Dock at Trade Station:\n$tradepartner.name=%4'.[player.age,this.name,this.container.name,$tradepartner.knownname]"/>
       <set_command_action commandaction="commandaction.docking"/>
-      <set_value name="@this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
       <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l">
         <set_value name="$offer" exact="null" />
         <!-- ToDo: Ware Exchange Case: Active Partner -->
@@ -244,7 +244,7 @@
       <!-- to skip the moving/docking in case we are already docked at the right station - jumps forward from line 75 -->
       <label name="execute trade"/>
       <set_command_action commandaction="commandaction.executingtrade"/>
-      <set_value name="@this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Executing Trade, Details:\nWare:%4 Amount:%5 Price:%6 Tradepartner:%7 in %8'.[player.age,this.name,this.container.name,$trade.ware,$trade.amount,$trade.price,$tradepartner.knownname,$tradepartner.zone.knownname]"/>
       <do_if value="$trade.seller.exists" comment="we want to buy something, look for sell offers">
         <do_if value="not $trade.ismission">

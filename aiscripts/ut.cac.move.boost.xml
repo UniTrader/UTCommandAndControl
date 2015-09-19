@@ -88,7 +88,7 @@
         <!-- figure out position to leave this zone at -->
         
         <set_command_action commandaction="commandaction.flyingto" param="$targetzone"/>
-        <set_value name="@this.$ut_cac_settings.$isactive"/>
+        <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
         
         <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size/2" >
           <position object="this.ship" />
@@ -116,7 +116,7 @@
         <!-- InZone-Boost - move a bit in Direction of the Target to align (if not already) - and Boost to nearby it -->
         
         <set_command_action commandaction="commandaction.flyingto" param="$destination"/>
-        <set_value name="@this.$ut_cac_settings.$isactive"/>
+        <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
         
         <!-- create boost Target Pos -->
         <do_if value="$position">
