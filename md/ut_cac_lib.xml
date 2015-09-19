@@ -36,47 +36,77 @@
       </actions>
     </cue-->
     <!-- ##################### End Testing Cheat #########################-->
+    <!-- Timer Cue is resetted every hour, so event_cue_signalled is triggered every hour -->
+    <cue name="Payment_Timer">
+      <!--cues>
+        <cue name="Payment_Timer_Reset"-->
+          <delay exact="1h - (player.age % 1h)"/>
+          <actions>
+            <reset_cue cue="Payment_Timer"/>
+            <signal_cue cue="this"/>
+          </actions>
+        <!--/cue>
+      </cues-->
+    </cue>
     <library name="Payment">
       <params>
         <param name="actor"/>
       </params>
       <actions>
         <do_if value="not $actor.exists">
-          <debug_text filter="general" text="'UT_CAC_Lib.Payment canceled because no valid Actor given'"/>
+          <debug_text filter="error" text="'UT_CAC_Lib.Payment canceled because no valid Actor given'"/>
           <cancel_cue cue="this"/>
-        </do_if>
-        <do_if value="not $actor.$wage">
-          <debug_text filter="general" text="'UT_CAC_Lib.Payment fell back to default Wage of 1Cr/h because no valid amount defined on Actor'"/>
-          <set_value name="$actor.$wage" exact="1Cr"/>
-        </do_if>
-        <do_if value="not $actor.$riskbonus">
-          <debug_text filter="general" text="'UT_CAC_Lib.Payment fell back to default Riskbonus of hourly Wage per 10min interval because no valid amount defined on Actor'"/>
-          <set_value name="$actor.$riskbonus" exact="$actor.wage"/>
         </do_if>
       </actions>
       <cues>
         <cue name="Wage" comment="Wages are paid hourly">
+          <conditions>
+            <event_cue_signalled cue="Payment_Timer"/>
+          </conditions>
           <actions>
+            <!-- Wage when Active and inactive are diffrent - $isactive is regulary set by Active Scripts so checking this var confirms that an active script has been running during the last payment period-->
+            <do_if value="$actor.$ut_cac_settings.$isactive?">
+              <set_value name="$wage" exact="param.ut_cac.wage.{$actor.type}.{1} + ( param.ut_cac.wage.{$actor.type}.{2} * $actor.combinedskill / 100 )"/>
+              <remove_value name="$actor.$ut_cac_settings.$isactive"/>
+            </do_if>
+            <do_else>
+              <set_value name="$wage" exact="param.ut_cac.wage.{$actor.type}.{3} + ( param.ut_cac.wage.{$actor.type}.{4} * $actor.combinedskill / 100 )"/>
+            </do_else>
             <!-- ToDo: Check if there is enough Money available and do apporiate steps if not (for example reduce skill or stop working for the Player altogether) -->
-            <set_value name="$actor.money" exact="$actor.money - $actor.wage"/>
+            <do_if value="$actor.hasownaccount and $actor.money gt $wage and $actor.type == entitytype.manager">
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his own Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+              <set_value name="$actor.money" exact="$actor.money - $wage"/>
+            </do_if>
+            <do_elseif value="$actor.commanderentity.hasownaccount and $actor.commanderentity.money gt $wage">
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his Commanders Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+              <set_value name="$actor.commanderentity.money" exact="$actor.commanderentity.money - $wage"/>
+            </do_elseif>
+            <do_elseif value="player.money gt $wage">
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from Player Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+              <set_value name="player.money" exact="player.money - $wage"/>
+            </do_elseif>
           </actions>
-          <cues>
-            <cue name="Wage_reset">
-              <delay exact="1h"/>
-              <actions>
-                <reset_cue cue="Wage"/>
-              </actions>
-            </cue>
-          </cues>
         </cue>
         <cue name="Riskbonus" comment="Risk Bonus is paid every 10 min while $actor.container is under Attack/in danger">
           <conditions>
             <event_object_attacked object="$actor.container"/>
           </conditions>
           <actions>
+            <set_value name="$riskbonus" exact="param.ut_cac.wage.{$actor.type}.{5} + ( param.ut_cac.wage.{$actor.type}.{6} * $actor.combinedskill / 100 )"/>
             <!-- ToDo: Check if there is enough Money available and do apporiate steps if not (for example reduce skill or stop working for the Player altogether) -->
             <!-- ToDo: Check if the Attack is serious by comparing Attack Forces with nearby own Forces - if it is no serious Attack reset this cue without demanding any bonus -->
-            <set_value name="$actor.money" exact="$actor.money - $actor.riskbonus"/>
+            <do_if value="$actor.hasownaccount and $actor.money gt $riskbonus and $actor.type == entitytype.manager">
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his own Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+              <set_value name="$actor.money" exact="$actor.money - $riskbonus"/>
+            </do_if>
+            <do_elseif value="$actor.commanderentity.hasownaccount and $actor.commanderentity.money gt $riskbonus">
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his Commanders Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+              <set_value name="$actor.commanderentity.money" exact="$actor.commanderentity.money - $riskbonus"/>
+            </do_elseif>
+            <do_elseif value="player.money gt $riskbonus">
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from Player Acc'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+              <set_value name="player.money" exact="player.money - $riskbonus"/>
+            </do_elseif>
           </actions>
           <cues>
             <cue name="Riskbonus_reset">
@@ -106,32 +136,16 @@
             <speak actor="$actor" line="[1165,30474107,4770].random" comment="Deal closed. I'm sending you a report now.|I'm transferring the credits to you now.|All set and done.|Confirmed, beginning transfer."/>
           </do_else>
         </do_if>
-        <set_actor_min_budget actor="$actor" amount="$actor.container.wantedmoney / 3"/>
-        <set_actor_max_budget actor="$actor" amount="$actor.container.wantedmoney * 2"/>
-        <do_if value="$actor.money lt $actor.minbudget">
-          <transfer_money from="player.entity" to="$actor" amount="$actor.container.wantedmoney - $actor.money" />
-        </do_if>
-        <do_elseif value="$actor.money gt $actor.maxbudget">
-          <transfer_money from="$actor" to="player.entity" amount="$actor.money - $actor.maxbudget" />
-        </do_elseif>
-        
-        <do_if value="false" comment="too complicated for now - will use a simplified version">
         <do_if value="$actor.minbudget lt $actor.money lt $actor.maxbudget and $actor.maxbudget != 0Cr and $actor.minbudget != 0Cr" comment="do-nothing-case (most common) - skip other checks">
         </do_if>
-        <!-- (Min) Budget not set up yet - assume 10% of wanted money to ask for a clear budget and a Money Transfer-->
-        <!-- ToDo: Implement actual Notification and Interaction - for now just set up default Values and withdraw enough Money automatically -->
-        <do_elseif value="$actor.minbudget == 0Cr and $actor.money lt $actor.container.wantedmoney / 10">
-          <set_actor_min_budget actor="$actor" amount="$actor.container.wantedmoney / 10"/>
-          <transfer_money from="player.entity" to="$actor" amount="$actor.container.wantedmoney - $actor.money"/>
-        </do_elseif>
-        <!-- (Max) Budget not set up yet - assume 100% of wanted money to ask for a value for money transfer and a Budget Value -->
-        <do_elseif value="$actor.maxbudget == 0Cr and $actor.money gt $actor.container.wantedmoney">
-          <set_actor_max_budget actor="$actor" amount="$actor.container.wantedmoney"/>
-        </do_elseif>
+        <!-- Actor has less Money than he is set up - just grab some from the Player 
+        ToDo: Add actual questioning for additional Funds
+        ToDo: Add Requesting Money from Commanderentity instead of Player if possible -->
         <do_elseif value="$actor.money lt $actor.minbudget">
-          <transfer_money from="player.entity" to="$actor" amount="$actor.container.wantedmoney - $actor.money"/>
+          <transfer_money from="player.entity" to="$actor" amount="$actor.minbudget"/>
         </do_elseif>
-        <!-- Actor has more Money than he needs - transfer the rest to the Player (round transfered amount up to a nice, round number) -->
+        <!-- Actor has more Money than he needs - transfer the rest to the Player (round transfered amount up to a nice, round number) 
+        ToDo: Send Money to Commanderentity instead of player if possible -->
         <do_elseif value="$actor.money gt $actor.maxbudget">
           <set_value name="$transferamount" exact="$actor.money - $actor.maxbudget"/>
           <do_if value="$transferamount lt 1000Cr" comment="do-nothing-case - too less money to care">
@@ -161,6 +175,46 @@
           </do_else>
           <transfer_money amount="$transferamount" from="$actor" to="player.entity" chance="[$transferamount,100].max"/>
         </do_elseif>
+      </actions>
+    </library>
+    <library name="Actor_Init">
+      <actions>
+        <!-- set up Variables -->
+        <set_value name="$actor" exact="event.param" />
+        <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
+        <do_if value="not $actor.$ut_cac_settings?">
+          <set_value name="$actor.$ut_cac_settings" exact="param.ut_cac.setting_defaults.clone"/>
+        </do_if>
+        <do_else>
+          <do_if value="not $actor.$ut_cac_settings.$pesterlevel?">
+            <set_value name="$actor.$ut_cac_settings.$pesterlevel" exact="param.ut_cac.setting_defaults.$pesterlevel"/>
+          </do_if>
+          <do_if value="not $actor.$ut_cac_settings.$loglevel?">
+            <set_value name="$actor.$ut_cac_settings.$loglevel" exact="param.ut_cac.setting_defaults.$loglevel"/>
+          </do_if>
+          <do_if value="not $actor.$ut_cac_settings.$legality?">
+            <set_value name="$actor.$ut_cac_settings.$legality" exact="param.ut_cac.setting_defaults$legality."/>
+          </do_if>
+          <do_if value="not $actor.$ut_cac_settings.$jumptype?">
+            <set_value name="$actor.$ut_cac_settings.$jumptype" exact="param.ut_cac.setting_defaults.$jumptype"/>
+          </do_if>
+          <do_if value="not $actor.$ut_cac_settings.$insectorjump?">
+            <set_value name="$actor.$ut_cac_settings.$insectorjump" exact="param.ut_cac.setting_defaults.$insectorjump"/>
+          </do_if>
+          <do_if value="not $actor.$ut_cac_settings.$currenttrade?">
+            <set_value name="$actor.$ut_cac_settings.$currenttrade" exact="param.ut_cac.setting_defaults.$currenttrade"/>
+          </do_if>
+        </do_else>
+        <do_if value="not $actor.$ut_cac_settings.$experience?">
+          <set_value name="$actor.$ut_cac_settings.$experience" exact="table[]"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.boarding}" exact="param.ut_cac.experience.{skilltype.boarding}.{$actor.skill.boarding}"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.combat}" exact="param.ut_cac.experience.{skilltype.combat}.{$actor.skill.combat}"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.engineering}" exact="param.ut_cac.experience.{skilltype.engineering}.{$actor.skill.engineering}"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.leadership}" exact="param.ut_cac.experience.{skilltype.leadership}.{$actor.skill.leadership}"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.management}" exact="param.ut_cac.experience.{skilltype.management}.{$actor.skill.management}"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.morale}" exact="param.ut_cac.experience.{skilltype.morale}.{$actor.skill.morale}"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.navigation}" exact="param.ut_cac.experience.{skilltype.}.{$actor.skill.navigation}"/>
+          <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.science}" exact="param.ut_cac.experience.{skilltype.science}.{$actor.skill.science}"/>
         </do_if>
       </actions>
     </library>
@@ -345,7 +399,7 @@ Which Orders are available depends on entity Type
         <do_elseif value="event.param == 'comm_personal_pester'">
           <!-- ToDo: more indicative feedback for the Player about the current Pester Level (atm its simply the greyed out one) -->
           <do_if value="typeof event.param2 != datatype.null">
-            <set_value name="$actor.$pesterlevel" exact="(event.param2)i"/>
+            <set_value name="$actor.$ut_cac_settings.$pesterlevel" exact="(event.param2)i"/>
           </do_if>
           <do_if value="event.name == 'event_conversation_next_section'">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
@@ -364,7 +418,7 @@ Which Orders are available depends on entity Type
         <do_elseif value="event.param == 'comm_personal_log'">
           <!-- ToDo: more indicative feedback for the Player about the current Log Level (atm its simply the greyed out one) -->
           <do_if value="typeof event.param2 != datatype.null">
-            <set_value name="$actor.$loglevel" exact="(event.param2)i"/>
+            <set_value name="$actor.$ut_cac_settings.$loglevel" exact="(event.param2)i"/>
           </do_if>
           <do_if value="event.name == 'event_conversation_next_section'">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
@@ -627,7 +681,7 @@ Which Orders are available depends on entity Type
           <do_if value="$selected_order_A?">
             <set_value name="$selected_order_B" exact="event.param2"/>
             <do_if value="not ( $selected_order_A.{3} == $selected_order_B.{3} and $selected_order_A.{2} == $selected_order_B.{2})" comment="only do something if the player selected diffrent Orders">
-              <!-- make sure the Orders selected are still the same -->[$slot , $order , $order_number]
+              <!-- make sure the Orders selected are still the same [$slot , $order , $order_number]-->
               <do_if value="$actor.$orderlist.{$selected_order_A.{3}} == $selected_order_A.{2}" comment="do nothing - Order still has the same position" />
               <do_elseif value="$actor.$orderlist.indexof.{$selected_order_A.{2}} lt $selected_order_A.{3}" comment="Order has moved down - determine new position and set it">
                 <set_value name="$selected_order_A.{3}" exact="$actor.$orderlist.indexof.{$selected_order_A.{2}}"/>

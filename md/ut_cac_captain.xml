@@ -3,38 +3,26 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="2">
+    <cue name="Main" instantiate="true" namespace="this" version="10">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
       <actions>
-        <!-- set up Variables -->
-        <set_value name="$actor" exact="event.param" />
-        <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
-        <!--set_value name="$actor.$pesterlevel" exact="60" comment="default value for pestering the Player about issues"/>
-        <set_value name="$actor.$loglevel" exact="0" comment="default value for Playerlog verbosity"/-->
-        <set_value name="$actor.$ut_cac_settings" exact="table[
-        $jumptype='beacon',
-        $insectorjump=false,
-        $pesterlevel=60,
-        $loglevel=0
-        ]"/>
+        <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="setting neccesary Variables"/>
         <!-- cancel Vanilla Dialogue -->
         <signal_objects object="$actor" param="'cancel Vanilla dialogue tree'"/>
         <set_comm_handler actor="$actor" customhandler="true" />
         <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
         <!-- start default Scripts -->
-        <debug_text filter="general" chance="$actor.$debug*100" text="'%1 now uses UT CAC comm handlers'.[$actor.name]" />
+        <debug_text filter="general" chance="$actor.$debug*100" text="'%1 now uses UT CAC Captain comm handlers'.[$actor.name]" />
       </actions>
-      <patch sinceversion="2" state="complete">
-        <set_value name="$actor.$ut_cac_settings" exact="table[
-        $jumptype='beacon',
-        $insectorjump=false,
-        $pesterlevel=$actor.$pesterlevel,
-        $loglevel=$actor.$loglevel
-        ]"/>
+      <!-- making a break in Version 10 because of overhaul for default settings: these are now taken from the libraries.xml instead of being defined in the Script - old settings should be retained though -->
+      <patch sinceversion="3" state="complete">
+        <remove_value name="$actor.$legality"/>
         <remove_value name="$actor.$pesterlevel"/>
         <remove_value name="$actor.$loglevel"/>
+        <cancel_cue cue="this"/>
+        <signal_cue_instantly cue="Main" param="$actor"/>
       </patch>
       <cues>
         <cue name="Delayed_scriptstart">
@@ -44,9 +32,9 @@
             <start_script object="$actor" name="'ut.cac.base.captain'"/>
           </actions>
         </cue>
-        <!--cue name="Payment" ref="md.UT_CAC_Lib.Payment">
+        <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
           <param name="actor" value="$actor"/>
-        </cue-->
+        </cue>
         
         <!--cue name="NormalActor" onfail="cancel">
           <conditions>

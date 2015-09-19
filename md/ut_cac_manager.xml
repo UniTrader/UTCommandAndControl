@@ -3,51 +3,41 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="3">
+    <cue name="Main" instantiate="true" namespace="this" version="10">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
       <actions>
-        <!-- set up Variables -->
-        <set_value name="$actor" exact="event.param" />
-        <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
-        <set_value name="$actor.$ut_cac_settings" exact="table[
-        $pesterlevel=60,
-        $loglevel=0,
-        $legality=1,
-        $range=[$actor.sector,null,null,null,null,null],
-        $range_h=[$actor.sector,null,null,null,null,null],
-        $range_j=[$actor.sector,null,null,null,null,null],
-        $currenttrade=null
-        ]"/>
-        <debug_text filter="general" text="'%1 now uses UT CAC comm handlers'.[$actor.name]" />
+        <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="setting neccesary Variables"/>
+        <set_value name="$actor.$ut_cac_settings.$range" exact="[$actor.sector]"/>
+        <set_value name="$actor.$ut_cac_settings.$range_h" exact="[$actor.sector]"/>
+        <set_value name="$actor.$ut_cac_settings.$range_j" exact="[$actor.sector]"/>
+        <do_if value="$actor.skill.navigation ge 1">
+          <resize_list list="$actor.$ut_cac_settings.$range" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+          <resize_list list="$actor.$ut_cac_settings.$range_h" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+          <resize_list list="$actor.$ut_cac_settings.$range_j" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+        </do_if>
+        <debug_text filter="general" text="'%1 now uses UT CAC Manager comm handlers'.[$actor.name]" />
         <set_comm_handler actor="$actor" customhandler="true" />
         <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
         <start_script object="$actor" name="'ut.cac.base.manager'"/>
       </actions>
-      <patch sinceversion="2" state="complete">
-        <set_value name="$actor.$ut_cac_settings" exact="table[
-        $pesterlevel=$actor.$pesterlevel,
-        $loglevel=$actor.$loglevel,
-        $currenttrade=null
-        ]"/>
+      <!-- making a break in Version 10 because of overhaul for default settings: these are now taken from the libraries.xml instead of being defined in the Script - old settings should be retained though -->
+      <patch sinceversion="4" state="complete">
+        <remove_value name="$actor.$legality"/>
         <remove_value name="$actor.$pesterlevel"/>
         <remove_value name="$actor.$loglevel"/>
-      </patch>
-      <patch sinceversion="3" state="complete">
-        <set_value name="$actor.$ut_cac_settings.$legality" exact="$actor.$legality"/>
-        <remove_value name="$actor.$legality"/>
-        <set_value name="$actor.$ut_cac_settings.$range_h" exact="$actor.$sector"/>
-        <set_value name="$actor.$ut_cac_settings.$range_j" exact="$actor.$sector"/>
+        <cancel_cue cue="this"/>
+        <signal_cue_instantly cue="Main" param="$actor"/>
       </patch>
       <cues>
-        <!--cue name="Payment" ref="md.UT_CAC_Lib.Payment">
+        <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
           <param name="actor" value="$actor"/>
-        </cue-->
+        </cue>
         
-        <!--cue name="Account_Manager" ref="md.UT_CAC_Lib.Account_Manager">
+        <cue name="Account_Manager" ref="md.UT_CAC_Lib.Account_Manager">
           <param name="actor" value="$actor"/>
-        </cue-->
+        </cue>
 <!--
 Dialogue Tree - Entity specific Parts:
 1. Direct Orders
