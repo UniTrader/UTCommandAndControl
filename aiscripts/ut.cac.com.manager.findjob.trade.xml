@@ -218,9 +218,7 @@ $entity  = ' + $entity"/>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
         <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settins.$consumables.{$ware} )f )"/>
-        <do_else>
-          <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio"/>
-        </do_else>
+        <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
           <!-- prio 1.0, so always in the beginning (higher prios are possible for products, see the respective part) -->

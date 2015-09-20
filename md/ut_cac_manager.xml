@@ -12,11 +12,6 @@
         <set_value name="$actor.$ut_cac_settings.$range" exact="[$actor.sector]"/>
         <set_value name="$actor.$ut_cac_settings.$range_h" exact="[$actor.sector]"/>
         <set_value name="$actor.$ut_cac_settings.$range_j" exact="[$actor.sector]"/>
-        <do_if value="$actor.skill.navigation ge 1">
-          <resize_list list="$actor.$ut_cac_settings.$range" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
-          <resize_list list="$actor.$ut_cac_settings.$range_h" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
-          <resize_list list="$actor.$ut_cac_settings.$range_j" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
-        </do_if>
         <debug_text filter="general" text="'%1 now uses UT CAC Manager comm handlers'.[$actor.name]" />
         <set_comm_handler actor="$actor" customhandler="true" />
         <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
@@ -28,7 +23,7 @@
         <remove_value name="$actor.$pesterlevel"/>
         <remove_value name="$actor.$loglevel"/>
         <cancel_cue cue="this"/>
-        <signal_cue_instantly cue="Main" param="$actor"/>
+        <signal_cue_instantly cue="this.staticbase" param="$actor"/>
       </patch>
       <cues>
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
@@ -121,11 +116,14 @@ Rest is shared between all Actor types
                 </do_if>
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_elseif>
-              <add_player_choice_sub text="'About your Operations Range...'" position="1" section="comm_settings_range"/>
+              <add_player_choice_sub text="if $actor.skill.navigation ge 1 then 'About your Operations Range...' else 'Restricted to Current Sector'" position="1" section="comm_settings_range" selectable="$actor.skill.navigation ge 1"/>
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_range'">
+              <resize_list list="$actor.$ut_cac_settings.$range" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+              <resize_list list="$actor.$ut_cac_settings.$range_h" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+              <resize_list list="$actor.$ut_cac_settings.$range_j" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
               <do_all exact="$actor.$ut_cac_settings.$range.count" counter="$i">
                 <!-- Text Block is for apporiate Coloring of Range Entry - see also deactivated doif/elseif version below (wanted to try stacked inline ifs :D )-->
                 <add_player_choice_sub position="$i" section="comm_settings_range_mod" choiceparam="$i" text="
