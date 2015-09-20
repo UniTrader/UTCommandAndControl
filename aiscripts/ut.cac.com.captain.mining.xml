@@ -131,8 +131,8 @@
       <do_all exact="$mininglist.count" counter="$i">
         <do_if value="this.ship.cargo.{$mininglist.{$i}}.count">
           <!-- throw out Stuff the Commander doesnt need -->
-          <get_ware_reservation ware="$mininglist.{$i}" object="this.commander" result="$incomingamount"/>
-          <set_value name="$amount" exact="[this.commander.cargo.{$ware}.target - this.commander.cargo.{$ware}.count - $incomingamount , this.ship.cargo.{$ware}.count].min"/>
+          <get_ware_reservation ware="$mininglist.{$i}" object="this.container.commander" result="$incomingamount"/>
+          <set_value name="$amount" exact="[this.container.commander.cargo.{$ware}.target - this.container.commander.cargo.{$ware}.count - $incomingamount , this.ship.cargo.{$ware}.count].min"/>
           <do_if value="this.ship.cargo.{$ware}.count gt $amount">
             <!--set_value name="$removeamount" exact="$amount - this.ship.cargo.{$ware}.count"/>
             <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$removeamount" /-->

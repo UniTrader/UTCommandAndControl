@@ -180,6 +180,7 @@
           <do_else>
             <set_value name="$transferamount" exact="$transferamount + ( 1000000000Cr - ($transferamount % 1000000000Cr) )"/>
           </do_else>
+          <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Transferring %4 Credits to Player'.[player.age,$actor.name,$actor.container.name,$transferamount]"/>
           <transfer_money amount="$transferamount" from="$actor" to="player.entity" chance="[$transferamount,100].max"/>
         </do_elseif>
       </actions>
@@ -187,7 +188,6 @@
     <library name="Actor_Init">
       <actions>
         <!-- set up Variables -->
-        <set_value name="$actor" exact="event.param" />
         <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
         <do_if value="not $actor.$ut_cac_settings?">
           <set_value name="$actor.$ut_cac_settings" exact="param.ut_cac.setting_defaults.clone"/>
@@ -852,6 +852,8 @@ Which Orders are available depends on entity Type
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_script_restart'">
+          <remove_value name="$actor.$ut_cac_settings"/>
+          <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="Reset to default Settings"/>
           <do_if value="$actor.type == entitytype.manager">
             <start_script object="$actor" name="'ut.cac.base.manager'"/>
           </do_if>
