@@ -66,7 +66,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
           <get_ware_reservation ware="$wareslist.{$i}" object="this.container" result="$incomingamount"/>
           <set_value name="$wareslist_prio.{$i}" exact="1 - ( ( this.container.cargo.{$wareslist.{$i}}.count + $incomingamount )f  / ( this.container.cargo.{$wareslist.{$i}}.target )f )"/>
           <!-- filter out Wares we dont need (very low demand) and Wares which can not be mined here -->
-          <do_if value="$wareslist_prio.{$i} lt 0.003 and not this.zone.yield.indexof.{$wareslist.{$i}}">
+          <do_if value="$wareslist_prio.{$i} lt 0.003 or not this.zone.yield.indexof.{$wareslist.{$i}}">
             <remove_value name="$wareslist.{$i}"/>
             <remove_value name="$wareslist_prio.{$i}"/>
           </do_if>
