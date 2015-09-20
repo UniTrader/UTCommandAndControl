@@ -51,16 +51,16 @@
       <wait min="5s" max="15s" />
       
       <do_if value="this.ship.cargo.capacity" max="0">
-        <debug_text filter="error" chance="@this.$debug * 100" text="'%1 %2 %3 Ship has Cargo Capacity of %4 - aborting'.[player.age,this.name,this.container.name,this.ship.cargo.capacity]"/>
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 Ship has Cargo Capacity of %4 - aborting'.[player.age,this.name,this.container.name,this.ship.cargo.capacity]"/>
         <return/>
       </do_if>
       <do_if value="not this.ship.commander.exists">
-        <debug_text filter="error" chance="@this.$debug * 100" text="'%1 %2 %3 Mining without commander not supported yet! - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 Mining without commander not supported yet! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       <set_value name="$homebase" exact="this.ship.commander" />
       <do_if value="this.ship.units.collect.count" exact="0">
-        <debug_text filter="error" chance="@this.$debug * 100" text="'%1 %2 %3 Mining ship does not have any units for collecting! - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 Mining ship does not have any units for collecting! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       <do_if value="$ware == null">
@@ -71,19 +71,19 @@
         <set_value name="$mininglist" exact="this.ship.warebasket.list" />
       </do_if>
       <do_if value="not $ware">
-        <debug_text filter="error" chance="@this.$debug * 100" text="'%1 %2 %3 No Ware passed to Mine! - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 No Ware passed to Mine! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       <do_if value="(this.ship.cargo.free)f / this.ship.cargo.capacity" max="0.5">
-        <debug_text filter="error" chance="@this.$debug * 100" text="'%1 %2 %3 Less than half of Cargo free, empty Ship first! - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" chance="this.$debug * 100" text="'%1 %2 %3 Less than half of Cargo free, empty Ship first! - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Starting new mining Run'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Starting new mining Run'.[player.age,this.name,this.container.name]"/>
       
       <!-- make Reservations for the Ware we primarily mine  -->
       <add_ware_reservation object="this.ship.commander" entity="this" ware="$ware" amount="$amount" duration="2h"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reserved Space for %4 units of %5'.[player.age,this.name,this.container.name,$amount,$ware]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Reserved Space for %4 units of %5'.[player.age,this.name,this.container.name,$amount,$ware]"/>
       
       <!-- Go to Ordered Zone near any Asteroid with the desired Ware to speed up collection start -->
       <set_command_action commandaction="commandaction.flyingto" param="$zone"/>
@@ -93,7 +93,7 @@
         <param name="destination" value="$asteroid" />
         <param name="endintargetspace" value="true" />
       </run_script>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reached Zone where we mine'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Reached Zone where we mine'.[player.age,this.name,this.container.name]"/>
       
       <!-- start Mining - ToDo: Write own Script which serves your Purpose better and where you dont have to throw out unwanted ressources-->
       <run_script name="'mining.ship.collect'">
@@ -102,10 +102,10 @@
         <param name="secwares" value="$mininglist"/>
         <param name="debugchance" value="0"/>
       </run_script>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Done mining, recalling Drones'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done mining, recalling Drones'.[player.age,this.name,this.container.name]"/>
       
       <run_script name="'lib.recall.drones'"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Done Recalling Drones'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done Recalling Drones'.[player.age,this.name,this.container.name]"/>
       
       
       <!-- Check what we got effectively and plan Trade Orders to get the Wares to the Commander -->
@@ -141,7 +141,7 @@
       </do_all>
       <!-- when last Ware is unloaded we want to undock -->
       <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Mining Run)',$undock=1,$interruptable=true]"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Done Adding Trade Orders, exitig'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Done Adding Trade Orders, exitig'.[player.age,this.name,this.container.name]"/>
       
     </actions>
   </attention>

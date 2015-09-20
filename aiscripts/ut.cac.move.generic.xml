@@ -43,7 +43,7 @@
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7  , $endintargetspace: %8'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$endintargetspace]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7  , $endintargetspace: %8'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$endintargetspace]"/>
       
       <set_value name="$bigship" exact="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" />
       
@@ -56,22 +56,22 @@
       <label name="start"/>
       
       <do_if value="not $destination.exists">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination does not exist - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination does not exist - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       
       <!-- if destination is a Space (galaxy, Cluster, Sector, Zone) use it as targetspace, otherwise get its Zone as first Destination and care about the fine movements only in the last step -->
       <do_if value="$destination.isclass.galaxy or $destination.isclass.cluster or $destination.isclass.sector or $destination.isclass.zone">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is a Space - Move until we have the right Context'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination is a Space - Move until we have the right Context'.[player.age,this.name,this.container.name]"/>
         <set_value name="$targetspace" exact="$destination"/>
       </do_if>
       <do_elseif value="$destination.isclass.ship and $destination.pilot.$waypoint?">
         <set_value name="$targetspace" exact="$destination.pilot.$waypoint"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is a Ship which has announced its next movement Step - follow it to %4 to meet up'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination is a Ship which has announced its next movement Step - follow it to %4 to meet up'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
       </do_elseif>
       <do_else>
         <set_value name="$targetspace" exact="$destination.zone"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is an Object - First move into right Zone, but regulary check if the Destination Object switched Zones'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination is an Object - First move into right Zone, but regulary check if the Destination Object switched Zones'.[player.age,this.name,this.container.name]"/>
       </do_else>
       
       <set_command_action commandaction="commandaction.flyingto" param="$targetspace"/>
@@ -85,16 +85,16 @@
       <!-- then check if we maybe already have the right Context in which case we can just exit / go to the fine movements -->
       <do_if value="this.ship.hascontext.{$targetspace}">
         <do_if value="$destination == $targetspace">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Already has right Context - Exit without movement'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Already has right Context - Exit without movement'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
         <do_elseif value="$endintargetspace">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Exit without movement'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Exit without movement'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_elseif>
         <do_else>
           <!-- ToDo: Fine Movements -->
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Skipping to fine movement'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Skipping to fine movement'.[player.age,this.name,this.container.name]"/>
           <resume label="fine movement"/>
         </do_else>
       </do_if>
@@ -113,7 +113,7 @@
           <do_all exact="$waypoints.count" counter="$i">
             <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,$waypoints.{$i}.cluster.knownname]"/>
           </do_all>
-          <debug_text filter="general" chance="@this.$debug * 100" text="$LogMessage"/>
+          <debug_text filter="general" chance="this.$debug * 100" text="$LogMessage"/>
           
           <!-- filter the Jump Path for the relevant Path Waypoints (Filter out Sectors where next Waypoint is a Gate in the same Sector, filter out Exit Gate in case we already have an Entry Gate, filter out Exit Gate Sector)-->
           <!--  remove the first item which is always the Start that we dont need in any case -->
@@ -127,7 +127,7 @@
                   <remove_value name="$waypoints.{$id+2}"/>
                 </do_if>
                 <do_else>
-                  <debug_text filter="general" chance="@this.$debug * 100" text="'Next Gate waypoint not in same Sector ( %1) as next+1 Sector ( %2 ) Waypoint - skipping removal'.[$waypoints.{$id+1}.sector.knownname,$waypoints.{$id+2}.sector.knownname]"/>
+                  <debug_text filter="general" chance="this.$debug * 100" text="'Next Gate waypoint not in same Sector ( %1) as next+1 Sector ( %2 ) Waypoint - skipping removal'.[$waypoints.{$id+1}.sector.knownname,$waypoints.{$id+2}.sector.knownname]"/>
                 </do_else>
                 <!-- remove Exit Gate -->
                 <remove_value name="$waypoints.{$id+1}"/>
@@ -137,7 +137,7 @@
                   <set_value name="$id" operation="subtract"/>
                 </do_if>
                 <do_else>
-                  <debug_text filter="general" chance="@this.$debug * 100" text="'Previous Sector waypoint not in same Sector as current Gate - skipping removal!'"/>
+                  <debug_text filter="general" chance="this.$debug * 100" text="'Previous Sector waypoint not in same Sector as current Gate - skipping removal!'"/>
                 </do_else>
               </do_if>
             </do_if>
@@ -149,7 +149,7 @@
           <do_all exact="$waypoints.count" counter="$i">
             <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,$waypoints.{$i}.cluster.knownname]"/>
           </do_all>
-          <debug_text filter="general" chance="@this.$debug * 100" text="$LogMessage"/>
+          <debug_text filter="general" chance="this.$debug * 100" text="$LogMessage"/>
           
           
           <!-- follow the Waypoints to the Destination Zone/Space, when we reached the right Cluster or Sector Exit (no need to follow remaining waypoints), when Destination is a Zone or Object continue with boosting towards Destination in a seperate script -->
@@ -157,7 +157,7 @@
           <set_value name="this.$waypoint" exact="$waypoints.{1}"/>
           <do_if value="this.$waypoint.isclass.sector">
             <!-- Idea: if sector is very close -maybe consider boosting? requires a specialized boost script which handles the context change though -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Jumping to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
             <!-- JUMP!! -->
             <run_script name="'ut.cac.move.jump'" result="$result" >
               <param name="destination" value="this.$waypoint"/>
@@ -166,26 +166,26 @@
           <do_elseif value="this.$waypoint.isclass.gate">
             
             <!-- Jump to Gate sector -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to nearest Jumpbeacon to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Jumping to nearest Jumpbeacon to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
             <run_script name="'ut.cac.move.jump'" result="$result" >
               <param name="destination" value="this.$waypoint.zone"/>
             </run_script>
             
             <!-- Boost to Gate Position -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boosting near to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Boosting near to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
             <run_script name="'ut.cac.move.boost'">
               <param name="destination" value="this.$waypoint"/>
               <param name="position" value="position.[0m,0m,0-(this.ship.size + this.$waypoint.size)]" comment="relative to destination! (including its rotation)"/>
             </run_script>
             
             <!-- Move through Gate -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 moving through Gate in %4'.[player.age,this.name,this.container.name,this.$waypoint.zone.knownname]"/>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 moving through Gate in %4'.[player.age,this.name,this.container.name,this.$waypoint.zone.knownname]"/>
             <run_script name="'ut.cac.move.gate'">
               <param name="gate" value="this.$waypoint" />
             </run_script>
           </do_elseif>
           <do_elseif value="this.$waypoint.isclass.zone">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
             <!-- next is the Target Zone/Sector - First jump to the closest Beacon, then go to Fine Movement for the Destination (with Boosting) -->
             <run_script name="'ut.cac.move.jump'" result="$result" >
               <param name="destination" value="this.$waypoint"/>
@@ -194,7 +194,7 @@
             <return/>
           </do_elseif>
           <do_if value="this.ship.hascontext.{$targetspace}">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 We have Destination Context in %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 We have Destination Context in %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
             <!-- we have reached the Target Space (which is a Sector or Cluster) - Exit -->
             <return/>
           </do_if>

@@ -32,7 +32,7 @@
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$gate: %4 ; $cleargate: %5 $formationlist: %6'.[player.age,this.name,this.container.name,$gate,$cleargate,$formationlist]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$gate: %4 ; $cleargate: %5 $formationlist: %6'.[player.age,this.name,this.container.name,$gate,$cleargate,$formationlist]"/>
       
       <!-- then check if the Input and Situation is Valid  -->
       <do_if value="not $gate.exists or not $gate.isclass.gate">
@@ -63,7 +63,7 @@
           <position x="0m" y="0m" z="-7km"/>
         </transform_position>
         <do_if value="this.ship.distanceto.{$position} gt 7km">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving behind the Gate in %4 to make formation ready for passage'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
+          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Moving behind the Gate in %4 to make formation ready for passage'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
           <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="this.ship"/>
           <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true">
             <position value="$safeposition" />
@@ -111,7 +111,7 @@
         <position value="$safeposition"/>
       </create_orientation>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Approaching Gate in %4'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Approaching Gate in %4'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
       <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true">
         <position value="$safeposition" />
         <rotation value="$rotation" />
@@ -129,7 +129,7 @@
       </run_script-->
       <!-- ======= End Old Temp Code ======== -->
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
       
       <!-- remove ourselves from the Waiting List, signal the next to go -->
       <remove_value name="global.$gate_queue.{$gate}.{1}"/>
@@ -151,7 +151,7 @@
             <event_object_changed_cluster object="this.ship" />
           </conditions>
           <actions>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (moved through gate)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (moved through gate)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
             <set_value name="$moveintogate" exact="false" />
           </actions>
         </interrupt>
@@ -163,7 +163,7 @@
               <event_object_changed_cluster object="this.ship" />
             </conditions>
             <actions>
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (wait)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+              <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (wait)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
             </actions>
           </interrupt>
         </wait>

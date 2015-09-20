@@ -36,7 +36,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 manager Gather Script called with: \n%4'.[player.age,this.name,this.container.name,$params]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 manager Gather Script called with: \n%4'.[player.age,this.name,this.container.name,$params]"/>
       
       <!-- first check if we already started gathering Ressources and add them to the Station -->
       <do_if value="$params.$gatherware?">
@@ -49,7 +49,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
           <set_value name="$gathered" exact="this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count" />
         </do_if>
         <deplete_yield zone="this.zone" container="this.container" ware="$params.$gatherware" amount="$gathered" />
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Gathered from previous run:\n%4 units of %5 in %6 seconds (%7 units/s)'.[player.age,this.name,this.container.name,$gathered, $params.$gatherware, $gathertime, $gatherrate]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Gathered from previous run:\n%4 units of %5 in %6 seconds (%7 units/s)'.[player.age,this.name,this.container.name,$gathered, $params.$gatherware, $gathertime, $gatherrate]"/>
         <remove_value name="$params.$gatherstart"/>
         <remove_value name="$params.$gatherware"/>
         <remove_value name="$params.$gatherrate"/>
@@ -88,7 +88,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
           </do_if>
         </do_all>
       </do_all>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Mineable List sorted:\n%4\n%5'.[player.age,this.name,this.container.name,$wareslist,$wareslist_prio]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Mineable List sorted:\n%4\n%5'.[player.age,this.name,this.container.name,$wareslist,$wareslist_prio]"/>
       
       <!-- nothing to mine - aborting -->
       <do_if value="$wareslist.count == 0">
@@ -110,10 +110,10 @@ This Script is intended to be called regulary with >the same< Table as $params b
       <set_value name="$params.$gatherrate" exact="$gatherrate" />
       <set_value name="$params.$gatherware" exact="$wareslist.{1}" />
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Gathering started'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Gathering started'.[player.age,this.name,this.container.name]"/>
       <!-- launch drones to collect gas - only for show -->
       <do_if value="this.container.attention ge attention.visible">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'launching Drones'"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'launching Drones'"/>
         <find_object_component groupname="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true"/>
         <create_group groupname="$drones"/>
         <!-- launching about half the Drones available so we can also laumch some on the next cycle in case they didnt return yet -->
@@ -122,7 +122,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
             <launch_drone groupname="$drones" object="$dronelaunchbays.{$i}" group="unitcategory.gascollector" exact="1"/>
           </do_all>
         </do_while>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
         <do_all exact="$drones.count" counter="$i">
           <do_if value="$drones.{$i}.isoperational">
             <!-- ToDo: needs a better Script -->

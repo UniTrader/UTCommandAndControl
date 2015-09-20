@@ -45,7 +45,7 @@
       </do_if>
       <remove_value name="$params"/>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Refueling at current Station with Options: \n$minamount = %4 , $refuelamount= %5'.[player.age,this.name,this.container.name,$minamount,$refuelamount]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Refueling at current Station with Options: \n$minamount = %4 , $refuelamount= %5'.[player.age,this.name,this.container.name,$minamount,$refuelamount]"/>
       
       <!-- calculate if we need to refuel -->
       <!-- first calculate the actual min amount and refuelamount and compare them-->
@@ -69,15 +69,15 @@
         <set_value name="$refuelamount" exact="[($refuelamount)i,this.ship.cargo.{ware.fuelcells}.max].min"/>
       </do_else>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Amounts resolved to: \n$minamount = %4 , $refuelamount= %5, Amount in cargo: %6'.[player.age,this.name,this.container.name,$minamount,$refuelamount,this.ship.cargo.{ware.fuelcells}.count]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Amounts resolved to: \n$minamount = %4 , $refuelamount= %5, Amount in cargo: %6'.[player.age,this.name,this.container.name,$minamount,$refuelamount,this.ship.cargo.{ware.fuelcells}.count]"/>
       
       <do_if value="$minamount lt this.ship.cargo.{ware.fuelcells}.count">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Skipping refuel'"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'Skipping refuel'"/>
         <return/>
       </do_if>
       
       <set_value name="$buyamount" exact="$refuelamount - this.ship.cargo.{ware.fuelcells}.count"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'Buying/Grabbing %1 Units of Fuel'.[player.age,this.name,this.container.name,$buyamount]"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'Buying/Grabbing %1 Units of Fuel'.[player.age,this.name,this.container.name,$buyamount]"/>
       
       <!-- find nearest Source for Fuel Cells (first check current Station and Home Station (Offers and Cargo), then Sector and as last the Cluster) -->
       <set_value name="$selloffer" exact="null"/>
@@ -103,7 +103,7 @@
           <do_if value="(this.ship.isclass.ship_xl or this.ship.isclass.ship_l) and $undock">
             <run_script name="'move.undock'" />
           </do_if>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'We have our Fuel, Exiting (L/XL Case)'"/>
+          <debug_text filter="general" chance="this.$debug * 100" text="'We have our Fuel, Exiting (L/XL Case)'"/>
           <return/>
         </do_if>
       </do_if>
@@ -129,41 +129,41 @@
           <do_if value="(this.ship.isclass.ship_xl or this.ship.isclass.ship_l) and $undock">
             <run_script name="'move.undock'" />
           </do_if>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'We have our Fuel, Exiting (S/M Case)'"/>
+          <debug_text filter="general" chance="this.$debug * 100" text="'We have our Fuel, Exiting (S/M Case)'"/>
           <return/>
         </do_if>
       </do_elseif>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'Could not get Fuel from the current Station - looking around for it...'"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'Could not get Fuel from the current Station - looking around for it...'"/>
       <do_if value="not $selloffer.available ">
         <find_sell_offer result="$selloffer" seller="this.ship.commander" wares="ware.fuelcells">
           <offeramount min="$buyamount"/>
         </find_sell_offer>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Commander...'"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'Commander...'"/>
       </do_if>
       <do_if value="not $selloffer.available ">
         <find_sell_offer result="$selloffer" tradepartner="this.ship" wares="ware.fuelcells" space="this.sector" knowntoplayer="this.owner == faction.player">
           <offeramount min="$buyamount"/>
         </find_sell_offer>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Sector...'"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'Sector...'"/>
       </do_if>
       <do_if value="not $selloffer.available ">
         <find_sell_offer result="$selloffer" tradepartner="this.ship" wares="ware.fuelcells" space="this.cluster" knowntoplayer="this.owner == faction.player">
           <offeramount min="$buyamount"/>
         </find_sell_offer>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Cluster...'"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'Cluster...'"/>
       </do_if>
       <do_if value="not $selloffer.available">
         <!-- no Offer found- abort and continue with other Job -->
-        <debug_text filter="general" chance="@this.$debug * 100" text="'No Fuel Cell Offer found - Aborting'"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'No Fuel Cell Offer found - Aborting'"/>
         <return/>
       </do_if>
       
       <!-- get the Money from the Manager and go buy the Fuel - if he doesnt have the Money just continue -->
       <do_if value="this.ship.commanderentity.money lt $selloffer.unitprice * $buyamount">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Found! but too bad! we cannt get the money for it!'"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'Found! but too bad! we cannt get the money for it!'"/>
         <return/>
       </do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'Found! Going to get it!'"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'Found! Going to get it!'"/>
       <transfer_money from="this.ship.commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
       <run_script name="'ut.cac.com.captain.performsingletraderun'" >
         <param name="trade" value="$selloffer"/>

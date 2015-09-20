@@ -47,7 +47,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="typeof event.param2 == datatype.list" negate="true">
           <!-- a List of new Orders has been passed instead of a single Order - make it a List for compatibility with multi-order-adding -->
           <set_value name="$new_orders" exact="[ event.param2 ]" />
@@ -92,7 +92,7 @@
         <event_object_signalled object="this.ship" param="'next order'"/>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <!-- ToDo: implement Condition for uninterruptable Orders (do nothing-cases) like Docking, which should not be aborted-->
         <remove_value name="this.$orderlist.{1}"/>
         <abort_scripts entity="this"/>
@@ -120,7 +120,7 @@
       
       <!-- fulfill all Orders in List in their order -->
       <do_while value="this.$orderlist.count gt 0">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}" />
         <do_if value="typeof $order == datatype.table">
           <set_value name="$order.$interruptable" exact="false"/>
