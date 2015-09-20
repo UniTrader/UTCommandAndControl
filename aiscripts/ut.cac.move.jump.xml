@@ -52,7 +52,7 @@ ToDo:
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $type: %5 , $ignorefuel: %6 , $leader: %7 , $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination.knownname,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $type: %5 , $ignorefuel: %6 , $leader: %7 , $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination.knownname,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
       
       <!-- if Jump Type hat not been set - use Entity default Value or fall back to general defaults depending on Faction -->
       <do_if value="not $type">
@@ -76,7 +76,7 @@ ToDo:
       </do_if>
       
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Jump Script started with parameters:\n$destination: %4, $type: %5, $ignorefuel: %6, $leader: %7, $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jump Script started with parameters:\n$destination: %4, $type: %5, $ignorefuel: %6, $leader: %7, $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
       
       <set_command_action commandaction="commandaction.jumping" />
       <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
@@ -142,10 +142,10 @@ ToDo:
           <do_if value="not @$beacon.exists">
             <find_object name="$beacon" space="$destination" class="class.jumpbeacon" checkoperational="true"/>
             <set_known object="@$beacon" known="true"/>
-            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
           </do_if>
           <do_else>
-            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon %4 from set of %5 (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon %4 from set of %5 (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
           </do_else>
         </do_if>
         <do_else>
@@ -175,10 +175,10 @@ ToDo:
           <do_if value="not @$beacon.exists">
             <find_object name="$beacon" space="$destination.sector" class="class.jumpbeacon" checkoperational="true"/>
             <set_known object="@$beacon" known="true"/>
-            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Final Approach Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Final Approach Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
           </do_if>
           <do_else>
-            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Beacon %4 from set of %5 (final Approach case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon %4 from set of %5 (final Approach case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
           </do_else>
         </do_else>
       </do_if>
@@ -210,7 +210,7 @@ ToDo:
             <find_object name="$beacon" space="$space"/>
           </do_if>
         </do_if>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Selected Random Beacon %4'.[player.age,this.name,this.container.name,$beacon.knownname]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Random Beacon %4'.[player.age,this.name,this.container.name,$beacon.knownname]"/>
       </do_if>
       <do_if value="$type == 'object'">
         <set_value name="$beacon" exact="$destination"/>
@@ -227,7 +227,7 @@ ToDo:
         <debug_text filter="error" text="'%1 %2 %3 Jumping Aborted - no valid beacon Found (should not be possible) $destination: %4'.[player.age,this.name,this.container.name,$destination.knownname]"/>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination Beacon: %4 in %5 // %6'.[player.age,this.name,this.container.name,$beacon.knownname,$beacon.sector.knownname,$beacon.zone.knownname]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination Beacon: %4 in %5 // %6'.[player.age,this.name,this.container.name,$beacon.knownname,$beacon.sector.knownname,$beacon.zone.knownname]"/>
       
       <!-- Signal our Intention to Jump and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
       <do_if value="not $leader and $leader_preparegroup">
@@ -243,7 +243,7 @@ ToDo:
       <!-- Slow Jumpdrive Charge in case we dont have enough Fuel - fuel check and refueling are somewhere else -->
       <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{$destination}">
         <!-- not enough fuel, don't use fuel and delay the jump -->
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Not enough Fuel, slow charge'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not enough Fuel, slow charge'.[player.age,this.name,this.container.name]"/>
         <set_value name="$ignorefuel" exact="true"/>
         <!-- slow charge jump effects - will be removed just before firing up the JD -->
         <do_if value="$slowchargeeffect?">
@@ -293,7 +293,7 @@ ToDo:
       </do_if>
       
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Charging Jump Drive! 10 Precent, 20, 30....'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Charging Jump Drive! 10 Precent, 20, 30....'.[player.age,this.name,this.container.name]"/>
       <!-- actually JUMP!!! -->
       <do_if value="this.ship == player.ship">
         <!-- cache Assets of destination if player is on board to make transition smooth -->
@@ -309,7 +309,7 @@ ToDo:
         <orientation refobject="$beacon" orientation="look_away_bbox"/>
       </jump>
       <do_if value="$result">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
         <do_if value="not $beacon_clear?">
           <activate_battlestate object="this.ship" state="battlestate_red"/>
         </do_if>

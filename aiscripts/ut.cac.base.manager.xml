@@ -27,7 +27,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <add_to_group groupname="this.$idle_subordinates" object="event.param2"/>
         <!-- in case a script checks for the orderlist length for pausing/termination add a do-nothing order -->
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order=null]"/>
@@ -86,14 +86,14 @@
         <wait exact="1ms"/>
       </do_all>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 init finished\nSignalled %4 Subordinates'.[player.age,this.name,this.container.subordinates.{this.type}.count]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 init finished\nSignalled %4 Subordinates'.[player.age,this.name,this.container.subordinates.{this.type}.count]"/>
       
       
       <label name="start with orderlist"/>
       
       <!-- fulfill all Orders in List in their order -->
       <do_while value="this.$orderlist.count gt 0">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}" />
         <do_if value="typeof $order == datatype.table">
           <set_value name="$order.$interruptable" exact="false"/>
@@ -135,7 +135,7 @@
           </do_if>
         </do_all>
         <do_if value="$mineable_ressources.count or ( $miningorder.gatherware? and $miningorder.$gatherstart? and $miningorder.$gatherrate? )">
-          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
           <set_value name="$miningorder.$wareslist" exact="$mineable_ressources"/>
           <set_value name="$miningorder.$next_call" exact="1min"/>
           <append_to_list name="this.$orderlist" exact="$miningorder"/>
