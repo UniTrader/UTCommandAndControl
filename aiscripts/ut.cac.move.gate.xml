@@ -44,16 +44,18 @@
       </do_if>
       
       <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
-      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+      <do_if value="this.$ut_cac_settings?">
+        <set_value name="this.$ut_cac_settings.$isactive"/>
+      </do_if>
       
       <!-- check if global Var for Gate Passage exists and create if necesary -->
       <do_if value="not global.$gate_queue?">
         <set_value name="global.$gate_queue" exact="table[$gate=[]]"/>
-        <debug_text filter="general" text="'%1 %2 %3 Creating Global Gate Passage Table: %4'.[player.age,this.knownname,this.container.knownname,global.$gate_queue]"/>
+        <debug_text filter="general" text="'%1 %2 %3 Creating Global Gate Passage Table: %4 current Gate: %5'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
       </do_if>
       <do_elseif value="not global.$gate_queue.{$gate}?">
         <set_value name="global.$gate_queue.{$gate}" exact="[]"/>
-        <debug_text filter="general" text="'%1 %2 %3 Adding Gate to Global Gate Passage Table: %4'.[player.age,this.knownname,this.container.knownname,global.$gate_queue]"/>
+        <debug_text filter="general" text="'%1 %2 %3 Adding Gate to Global Gate Passage Table: %4 current Gate: %5'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
       </do_elseif>
       
       

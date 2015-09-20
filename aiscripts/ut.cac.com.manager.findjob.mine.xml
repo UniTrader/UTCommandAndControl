@@ -70,6 +70,7 @@ $mininglist = ' + $mininglist"/>
       <do_all exact="$range.count" counter="$i" reverse="false">
         <do_if value="$range.{$i}.exists">
           <find_closest_resource zone="$zone" ware="$ware" minamount="$amount" refobject="$range.{$i}"/>
+          <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually looking where to Mine wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
           <!-- found Ressource in Range - exit with success -->
           <do_if value="$zone.exists and ( $zone.hascontext.{$range.{$i}} or $zone == $range.{$i} )">
             <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Found wanted Ressource in Range:\nRange: %4 - Zone: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$zone]"/>

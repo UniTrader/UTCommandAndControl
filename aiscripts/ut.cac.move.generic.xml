@@ -101,10 +101,20 @@
       
         <!-- for Ships which can Jump: Jump Path -->
         <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" >
-          <do_if value="this.sector ==$targetspace.sector" >
+          <do_if value="this.sector == $targetspace or this.sector == $targetspace.sector" >
             <resume label="fine movement"/>
           </do_if>
-          <get_jump_path component="$waypoints" multiple="true" start="this.sector" end="$targetspace.sector" />
+          <do_if value="$targetspace.isclass.zone">
+            <set_value name="$pathend" exact="$targetspace.sector"/>
+          </do_if>
+          <do_elseif value="$targetspace.isclass.sector">
+            <set_value name="$pathend" exact="$targetspace"/>
+          </do_elseif>
+          <do_elseif value="$targetspace.isclass.cluster">
+            <find_sector name="$pathend" space="$targetspace"/>
+          </do_elseif>
+          <get_jump_path component="$waypoints" multiple="true" start="this.sector" end="$pathend" />
+          <remove_value name="$pathend"/>
           <!-- set last Entry with the Target Sector to the exact Target Space so we can determine the closest Beacon -->
           <set_value name="$waypoints.{$waypoints.count}" exact="$targetspace"/>
           

@@ -37,7 +37,9 @@ $entity  = ' + $entity"/>
       </do_if>
       
       <set_command_action commandaction="commandaction.searchingtrades"/>
-      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+      <do_if value="this.$ut_cac_settings?">
+        <set_value name="this.$ut_cac_settings.$isactive"/>
+      </do_if>
       <wait exact="1s"/>
       
       <!-- Check if the Ship is a mining Ship and if yes -> when a mineable Ressource either has a ratio of 0.0 or is encountered on the offer List send it mining instead of shopping -->
@@ -217,7 +219,7 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-        <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settins.$consumables.{$ware} )f )"/>
+        <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settings.$consumables.{$ware} )f )"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
@@ -410,7 +412,6 @@ $entity  = ' + $entity"/>
       <!-- find possible Trades in order of priority -->
       <!-- ToDo: add Selling Products ($warelist already contains them, but they are not yet sold )-->
       <do_all exact="$wareslist.count" counter="$i" reverse="false">
-        <wait exact="5s" comment="to make it look like he is actually comparing Trades wait 5 seconds per Ware checked"/>
         <set_value name="$ware" exact="$wareslist.{$i}"/>
         <!-- Aquire Products -->
         <do_if value="$wareslist_buysell.{$i} == 'buy'">
@@ -447,10 +448,10 @@ $entity  = ' + $entity"/>
             <do_if value="$range.{$j} != null and $range.{$j} != player.galaxy" comment="ignore empty slots and galaxy Range">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching %4 for Sell Offers'.[player.age,this.name,this.container.name,$range.{$j}.knownname]"/>
               <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
-                <offeramount min="if this.$ut_cac_settins.$consumables.{$ware}? then this.$ut_cac_settins.$consumables.{$ware} else this.container.cargo.{$ware}.target / 10"/>
+                <offeramount min="if this.$ut_cac_settings.$consumables.{$ware}? then this.$ut_cac_settings.$consumables.{$ware} else this.container.cargo.{$ware}.target / 10"/>
                 <price min="$price"/>
               </find_sell_offer>
-              <wait exact="2s"/>
+              <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
               <do_if value="$selloffer.available">
                 <break/>
               </do_if>
@@ -462,7 +463,7 @@ $entity  = ' + $entity"/>
             <!--find_buy_offer buyer="this.container" wares="$ware" result="$buyoffer" />
                 <do_if value="not $buyoffer.available"-->
             <!-- create a temp buyoffer so we can add an Trade Order to the Ship -->
-            <set_value name="$amount" exact="[ $selloffer.amount, if this.$ut_cac_settins.$consumables.{$ware}? then this.$ut_cac_settins.$consumables.{$ware} - this.container.cargo.{$ware}.count else this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free,(this.money/$selloffer.unitprice)i ].min"/>
+            <set_value name="$amount" exact="[ $selloffer.amount, if this.$ut_cac_settings.$consumables.{$ware}? then this.$ut_cac_settings.$consumables.{$ware} - this.container.cargo.{$ware}.count else this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free,(this.money/$selloffer.unitprice)i ].min"/>
             <!--set_value name="$created_buyoffer"/>
                 <debug_text filter="general" text="'Station %1 has no fitting buy offer - creating one to be able to sell the necesary ware ( %2x %3 ).'.[this.container.name,$amount,$ware]" />
                 </do_if>
@@ -510,7 +511,7 @@ $entity  = ' + $entity"/>
                 <offeramount min="this.container.cargo.{$ware}.count / 10"/>
                 <price min="$price"/>
               </find_buy_offer>
-              <wait exact="2s"/>
+              <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
               <do_if value="$buyoffer.available">
                 <break/>
               </do_if>
