@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <aiscript name="ut.cac.com.captain.emptycargo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
     This Script attempts to empty the Cargo Bay of the current Ship.
@@ -95,7 +95,7 @@
           </do_elseif>
         </do_all>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Buy Offer to Trade List:\n%4'.[player.age,this.name,this.container.name,$buyoffers.{$mindistindex}]"/>
-        <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$warelist.{$mindistindex}}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
+        <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$buyoffers.{$mindistindex}.ware}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$repeat=0,$command=command.freetrade]"/>
         <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.zone"/>
         <!-- Path Length for small Ships, raw Distance for Big Ships -->
@@ -105,8 +105,8 @@
         <do_else>
           <set_value name="$mindistance" exact="1e12m"/>
         </do_else>
-        <set_value name="$mindistindex" exact="null"/>
         <remove_value name="$buyoffers.{$mindistindex}"/>
+        <set_value name="$mindistindex" exact="null"/>
       </do_while>
       
       <!-- Cluster-wide search for Offers - if one is found add it to the Trade list and continue in the Sector there with search for further Offers -->
@@ -129,7 +129,9 @@
       <label name="drop wares"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Dropping Wares:\n%4'.[player.age,this.name,this.container.name,$warelist]"/>
       <do_all exact="$warelist.count" counter="$i">
-        <drop_cargo object="this.ship" ware="$warelist.{$i}" exact="this.ship.cargo.{$warelist.{$i}}.count"/>
+        <remove_cargo object="this.ship" ware="$warelist.{$i}" exact="this.ship.cargo.{$warelist.{$i}}.count"/>
+        <!-- ToDo: change to drop_cargo when Engine removes Crates lying around properly -->
+        <!--drop_cargo object="this.ship" ware="$warelist.{$i}" exact="this.ship.cargo.{$warelist.{$i}}.count"/-->
       </do_all>
     </actions>
   </attention>
