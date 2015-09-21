@@ -36,24 +36,26 @@
       </actions>
     </cue-->
     <!-- ##################### End Testing Cheat #########################-->
-    <!-- Timer Cue is resetted every hour, so event_cue_signalled is triggered every hour -->
-    <cue name="Payment_Timer">
-      <!--cues>
-        <cue name="Payment_Timer_Reset"-->
-          <delay exact="if not @$payment_time then 1min else $payment_time"/>
+    <!-- Timer Cue is resetted every full hour, so event_cue_activated is triggered every full hour as signal to grab the Payments -->
+    <cue name="Payment_Timer" namespace="this">
+      <actions>
+        <do_if value="not $payment_sink?">
+          <create_cue_actor name="$payment_sink" cue="this"/>
+        </do_if>
+        <do_else>
+          <remove_actor_account actor="$payment_sink"/>
+        </do_else>
+        <set_actor_account actor="$payment_sink"/>
+        <set_value name="$payment_time" exact="(3600 - ((player.age)i % 3600) )s"/>
+      </actions>
+      <cues>
+        <cue name="Payment_Timer_Reset">
+          <delay exact="$payment_time"/>
           <actions>
-            <do_if value="not $payment_sink?">
-              <create_cue_actor name="$payment_sink" cue="this"/>
-            </do_if>
-            <do_else>
-              <remove_actor_account actor="$payment_sink"/>
-            </do_else>
-            <set_actor_account actor="$payment_sink"/>
-            <set_value name="$payment_time" exact="(3600 - ((player.age)i % 3600) )s"/>
             <reset_cue cue="Payment_Timer"/>
           </actions>
-        <!--/cue>
-      </cues-->
+        </cue>
+      </cues>
     </cue>
     <library name="Payment">
       <params>
