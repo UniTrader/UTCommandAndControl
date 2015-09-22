@@ -123,7 +123,6 @@
       
       <!-- check if we have gasses as ressource and can mine them directly -->
       <do_if value="player.age gt $next_miningstep">
-        <set_value name="$next_miningstep" exact="player.age + 1min"/>
         <create_list name="$mineable_ressources"/>
         <do_all exact="this.container.resources.list.count" counter="$i">
           <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
@@ -139,9 +138,10 @@
           <set_value name="$miningorder.$wareslist" exact="$mineable_ressources"/>
           <set_value name="$miningorder.$next_call" exact="1min"/>
           <append_to_list name="this.$orderlist" exact="$miningorder"/>
+          <set_value name="$next_miningstep" exact="player.age + 1min"/>
         </do_if>
         <do_else>
-          <set_value name="$next_miningstep" exact="player.age + 2min"/>
+          <set_value name="$next_miningstep" exact="player.age + 5min"/>
         </do_else>
       </do_if>
       

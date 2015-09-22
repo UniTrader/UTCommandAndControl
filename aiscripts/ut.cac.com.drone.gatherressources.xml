@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.mining.ship.drone" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+<aiscript name="ut.cac.com.drone.gatherressources" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
   <!--
   This script can be either used with a target or a ware. If a target is provided,
   the drone tries to collect the target and returns to its homebase with the pickup.
@@ -7,7 +7,7 @@
   returns to the homebase afterwards. The corresponding ware is then added via script.
   by Michael and Benedikt
   
-  This Script is only here for compatibility Reasons - it will be replaced by ut.cac.com.drone.gatherressources soon
+  Modified Version by UniTrader to work better with Stations
   -->
   <params>
     <param name="homebase" default="this.ship.commander.commander" comment="the homebase for this drone"/>
@@ -19,12 +19,10 @@
   </interrupts>
   <attention min="visible">
     <actions>
-
-      <set_value name="$debugchance" exact="0" comment="the chance to display debug messages"/>
-      <set_value name="$gatherlocations" exact="3" comment="the number of locations required to gather a resource (no target)"/>
-      <set_value name="$gatherdistance" exact="2km" comment="the distance between the homebase and the first gather location (no target)"/>
-      <set_value name="$gatheroffset" exact="1km" comment="the distance between each gather location after the first one (no target)"/>
-
+      <set_value name="$gatherlocations" exact="3" comment="the number of locations the Ship flies randomly to to simulate collecting Gasses (no Target)"/>
+      <set_value name="$gathermindistance" exact="10m" comment="the min Distance the Drone keeps from its Homebase Ship/Station (no Target)"/>
+      <set_value name="$gathermaxdistance" exact="500m" comment="the max Distance the Drone flies away from its Homebase Ship/Station (no Target)"/>
+      
       <label name="start" />
       <!-- undock -->
       <debug_text text="player.age+' undocking'" chance="$debugchance" />
@@ -44,18 +42,19 @@
       <label name="collect" />
       <!-- collect -->
       <do_if value="$target" exact="null">
-        <!-- there is no pickup, fly to random positions instead -->
-        <set_value name="$currentlocation" exact="0"/>
-        <create_position name="$nextlocation" object="this.ship" min="$gatherdistance - 0.5km" max="$gatherdistance + 0.5km"/>
-        <do_while value="$currentlocation lt $gatherlocations">
+        <!-- there is no pickup, fly to random positions near Station instead -->
+        <do_all exact="$gatherlocations">
           <!-- repeatedly move to random locations -->
-          <set_value name="$currentlocation" operation="add" exact="1"/>
-          <debug_text text="player.age+' moving to gather location #'+$currentlocation" chance="$debugchance" />
+          <!--do_if value="$homebase.isclass.station"-->
+            <create_random_position_outside_boundingbox name="$targetpos" component="$homebase" mindistance="$gathermindistance" maxdistance="$gathermaxdistance"/>
+          <!--/do_if>
+          <do_else>
+            <create_position name="$targetpos" object="$homebase" min="$homebase.size + $gathermindistance" max="$homebase.size + $gathermaxdistance"/>
+          </do_else-->
           <move_to destination="this.ship.zone" object="this.ship" flightbehaviour="flightbehaviour.generic" finishonapproach="true" forcesteering="true">
-            <position value="$nextlocation"/>
+            <position value="$targetpos"/>
           </move_to>
-          <create_position name="$nextlocation" object="this.ship" min="$gatheroffset - 0.5km" max="$gatheroffset - 0.5km"/>
-        </do_while>
+          </do_all>
         <!-- dock again -->
         <run_script name="'move.dockat.drone'">
           <param name="destination" value="$homebase" />

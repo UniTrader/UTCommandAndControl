@@ -42,6 +42,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
       <do_if value="$params.$gatherware?">
         <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware" virtual="true"/>
         <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$params.$gatherware" />
+        <set_value name="$gatherrate" exact="$gatherrate / 3" comment="Station Gas Mining is only 30% as effective as it could be"/>
         <set_value name="$gatherrate" exact="[$gatherrate,$params.$gatherrate].min"/>
         <set_value name="$gathertime" exact="player.age - $params.$gatherstart" />
         <set_value name="$gathered" exact="$gathertime * $gatherrate" />
@@ -104,6 +105,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
         <debug_text filter="error" text="'%1 %2 %3 Gatherrate is 0 (should not happen) - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
+      <set_value name="$gatherrate" exact="$gatherrate / 3" comment="Station Gas Mining is only 30% as effective as it could be"/>
       <add_ware_reservation object="this.container" entity="this" ware="$wareslist.{1}" amount="$gatherrate * $next_call"/>
       <!-- save values to $params to add Ressources on the next call -->
       <set_value name="$params.$gatherstart" exact="player.age" />
@@ -126,7 +128,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
         <do_all exact="$drones.count" counter="$i">
           <do_if value="$drones.{$i}.isoperational">
             <!-- ToDo: needs a better Script -->
-            <start_script name="'ut.cac.mining.ship.drone'" object="$drones.{$i}.pilot">
+            <start_script name="'ut.cac.com.drone.gatherressources'" object="$drones.{$i}.pilot">
               <param name="homebase" value="this.container"/>
               <param name="ware" value="$params.$gatherware"/>
             </start_script>
