@@ -264,7 +264,7 @@ Rest is shared between all Actor types
               <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
             </do_if>
             <!-- Re-Adjust Wanted Amount for Fuel Cells (consumable, but neither involved in the Production nor in Trading ) - keep a complete refill for everyone in storage -->
-            <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}" exact="table[$target=$actor.container.subordinates.count * 2500,$unbundle=false,$rebundle=false]"/>
+            <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}" exact="$actor.container.subordinates.count * 2500"/>
             <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
               <do_if value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
                 <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
@@ -288,6 +288,68 @@ Rest is shared between all Actor types
             <event_cue_signalled/>
           </conditions>
           <actions>
+            <set_value name="$removal_message" exact="[]"/>
+            <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
+            <!-- Checking Count Limit of Ranges to be apporiate for Manager Level -->
+            <set_value name="$gatecount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{1}"/>
+            <set_value name="$galaxycount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{2}"/>
+            <set_value name="$clustercount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{3}"/>
+            <set_value name="$sectorcount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{4}"/>
+            <set_value name="$zonecount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{5}"/>
+            <set_value name="$entrycount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{6}"/>
+            <do_all exact="$baserange.count" counter="$i">
+              <do_if value="$baserange.{$i}.gatedistance.{this.container} gt $gatecount">
+                <append_to_list name="$removal_message" exact="'Removed %1 because i can only look %2 Gates far'.[$baserange.{$i}.name,param.ut_cac.$rangelimits.{$actor.skill.navigation}.{1}]"/>
+                <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+                <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+                <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+              </do_if>
+              <do_elseif value="$baserange.{$i}.isclass.galaxy">
+                <do_if value="not $galaxycount">
+                  <append_to_list name="$removal_message" exact="'Removed %1 because i cannt manage so many Galaxies'.[$baserange.{$i}.name]"/>
+                  <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+                  <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+                  <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+                </do_if>
+                <do_else>
+                  <set_value name="$galaxycount" operation="subtract"/>
+                </do_else>
+              </do_elseif>
+              <do_elseif value="$baserange.{$i}.isclass.cluster">
+                <do_if value="not $clustercount">
+                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Clusters'.[$baserange.{$i}.name,param.ut_cac.$rangelimits.{$actor.skill.navigation}.{3}]"/>
+                  <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+                  <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+                  <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+                </do_if>
+                <do_else>
+                  <set_value name="$clustercount" operation="subtract"/>
+                </do_else>
+              </do_elseif>
+              <do_elseif value="$baserange.{$i}.isclass.sector">
+                <do_if value="not $sectorcount">
+                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Sectors'.[$baserange.{$i}.name,param.ut_cac.$rangelimits.{$actor.skill.navigation}.{4}]"/>
+                  <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+                  <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+                  <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+                </do_if>
+                <do_else>
+                  <set_value name="$sectorcount" operation="subtract"/>
+                </do_else>
+              </do_elseif>
+              <do_elseif value="$baserange.{$i}.isclass.zone">
+                <do_if value="not $zonecount">
+                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Zones'.[$baserange.{$i}.name,param.ut_cac.$rangelimits.{$actor.skill.navigation}.{5}]"/>
+                  <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+                  <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+                  <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+                </do_if>
+                <do_else>
+                  <set_value name="$zonecount" operation="subtract"/>
+                </do_else>
+              </do_elseif>
+            </do_all>
+            
             <!-- checking Jump Range Path to be completely in the whitelist and removing all Ranges which divert from this -->
             <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
             <set_value name="$range" exact="$actor.$ut_cac_settings.$range_j"/>
@@ -339,6 +401,7 @@ Rest is shared between all Actor types
                 <!-- remove Range Setting for Jumping if the continuty condition doesnt apply (applies if there is no Jump Path - we are already in the right Sector) -->
                 <do_if value="$verified? and not $verified">
                   <remove_value name="$verified"/>
+                  <append_to_list name="$removal_message" exact="'Removed %1 from Jump Range because Jump Path is not completely in Whitelist'.[$range.{$i}.name]"/>
                   <set_value name="$range.{$i}" exact="null"/>
                 </do_if>
               </do_if>
@@ -384,6 +447,7 @@ Rest is shared between all Actor types
                 </do_all>
                 <!-- remove Range Setting for Highways if the continuty condition doesnt apply -->
                 <do_if value="not $verified">
+                  <append_to_list name="$removal_message" exact="'Removed %1 from Highway Range because Path from Destination is not completely in Whitelist'.[$range.{$i}.name]"/>
                   <set_value name="$range.{$i}" exact="null"/>
                   <continue/>
                 </do_if>
@@ -410,6 +474,7 @@ Rest is shared between all Actor types
                   </do_if>
                 </do_all>
                 <do_if value="not $verified">
+                  <append_to_list name="$removal_message" exact="'Removed %1 from Highway Range because Path to Destination is not completely in Whitelist'.[$range.{$i}.name]"/>
                   <set_value name="$range.{$i}" exact="null"/>
                   <continue/>
                 </do_if>
