@@ -40,15 +40,14 @@ This Script is intended to be called regulary with >the same< Table as $params b
       
       <!-- first check if we already started gathering Ressources and add them to the Station -->
       <do_if value="$params.$gatherware?">
-        <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware" virtual="true"/>
+        <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware"/>
         <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$params.$gatherware" />
         <set_value name="$gatherrate" exact="$gatherrate / 3" comment="Station Gas Mining is only 30% as effective as it could be"/>
         <set_value name="$gatherrate" exact="[$gatherrate,$params.$gatherrate].min"/>
         <set_value name="$gathertime" exact="player.age - $params.$gatherstart" />
         <set_value name="$gathered" exact="$gathertime * $gatherrate" />
-        <do_if value="( this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count ) lt $gathered">
-          <set_value name="$gathered" exact="this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count" />
-        </do_if>
+        <get_ware_reservation ware="$params.$gatherware" object="this.container" result="$incomingamount"/>
+        <set_value name="$gathered" exact=" [ this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count - $incomingamount , $gathered ].min"/>
         <deplete_yield zone="this.zone" container="this.container" ware="$params.$gatherware" amount="$gathered" />
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Gathered from previous run:\n%4 units of %5 in %6 seconds (%7 units/s)'.[player.age,this.name,this.container.name,$gathered, $params.$gatherware, $gathertime, $gatherrate]"/>
         <remove_value name="$params.$gatherstart"/>
@@ -99,7 +98,9 @@ This Script is intended to be called regulary with >the same< Table as $params b
       <label name="start mining"/>
       <!-- Starting Mining with the most important Ressource we can actively Mine -->
       <set_command command="command.freemining"/>
-      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+      <do_if value="this.$ut_cac_settings?">
+        <set_value name="this.$ut_cac_settings.$isactive"/>
+      </do_if>
       <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$wareslist.{1}" />
       <do_if value="$gatherrate" max="0">
         <debug_text filter="error" text="'%1 %2 %3 Gatherrate is 0 (should not happen) - aborting'.[player.age,this.name,this.container.name]"/>
@@ -119,7 +120,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
         <find_object_component groupname="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true"/>
         <create_group groupname="$drones"/>
         <!-- launching about half the Drones available so we can also laumch some on the next cycle in case they didnt return yet -->
-        <do_while value="$drones.count lt this.container.units.{unitcategory.gascollector}.count / 3 or $drones.count lt 15">
+        <do_while value="($drones.count lt this.container.units.{unitcategory.gascollector}.count / 3 or $drones.count lt 15 ) and this.container.availableunits.{unitcategory.gascollector}.count">
           <do_all exact="$dronelaunchbays.count" counter="$i">
             <launch_drone groupname="$drones" object="$dronelaunchbays.{$i}" group="unitcategory.gascollector" exact="1"/>
           </do_all>

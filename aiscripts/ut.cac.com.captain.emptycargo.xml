@@ -72,7 +72,7 @@
         <do_all exact="$buyoffers.count" counter="$i">
           <!-- Offer is in current Zone - just add it to the Trade Orders -->
           <do_if value="$buyoffers.{$i}.owner.zone == $currentzone">
-            <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$warelist.{$i}}.count" price="$buyoffers.{$i}.unitprice"/>
+            <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$buyoffers.{$i}.ware}.count" price="$buyoffers.{$i}.unitprice"/>
             <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$repeat=0]"/>
             <remove_value name="$buyoffers.{$i}"/>
           </do_if>

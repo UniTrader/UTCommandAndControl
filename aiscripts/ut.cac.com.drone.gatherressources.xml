@@ -25,7 +25,6 @@
       
       <label name="start" />
       <!-- undock -->
-      <debug_text text="player.age+' undocking'" chance="$debugchance" />
       <wait min="1min" max="2min">
         <interrupt>
           <conditions>
@@ -36,7 +35,6 @@
           </conditions>
         </interrupt>
       </wait>
-      <debug_text text="player.age+' successfully undocked'" chance="$debugchance" />
       <clear_collision_filter object="this.ship" />
 
       <label name="collect" />
@@ -47,6 +45,9 @@
           <!-- repeatedly move to random locations -->
           <!--do_if value="$homebase.isclass.station"-->
             <create_random_position_outside_boundingbox name="$targetpos" component="$homebase" mindistance="$gathermindistance" maxdistance="$gathermaxdistance"/>
+            <transform_position name="$targetpos" refposition="$homebase.position" refrotation="$homebase.rotation">
+              <position value="$targetpos"/>
+            </transform_position>
           <!--/do_if>
           <do_else>
             <create_position name="$targetpos" object="$homebase" min="$homebase.size + $gathermindistance" max="$homebase.size + $gathermaxdistance"/>
@@ -68,7 +69,6 @@
           <param name="homebase" value="$homebase" />
           <param name="stayactive" value="true" />
           <param name="launching" value="false" />
-          <param name="debugoutputchance" value="$debugchance" />
         </run_script>
         <!-- move.collect.drone also handles docking -->
       </do_else>
@@ -98,7 +98,6 @@
       </do_else>
 
       <!-- drone no longer exists if the drone docked successfully -->
-      <debug_text text="player.age+' drone docked.'" chance="@$debugchance"/>
     </actions>
   </attention>
 </aiscript>
