@@ -219,7 +219,7 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-        <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settings.$consumables.{$ware} )f )"/>
+        <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settings.$consumables.{$ware}.$target )f )"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
@@ -403,6 +403,7 @@ $entity  = ' + $entity"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Sorted Ware List to grab: \n%1\n%2\n%3'.[$wareslist,$wareslist_prio,$wareslist_buysell]"/>
       <!-- we dont need these Values anymore -->
       <remove_value name="$incomingamount"/>
+      <remove_value name="$reservedamount"/>
       <remove_value name="$ware"/>
       <remove_value name="$prio"/>
       <remove_value name="$buysell"/>
@@ -448,7 +449,7 @@ $entity  = ' + $entity"/>
             <do_if value="$range.{$j} != null and $range.{$j} != player.galaxy" comment="ignore empty slots and galaxy Range">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching %4 for Sell Offers'.[player.age,this.name,this.container.name,$range.{$j}.knownname]"/>
               <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
-                <offeramount min="if this.$ut_cac_settings.$consumables.{$ware}? then this.$ut_cac_settings.$consumables.{$ware} else this.container.cargo.{$ware}.target / 10"/>
+                <offeramount min="$entity.container.cargo.{$ware}.free / 10"/>
                 <price min="$price"/>
               </find_sell_offer>
               <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
@@ -459,23 +460,30 @@ $entity  = ' + $entity"/>
           </do_all>
           
           <do_if value="$selloffer.available">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'found sell offer: %1 ( %2 %3 %4 %5 )'.[$selloffer,$selloffer.owner.knownname,$selloffer.owner.zone.knownname,$selloffer.ware,$selloffer.amount]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'found sell offer: %1 ( %2 %3 %4 %5 )'.[$selloffer,$selloffer.owner.knownname,$selloffer.owner.zone.knownname,$selloffer.ware,$selloffer.offeramount]"/>
             <!--find_buy_offer buyer="this.container" wares="$ware" result="$buyoffer" />
                 <do_if value="not $buyoffer.available"-->
             <!-- create a temp buyoffer so we can add an Trade Order to the Ship -->
-            <set_value name="$amount" exact="[ $selloffer.amount, if this.$ut_cac_settings.$consumables.{$ware}? then this.$ut_cac_settings.$consumables.{$ware} - this.container.cargo.{$ware}.count else this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free,(this.money/$selloffer.unitprice)i ].min"/>
+            <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
+            <set_value name="$amount" exact="[ 
+                $selloffer.offeramount, 
+                ( if this.$ut_cac_settings.$consumables.{$ware}.$target? then this.$ut_cac_settings.$consumables.{$ware}.$target else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count - $incomingamount, 
+                this.container.cargo.{$ware}.free - $incomingamount, 
+                $entity.ship.cargo.{$ware}.free, 
+                (this.money/$selloffer.unitprice)i 
+            ].min"/>
             <!--set_value name="$created_buyoffer"/>
                 <debug_text filter="general" text="'Station %1 has no fitting buy offer - creating one to be able to sell the necesary ware ( %2x %3 ).'.[this.container.name,$amount,$ware]" />
                 </do_if>
                 <do_else>
-                <set_value name="$amount" exact="[ $selloffer.amount, this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free,(this.money/$selloffer.unitprice)i , $buyoffer.amount].min"/>
+                <set_value name="$amount" exact="[ $selloffer.offeramount, this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free,(this.money/$selloffer.unitprice)i , $buyoffer.offeramount].min"/>
                 </do_else-->
             <do_if value="$amount == 0">
               <debug_text filter="general" chance="@this.$debug * 100" text="'possible amount is 0 - continuing with next ware'"/>
               <continue/>
             </do_if>
             <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.amount , this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count , this.container.cargo.{$ware}.target , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.offeramount , this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count , this.container.cargo.{$ware}.target , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/>
             <!--clamp_trade_amount result="$amount" seller="this.container" seller="$entity.ship" trade="$buyoffer" amount="$amount"/-->
             <do_if value="not $entity.hasownaccount">
               <set_actor_account actor="$entity"/>
@@ -508,7 +516,7 @@ $entity  = ' + $entity"/>
             <do_if value="$range.{$j} != null and $range.{$j} != player.galaxy" comment="ignore empty slots and galaxy Range">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching %4 for Buy Offers'.[player.age,this.name,this.container.name,$range.{$j}.knownname]"/>
               <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
-                <offeramount min="this.container.cargo.{$ware}.count / 10"/>
+                <offeramount min="$entity.container.cargo.{$ware}.free / 10"/>
                 <price min="$price"/>
               </find_buy_offer>
               <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
@@ -519,14 +527,19 @@ $entity  = ' + $entity"/>
           </do_all>
           
           <do_if value="$buyoffer.available">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'found buy offer: %1 ( %2 %3 %4 %5 )'.[$buyoffer,$buyoffer.owner.knownname,$buyoffer.owner.zone.knownname,$buyoffer.ware,$buyoffer.amount]"/>
-            <set_value name="$amount" exact="[ $buyoffer.amount, this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free ].min"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'found buy offer: %1 ( %2 %3 %4 %5 )'.[$buyoffer,$buyoffer.owner.knownname,$buyoffer.owner.zone.knownname,$buyoffer.ware,$buyoffer.offeramount]"/>
+            <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount"/>
+            <set_value name="$amount" exact="[ 
+                $buyoffer.offeramount, 
+                this.container.cargo.{$ware}.count - $reservedamount, 
+                $entity.ship.cargo.{$ware}.free 
+            ].min"/>
             <do_if value="$amount == 0">
               <debug_text filter="general" chance="@this.$debug * 100" text="'possible amount is 0 - continuing with next ware'"/>
               <continue/>
             </do_if>
             <create_trade_offer name="$selloffer" seller="this.container" object="this.container" amount="$amount" ware="$ware" price="0Cr" playeronly="true"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 station amount, %4 cargobay'.[ $amount , $buyoffer.amount , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free ]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 station amount, %4 cargobay'.[ $amount , $buyoffer.offeramount , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free ]"/>
             <do_if value="not $entity.hasownaccount">
               <set_actor_account actor="$entity"/>
             </do_if>

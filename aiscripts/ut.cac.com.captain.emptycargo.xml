@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <aiscript name="ut.cac.com.captain.emptycargo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
     This Script attempts to empty the Cargo Bay of the current Ship.
@@ -97,7 +97,7 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Buy Offer to Trade List:\n%4'.[player.age,this.name,this.container.name,$buyoffers.{$mindistindex}]"/>
         <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$buyoffers.{$mindistindex}.ware}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$repeat=0,$command=command.freetrade]"/>
-        <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.zone"/>
+        <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.owner.zone"/>
         <!-- Path Length for small Ships, raw Distance for Big Ships -->
         <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
           <set_value name="$mindistance" exact="999"/>
