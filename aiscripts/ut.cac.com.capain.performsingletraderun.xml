@@ -47,9 +47,6 @@
         <do_if value="$params.$undock?">
           <set_value name="$undock" exact="$params.$undock"/>
         </do_if>
-        <do_if value="$params.$repeat?">
-          <set_value name="$repeat" exact="$params.$repeat"/>
-        </do_if>
         <do_if value="$params.$command?">
           <set_value name="$command" exact="$params.$command"/>
         </do_if>
@@ -93,7 +90,9 @@
           <debug_text filter="error" text="'%1 %2 %3 No Trade to do given'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
-        <set_value name="$amount" exact="$trade.amount"/>
+        <do_if value="not $amount?">
+          <set_value name="$amount" exact="$trade.amount"/>
+        </do_if>
       </do_if>
       <do_else>
         <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission"/>
@@ -444,16 +443,12 @@
       <!-- execute next Trade without undocking if the Trade partner is the same -->
       <do_if value="$undock==2">
         <get_trade_from_shoppinglist object="this.ship" result="$trade" />
-        <do_if value="$trade.owner == $tradepartner">
+        <do_if value="$trade.exists and $trade.owner == $tradepartner">
           <set_value name="$undock" exact="false"/>
         </do_if>
         <do_else>
           <set_value name="$undock" exact="true"/>
         </do_else>
-      </do_if>
-      
-      <do_if value="not $repeat?">
-        <set_value name="$repeat" exact="not $undock"/>
       </do_if>
       
       <do_if value="(this.ship.isclass.ship_xl or this.ship.isclass.ship_l) and $undock">

@@ -104,17 +104,17 @@
             <set_value name="$riskbonus" exact="param.ut_cac.wage.{$actor.type}.{5} + ( param.ut_cac.wage.{$actor.type}.{6} * $actor.combinedskill / 100 )"/>
             <!-- ToDo: Check if there is enough Money available and do apporiate steps if not (for example reduce skill or stop working for the Player altogether) -->
             <!-- ToDo: Check if the Attack is serious by comparing Attack Forces with nearby own Forces - if it is no serious Attack reset this cue without demanding any bonus -->
-            <do_if value="$actor.hasownaccount and $actor.money gt $riskbonus and $actor.type == entitytype.manager">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his own Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
-              <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
-            </do_if>
-            <do_elseif value="$actor.commanderentity? and $actor.commanderentity.hasownaccount and $actor.commanderentity.money gt $riskbonus">
+            <do_if value="$actor.commanderentity? and $actor.commanderentity.hasownaccount and $actor.commanderentity.money gt $riskbonus">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his Commanders Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
               <transfer_money from="$actor.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
+            </do_if>
+            <do_elseif value="$actor.hasownaccount and $actor.money gt $riskbonus and $actor.type == entitytype.manager">
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his own Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
+              <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
             </do_elseif>
             <do_elseif value="player.money gt $riskbonus">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from Player Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
-              <transfer_money from="player" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
+              <transfer_money from="player.entity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
             </do_elseif>
           </actions>
           <cues>
