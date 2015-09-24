@@ -48,7 +48,9 @@ This Script is intended to be called regulary with >the same< Table as $params b
         <set_value name="$gathered" exact="$gathertime * $gatherrate" />
         <get_ware_reservation ware="$params.$gatherware" object="this.container" result="$incomingamount"/>
         <set_value name="$gathered" exact=" [ this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count - $incomingamount , $gathered ].min"/>
-        <deplete_yield zone="this.zone" container="this.container" ware="$params.$gatherware" amount="$gathered" />
+        <do_if value="$gathereed gt 0">
+          <deplete_yield zone="this.zone" container="this.container" ware="$params.$gatherware" amount="$gathered" />
+        </do_if>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Gathered from previous run:\n%4 units of %5 in %6 seconds (%7 units/s)'.[player.age,this.name,this.container.name,$gathered, $params.$gatherware, $gathertime, $gatherrate]"/>
         <remove_value name="$params.$gatherstart"/>
         <remove_value name="$params.$gatherware"/>
