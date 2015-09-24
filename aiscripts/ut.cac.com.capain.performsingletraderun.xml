@@ -90,7 +90,7 @@
           <debug_text filter="error" text="'%1 %2 %3 No Trade to do given'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
-        <do_if value="not $amount?">
+        <do_if value="$amount == null">
           <set_value name="$amount" exact="$trade.amount"/>
         </do_if>
       </do_if>
@@ -100,7 +100,9 @@
       
       <set_command command="$command" param="$trade.owner"/>
       <set_command_action commandaction="commandaction.calculating"/>
-      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+      <do_if value="this.$ut_cac_settings?">
+        <set_value name="this.$ut_cac_settings.$isactive"/>
+      </do_if>
       
       <!--in case something went wrong while docking - jumps back from line 207 or 218 -->
       <label name="retry"/>

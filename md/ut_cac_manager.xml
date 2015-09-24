@@ -291,15 +291,15 @@ Rest is shared between all Actor types
             <set_value name="$removal_message" exact="[]"/>
             <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
             <!-- Checking Count Limit of Ranges to be apporiate for Manager Level -->
-            <set_value name="$gatecount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{1}"/>
-            <set_value name="$galaxycount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{2}"/>
-            <set_value name="$clustercount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{3}"/>
-            <set_value name="$sectorcount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{4}"/>
-            <set_value name="$zonecount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{5}"/>
-            <set_value name="$entrycount" exact="param.ut_cac.$rangelimits.{$actor.skill.navigation}.{6}"/>
+            <set_value name="$gatecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}"/>
+            <set_value name="$galaxycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{2}"/>
+            <set_value name="$clustercount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{3}"/>
+            <set_value name="$sectorcount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{4}"/>
+            <set_value name="$zonecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{5}"/>
+            <set_value name="$entrycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
             <do_all exact="$baserange.count" counter="$i">
-              <do_if value="$baserange.{$i}.gatedistance.{this.container} gt $gatecount">
-                <append_to_list name="$removal_message" exact="'Removed %1 because i can only look %2 Gates far'.[$baserange.{$i}.name,param.ut_cac.$rangelimits.{$actor.skill.navigation}.{1}]"/>
+              <do_if value="$baserange.{$i}.exists and $baserange.{$i}.gatedistance.{$actor.container} gt $gatecount">
+                <append_to_list name="$removal_message" exact="'Removed %1 because i can only look %2 Gates far'.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}]"/>
                 <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
                 <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
                 <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
@@ -317,7 +317,7 @@ Rest is shared between all Actor types
               </do_elseif>
               <do_elseif value="$baserange.{$i}.isclass.cluster">
                 <do_if value="not $clustercount">
-                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Clusters'.[$baserange.{$i}.name,param.ut_cac.$rangelimits.{$actor.skill.navigation}.{3}]"/>
+                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Clusters'.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{3}]"/>
                   <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
                   <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
                   <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
@@ -328,7 +328,7 @@ Rest is shared between all Actor types
               </do_elseif>
               <do_elseif value="$baserange.{$i}.isclass.sector">
                 <do_if value="not $sectorcount">
-                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Sectors'.[$baserange.{$i}.name,param.ut_cac.$rangelimits.{$actor.skill.navigation}.{4}]"/>
+                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Sectors'.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{4}]"/>
                   <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
                   <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
                   <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
@@ -339,7 +339,7 @@ Rest is shared between all Actor types
               </do_elseif>
               <do_elseif value="$baserange.{$i}.isclass.zone">
                 <do_if value="not $zonecount">
-                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Zones'.[$baserange.{$i}.name,param.ut_cac.$rangelimits.{$actor.skill.navigation}.{5}]"/>
+                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Zones'.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{5}]"/>
                   <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
                   <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
                   <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>

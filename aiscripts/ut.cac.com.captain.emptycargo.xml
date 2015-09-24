@@ -69,16 +69,17 @@
       </do_else>
       <set_value name="$mindistindex" exact="null"/>
       <do_while value="$buyoffers.count">
-        <do_all exact="$buyoffers.count" counter="$i">
+        <do_all exact="$buyoffers.count" counter="$i" reverse="true">
           <!-- Offer is in current Zone - just add it to the Trade Orders -->
           <do_if value="$buyoffers.{$i}.owner.zone == $currentzone">
             <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$buyoffers.{$i}.ware}.count" price="$buyoffers.{$i}.unitprice"/>
             <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$repeat=0]"/>
             <remove_value name="$buyoffers.{$i}"/>
+            <set_value name="$mindistindex" operation="subtract" comment="to keep them in sync"/>
           </do_if>
           <!-- Offer is somewhere else - if its closer than the previous Offer save it, if not wait for next iteration -->
           <!-- Use Tube Network for small Ships... -->
-          <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
+          <do_elseif value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
             <get_global_path component="$result" multiple="true" usehighways="true">
               <start object="this.ship"/>
               <end object="$buyoffers.{$i}.owner"/>
@@ -87,7 +88,7 @@
               <set_value name="$mindistance" exact="this.ship.distanceto.{$buyoffers.{$i}.owner}"/>
               <set_value name="$mindistindex" exact="$i"/>
             </do_if>
-          </do_if>
+          </do_elseif>
           <!-- ...or Raw Distance for Big Ships -->
           <do_elseif value="this.ship.distanceto.{$buyoffers.{$i}.owner} lt $mindistance">
             <set_value name="$mindistance" exact="this.ship.distanceto.{$buyoffers.{$i}.owner}"/>
@@ -96,7 +97,7 @@
         </do_all>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Buy Offer to Trade List:\n%4'.[player.age,this.name,this.container.name,$buyoffers.{$mindistindex}]"/>
         <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$buyoffers.{$mindistindex}.ware}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$repeat=0,$command=command.freetrade]"/>
+        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$command=command.freetrade]"/>
         <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.owner.zone"/>
         <!-- Path Length for small Ships, raw Distance for Big Ships -->
         <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
