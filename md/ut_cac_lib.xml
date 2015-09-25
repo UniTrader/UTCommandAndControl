@@ -82,7 +82,7 @@
               <set_value name="$wage" exact="param.ut_cac.wage.{$actor.type}.{3} + ( param.ut_cac.wage.{$actor.type}.{4} * $actor.combinedskill / 100 )"/>
             </do_else>
             <!-- ToDo: Check if there is enough Money available and do apporiate steps if not (for example reduce skill or stop working for the Player altogether) -->
-            <do_if value="$actor.container.commanderentity? and $actor.container.commanderentity.hasownaccount and $actor.container.commanderentity.money gt $wage">
+            <do_if value="$actor.container.commanderentity.exists and $actor.container.commanderentity.hasownaccount and $actor.container.commanderentity.money gt $wage">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his Commanders Acc'.[player.age,$actor.name,$actor.container.name,$wage]"/>
               <transfer_money from="$actor.container.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
             </do_if>
@@ -91,18 +91,20 @@
               <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
             </do_elseif>
             <do_elseif value="player.money gt $wage">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from Player Acc, Check Values: %5 %6 %7'.[player.age,$actor.name,$actor.container.name,$wage,$actor.container.commanderentity?,$actor.container.commanderentity.hasownaccount,$actor.container.commanderentity.money]"/>
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from Player Acc, Check Values: %5 %6 %7'.[player.age,$actor.name,$actor.container.name,$wage,$actor.container.commanderentity.exists,$actor.container.commanderentity.hasownaccount,$actor.container.commanderentity.money]"/>
               <transfer_money from="player.entity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
             </do_elseif>
             
             <!-- simple EXP gain at certain total Wage Paid - will be changed at some point -->
             <set_value name="$actor.$ut_cac_settings.$experience" operation="add" exact="$wage"/>
             <do_if value="$actor.$ut_cac_settings.$experience gt param.ut_cac.experience.{ ($actor.combinedskill / 20 )i + 1}">
+              <set_value name="$oldcombinedskill" exact="$actor.combinedskill"/>
               <do_all exact="$actor.type.skilltypes.count" counter="$i">
                 <do_if value="$actor.skill.{$actor.type.skilltypes.{$i}} lt 5">
-                  <add_skill entity="$actor" type="$actor.type.skilltypes.{$i}"/>
+                  <add_skill entity="$actor" type="$actor.type.skilltypes.{$i}" exact="1"/>
                 </do_if>
               </do_all>
+              <debug_text filter="general"  text="'%1 %2 %3 just got promoted. Old combinedskill: %4 new combinedskill: %5'.[player.age,$actor.name,$actor.container.name,$oldcombinedskill,$actor.combinedskill]"/>
             </do_if>
             
           </actions>
@@ -115,7 +117,7 @@
             <set_value name="$riskbonus" exact="param.ut_cac.wage.{$actor.type}.{5} + ( param.ut_cac.wage.{$actor.type}.{6} * $actor.combinedskill / 100 )"/>
             <!-- ToDo: Check if there is enough Money available and do apporiate steps if not (for example reduce skill or stop working for the Player altogether) -->
             <!-- ToDo: Check if the Attack is serious by comparing Attack Forces with nearby own Forces - if it is no serious Attack reset this cue without demanding any bonus -->
-            <do_if value="$actor.container.commanderentity? and $actor.container.commanderentity.hasownaccount and $actor.container.commanderentity.money gt $riskbonus">
+            <do_if value="$actor.container.commanderentity.exists and $actor.container.commanderentity.hasownaccount and $actor.container.commanderentity.money gt $riskbonus">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his Commanders Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
               <transfer_money from="$actor.container.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
             </do_if>
