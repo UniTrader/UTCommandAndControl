@@ -131,6 +131,13 @@
         </do_all>
       </do_if>
       
+      <!-- create actor account to prevent Incoming-Money-Spam -->
+      <do_if value="not this.hasownaccount">
+        <set_actor_account actor="this"/>
+      </do_if>
+      
+      <!--- ToDo: add Microorder to remove own account if Ship is in Player Squad -->
+      
       <!-- Drop Wares we cannt sell somewhere or just drop them if explicitly told so -->
       <label name="drop wares"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Dropping Wares:\n%4'.[player.age,this.name,this.container.name,$warelist]"/>

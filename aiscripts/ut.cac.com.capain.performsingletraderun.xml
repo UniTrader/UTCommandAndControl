@@ -396,6 +396,11 @@
         </do_if>
         <!-- Relation bonus for the player: Base bonus for the trade itself (max +1 UI value per 4 trades) and price-based bonus (max +1 UI value per 4M Credits) -->
         <add_faction_relation faction="$tradeoffer.buyer.owner" otherfaction="$tradeoffer.seller.owner" value="0.00016LF + (0.00064LF / (4000000Cr)LF * ($price)LF)" />
+        <!-- if we gained Money or there are leftovers send them back to the Commanding Entity -->
+        <!-- ToDo: check which command is really responsible for the unwanted Transfers to the Player - this one is just a workaround to avoid these transfers! -->
+        <do_if value="this.container.commanderentity.exists">
+          <transfer_money amount="this.money" from="this" to="this.container.commanderentity"/>
+        </do_if>
       </do_if>
 
       <do_if value="not $tradepartner.isplayerowned and not $tradepartner.hastradesubscription">
