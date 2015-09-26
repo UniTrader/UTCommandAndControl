@@ -437,7 +437,7 @@ $entity  = ' + $entity"/>
           <!-- ToDo: Find a method to aquire the Player Settings instead -->
           <find_buy_offer result="$buyoffer" buyer="this.container" wares="$ware"/>
           <do_if value="$buyoffer.available">
-            <set_value name="$price" exact="$buyoffer.price"/>
+            <set_value name="$price" exact="$buyoffer.unitprice"/>
           </do_if>
           <do_else>
             <set_value name="$price" exact="$ware.averageprice"/>
@@ -504,10 +504,10 @@ $entity  = ' + $entity"/>
           <!-- ToDo: Find a method to aquire the Player Settings instead -->
           <find_sell_offer result="$selloffer" seller="this.container" wares="$ware"/>
           <do_if value="$selloffer.available">
-            <set_value name="$price" exact="$selloffer.price"/>
+            <set_value name="$price" exact="$selloffer.unitprice"/>
           </do_if>
           <do_else>
-            <set_value name="$price" exact="$ware.price"/>
+            <set_value name="$price" exact="$ware.averageprice"/>
           </do_else>
           <remove_value name="$selloffer"/>
           
