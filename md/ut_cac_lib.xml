@@ -140,13 +140,14 @@
         </cue>
       </cues>
     </library>
-    <library name="Account_Manager" instantiate="true">
+    <library name="Account_Manager">
       <params>
         <param name="actor"/>
       </params>
       <conditions>
         <event_object_money_updated object="$actor"/>
       </conditions>
+      <delay exact="1min"/>
       <actions>
         <!-- say a few words about the received/sent money in case the player is nearby (interaction with someone else, not the player) -->
         <do_if value="$actor.room == player.room" >
@@ -197,6 +198,7 @@
           <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Transferring %4 Credits to Player'.[player.age,$actor.name,$actor.container.name,$transferamount]"/>
           <transfer_money amount="$transferamount" from="$actor" to="player.entity" chance="[$transferamount,100].max"/>
         </do_elseif>
+        <reset_cue cue="this"/>
       </actions>
     </library>
     <library name="Actor_Init">
