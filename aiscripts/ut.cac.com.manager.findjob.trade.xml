@@ -109,7 +109,7 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-        <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.container.cargo.{$ware}.target )f )"/>
+        <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.target )f / ( this.container.cargo.{$ware}.count + $incomingamount )f )"/>
         <do_if value="this.container.resources.{$ware}.secondary">
           <set_value name="$prio" exact="$prio * 0.75"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Secondary ressource is: ' + $prio"/>
@@ -219,7 +219,7 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-        <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settings.$consumables.{$ware}.$target )f )"/>
+        <set_value name="$prio" exact="1.0 - ( ( this.$ut_cac_settings.$consumables.{$ware}.$target )f / ( this.container.cargo.{$ware}.count + $incomingamount )f )"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
@@ -483,7 +483,7 @@ $entity  = ' + $entity"/>
               <continue/>
             </do_if>
             <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.offeramount , this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count , this.container.cargo.{$ware}.target , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.offeramount , ( if this.$ut_cac_settings.$consumables.{$ware}.$target? then this.$ut_cac_settings.$consumables.{$ware}.$target else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count , ( if this.$ut_cac_settings.$consumables.{$ware}.$target? then this.$ut_cac_settings.$consumables.{$ware}.$target else this.container.cargo.{$ware}.target ) , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/>
             <!--clamp_trade_amount result="$amount" seller="this.container" seller="$entity.ship" trade="$buyoffer" amount="$amount"/-->
             <do_if value="not $entity.hasownaccount">
               <set_actor_account actor="$entity"/>
