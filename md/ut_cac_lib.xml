@@ -147,7 +147,6 @@
       <conditions>
         <event_object_money_updated object="$actor"/>
       </conditions>
-      <delay exact="1min"/>
       <actions>
         <!-- say a few words about the received/sent money in case the player is nearby (interaction with someone else, not the player) -->
         <do_if value="$actor.room == player.room" >
@@ -158,48 +157,57 @@
             <speak actor="$actor" line="[1165,30474107,4770].random" comment="Deal closed. I'm sending you a report now.|I'm transferring the credits to you now.|All set and done.|Confirmed, beginning transfer."/>
           </do_else>
         </do_if>
-        <do_if value="$actor.minbudget lt $actor.money lt $actor.maxbudget and $actor.maxbudget != 0Cr and $actor.minbudget != 0Cr" comment="do-nothing-case (most common) - skip other checks">
-        </do_if>
-        <!-- Actor has less Money than he is set up - just grab some from the Player 
-        ToDo: Add actual questioning for additional Funds
-        ToDo: Add Requesting Money from Commanderentity instead of Player if possible -->
-        <do_elseif value="$actor.money lt $actor.minbudget">
-          <transfer_money from="player.entity" to="$actor" amount="$actor.minbudget"/>
-        </do_elseif>
-        <!-- Actor has more Money than he needs - transfer the rest to the Player (round transfered amount up to a nice, round number) 
-        ToDo: Send Money to Commanderentity instead of player if possible -->
-        <do_elseif value="$actor.money gt $actor.maxbudget">
-          <set_value name="$transferamount" exact="$actor.money - $actor.maxbudget"/>
-          <do_if value="$transferamount lt 1000Cr" comment="do-nothing-case - too less money to care">
-            <set_value name="$transferamount" exact="0"/>
-          </do_if>
-          <!-- round up to the next 1.000, 10.000, 100.000 etc. - depends on maxbudget and transfer amount-->
-          <do_elseif value="$transferamount lt 10000Cr or $actor.maxbudget lt 100000Cr">
-            <set_value name="$transferamount" exact="$transferamount + ( 1000Cr - ($transferamount % 1000Cr) )"/>
-          </do_elseif>
-          <do_elseif value="$transferamount lt 100000Cr or $actor.maxbudget lt 1000000Cr">
-            <set_value name="$transferamount" exact="$transferamount + ( 10000Cr - ($transferamount % 10000Cr) )"/>
-          </do_elseif>
-          <do_elseif value="$transferamount lt 1000000Cr or $actor.maxbudget lt 10000000Cr">
-            <set_value name="$transferamount" exact="$transferamount + ( 100000Cr - ($transferamount % 100000Cr) )"/>
-          </do_elseif>
-          <do_elseif value="$transferamount lt 10000000Cr or $actor.maxbudget lt 100000000Cr">
-            <set_value name="$transferamount" exact="$transferamount + ( 1000000Cr - ($transferamount % 1000000Cr) )"/>
-          </do_elseif>
-          <do_elseif value="$transferamount lt 100000000Cr or $actor.maxbudget lt 1000000000Cr">
-            <set_value name="$transferamount" exact="$transferamount + ( 10000000Cr - ($transferamount % 10000000Cr) )"/>
-          </do_elseif>
-          <do_elseif value="$transferamount lt 1000000000Cr or $actor.maxbudget lt 10000000000Cr">
-            <set_value name="$transferamount" exact="$transferamount + ( 100000000Cr - ($transferamount % 100000000Cr) )"/>
-          </do_elseif>
-          <do_else>
-            <set_value name="$transferamount" exact="$transferamount + ( 1000000000Cr - ($transferamount % 1000000000Cr) )"/>
-          </do_else>
-          <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Transferring %4 Credits to Player'.[player.age,$actor.name,$actor.container.name,$transferamount]"/>
-          <transfer_money amount="$transferamount" from="$actor" to="player.entity" chance="[$transferamount,100].max"/>
-        </do_elseif>
-        <reset_cue cue="this"/>
       </actions>
+      <cues>
+        <cue name="Transfer_Surplus">
+          <delay exact="1min"/>
+          <actions>
+            <do_if value="$actor.minbudget lt $actor.money lt $actor.maxbudget and $actor.maxbudget != 0Cr and $actor.minbudget != 0Cr" comment="do-nothing-case (most common) - skip other checks"/>
+            <!-- Actor has less Money than he is set up - just grab some from the Player 
+            ToDo: Add actual questioning for additional Funds
+            ToDo: Add Requesting Money from Commanderentity instead of Player if possible -->
+            <do_elseif value="$actor.money lt $actor.minbudget">
+              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Grabbing %4 Credits from Player to keep working'.[player.age,$actor.name,$actor.container.name,($actor.minbudget)Cr]"/>
+              <transfer_money from="player.entity" to="$actor" amount="$actor.minbudget"/>
+            </do_elseif>
+            <!-- Actor has more Money than he needs - transfer the rest to the Player (round transfered amount up to a nice, round number) 
+            ToDo: Send Money to Commanderentity instead of player if possible -->
+            <do_elseif value="$actor.money gt $actor.maxbudget">
+              <set_value name="$transferamount" exact="$actor.money - $actor.maxbudget"/>
+              <do_if value="$transferamount lt 1000Cr" comment="do-nothing-case - too less money to care">
+                <set_value name="$transferamount" exact="0"/>
+              </do_if>
+              <!-- round up to the next 1.000, 10.000, 100.000 etc. - depends on maxbudget and transfer amount-->
+              <do_elseif value="$transferamount lt 10000Cr or $actor.maxbudget lt 100000Cr">
+                <set_value name="$transferamount" exact="$transferamount + ( 1000Cr - ($transferamount % 1000Cr) )"/>
+              </do_elseif>
+              <do_elseif value="$transferamount lt 100000Cr or $actor.maxbudget lt 1000000Cr">
+                <set_value name="$transferamount" exact="$transferamount + ( 10000Cr - ($transferamount % 10000Cr) )"/>
+              </do_elseif>
+              <do_elseif value="$transferamount lt 1000000Cr or $actor.maxbudget lt 10000000Cr">
+                <set_value name="$transferamount" exact="$transferamount + ( 100000Cr - ($transferamount % 100000Cr) )"/>
+              </do_elseif>
+              <do_elseif value="$transferamount lt 10000000Cr or $actor.maxbudget lt 100000000Cr">
+                <set_value name="$transferamount" exact="$transferamount + ( 1000000Cr - ($transferamount % 1000000Cr) )"/>
+              </do_elseif>
+              <do_elseif value="$transferamount lt 100000000Cr or $actor.maxbudget lt 1000000000Cr">
+                <set_value name="$transferamount" exact="$transferamount + ( 10000000Cr - ($transferamount % 10000000Cr) )"/>
+              </do_elseif>
+              <do_elseif value="$transferamount lt 1000000000Cr or $actor.maxbudget lt 10000000000Cr">
+                <set_value name="$transferamount" exact="$transferamount + ( 100000000Cr - ($transferamount % 100000000Cr) )"/>
+              </do_elseif>
+              <do_else>
+                <set_value name="$transferamount" exact="$transferamount + ( 1000000000Cr - ($transferamount % 1000000000Cr) )"/>
+              </do_else>
+              <do_if value="$transferamount != 0">
+                <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Transferring %4 Credits to Player'.[player.age,$actor.name,$actor.container.name,$transferamount/100]"/>
+                <transfer_money amount="$transferamount" from="$actor" to="player.entity"/>
+              </do_if>
+            </do_elseif>
+            <reset_cue cue="Account_Manager"/>
+          </actions>
+        </cue>
+      </cues>
     </library>
     <library name="Actor_Init">
       <actions>

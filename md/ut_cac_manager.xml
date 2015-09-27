@@ -264,7 +264,11 @@ Rest is shared between all Actor types
               <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
             </do_if>
             <!-- Re-Adjust Wanted Amount for Fuel Cells (consumable, but neither involved in the Production nor in Trading ) - keep a complete refill for everyone in storage -->
-            <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}.$target" exact="$actor.container.subordinates.count * 2500"/>
+            <set_value name="$fuelcells_targetamount" exact="0"/>
+            <do_all exact="$actor.container.subordinates.count" counter="$i">
+              <set_value name="$fuelcells_targetamount" exact="[$actor.container.subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
+            </do_all>
+            <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}" exact="$fuelcells_targetamount"/>
             <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
               <do_if value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
                 <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
