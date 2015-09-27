@@ -271,7 +271,7 @@
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting'.[player.age,this.name,this.container.name]"/>
             <return/>
           </do_if>
-          <do_elseif value="$tradeoffer.offeramount.{this} lt $amount and not $trade.owner == this.ship.commander">
+          <do_elseif value=" not $trade.owner == this.ship.commander and $tradeoffer.offeramount.{this} lt $amount">
             <!-- no Offer with enough Wares found -->
             <!-- ToDo: Adjust Amounts for this Trade and the next Selling Trade -->
             <remove_trade_order object="this.ship" trade="$trade" />
@@ -314,7 +314,7 @@
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting (2nd)'.[player.age,this.name,this.container.name]"/>
             <return/>
           </do_if>
-          <do_elseif value="$tradeoffer.offeramount.{this} lt $amount and not $trade.owner == this.ship.commander">
+          <do_elseif value="not $trade.owner == this.ship.commander and $tradeoffer.offeramount.{this} lt $amount">
             <!-- buyer no longer buys the amount we want to sell -->
             <remove_trade_order object="this.ship" trade="$trade" />
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer amount too low - aborting (2nd)'.[player.age,this.name,this.container.name]"/>
