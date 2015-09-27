@@ -264,30 +264,30 @@
               </do_if>
             </do_all>
           </do_elseif>
-            <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to happen here, for now just remove Tradeorder and continue with next Order -->
-          <do_if value="not $tradeoffer.available">
+          <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to happen here, for now just remove Tradeorder and continue with next Order -->
+          <do_if value="not $tradeoffer.available and not $trade.owner == this.ship.commander">
             <!-- no fitting Trade found -->
             <remove_trade_order object="this.ship" trade="$trade" />
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting'.[player.age,this.name,this.container.name]"/>
             <return/>
           </do_if>
-          <do_elseif value="$tradeoffer.offeramount.{this} lt $amount">
+          <do_elseif value="$tradeoffer.offeramount.{this} lt $amount and not $trade.owner == this.ship.commander">
             <!-- no Offer with enough Wares found -->
             <!-- ToDo: Adjust Amounts for this Trade and the next Selling Trade -->
             <remove_trade_order object="this.ship" trade="$trade" />
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer amount too low - aborting'.[player.age,this.name,this.container.name]"/>
             <return/>
           </do_elseif>
-          <do_elseif value="not $trade.buyfree and (this.money / 1Cr) lt ($trade.price / 1Cr)">
+          <do_if value="not $trade.buyfree and (this.money / 1Cr) lt ($trade.price / 1Cr)">
             <!-- we no longer have enough money in our account to make this purchase -->
             <!-- just grab some extra Funds from the Manager and check again -->
             <transfer_money from="this.container.commanderentity" to="this" amount="$trade.price - this.money"/>
             <do_if value="not $trade.buyfree and (this.money / 1Cr) lt ($trade.price / 1Cr)">
               <remove_trade_order object="this.ship" trade="$trade" />
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not enough Money - aborting'.[player.age,this.name,this.container.name]"/>
+              <debug_text filter="error" text="'%1 %2 %3 Not enough Money - aborting'.[player.age,this.name,this.container.name]"/>
               <return/>
             </do_if>
-          </do_elseif>
+          </do_if>
         </do_if>
       </do_if>
       <do_else comment="we want to sell something">
@@ -314,7 +314,7 @@
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting (2nd)'.[player.age,this.name,this.container.name]"/>
             <return/>
           </do_if>
-          <do_elseif value="$tradeoffer.offeramount.{this} lt $amount">
+          <do_elseif value="$tradeoffer.offeramount.{this} lt $amount and not $trade.owner == this.ship.commander">
             <!-- buyer no longer buys the amount we want to sell -->
             <remove_trade_order object="this.ship" trade="$trade" />
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer amount too low - aborting (2nd)'.[player.age,this.name,this.container.name]"/>
