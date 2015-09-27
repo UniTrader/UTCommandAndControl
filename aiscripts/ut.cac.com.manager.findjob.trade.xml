@@ -57,7 +57,7 @@ $entity  = ' + $entity"/>
       </do_else>
       
       <!-- to suppress unnecesary debug output (dont want to remove it completely yet, but its too verbose) -->
-      <set_value name="$debug_detailoutput" exact="this.$debug * 100" comment="this.$debug * 100" />
+      <set_value name="$debug_detailoutput" exact="false" comment="this.$debug * 100" />
       
       
       <!-- Get Range to be used - either Jump Range or Tube Range -->
@@ -219,7 +219,7 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-        <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settings.$consumables.{$ware}.$target )f )"/>
+        <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settings.$consumables.{$ware}.$target )f )"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
