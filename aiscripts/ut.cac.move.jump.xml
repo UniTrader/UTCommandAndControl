@@ -79,7 +79,9 @@ ToDo:
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jump Script started with parameters:\n$destination: %4, $type: %5, $ignorefuel: %6, $leader: %7, $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
       
       <set_command_action commandaction="commandaction.jumping" />
-      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+      <do_if value="this.$ut_cac_settings?">
+        <set_value name="this.$ut_cac_settings.$isactive"/>
+      </do_if>
       
       <!-- maybe use a light variant which only undocks and cancels boosters, not the other stuff with leaving formations etc. -->
       <run_script name="'ut.cac.move.free'" />
@@ -91,7 +93,7 @@ ToDo:
         <return value="false"/>
       </do_if>
       <!-- in case the Destination is a Ship inside a Tube get its Exit Waypoint and jump as near as possible there -->
-      <!-- no special behavior in case the Pilot ddnt annnunce his Target - just jump to him as close as possible -->
+      <!-- no special behavior in case the Pilot didnt annnunce his Target - just jump to him as close as possible -->
       <do_if value="$destination.isclass.ship">
         <do_if value="$destination.zone.isclass.highway">
           <do_if value="$destination.pilot.$waypoint?">
@@ -105,10 +107,20 @@ ToDo:
       </do_if>
       
       <!-- check if we really can do this Jump -->
-      <find_object_component name="$jumpdrive" object="this.ship" class="class.jumpdrive"/>
+      <find_object_component name="$jumpdrive" object="this.ship" class="class.jumpdrive" checkoperational="false"/>
+      <do_if value="$jumpdrive == null">
+        <debug_text filter="error" text="'%1 %2 %3 No Jumpdrive - aborting!'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
       <do_if value="not $jumpdrive.isoperational">
-        <debug_text filter="error" text="'%1 %2 %3 No operational Jumpdrive - aborting!'.[player.age,this.name,this.container.name]"/>
-        <return value="false"/>
+        <debug_text filter="error" text="'%1 %2 %3 No operational Jumpdrive - wait till restored (will wait silently for now! )'.[player.age,this.name,this.container.name]"/>
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_object_hull_above_function_threshold object="$jumpdrive"/>
+            </conditions>
+          </interrupt>
+        </wait>
       </do_if>
       
       <!-- save the slow charge effect in a var for later use -->
