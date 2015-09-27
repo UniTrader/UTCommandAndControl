@@ -109,7 +109,7 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-        <set_value name="$prio" exact="1 - ( ( this.container.cargo.{$ware}.target )f / ( this.container.cargo.{$ware}.count + $incomingamount )f )"/>
+        <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.container.cargo.{$ware}.target )f )"/>
         <do_if value="this.container.resources.{$ware}.secondary">
           <set_value name="$prio" exact="$prio * 0.75"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Secondary ressource is: ' + $prio"/>
@@ -219,7 +219,7 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-        <set_value name="$prio" exact="1.0 - ( ( this.$ut_cac_settings.$consumables.{$ware}.$target )f / ( this.container.cargo.{$ware}.count + $incomingamount )f )"/>
+        <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settings.$consumables.{$ware}.$target )f )"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
