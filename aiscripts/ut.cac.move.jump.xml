@@ -284,26 +284,34 @@ ToDo:
       
       <!-- if we are a follower in a Group Jump - remove ourselves from the Group to signal we are ready and wait for the Start Signal -->
       <do_if value="$leader.exists">
-        <remove_from_group group="$leader_preparegroup" object="this.ship"/>
-        <wait>
-          <interrupt>
-            <conditions>
+        <do_while value="$leader.exists">
+          <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+          <wait min="1min" max="3min">
+            <interrupt>
+              <conditions>
                 <event_object_signalled object="$leader" param="'travel jump start'" param2="$beacon"/>
-            </conditions>
-          </interrupt>
-          <!--interrupt>
-            <conditions>
-                <event_object_changed_zone object="$leader"/>
-            </conditions>
-            <actions>
-              <!- - what the hell? the leader has flown away or jumped without telling anyone! - ->
-              <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone!'.[player.age,this.name,this.container.name,$leader.knownname]"/>
-              <return/>
-            </actions>
-          </interrupt-->
-        </wait>
+              </conditions>
+              <actions>
+                <break/>
+              </actions>
+            </interrupt>
+            <!--interrupt>
+              <conditions>
+                  <event_object_changed_zone object="$leader"/>
+              </conditions>
+              <actions>
+                <!- - what the hell? the leader has flown away or jumped without telling anyone! - ->
+                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone!'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+                <return/>
+              </actions>
+            </interrupt-->
+          </wait>
+        </do_while>
+        <do_if value="not $leader.exists">
+          <debug_text filter="error" text="'%1 %2 %3 Jump Leader destroyed - aborting'.[player.age,this.name,this.container.name]"/>
+          <return value="false"/>
+        </do_if>
       </do_if>
-      
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Charging Jump Drive! 10 Precent, 20, 30....'.[player.age,this.name,this.container.name]"/>
       <!-- actually JUMP!!! -->
