@@ -9,16 +9,11 @@
       <actions>
         <debug_text filter="general" text="'\n
         Manager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
-        this.$legality = ' + this.$legality + '\n
+        this.$ut_cac_settings = ' + this.$ut_cac_settings + '\n
         this.$orderlist = ' + this.$orderlist + '\n
         $bug = ' + $bug + '\n
         this.$idle_subordinates = ' + this.$idle_subordinates"/>
       </actions>
-    </handler>
-    <handler comment="Money Updated Handler">
-      <conditions>
-        <event_object_money_updated object="this"/>
-      </conditions>
     </handler>
     <handler comment="Order Request Handler - uses this.$idle_subordinates to let the manager finish what he is currently doing but not let him forget about outstanding order requests">
       <conditions>
@@ -27,10 +22,25 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <add_to_group groupname="this.$idle_subordinates" object="event.param2"/>
         <!-- in case a script checks for the orderlist length for pausing/termination add a do-nothing order -->
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order=null]"/>
+      </actions>
+    </handler>
+    <handler comment="Zonetrade Cleanup">
+      <conditions>
+        <check_any>
+          <event_trade_order_cancelled buyer="this.container"/>
+          <event_trade_order_completed buyer="this.container"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <do_if value="event.param == this.$ut_cac_settings.$currenttrade">
+          <debug_text filter="error" text="'%1 %2 %3 Manager Zonetrade %4 finally finished!! IT WORKS! PLEASE TELL ME WHEN YOU SEE THIS!'.[player.age,this.name,this.container.name,$finalselloffer]"/>
+          <remove_ware_reservation object="this.container" entity="this" ware="event.param.ware"/>
+          <set_value name="entity.$ut_cac_settings.$currenttrade" exact="null"/>
+        </do_if>
       </actions>
     </handler>
   </interrupts>
@@ -39,16 +49,6 @@
   <attention min="unknown">
     <actions>
       <label name="init"/>
-      
-      <!-- set up legality levels:
-      3 - no goods which are considered illegal anywhere
-      2 - no goods which are considered illegal in this Zone or Sector
-      1 - no goods which are considered illegal in this Zone or Sector taking licenses into account (default for now; will change to 3 when interface is ready)
-      0 - trades with everything - wheter legal or illegal
-      -->
-      <do_if value="not this.$legality?">
-        <set_value name="this.$legality" exact="1"/>
-      </do_if>
       
       <!-- set up orderlist -->
       <do_if value="not this.$orderlist?">
@@ -64,16 +64,15 @@
       <set_value name="$miningorder" exact="table[$script='ut.cac.com.manager.gatherressources',$displayname='Gather Ressources (default)',$interruptable=false]"/>
       
       <!--immediately allow Zone Trading and Mining -->
-        <set_value name="$next_zonetrade" exact="player.age"/>
-        <set_value name="$next_miningstep" exact="player.age"/>
-      
-      <!-- for debug purposes-->
-      <!--set_value name="this.$debug" exact="true"/-->
+      <set_value name="$next_zonetrade" exact="player.age"/>
+      <set_value name="$next_miningstep" exact="player.age"/>
       
       <!-- add Fuelcells as Trade Ware if Sctation has Cargo for them so Energy Freighters will buy it and put it into the Station Cargo for Refueling of Station Ships -->
-      <do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
+      <!--do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
         <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false"/>
-      </do_if>
+        <add_cargo object="this.container" ware="ware.fuelcells" exact="1"/>
+        <set_value name="this.container.cargo.{ware.fuelcells}.target" exact="2500"/>
+      </do_if-->
       
       
       <!-- register Subordinates - see event Handlers for actual adding procedure -->
@@ -82,14 +81,14 @@
         <wait exact="1ms"/>
       </do_all>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 init finished\nSet Values: this.$legalitiy= %3 , Fuelcells added as Tradeware, Signalled %4 Subordinates'.[player.age,this.name,this.$legality,this.container.subordinates.{this.type}.count]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 init finished\nSignalled %4 Subordinates'.[player.age,this.name,this.container.subordinates.{this.type}.count]"/>
       
       
       <label name="start with orderlist"/>
       
       <!-- fulfill all Orders in List in their order -->
       <do_while value="this.$orderlist.count gt 0">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}" />
         <do_if value="typeof $order == datatype.table">
           <set_value name="$order.$interruptable" exact="false"/>
@@ -119,7 +118,6 @@
       
       <!-- check if we have gasses as ressource and can mine them directly -->
       <do_if value="player.age gt $next_miningstep">
-        <set_value name="$next_miningstep" exact="player.age + 1min"/>
         <create_list name="$mineable_ressources"/>
         <do_all exact="this.container.resources.list.count" counter="$i">
           <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
@@ -131,21 +129,22 @@
           </do_if>
         </do_all>
         <do_if value="$mineable_ressources.count or ( $miningorder.gatherware? and $miningorder.$gatherstart? and $miningorder.$gatherrate? )">
-          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
           <set_value name="$miningorder.$wareslist" exact="$mineable_ressources"/>
           <set_value name="$miningorder.$next_call" exact="1min"/>
           <append_to_list name="this.$orderlist" exact="$miningorder"/>
+          <set_value name="$next_miningstep" exact="player.age + 1min"/>
         </do_if>
         <do_else>
-          <set_value name="$next_miningstep" exact="player.age + 2min"/>
+          <set_value name="$next_miningstep" exact="player.age + 5min"/>
         </do_else>
       </do_if>
       
       <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
-      <!--do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade">
+      <do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade and not this.$ut_cac_settings.$currenttrade">
         <set_value name="$next_zonetrade" exact="player.age + 7min"/>
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.zonetrade',$displayname='Perform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
-      </do_if-->
+      </do_if>
       
       <do_if value="this.$orderlist.count == 0">
         <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>

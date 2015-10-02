@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.captain" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.captain" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="2">
   <!-- this is basically just a Script which executes previously given Orders in order and falls back to a logical default behavior depending on context (a very stupid script - the logic is to be implemented in other scripts) -->
   <interrupts>
     <handler comment="Print Script Vars">
@@ -47,7 +47,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="typeof event.param2 == datatype.list" negate="true">
           <!-- a List of new Orders has been passed instead of a single Order - make it a List for compatibility with multi-order-adding -->
           <set_value name="$new_orders" exact="[ event.param2 ]" />
@@ -92,7 +92,7 @@
         <event_object_signalled object="this.ship" param="'next order'"/>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <!-- ToDo: implement Condition for uninterruptable Orders (do nothing-cases) like Docking, which should not be aborted-->
         <remove_value name="this.$orderlist.{1}"/>
         <abort_scripts entity="this"/>
@@ -104,6 +104,8 @@
   </init>
   <attention min="unknown">
     <actions>
+      <wait min="0.1s" max="10s" comment="to avoid multiple order requests at the same moment" sinceversion="2"/>
+      
       <label name="start"/>
       <do_if value="not this.$orderlist?">
         <create_list name="this.$orderlist"/>
@@ -112,13 +114,13 @@
       <!-- first get to free Space/Undock, leave formations etc. to have a safe initial state -->
       <run_script name="'ut.cac.com.captain.move.free'"/>
       
-      <wait min="0.1s" max="10s" comment="to avoid multiple order requests at the same moment"/>
+      <wait exact="100ms" />
       
       <label name="start with orderlist"/>
       
       <!-- fulfill all Orders in List in their order -->
       <do_while value="this.$orderlist.count gt 0">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}" />
         <do_if value="typeof $order == datatype.table">
           <set_value name="$order.$interruptable" exact="false"/>

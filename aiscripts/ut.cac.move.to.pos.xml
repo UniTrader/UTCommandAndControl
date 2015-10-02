@@ -42,7 +42,7 @@ with a given Rotation or Orientation
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7 , $forceendpos: %8'.[player.age,this.name,this.container.name,$destination,$position,$rotation,$lookat,$forceendpos]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7 , $forceendpos: %8'.[player.age,this.name,this.container.name,$destination,$position,$rotation,$lookat,$forceendpos]"/>
       
       <!-- Verify Input and Situation -->
 <!-- => no Movement out of Zone
@@ -50,7 +50,7 @@ with a given Rotation or Orientation
       -->
       <do_if value="not $destination.exists">
         <set_value name="$destination" exact="this.zone"/>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Destination not given or non-existent - defaulting to current Zone %4'.[player.age,this.name,this.container.name,this.zone.knownname]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination not given or non-existent - defaulting to current Zone %4'.[player.age,this.name,this.container.name,this.zone.knownname]"/>
       </do_if>
       <do_elseif value="not $destination.isclass.zone">
         <do_if value="$destination.zone != this.zone">
@@ -60,6 +60,7 @@ with a given Rotation or Orientation
       </do_elseif>
       
       <set_command_action commandaction="commandaction.flyingto" param="$destination"/>
+      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
       
       <!-- Calculate actually used parameters -->
       <!-- Transform relative Position to Position in Zone and get a near safe pos (or get near safe pos if we dont have a ref pos)-->
@@ -87,7 +88,7 @@ with a given Rotation or Orientation
         </create_orientation>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Got final Pos and rotation, starting movement: %4 %5 %6'.[player.age,this.name,this.container.name,$safepos,@$rotation,this.ship.distanceto.{$safepos}]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got final Pos and rotation, starting movement: %4 %5 %6'.[player.age,this.name,this.container.name,$safepos,@$rotation,this.ship.distanceto.{$safepos}]"/>
       
       <!-- Do actual movement -->
       <!-- check if we are near destination safepos and if it makes sense to strafe or fly backwards -->
@@ -135,7 +136,7 @@ with a given Rotation or Orientation
         </move_to>
       </do_else>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Movement done.'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Movement done.'.[player.age,this.name,this.container.name]"/>
       
       
     </actions>

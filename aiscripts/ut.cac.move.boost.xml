@@ -37,7 +37,7 @@
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $leader: %6 , $leader_preparegroup: %7'.[player.age,this.name,this.container.name,$destination.knownname,$position,$leader,$leader_preparegroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $leader: %6 , $leader_preparegroup: %7'.[player.age,this.name,this.container.name,$destination.knownname,$position,$leader,$leader_preparegroup]"/>
       
       <!-- =========== -->
       <!-- Validate Input -->
@@ -88,6 +88,7 @@
         <!-- figure out position to leave this zone at -->
         
         <set_command_action commandaction="commandaction.flyingto" param="$targetzone"/>
+        <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
         
         <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size/2" >
           <position object="this.ship" />
@@ -109,12 +110,13 @@
         <get_zone_exit_pos zone="$targetzone" destination="this.ship" position="$targetpos" radius="this.ship.size" >
           <position object="$targetzone" value="$position"/>
         </get_zone_exit_pos>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Calculated Params for IS-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calculated Params for IS-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
       </do_if>
       <do_else>
         <!-- InZone-Boost - move a bit in Direction of the Target to align (if not already) - and Boost to nearby it -->
         
         <set_command_action commandaction="commandaction.flyingto" param="$destination"/>
+        <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
         
         <!-- create boost Target Pos -->
         <do_if value="$position">
@@ -141,7 +143,7 @@
           </create_orientation>
         </do_if>
         
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Calculated Params for IZ-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calculated Params for IZ-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
       </do_else>
       
       <!-- ================= -->
@@ -161,7 +163,7 @@
       
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Moving to Start Position'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to Start Position'.[player.age,this.name,this.container.name]"/>
         <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="true" finishonapproach="false">
           <position value="$startpos" />
           <rotation value="$startrot" />
@@ -204,7 +206,7 @@
       
       <do_while value="( this.zone != $targetzone ) or ( this.ship.distanceto.{$targetpos} gt 5000 )">
         <do_if value="this.ship.canboost or this.ship.isboostactive">
-          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 START BOOST!'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!'.[player.age,this.name,this.container.name]"/>
           <do_if value="this.ship.canboost and not this.ship.isboostactive">
             <start_boost object="this.ship"/>
           </do_if>
@@ -215,27 +217,27 @@
                 <event_boost_stopped object="this.ship"/>
               </conditions>
               <actions>
-                <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Boost interrupted'.[player.age,this.name,this.container.name]"/>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost interrupted'.[player.age,this.name,this.container.name]"/>
               </actions>
             </interrupt>
           </move_to>
           <do_if value="this.ship.isboostactive">
-            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Boost End'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost End'.[player.age,this.name,this.container.name]"/>
             <stop_boost object="this.ship"/>
           </do_if>
         </do_if>
         <do_else>
-          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Cannt activate Booster - Snail movement'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Cannt activate Booster - Snail movement'.[player.age,this.name,this.container.name]"/>
           <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false">
             <position value="$targetpos" />
             <interrupt_after_time time="1min"/>
           </move_to>
-          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Snail Movement end'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Snail Movement end'.[player.age,this.name,this.container.name]"/>
         </do_else>
         <!-- Switch Sector Context if its a Trans-Sector-Boost - NEEDS TESTING AND IMPROVEMENT -->
         <do_if value="this.sector != $destination.sector">
           <do_if value="this.ship.distanceto.{this.sector} gt this.ship.distanceto.{$destination.sector}">
-            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Switching Sector Context\n from: %4 to: %5'.[player.age,this.name,this.container.name,this.sector.knownname,destination.sector.knownname]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Switching Sector Context\n from: %4 to: %5'.[player.age,this.name,this.container.name,this.sector.knownname,destination.sector.knownname]"/>
             <!-- still need to get the correct Position and not sure if warp creates the needed temp Zone -->
             <warp object="this.ship" zone="$destination.sector" >
               <position object="this.ship" space="$destination.sector" />
@@ -243,7 +245,7 @@
           </do_if>
         </do_if>
       </do_while>
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Boost movement done, distance to boost target pos: %4'.[player.age,this.name,this.container.name,this.ship.distanceto.{$targetpos}]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost movement done, distance to boost target pos: %4'.[player.age,this.name,this.container.name,this.ship.distanceto.{$targetpos}]"/>
     </actions>
   </attention>
   <on_abort>

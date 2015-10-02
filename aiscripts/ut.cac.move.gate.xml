@@ -32,7 +32,7 @@
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$gate: %4 ; $cleargate: %5 $formationlist: %6'.[player.age,this.name,this.container.name,$gate,$cleargate,$formationlist]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$gate: %4 ; $cleargate: %5 $formationlist: %6'.[player.age,this.name,this.container.name,$gate,$cleargate,$formationlist]"/>
       
       <!-- then check if the Input and Situation is Valid  -->
       <do_if value="not $gate.exists or not $gate.isclass.gate">
@@ -44,13 +44,18 @@
       </do_if>
       
       <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
+      <do_if value="this.$ut_cac_settings?">
+        <set_value name="this.$ut_cac_settings.$isactive"/>
+      </do_if>
       
       <!-- check if global Var for Gate Passage exists and create if necesary -->
       <do_if value="not global.$gate_queue?">
-        <set_value name="global.$gate_queue" exact="table[$gate=[]]"/>
+        <set_value name="global.$gate_queue" exact="table[{$gate}=[]]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Creating Global Gate Passage Table: %4 current Gate: %5'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
       </do_if>
       <do_elseif value="not global.$gate_queue.{$gate}?">
         <set_value name="global.$gate_queue.{$gate}" exact="[]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Gate to Global Gate Passage Table: %4 current Gate: %5'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
       </do_elseif>
       
       
@@ -62,7 +67,7 @@
           <position x="0m" y="0m" z="-7km"/>
         </transform_position>
         <do_if value="this.ship.distanceto.{$position} gt 7km">
-          <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Moving behind the Gate in %4 to make formation ready for passage'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving behind the Gate in %4 to make formation ready for passage'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
           <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="this.ship"/>
           <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true">
             <position value="$safeposition" />
@@ -91,15 +96,20 @@
       
       
       <!-- wait until we are next going through the Gate and then move to entry approach pos -->
-      <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship} gt 1">
-        <wait>
+      <do_while value="global.$gate_queue.{$gate}.indexof.{this.ship} gt 1">
+        <wait min="1min" max="3min">
           <interrupt>
             <conditions>
               <event_object_signalled object="this.ship" param="'travel gate next'"/>
             </conditions>
           </interrupt>
         </wait>
-      </do_if>
+        <!-- remove Ships not in queue anymore (fallback cleanup in case something went wrong -->
+        <do_if value="not global.$gate_queue.{$gate}.{1}.exists or global.$gate_queue.{$gate}.{1}.zone != $gate.zone">
+          <debug_text filter="error" text="'%1 %2 %3 Removing first Ship from queue because its not waiting for passage anymore: %4'.[player.age,this.name,this.container.name,global.$gate_queue.{$gate}.{1}]"/>
+          <remove_value name="global.$gate_queue.{$gate}.{1}"/>
+        </do_if>
+      </do_while>
       
       <!-- calculate Approach Position and rotation which lies behind the gate to use it as efficient as possible  -->
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
@@ -110,7 +120,7 @@
         <position value="$safeposition"/>
       </create_orientation>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Approaching Gate in %4'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Approaching Gate in %4'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
       <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true">
         <position value="$safeposition" />
         <rotation value="$rotation" />
@@ -128,7 +138,7 @@
       </run_script-->
       <!-- ======= End Old Temp Code ======== -->
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
       
       <!-- remove ourselves from the Waiting List, signal the next to go -->
       <remove_value name="global.$gate_queue.{$gate}.{1}"/>
@@ -150,7 +160,7 @@
             <event_object_changed_cluster object="this.ship" />
           </conditions>
           <actions>
-            <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (moved through gate)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (moved through gate)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
             <set_value name="$moveintogate" exact="false" />
           </actions>
         </interrupt>
@@ -162,7 +172,7 @@
               <event_object_changed_cluster object="this.ship" />
             </conditions>
             <actions>
-              <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (wait)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (wait)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
             </actions>
           </interrupt>
         </wait>
@@ -191,6 +201,7 @@
     <!-- remove ourselves from the waiting List if we are in it -->
     <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
       <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
+      <!--signal_objects object="global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/-->
     </do_if>
   </on_abort>
 </aiscript>

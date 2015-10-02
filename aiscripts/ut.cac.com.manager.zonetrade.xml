@@ -23,10 +23,10 @@
   <attention min="unknown">
     <actions>
       <label name="start"/>
-      
       <!-- Zone Trading with Cargo Drones - copied from Vanilla for now -->
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Doing a Zone Trade Run for now'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Doing a Zone Trade Run for now'.[player.age,this.name,this.container.name]"/>
       <set_command_action commandaction="commandaction.searchingtrades"/>
+      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
       <set_value name="$buyoffer" exact="null"/>
       <!-- find the best trade opportunity -->
       <find_buy_offer buyer="this.container" result="$buyoffers" multiple="true">
@@ -101,30 +101,33 @@
           <!-- DEBUG ONLY END -->
         </do_if>
         <set_command command="command.trade" param="$finalselloffer.seller"/>
-        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 Manager Zonetrade Executing Trade'.[player.age,this.name]"/>
+        <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Manager Zonetrade Executing Trade'.[player.age,this.name]"/>
         <show_notification caption="'Manager does Zonetrade!!!'" details="'Ware: %1\nAmount: %2\nTradepartner: %3'.[$finalselloffer.ware,$finalamount,$finalselloffer.owner.knownname]"/>
         <execute_trade tradeoffer="$finalselloffer" amount="$finalamount" tradepartner="this.container" result="$traderesult" unbundle="$unbundle?">
-          <interrupt_after_time time="5h"/>
+          <interrupt_after_time time="1min"/>
         </execute_trade>
+        <set_value name="this.$ut_cac_settings.$currenttrade" exact="$finalselloffer"/>
+        <!-- Cleanup Stuff is in Signal Handlers of ut.cac.base.manager, here a copy for reference: 
+    <handler comment="Zonetrade Cleanup">
+      <conditions>
+        <check_any>
+          <event_trade_order_cancelled buyer="this.container"/>
+          <event_trade_order_completed buyer="this.container"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <do_if value="event.param == this.$ut_cac_settings.$currenttrade">
+          <remove_ware_reservation object="this.container" entity="this" ware="event.param.ware"/>
+          <set_value name="entity.$ut_cac_settings.$currenttrade" exact="null"/>
+        </do_if>
+      </actions>
+    </handler>
+        -->
         <!-- no need to call detach_from_masstraffic since stations in the same zone are linked with a static network that persists anyway -->
-        <do_if value="(not $traderesult) and $unbundle?">
-          <!-- in case we failed to buy ammo, trigger an update for our ammo offers -->
-          <signal_objects object="this.container" param="'update_ammo_offers'"/>
-        </do_if>
-        <remove_value name="$unbundle"/>
-        <!-- DEBUG ONLY START -->
-        <do_if value="$reserved?">
-          <add_ware_reservation object="this.container" entity="this" ware="$tradeware" amount="0" result="$d_reserved"/>
-          <do_if value="$d_reserved != $reserved">
-          </do_if>
-          <remove_value name="$d_reserved"/>
-        </do_if>
-        <!-- DEBUG ONLY END -->
-        <remove_value name="$reserved"/>
-        <remove_ware_reservation object="this.container" entity="this" ware="$tradeware"/>
       </do_if>
       
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 Manager Zonetrade finished'.[player.age,this.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Manager Zonetrade Script finished'.[player.age,this.name,this.container.name] + ( if this.$ut_cac_settings.$currenttrade then ' - executing Trade %1'.[$finalselloffer] )"/>
       
       <return>
         <retval name="repeat" value="false"/>

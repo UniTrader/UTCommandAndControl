@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!--parameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/parameters.xsd">
+  <scriptparams>-->
+<diff>
+  <add sel="//scriptparams">
+    <category name="ut_cac">
+      <!-- Limits of the possible Ranges -->
+      <!-- Nested List: Index 1: Manager Skill (1-5), Index2: Max Gates, Galaxy allowed, Max Clusters, Max Sectors, Max Zones, Num Slots -->
+      <!-- Navigation Skill of 0 restricts the Actor to the current Sector - default Setting, not changeable. -->
+      <param name="rangelimits" value="[
+      [ 1 , 0 , 0 , 1 , 2 , 2 ],
+      [ 2 , 0 , 0 , 1 , 3 , 3 ],
+      [ 4 , 0 , 1 , 2 , 4 , 4 ],
+      [ 7 , 0 , 2 , 2 , 5 , 5 ],
+      [ 11 , 1 , 2 , 3 , 6 , 6 ]
+      ]"/>
+      <!-- Default Settings used by all Actors -->
+      <!--(note: not verified if they are valid in situ since these are assumed to be safe) -->
+      <!--(Also some are Environment-Secific or Entity-Specific, like:
+      $range
+      $range_h
+      $range_j
+      $experience (Start Values depend on current Skill, see next Param)
+      -->
+      <param name="setting_defaults" value="table[
+      {'$pesterlevel'} = 60,
+      {'$loglevel'} = 0,
+      {'$legality'} = 1,
+      {'$jumptype'} = 'beacon',
+      {'$insectorjump'} = false,
+      {'$currenttrade'} = null,
+      {'$consumables'} = table[ { ware.fuelcells } = table[{'$target'}=2500] ]
+      ]"/>
+      <!-- EXP Requirements for Skills:   1 Star  2 Stars  3 Stars   4 Stars     5 Stars   MAX (invisible 6th Star) - currently total Wage so far, but WiP - requirements will change-->
+      <param name="experience" value="[ 3000Cr , 10000Cr , 30000Cr , 100000Cr , 300000Cr , 1000000Cr ]"/>
+      <!-- Employee Wages - Base is paid every hour, Skill is paid as Percentage based on combinedskill (Danger Bonus is paid every 10min if applicable)
+      Wages in Order: [ Base Working, Skill Working, Base Inactive, Skill inactive , Base Danger Bonus, Skill Danger Bonus) -->
+      <param name="wage" value="table[
+      {entitytype.pilot} = [ 1100Cr , 2200Cr , 0Cr , 0Cr , 1100Cr , 2200Cr ],
+      {entitytype.commander} = [ 2700Cr , 5400Cr , 0Cr , 0Cr , 2700Cr , 5400Cr ],
+      {entitytype.manager} = [ 4800Cr , 9600Cr , 0Cr , 0Cr , 4800Cr , 9600Cr ],
+      {entitytype.engineer} = [ 1300Cr , 2600Cr , 0Cr , 0Cr , 1300Cr , 2600Cr ],
+      {entitytype.architect} = [ 3600Cr , 7200Cr , 0Cr , 0Cr , 3600Cr , 7200Cr ],
+      {entitytype.marine} = [ 1900Cr , 3800Cr , 0Cr , 0Cr , 1900Cr , 3800Cr ],
+      {entitytype.defencecontrol} = [ 5800Cr , 11600Cr , 0Cr , 0Cr , 5800Cr , 11600Cr ],
+      {entitytype.specialistagriculture} = [ 12200Cr , 24400Cr , 0Cr , 0Cr , 12200Cr , 24400Cr ],
+      {entitytype.specialistpowerstorage} = [ 16800Cr , 33600Cr , 0Cr , 0Cr , 16800Cr , 33600Cr ],
+      {entitytype.specialistfood} = [ 15700Cr , 31400Cr , 0Cr , 0Cr , 15700Cr , 31400Cr ],
+      {entitytype.specialistchemical} = [ 18500Cr , 37000Cr , 0Cr , 0Cr , 18500Cr , 37000Cr ],
+      {entitytype.specialistprecision} = [ 19500Cr , 39000Cr , 0Cr , 0Cr , 19500Cr , 39000Cr ],
+      {entitytype.specialistweapons} = [ 22000Cr , 44000Cr , 0Cr , 0Cr , 22000Cr , 44000Cr ],
+      {entitytype.specialistpharmaceuticals} = [ 14700Cr , 29400Cr , 0Cr , 0Cr , 14700Cr , 29400Cr ],
+      {entitytype.specialistmetals} = [ 14500Cr , 29000Cr , 0Cr , 0Cr , 14500Cr , 29000Cr ],
+      {entitytype.specialistgeophysics} = [ 12800Cr , 25600Cr , 0Cr , 0Cr , 12800Cr , 25600Cr ],
+      {entitytype.specialistsurfacesystems} = [ 23200Cr , 46400Cr , 0Cr , 0Cr , 23200Cr , 46400Cr ],
+      {entitytype.specialistpowersupply} = [ 21000Cr , 42000Cr , 0Cr , 0Cr , 21000Cr , 42000Cr ],
+      {entitytype.specialistaquatics} = [ 11500Cr , 23000Cr , 0Cr , 0Cr , 11500Cr , 23000Cr ]
+      ]"/>
+    </category>
+  </add>
+</diff>
+  <!--/scriptparams>
+</parameters-->
