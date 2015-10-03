@@ -57,7 +57,7 @@
         </cue>
       </cues>
     </cue>
-    <library name="Payment">
+    <library name="Payment" onfail="cancel" version="10">
       <params>
         <param name="actor"/>
       </params>
@@ -67,6 +67,11 @@
           <cancel_cue cue="this"/>
         </do_if>
       </actions>
+      <patch sinceversion="1" comment="hotfix for v10, but had no version then so keeping version number">
+        <do_if value="$actor.owner != faction.player">
+          <cancel_cue cue="this"/>
+        </do_if>
+      </patch>
       <cues>
         <cue name="Wage" comment="Wages are paid hourly">
           <conditions>
@@ -140,7 +145,7 @@
         </cue>
       </cues>
     </library>
-    <library name="Account_Manager">
+    <library name="Account_Manager" onfail="cancel" version="10">
       <params>
         <param name="actor"/>
       </params>
@@ -158,6 +163,11 @@
           </do_else>
         </do_if>
       </actions>
+      <patch sinceversion="1" comment="hotfix for v10, but had no version then so keeping version number">
+        <do_if value="$actor.owner != faction.player">
+          <cancel_cue cue="this"/>
+        </do_if>
+      </patch>
       <cues>
         <cue name="Transfer_Surplus">
           <delay exact="1min"/>
