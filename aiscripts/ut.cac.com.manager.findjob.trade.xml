@@ -311,7 +311,7 @@ $entity  = ' + $entity"/>
           <set_value name="$prio" exact="[0.0,$prio-1.0].max"/>
         </do_if>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Product is: ' + $prio"/>
-        <!-- no need to include the Wares we dont have in cargo -->
+        <!-- no need to include the Wares we dont have in cargo (prio results in 0.0) -->
         <do_if value="$prio gt 0.0">
           <!-- first Value in the Target List, no need for any Sorting-->
           <do_if value="$wareslist.count == 0">
@@ -343,9 +343,14 @@ $entity  = ' + $entity"/>
       </do_all>
       
       <!-- now add Trade Wares to the List considered for Trading ( neither Product nor Ressource )-->
-      <!-- ToDo: Make this conditional for when the Manager is expierienced enough or this is a Trade Station -->
+      <!-- ToDo: Make this conditional for when the Manager is experienced enough or this is a Trade Station -->
       <do_all exact="this.container.tradewares.list.count" counter="$i">
         <set_value name="$ware" exact="this.container.tradewares.list.{$i}"/>
+        <!-- not interested in Tradewares which are alredy in the List (as Product or Ressource or intermediate) - Subject to change! -->
+        <do_if value="$wareslist.indexof.{$ware}">
+          <debug_text filter="general" chance="$debug_detailoutput" text="'%1 Tradeware is already in Warelist'.[$ware]"/>
+          <continue/>
+        </do_if>
         <!-- not interested in Wares which the Ship cannt transport -->
         <do_if value="$entity.ship.cargo.{$ware}.free le 0">
           <debug_text filter="general" chance="$debug_detailoutput" text="'%1 Ship has no space for it'.[$ware]"/>
@@ -376,44 +381,70 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount"/>
-        <set_value name="$prio" exact="( 1 - ( this.container.cargo.{$ware}.count - $reservedamount )f / ( this.container.cargo.{$ware}.target )f ) *0.5"/>
+        <!-- first calculate the Buy Prio (half prio of Ressources), and insert it ionto the List - then do the same for Sell Prio -->
+        <set_value name="$prio" exact="( 1.0 - ( ( this.container.cargo.{$ware}.count + $reservedamount )f  / ( this.container.cargo.{$ware}.target )f ) ) * 0.5"/>
+        <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Tradeware Buying is: ' + $prio"/>
+        <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
-          <set_value name="$buysell" exact="'sell'"/>
-        </do_if>
-        <do_elseif value="$prio lt 0.0">
-          <set_value name="$buysell" exact="'buy'"/>
-          <set_value name="$prio" exact="0 - $prio"/>
-        </do_elseif>
-        <do_else>
-          <continue comment="exactly wanted amount - dont consider trading "/>
-        </do_else>
-        <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Tradeware is: ' + $prio + $buysell"/>
-        <!-- first Value in the Target List, no need for any Sorting-->
-        <do_if value="$wareslist.count == 0">
-          <debug_text filter="general" chance="$debug_detailoutput" text="'Starting the List with it'"/>
-          <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
-          <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
-          <set_value name="$wareslist_buysell.{1}" exact="$buysell" operation="insert"/>
-        </do_if>
-        <do_else>
-          <set_value name="$inserted" exact="false"/>
-          <do_all exact="$wareslist_prio.count" counter="$j" reverse="true">
-            <do_if value="$wareslist_prio.{$j} ge $prio">
-              <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List At Position ' + $j"/>
-              <set_value name="$wareslist.{$j+1}" exact="$ware" operation="insert"/>
-              <set_value name="$wareslist_prio.{$j+1}" exact="$prio" operation="insert"/>
-              <set_value name="$wareslist_buysell.{$j+1}" exact="$buysell" operation="insert"/>
-              <set_value name="$inserted" exact="true"/>
-              <break/>
-            </do_if>
-          </do_all>
-          <do_if value="not $inserted">
-            <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List As first item'"/>
+          <!-- first Value in the Target List, no need for any Sorting-->
+          <do_if value="$wareslist.count == 0">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'Starting the List with it'"/>
             <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
             <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
-            <set_value name="$wareslist_buysell.{1}" exact="$buysell" operation="insert"/>
+            <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
           </do_if>
-        </do_else>
+          <do_else>
+            <set_value name="$inserted" exact="false"/>
+            <do_all exact="$wareslist_prio.count" counter="$j" reverse="true">
+              <do_if value="$wareslist_prio.{$j} ge $prio">
+                <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List At Position ' + $j"/>
+                <set_value name="$wareslist.{$j+1}" exact="$ware" operation="insert"/>
+                <set_value name="$wareslist_prio.{$j+1}" exact="$prio" operation="insert"/>
+                <set_value name="$wareslist_buysell.{$j + 1}" exact="'buy'" operation="insert"/>
+                <set_value name="$inserted" exact="true"/>
+                <break/>
+              </do_if>
+            </do_all>
+            <do_if value="not $inserted">
+              <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List As first item'"/>
+              <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
+              <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
+              <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
+            </do_if>
+          </do_else>
+        </do_if>
+        <!-- Sell Priority -->
+        <set_value name="$prio" exact="( this.container.cargo.{$ware}.count - $reservedamount )f / ( this.container.cargo.{$ware}.target )f * 0.5"/>
+        <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Tradeware Selling is: ' + $prio"/>
+        <!-- no need to include the Wares we dont have in cargo (prio results in 0.0)-->
+        <do_if value="$prio gt 0.0">
+          <!-- first Value in the Target List, no need for any Sorting-->
+          <do_if value="$wareslist.count == 0">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'Starting the List with it'"/>
+            <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
+            <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
+            <set_value name="$wareslist_buysell.{1}" exact="'sell'" operation="insert"/>
+          </do_if>
+          <do_else>
+            <set_value name="$inserted" exact="false"/>
+            <do_all exact="$wareslist_prio.count" counter="$j" reverse="true">
+              <do_if value="$wareslist_prio.{$j} ge $prio">
+                <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List At Position ' + $j"/>
+                <set_value name="$wareslist.{$j+1}" exact="$ware" operation="insert"/>
+                <set_value name="$wareslist_prio.{$j+1}" exact="$prio" operation="insert"/>
+                <set_value name="$wareslist_buysell.{$j+1}" exact="'sell'" operation="insert"/>
+                <set_value name="$inserted" exact="true"/>
+                <break/>
+              </do_if>
+            </do_all>
+            <do_if value="not $inserted">
+              <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List As first item'"/>
+              <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
+              <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
+              <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
+            </do_if>
+          </do_else>
+        </do_if>
       </do_all>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'Sorted Ware List to grab: \n%1\n%2\n%3'.[$wareslist,$wareslist_prio,$wareslist_buysell]"/>
