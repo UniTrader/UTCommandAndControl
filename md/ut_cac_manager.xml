@@ -126,6 +126,7 @@ Rest is shared between all Actor types
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_range'">
+              <!-- ToDo: Add Dialogue -->
               <resize_list list="$actor.$ut_cac_settings.$range" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
               <resize_list list="$actor.$ut_cac_settings.$range_h" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
               <resize_list list="$actor.$ut_cac_settings.$range_j" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
@@ -172,6 +173,7 @@ Rest is shared between all Actor types
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_mod'">
+              <!-- ToDo: Add Dialogue -->
               <set_value name="$slot" exact="event.param2"/>
               <do_if value="$actor.$ut_cac_settings.$range.{$slot}">
                 <add_player_choice text="if $actor.$ut_cac_settings.$range_j.{$slot} then 'Remove Jump Range' else '\033BSet as Jump Range\033X'" position="1" section="comm_settings_range_toggle_jump"/>
@@ -225,15 +227,14 @@ Rest is shared between all Actor types
             </do_elseif>
             <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
             <do_if value="$return?">
+              <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true" returnparam="$return"/>
+              <add_player_choice_return text="'and select any Item'" position="4" immediate="true" returnparam="$return"/>
+              <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true" returnparam="$return"/>
+              <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true" returnparam="$return"/>
+              <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true" returnparam="$return"/>
+              <add_player_choice_return text="'without selection'" position="6" immediate="true" returnparam="$return"/>
+              <add_player_choice_return text="'(Back)'" position="close" immediate="true" returnparam="$return"/>
               <remove_value name="$return"/>
-              <signal_cue cue="Verify_Range" comment="confirm that the Ranges are continonous"/>
-              <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
-              <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
-              <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
-              <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
-              <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
-              <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
-              <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
             </do_if>
           </actions>
         </cue>

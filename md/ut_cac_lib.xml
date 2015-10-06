@@ -446,7 +446,7 @@ Which Orders are available depends on entity Type
         </do_elseif>
         <!-- #### Slot3: Reassignment (to antarctica :P ) #### -->
         <do_elseif value="event.param == 'comm_personal_transfer'">
-          <!-- ToDo: Spoken Text -->
+          <!-- ToDo: Add Dialogue -->
           <do_if value="player.entity.container != $actor.container">
             <add_player_choice text="'Work here'" position="1" section="comm_personal_transfer_selected" choiceparam="player.entity.room"/>
           </do_if>
@@ -510,14 +510,14 @@ Which Orders are available depends on entity Type
         
         <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
         <do_if value="$return?">
+          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'and select any Item'" position="4" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'without selection'" position="6" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'(Back)'" position="close" immediate="true" returnparam="$return"/>
           <remove_value name="$return"/>
-          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
-          <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
-          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
-          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
-          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
-          <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
-          <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
         </do_if>
       </actions>
     </library>
@@ -607,6 +607,7 @@ Which Orders are available depends on entity Type
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_connect_subordinates'">
+          <!-- ToDo: Add Dialogue -->
           <do_all exact="[$actor.container.subordinates.{$actor.type}.count,6].min" counter="$i">
             <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.isclass.station">
               <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.tradenpc.exists">
@@ -695,14 +696,14 @@ Which Orders are available depends on entity Type
         </do_elseif>
         <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
         <do_if value="$return?">
+          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'and select any Item'" position="4" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'without selection'" position="6" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'(Back)'" position="close" immediate="true" returnparam="$return"/>
           <remove_value name="$return"/>
-          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
-          <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
-          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
-          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
-          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
-          <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
-          <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
         </do_if>
       </actions>
     </library>
@@ -744,6 +745,7 @@ Which Orders are available depends on entity Type
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_orders_modify'">
+          <!-- ToDo: Add Dialogue -->
           <do_if value="event.param2.{1} == 1" comment="current/first Order">
             <add_player_choice text="'Replace Order - WiP, use Insert+Cancel for now'" position="1" section="comm_orders_replace" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
             <add_player_choice text="'Insert Order, finish current later'" position="2" section="comm_orders_insert" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
@@ -794,6 +796,7 @@ Which Orders are available depends on entity Type
             <set_value name="$return"/>
           </do_if>
           <do_else>
+            <!-- ToDo: Add Dialogue -->
             <set_value name="$selected_order_A" exact="event.param2"/>
             <!-- Select a second order to swap with this one -->
             <set_value name="$slot" exact="1"/>
@@ -878,14 +881,14 @@ Which Orders are available depends on entity Type
         
         <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
         <do_if value="$return?">
+          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'and select any Item'" position="4" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'without selection'" position="6" immediate="true" returnparam="$return"/>
+          <add_player_choice_return text="'(Back)'" position="close" immediate="true" returnparam="$return"/>
           <remove_value name="$return"/>
-          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
-          <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
-          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
-          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
-          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
-          <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
-          <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
         </do_if>
       </actions>
     </library>
