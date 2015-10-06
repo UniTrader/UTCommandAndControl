@@ -56,14 +56,16 @@ Rest is shared between all Actor types
             <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
             <do_if value="event.name == 'event_conversation_started'">
               <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
-              <do_if value="$actor.room == player.entity.room">
-                <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
-                <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <do_if value="$actor.room == player.entity.room">
+                  <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
+                  <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
+                </do_if>
+                <do_else>
+                  <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi." />
+                  <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
+                </do_else>
               </do_if>
-              <do_else>
-                <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi." />
-                <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
-              </do_else>
             </do_if>
             <add_player_choice_sub text="'About your current Orders...'" position="1" section="comm_orders_main" selectable="false"/>
             <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main"/>
@@ -107,16 +109,18 @@ Rest is shared between all Actor types
             <!--                       Settings Menu                          -->
             <!--- ################################### -->
             <do_if value="event.param == 'comm_settings_main'">
-              <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
-                <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-                <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
-              </do_if>
-              <do_elseif value="event.name == 'event_conversation_returned_to_section'">
-                <do_if value="event.param2 == 'no change'">
-                  <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
+                  <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+                  <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
                 </do_if>
-                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
-              </do_elseif>
+                <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+                  <do_if value="event.param2 == 'no change'">
+                    <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+                  </do_if>
+                  <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+                </do_elseif>
+              </do_if>
               <add_player_choice_sub text="if $actor.skill.navigation ge 1 then 'About your Operations Range...' else 'Restricted to Current Sector'" position="1" section="comm_settings_range" selectable="$actor.skill.navigation ge 1"/>
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
