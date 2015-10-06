@@ -145,7 +145,7 @@
         </cue>
       </cues>
     </library>
-    <library name="Account_Manager" onfail="cancel" version="10">
+    <library name="Account_Manager" version="10">
       <params>
         <param name="actor"/>
       </params>
@@ -349,16 +349,18 @@ Which Orders are available depends on entity Type
         <!--                       Personal Menu                          -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_personal_main'">
-          <do_if value="event.name == 'event_conversation_next_section'">
-            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
-          </do_if>
-          <do_elseif value="event.name == 'event_conversation_returned_to_section'">
-            <do_if value="event.param2 == 'no change'">
-              <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="event.name == 'event_conversation_next_section'">
+              <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
             </do_if>
-            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
-          </do_elseif>
+            <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+              <do_if value="event.param2 == 'no change'">
+                <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+              </do_if>
+              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+            </do_elseif>
+          </do_if>
           <add_player_choice_sub text="'About your verbosity...'" position="1" section="comm_personal_pester" selectable="false" confidence="$actor.$ut_cac_settings.$pesterlevel / 20" />
           <add_player_choice_sub text="'About your Log Activity...'" position="2" section="comm_personal_log" selectable="false" confidence="$actor.$ut_cac_settings.$loglevel / 20" />
           <add_player_choice_sub text="'About your workplace..'" position="3" section="comm_personal_transfer" selectable="false" comment="planned, but not necesary yet" />
@@ -374,20 +376,24 @@ Which Orders are available depends on entity Type
         </do_if>
         <!-- ##### Slot1: Skills #### -->
         <do_elseif value="event.param == 'comm_personal_skills'">
-          <add_npc_line speaker="player.entity" line="[1130,1110].random" hidechoices="false" comment="Show me your profile/skills, please." />
-          <add_npc_line speaker="$actor" line="[4110,4111,1582,1583].random" hidechoices="false" comment="Here you go. | Take a look, I'm more than qualified. | I hope these impress you, I'm quite proud." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1130,1110].random" hidechoices="false" comment="Show me your profile/skills, please." />
+            <add_npc_line speaker="$actor" line="[4110,4111,1582,1583].random" hidechoices="false" comment="Here you go. | Take a look, I'm more than qualified. | I hope these impress you, I'm quite proud." />
+          </do_if>
           <open_conversation_menu menu="CharProfileMenu" param="[0, 0, $actor, 0, 1, $actor.container]" />
         </do_elseif>
         <!-- #### Slot2: Money Sub-Menu #### -->
         <do_elseif value="event.param == 'comm_personal_money'">
-          <do_if value="event.name == 'event_conversation_next_section'">
-            <add_npc_line speaker="player.entity" line="[1611].random" hidechoices="false" comment="About your budget..." />
-            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="event.name == 'event_conversation_next_section'">
+              <add_npc_line speaker="player.entity" line="[1611].random" hidechoices="false" comment="About your budget..." />
+              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+            </do_if>
+            <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+              <add_npc_line speaker="player.entity" line="[1613].random" hidechoices="false" comment="Confirming budget changes." />
+              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="Here you go." />
+            </do_elseif>
           </do_if>
-          <do_elseif value="event.name == 'event_conversation_returned_to_section'">
-            <add_npc_line speaker="player.entity" line="[1613].random" hidechoices="false" comment="Confirming budget changes." />
-            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="Here you go." />
-          </do_elseif>
           <add_player_choice_sub text="'Account Minimum: %1Cr'.[($actor.minbudget)Cr]" position="1" section="comm_personal_money_minbudget" selectable="false"/>
           <add_player_choice_sub text="'%1Cr :Account Maximum'.[($actor.maxbudget)Cr]" position="4" section="comm_personal_money_maxbudget" selectable="false"/>
           <add_player_choice_sub text="'Current Account: %1Cr'.[($actor.money)Cr]" position="2" section="comm_personal_money_transfer"/>
@@ -397,18 +403,24 @@ Which Orders are available depends on entity Type
           <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_money_minbudget'">
-          <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          </do_if>
           <open_conversation_menu menu="SetMoneyLimitMenu" param="[0, 0, $actor, 'min']" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_money_maxbudget'">
-          <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          </do_if>
           <open_conversation_menu menu="SetMoneyLimitMenu" param="[0, 0, $actor, 'max']" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_money_transfer'">
-          <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          </do_if>
           <open_conversation_menu menu="MoneyTransferMenu" param="[0, 0, $actor]" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_money_wanted'">
@@ -420,14 +432,16 @@ Which Orders are available depends on entity Type
             <set_actor_min_budget actor="$actor" amount="$actor.container.wantedmoney / 10"/>
           </do_if>
           <transfer_money from="player.entity" to="$actor" amount="( $actor.container.wantedmoney * 1.25 ) - $actor.money"/>
-          <do_if value="$actor.container.wantedmoney lt $actor.money" comment="Player has not enough Money - modify dialogue to indicate this">
-            <add_npc_line speaker="player.entity" line="[1511,1613,1717,1732].random" hidechoices="false" comment="Ka-Ching! | Confirming budget changes. | Deal. | Begin and let me know if you encounter any problems." />
-            <add_npc_line speaker="$actor" line="[1119,4803].random" hidechoices="false" comment="The current funding is insufficient sir. | Please get back to me to discuss my budget as soon as you can." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="$actor.container.wantedmoney lt $actor.money" comment="Player has not enough Money - modify dialogue to indicate this">
+              <add_npc_line speaker="player.entity" line="[1511,1613,1717,1732].random" hidechoices="false" comment="Ka-Ching! | Confirming budget changes. | Deal. | Begin and let me know if you encounter any problems." />
+              <add_npc_line speaker="$actor" line="[1119,4803].random" hidechoices="false" comment="The current funding is insufficient sir. | Please get back to me to discuss my budget as soon as you can." />
+            </do_if>
+            <do_else>
+              <add_npc_line speaker="player.entity" line="[1511,1613,1717,1732].random" hidechoices="false" comment="Ka-Ching! | Confirming budget changes. | Deal. | Begin and let me know if you encounter any problems." />
+              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019,1120,4804].random" hidechoices="false" comment="generic confirmation | Affirmative, funding is looking good. All green. | Confirming budget changes." />
+            </do_else>
           </do_if>
-          <do_else>
-            <add_npc_line speaker="player.entity" line="[1511,1613,1717,1732].random" hidechoices="false" comment="Ka-Ching! | Confirming budget changes. | Deal. | Begin and let me know if you encounter any problems." />
-            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019,1120,4804].random" hidechoices="false" comment="generic confirmation | Affirmative, funding is looking good. All green. | Confirming budget changes." />
-          </do_else>
           <set_value name="$return"/>
         </do_elseif>
         <!-- #### Slot3: Reassignment (to antarctica :P ) #### -->
@@ -461,7 +475,7 @@ Which Orders are available depends on entity Type
           <do_if value="typeof event.param2 != datatype.null">
             <set_value name="$actor.$ut_cac_settings.$pesterlevel" exact="(event.param2)i"/>
           </do_if>
-          <do_if value="event.name == 'event_conversation_next_section'">
+          <do_if value="event.name == 'event_conversation_next_section' and $actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
             <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           </do_if>
@@ -480,7 +494,7 @@ Which Orders are available depends on entity Type
           <do_if value="typeof event.param2 != datatype.null">
             <set_value name="$actor.$ut_cac_settings.$loglevel" exact="(event.param2)i"/>
           </do_if>
-          <do_if value="event.name == 'event_conversation_next_section'">
+          <do_if value="event.name == 'event_conversation_next_section' and $actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
             <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           </do_if>
@@ -525,8 +539,10 @@ Which Orders are available depends on entity Type
         <!--                        Connect Menu                          -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_connect_main'">
-          <add_npc_line speaker="player.entity" line="[102081].random" hidechoices="false" comment="Just put him through." />
-          <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[102081].random" hidechoices="false" comment="Just put him through." />
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
           <!-- Slot1: Defense Officer -->
           <do_if value="$actor.container.defencenpc.exists">
             <add_player_choice_subconv text="'Defence: %s'.[$actor.container.defencenpc.name]" position="1" conversation="default"  actor="$actor.container.defencenpc" selectable="$actor.container.defencenpc != $actor"/>
@@ -612,12 +628,14 @@ Which Orders are available depends on entity Type
           <add_player_choice text="'Captain: %s'.[$actor.container.subordinates.{$actor.type}.{$i}.pilot.name]" position="$i" section="comm_connect_selected" choiceparam="$actor.container.subordinates.{$actor.type}.{$i}.pilot" selectable="$actor.container.subordinates.{$actor.type}.{$i}.pilot != $actor"/>
           <!-- /CHOICE SNIPPET -->
           <!-- Cancel this Conversation and start a new one with the desired Person -->
-          <do_if value="$actor.room != player.entity.room" >
-            <add_npc_line speaker="$actor" line="[11,12,1005].random" hidechoices="false"/>
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="$actor.room != player.entity.room" >
+              <add_npc_line speaker="$actor" line="[11,12,1005].random" hidechoices="false"/>
+            </do_if>
+            <do_else>
+              <add_npc_line speaker="$actor" line="[11,12,1006].random" hidechoices="false"/>
+            </do_else>
           </do_if>
-          <do_else>
-            <add_npc_line speaker="$actor" line="[11,12,1006].random" hidechoices="false"/>
-          </do_else>
           <cancel_conversation actor="$actor"/>
           <start_conversation actor="event.param2" conversation="default"/>
         </do_elseif>
@@ -640,8 +658,10 @@ Which Orders are available depends on entity Type
         <!-- Subordinate Managment (also assign to superior) -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_subordinates_main'">
-          <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+          </do_if>
           <add_player_choice text="'Take all my direct Subordinates'" position="1" section="comm_subordinates_take_playersquad" selectable="player.primaryship.subordinates.{1}?"/>
           <add_player_choice text="'Add Subordinate'" position="2" section="comm_subordinates_add_subordinate" selectable="false"/>
           <add_player_choice_sub text="'Take this Ship and all its Subordinates'" position="3" section="comm_subordinates_take_shipsquad" selectable="false" comment="not implemented yet"/>
@@ -651,9 +671,11 @@ Which Orders are available depends on entity Type
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_subordinates_take_playersquad'">
-          <!-- ToDo: Add Dialogue -->
-          <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <!-- ToDo: Add Dialogue -->
+            <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+          </do_if>
           <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
             <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
             <set_object_commander object="player.primaryship.subordinates.{$i}" commander="$actor.container" type="$actor.type"/>
@@ -661,9 +683,11 @@ Which Orders are available depends on entity Type
           <set_value name="$return"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_subordinates_transfer_to_playersquad'">
-          <!-- ToDo: Add Dialogue -->
-          <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <!-- ToDo: Add Dialogue -->
+            <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+          </do_if>
           <do_all exact="$actor.subordinates.count" counter="$i" reverse="true">
             <add_to_player_squad object="$actor.subordinates.{$i}" />
           </do_all>
@@ -697,7 +721,7 @@ Which Orders are available depends on entity Type
       <actions>
         <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'comm_orders_main'">
-          <do_if value="event.name == 'event_conversation_next_section'">
+          <do_if value="event.name == 'event_conversation_next_section' and $actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
             <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           </do_if>
@@ -884,13 +908,15 @@ Which Orders are available depends on entity Type
         <!--                            Goodbye                              -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_goodbye'">
-          <add_npc_line speaker="player.entity" line="[1102,1103].random" hidechoices="false" comment="Goodbye. | See ya." />
-          <do_if value="$actor.room != player.entity.room" >
-            <add_npc_line speaker="$actor" line="[11,12,15,1005].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Closing Comms." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1102,1103].random" hidechoices="false" comment="Goodbye. | See ya." />
+            <do_if value="$actor.room != player.entity.room" >
+              <add_npc_line speaker="$actor" line="[11,12,15,1005].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Closing Comms." />
+            </do_if>
+            <do_else>
+              <add_npc_line speaker="$actor" line="[11,12,15,1006].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Goodbye, Sir." />
+            </do_else>
           </do_if>
-          <do_else>
-            <add_npc_line speaker="$actor" line="[11,12,15,1006].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Goodbye, Sir." />
-          </do_else>
         </do_if>
         <!--- ################################### -->
         <!--                              Debug                                -->

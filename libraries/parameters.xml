@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<!--parameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/parameters.xsd">
-  <scriptparams>-->
-<diff>
-  <add sel="//scriptparams">
+<parameters xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/parameters.xsd">
+  <scriptparams>
+<!--diff>
+  <add sel="//scriptparams"-->
     <category name="ut_cac">
       <!-- Limits of the possible Ranges -->
       <!-- Nested List: Index 1: Manager Skill (1-5), Index2: Max Gates, Galaxy allowed, Max Clusters, Max Sectors, Max Zones, Num Slots -->
@@ -24,14 +24,59 @@
       -->
       <param name="setting_defaults" value="table[
       {'$pesterlevel'} = 60,
-      {'$loglevel'} = 0,
+      {'$loglevel'} = 60,
       {'$legality'} = 1,
       {'$jumptype'} = 'beacon',
       {'$insectorjump'} = false,
       {'$currenttrade'} = null,
       {'$consumables'} = table[ { ware.fuelcells } = table[{'$target'}=2500] ]
       ]"/>
-      <!-- EXP Requirements for Skills:   1 Star  2 Stars  3 Stars   4 Stars     5 Stars   MAX (invisible 6th Star) - currently total Wage so far, but WiP - requirements will change-->
+      <param name="pesterlevel" value="table[
+      {'$mayspeak'} = 2
+      ]"/>
+      <param name="loglevel" value="table[
+      {'$wage'} = 75,
+      {'$promotion'} = 85,
+      {'$dangerbonus'} = 95,
+      {'$surplustransfer'} = 90,
+      {'$lowfunds'} = 100,
+      {'$objectattacked'} = 100,
+      {'$ordergiven'} = 35,
+      {'$personalactivities'} = 5,
+      {'$traderuncompleted'} = 20
+      ]"/>
+      <!-- default Drone Loadout - a Nested Table
+      Macro Values will be taken directly,
+      class.station will also be taken directly, but possibly add $StationGascollectors and $StationOrecollectors to it if they serve a purpose
+      For Ships it works the following:
+      first the template amount for the Objectpurpose is used and is then multiplied or added by the Ship Class number (multi if float less then 1, else added)
+      unuseable drones (gascollectors without liquid bay, orecollectors without bulb bay) are filtered out
+      same for Stations in Zones without Nebulae or Asteroids (latter when Station Asteroid Mining is implemented)
+      null means no Drones are set at all (for Ship Classes or Objectpurposes which dont have/need Drones)
+      
+      If an Object has not enough Space for all desired Drones the Numbers will be used Proportionally
+      
+      
+      Floats less than 1 are interpreted as percentage of total Drone Space, other Numbers are taken as absolute Value
+      -->
+      <!-- ToDo: add Station Welder Drones when Engineer is ready -->
+      <param name="drone_loadout" value="table[
+      {'$UnitcategoryList'}=[unitcategory.attack, unitcategory.defence, unitcategory.gascollector, unitcategory.orecollector, unitcategory.transport, unitcategory.welder],
+      {class.station}=table[{unitcategory.attack}=0.1, {unitcategory.defence}=0.25, {unitcategory.gascollector}=0.1, {unitcategory.orecollector}=0.1, {unitcategory.transport}=0.3, {unitcategory.welder}=0.2],
+      {class.ship_xl}=table[{unitcategory.attack}=1.0, {unitcategory.defence}=1.0, {unitcategory.gascollector}=1.0, {unitcategory.orecollector}=1.0, {unitcategory.transport}=1.0, {unitcategory.welder}=1.0],
+      {class.ship_l}=table[{unitcategory.attack}=15, {unitcategory.defence}=15, {unitcategory.gascollector}=0, {unitcategory.orecollector}=0, {unitcategory.transport}=1.0, {unitcategory.welder}=1.0],
+      {class.ship_m}=table[{unitcategory.attack}=0.0, {unitcategory.defence}=0.0, {unitcategory.gascollector}=1.0, {unitcategory.orecollector}=1.0, {unitcategory.transport}=0.0, {unitcategory.welder}=0.0],
+      {class.ship_s}=null,
+      {class.ship_xs}=null,
+
+      {objectpurpose.trade}=table[{unitcategory.attack}=0, {unitcategory.defence}=15, {unitcategory.transport}=25, {unitcategory.welder}=10],
+      {objectpurpose.fight}=table[{unitcategory.attack}=15, {unitcategory.defence}=15, {unitcategory.gascollector}=0, {unitcategory.orecollector}=0, {unitcategory.transport}=10, {unitcategory.welder}=20],
+      {objectpurpose.build}=table[{unitcategory.attack}=0, {unitcategory.defence}=15, {unitcategory.gascollector}=0, {unitcategory.orecollector}=0, {unitcategory.transport}=20, {unitcategory.welder}=40],
+      {objectpurpose.mine}=table[{unitcategory.attack}=0, {unitcategory.defence}=15, {unitcategory.gascollector}=20, {unitcategory.orecollector}=20, {unitcategory.transport}=20, {unitcategory.welder}=10],
+      {objectpurpose.hack}=null,
+      {objectpurpose.scan}=null,
+      ]"/>
+      <!-- EXP Requirements for Skills:       1 Star       2 Stars     3 Stars      4 Stars       5 Stars     MAX (invisible 6th Star) - currently total Wage so far, but WiP - requirements will change-->
       <param name="experience" value="[ 3000Cr , 10000Cr , 30000Cr , 100000Cr , 300000Cr , 1000000Cr ]"/>
       <!-- Employee Wages - Base is paid every hour, Skill is paid as Percentage based on combinedskill (Danger Bonus is paid every 10min if applicable)
       Wages in Order: [ Base Working, Skill Working, Base Inactive, Skill inactive , Base Danger Bonus, Skill Danger Bonus) -->
@@ -57,7 +102,7 @@
       {entitytype.specialistaquatics} = [ 11500Cr , 23000Cr , 0Cr , 0Cr , 11500Cr , 23000Cr ]
       ]"/>
     </category>
-  </add>
-</diff>
-  <!--/scriptparams>
-</parameters-->
+  <!--/add>
+</diff-->
+  </scriptparams>
+</parameters>
