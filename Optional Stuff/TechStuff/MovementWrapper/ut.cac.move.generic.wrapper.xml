@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.generic.wrapper" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.generic.wrapper" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="2">
   <!--
 
 Wrapper Script to switch Movement for L/XL Ships to UT CAC Movement (for testing only, not part of the Project itself) 
@@ -41,6 +41,12 @@ Wrapper Script to switch Movement for L/XL Ships to UT CAC Movement (for testing
           <do_else>
             <set_value name="this.$debug" exact="false"/>
           </do_else>
+          <!-- first check for refuel, then move (fot L and XL Ships)-->
+          <do_if value="this.ship.isclass.ship_l or this.ship.isclass.ship_xl and not this.$refueling?">
+            <set_value name="this.$refueling"/>
+            <run_script name="'move.refuel'" sinceversion="2"/>
+            <remove_value name="this.$refueling"/>
+          </do_if>
           <run_script name="'ut.cac.move.generic'">
             <param name="destination" value="$destination" comment="Object to move relative to - will default to relative to Zone if not set"/>
             <param name="position" value="$position" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
