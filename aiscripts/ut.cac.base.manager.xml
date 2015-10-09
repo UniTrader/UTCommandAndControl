@@ -2,19 +2,6 @@
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.manager" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
   <params/>
   <interrupts>
-    <handler comment="Print Script Vars">
-      <conditions>
-        <event_object_signalled object="this" param="'print script vars to logfile'"/>
-      </conditions>
-      <actions>
-        <debug_text filter="general" text="'\n
-        Manager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
-        this.$ut_cac_settings = ' + this.$ut_cac_settings + '\n
-        this.$orderlist = ' + this.$orderlist + '\n
-        $bug = ' + $bug + '\n
-        this.$idle_subordinates = ' + this.$idle_subordinates"/>
-      </actions>
-    </handler>
     <handler comment="Order Request Handler - uses this.$idle_subordinates to let the manager finish what he is currently doing but not let him forget about outstanding order requests">
       <conditions>
         <check_any>
@@ -66,14 +53,6 @@
       <!--immediately allow Zone Trading and Mining -->
       <set_value name="$next_zonetrade" exact="player.age"/>
       <set_value name="$next_miningstep" exact="player.age"/>
-      
-      <!-- add Fuelcells as Trade Ware if Sctation has Cargo for them so Energy Freighters will buy it and put it into the Station Cargo for Refueling of Station Ships -->
-      <!--do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
-        <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false"/>
-        <add_cargo object="this.container" ware="ware.fuelcells" exact="1"/>
-        <set_value name="this.container.cargo.{ware.fuelcells}.target" exact="2500"/>
-      </do_if-->
-      
       
       <!-- register Subordinates - see event Handlers for actual adding procedure -->
       <do_all exact="this.container.subordinates.{this.type}.count" counter="$i">
