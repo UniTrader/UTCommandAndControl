@@ -127,6 +127,7 @@ Rest is shared between all Actor types
                 </do_elseif>
               </do_if>
               <add_player_choice_sub text="if $actor.skill.navigation ge 1 then 'About your Operations Range...' else 'Restricted to Current Sector'" position="1" section="comm_settings_range" selectable="$actor.skill.navigation ge 1"/>
+              <add_player_choice_sub text="if $actor.container.istraderestricted then 'Trade with everyone (currently restricted)' else 'Only do Internal deliveries (currently everyone)'" position="2" section="comm_settings_trade_restriction"/>
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
@@ -234,6 +235,15 @@ Rest is shared between all Actor types
               <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="event.param2.{3}"/>
               <set_value name="$return"/>
             </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_trade_restriction'">
+              <!-- currently this is a simple Toggle between restricted and non-restricted, but planning to change this to a finer definition consisting of own only, own+allied, own+allied+friend, own+allied+friend+neutral and own+allied+friend+neutral+docking allowed -->
+              <do_if value="$actor.container.istraderestricted">
+                <set_trade_restrictions object="$actor.container" restricted="false"/>
+              </do_if>
+              <do_else>
+                <set_trade_restrictions object="$actor.container" restricted="true"/>
+              </do_else>
+            </do_elseif>
             <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
             <do_if value="$return?">
               <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true" returnparam="$return"/>
@@ -311,6 +321,8 @@ Rest is shared between all Actor types
             <set_value name="$removal_message" exact="[]"/>
             <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
             <!-- Checking Count Limit of Ranges to be apporiate for Manager Level -->
+            <!--set_value name="$rangepoints" exact="$actor.skill.navigation * param.ut_cac.rangeprices.$points_per_star + ( if $actor.$ut_cac_settings.$experience ge param.ut_cac.experience.{6} then  param.ut_cac.rangeprices.$sixth_star_points else 0 )"/-->
+            
             <set_value name="$gatecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}"/>
             <set_value name="$galaxycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{2}"/>
             <set_value name="$clustercount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{3}"/>
@@ -368,6 +380,27 @@ Rest is shared between all Actor types
                   <set_value name="$zonecount" operation="subtract"/>
                 </do_else>
               </do_elseif>
+              <!-- More Extensive Algorithm to let the Max Range depend on a Point system instead of static Counts for each Range Type - will be implemented at a leter date 
+              <do_if value="$baserange.{$i}.exists">
+                <do_if value="param.ut_cac.rangeprices.{$baserange.{$i}.class}?">
+                  <do_if value="param.ut_cac.rangeprices.{$baserange.{$i}.class} gt $rangepoints">
+                    <append_to_list name="$removal_message" exact="'Removed %1 from Range List because I cannt manage such a big Area'.[$baserange.{$i}.name]"/>
+                    <remove_value name="$actor.$ut_cac_settings.$range.{$i}"/>
+                    <remove_value name="$actor.$ut_cac_settings.$range_j.{$i}"/>
+                    <remove_value name="$actor.$ut_cac_settings.$range_h.{$i}"/>
+                  </do_if>
+                  <do_else>
+                    <set_value name="$rangepoints" operation="subtract" exact="param.ut_cac.rangeprices.{$baserange.{$i}.class}"/>
+                  </do_else>
+                </do_if>
+                <do_else>
+                  <append_to_list name="$removal_message" exact="'Removed %1 from Range List because I cannt manage this kind of Area'.[$baserange.{$i}.name]"/>
+                  <remove_value name="$actor.$ut_cac_settings.$range.{$i}"/>
+                  <remove_value name="$actor.$ut_cac_settings.$range_j.{$i}"/>
+                  <remove_value name="$actor.$ut_cac_settings.$range_h.{$i}"/>
+                </do_else>
+              </do_if>
+              -->
             </do_all>
             
             <!-- checking Jump Range Path to be completely in the whitelist and removing all Ranges which divert from this -->
