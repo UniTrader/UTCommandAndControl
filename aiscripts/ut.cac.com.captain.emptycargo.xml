@@ -3,6 +3,7 @@
   <!--
     This Script attempts to empty the Cargo Bay of the current Ship.
     -> first it looks which wares are inside the Cargobay to sell
+    -> second it tries to unload them on the Superiors Station
     -> then it finds Sell Offers in the current Sector and temporarily stores them
     -> as next it adds these sell Orders (nearest first, them from this the nearest etc.) to the Trade List and adds a single Trade run per item to this.$orderlist
     -> next it looks in the Cluster for Tradeoffers of the remaining Wares which couldnt be sold and then continues in this Sector to Sell wares (can be turned off)
@@ -39,13 +40,27 @@
       </do_all>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trying so sell these Wares somewhere or drop them:\n%4'.[player.age,this.name,this.container.name,$warelist]"/>
       
-      <!-- Jump forward to Drop Wares -->
+      <!-- Jump forward to Drop Wares if told explicitly to do so only -->
       <do_if value="$onlydrop">
         <resume label="drop wares" comment="goto line 103"/>
       </do_if>
+      
+      <!-- first check Homebase if there is stuff we can Drop there -->
+      <do_if value="this.ship.commander.exists">
+        <do_all exact="$warelist.count" counter="$i" reverse="true">
+          <find_buy_offer result="$buyoffer" buyer="this.ship.commander" wares="$warelist.{$i}" multiple="false" knowntoplayer="this.owner == faction.player">
+            <amount min="this.ship.cargo.{$warelist.{$i}}.count"/>
+          </find_buy_offer>
+          <do_if value="$buyoffer.available">
+            <append_to_list name="$buyoffers" exact="$buyoffer"/>
+            <remove_value name="$warelist.{$i}"/>
+          </do_if>
+        </do_all>
+      </do_if>
+      
       <set_value name="$sector" exact="this.sector"/>
       <label name="search sector"/>
-      <!-- find buy Offers in current Sector where we can loos the whole amount in one trade run -->
+      <!-- find buy Offers in current Sector where we can loose the whole amount in one trade run -->
       <create_list name="$buyoffers"/>
       <do_all exact="$warelist.count" counter="$i" reverse="true">
         <find_buy_offer result="$buyoffer" space="$sector" wares="$warelist.{$i}" multiple="false" knowntoplayer="this.owner == faction.player">
