@@ -62,7 +62,6 @@ local function init()
 end
 
 function menu.cleanup()
-	UnregisterAddonBindings("ego_detailmonitor")
 
 	menu.title = nil
 	menu.component = 0
@@ -103,30 +102,11 @@ function menu.cleanup()
 	menu.infotable = nil
 	menu.selecttable = nil
 	menu.rendertarget = nil
-
-	UnregisterEvent("updateHolomap", menu.updateHolomap)
-	UnregisterEvent("holomap_zoom_in", menu.autoZoomIn)
-	UnregisterEvent("holomap_zoom_out", menu.autoZoomOut)
-
-	-- Reset Helper
-	Helper.standardFontSize = 14
-	Helper.standardTextHeight = 24
-	Helper.headerRow2FontSize = 14
-	Helper.headerRow2Height = 24
-	Helper.standardButtonWidth = 36
 end
 
 -- Menu member functions
 
 function menu.onShowMenu()
-	-- Override some Helper settings
-	Helper.standardFontSize = 11
-	Helper.standardTextHeight = 20
-	Helper.headerRow2FontSize = 11
-	Helper.headerRow2Height = 20
-	Helper.standardButtonWidth = 30
-
-
 	menu.action = menu.param[3]
 	menu.nextsection = menu.param[4]
 	menu.choiceparam = menu.param[5]
