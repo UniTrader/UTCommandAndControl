@@ -446,7 +446,9 @@ Which Orders are available depends on entity Type
         </do_elseif>
         <!-- #### Slot3: Reassignment (to antarctica :P ) #### -->
         <do_elseif value="event.param == 'comm_personal_transfer'">
-          <!-- ToDo: Add Dialogue -->
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="5000" hidechoices="false" comment="Of course, Sir. What is my new assignment?" />
+          </do_if>
           <do_if value="player.entity.container != $actor.container">
             <add_player_choice text="'Work here'" position="1" section="comm_personal_transfer_selected" choiceparam="player.entity.room"/>
           </do_if>
@@ -607,7 +609,9 @@ Which Orders are available depends on entity Type
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_connect_subordinates'">
-          <!-- ToDo: Add Dialogue -->
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
           <do_all exact="[$actor.container.subordinates.{$actor.type}.count,6].min" counter="$i">
             <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.isclass.station">
               <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.tradenpc.exists">
@@ -673,9 +677,7 @@ Which Orders are available depends on entity Type
         </do_if>
         <do_elseif value="event.param == 'comm_subordinates_take_playersquad'">
           <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
-            <!-- ToDo: Add Dialogue -->
-            <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+            <add_npc_line speaker="$actor" line="[1055].random" hidechoices="false" comment="Perfect. I'll make sure she's put to work." />
           </do_if>
           <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
             <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
@@ -685,9 +687,7 @@ Which Orders are available depends on entity Type
         </do_elseif>
         <do_elseif value="event.param == 'comm_subordinates_transfer_to_playersquad'">
           <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
-            <!-- ToDo: Add Dialogue -->
-            <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+            <add_npc_line speaker="$actor" line="[1057].random" hidechoices="false" comment="Preparing to abort current operations." />
           </do_if>
           <do_all exact="$actor.subordinates.count" counter="$i" reverse="true">
             <add_to_player_squad object="$actor.subordinates.{$i}" />
@@ -745,7 +745,9 @@ Which Orders are available depends on entity Type
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_orders_modify'">
-          <!-- ToDo: Add Dialogue -->
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019,1058,1058,1058].random" hidechoices="false" comment="generic confirmation|Ready for new orders, Sir." />
+          </do_if>
           <do_if value="event.param2.{1} == 1" comment="current/first Order">
             <add_player_choice text="'Replace Order - WiP, use Insert+Cancel for now'" position="1" section="comm_orders_replace" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
             <add_player_choice text="'Insert Order, finish current later'" position="2" section="comm_orders_insert" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
@@ -796,7 +798,9 @@ Which Orders are available depends on entity Type
             <set_value name="$return"/>
           </do_if>
           <do_else>
-            <!-- ToDo: Add Dialogue -->
+            <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019,1036,1036,1036].random" hidechoices="false" comment="generic confirmation|As you wish, Sir. Proceeding as planned." />
+            </do_if>
             <set_value name="$selected_order_A" exact="event.param2"/>
             <!-- Select a second order to swap with this one -->
             <set_value name="$slot" exact="1"/>

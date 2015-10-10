@@ -138,7 +138,9 @@ Rest is shared between all Actor types
             
             <!-- Select new Order -->
             <do_if value="event.param == 'comm_orders_new' or event.param == 'comm_orders_insert' or event.param == 'comm_orders_replace'">
-              <!-- ToDo: Add Dialogue -->
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
               <add_player_choice text="'Combat'" position="1" section="comm_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
               <add_player_choice text="'Signalling'" position="3" section="comm_orders_signals" />
               <add_player_choice text="'Fly to...'" position="4" section="comm_orders_select_zone" choiceparam="'comm_orders_flyto_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
@@ -146,17 +148,23 @@ Rest is shared between all Actor types
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_orders_combat'">
-              <!-- ToDo: Add Dialogue -->
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_flyto_selected'">
-              <!-- ToDo: Add Dialogue -->
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
               <set_value name="$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$interruptable=true]"/>
               <set_value name="$return"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_signals'">
-              <!-- ToDo: Add Dialogue -->
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
               <add_player_choice text="'Send Signal'" position="1" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
               <add_player_choice text="'Send Signal to'" position="2" section="comm_orders_select_playerobject" choiceparam="'comm_orders_send_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
               <add_player_choice text="'Send Signal to Commander'" position="3" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
