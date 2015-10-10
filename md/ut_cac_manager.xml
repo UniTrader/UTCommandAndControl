@@ -212,7 +212,7 @@ Rest is shared between all Actor types
               <do_else>
                 <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
               </do_else>
-              <set_value name="$return"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_toggle_highway'">
               <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$slot}}">
@@ -221,19 +221,19 @@ Rest is shared between all Actor types
               <do_else>
                 <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
               </do_else>
-              <set_value name="$return"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_remove'">
               <set_value name="$actor.$ut_cac_settings.$range.{$slot}" exact="null"/>
               <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="null"/>
               <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="null"/>
-              <set_value name="$return"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set'">
               <set_value name="$actor.$ut_cac_settings.$range.{$slot}" exact="event.param2.{3}"/>
               <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="event.param2.{3}"/>
               <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="event.param2.{3}"/>
-              <set_value name="$return"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_trade_restriction'">
               <!-- currently this is a simple Toggle between restricted and non-restricted, but planning to change this to a finer definition consisting of own only, own+allied, own+allied+friend, own+allied+friend+neutral and own+allied+friend+neutral+docking allowed -->
@@ -244,17 +244,6 @@ Rest is shared between all Actor types
                 <set_trade_restrictions object="$actor.container" restricted="true"/>
               </do_else>
             </do_elseif>
-            <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
-            <do_if value="$return?">
-              <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true" returnparam="$return"/>
-              <add_player_choice_return text="'and select any Item'" position="4" immediate="true" returnparam="$return"/>
-              <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true" returnparam="$return"/>
-              <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true" returnparam="$return"/>
-              <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true" returnparam="$return"/>
-              <add_player_choice_return text="'without selection'" position="6" immediate="true" returnparam="$return"/>
-              <add_player_choice_return text="'(Back)'" position="close" immediate="true" returnparam="$return"/>
-              <remove_value name="$return"/>
-            </do_if>
           </actions>
         </cue>
         <!-- Menu 3: Connect with other Actor-->

@@ -448,7 +448,7 @@ Which Orders are available depends on entity Type
               <add_npc_line speaker="$actor" line="[1012,1013,1018,1019,1120,4804].random" hidechoices="false" comment="generic confirmation | Affirmative, funding is looking good. All green. | Confirming budget changes." />
             </do_else>
           </do_if>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <!-- #### Slot3: Reassignment (to antarctica :P ) #### -->
         <do_elseif value="event.param == 'comm_personal_transfer'">
@@ -516,17 +516,6 @@ Which Orders are available depends on entity Type
           <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
         </do_elseif>
         
-        <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
-        <do_if value="$return?">
-          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'and select any Item'" position="4" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'without selection'" position="6" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'(Back)'" position="close" immediate="true" returnparam="$return"/>
-          <remove_value name="$return"/>
-        </do_if>
       </actions>
     </library>
     <library name="Comm_Common_Connect" instantiate="true">
@@ -689,7 +678,7 @@ Which Orders are available depends on entity Type
             <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
             <set_object_commander object="player.primaryship.subordinates.{$i}" commander="$actor.container" type="$actor.type"/>
           </do_all>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_subordinates_transfer_to_playersquad'">
           <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -698,19 +687,8 @@ Which Orders are available depends on entity Type
           <do_all exact="$actor.subordinates.count" counter="$i" reverse="true">
             <add_to_player_squad object="$actor.subordinates.{$i}" />
           </do_all>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
-        <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
-        <do_if value="$return?">
-          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'and select any Item'" position="4" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'without selection'" position="6" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'(Back)'" position="close" immediate="true" returnparam="$return"/>
-          <remove_value name="$return"/>
-        </do_if>
       </actions>
     </library>
     <library name="Comm_Common_Orders" instantiate="true">
@@ -801,7 +779,7 @@ Which Orders are available depends on entity Type
             </do_if>
             <remove_value name="$selected_order_A"/>
             <remove_value name="$selected_order_B"/>
-            <set_value name="$return"/>
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
           </do_if>
           <do_else>
             <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -853,7 +831,7 @@ Which Orders are available depends on entity Type
               <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Trying to remove Order %4 from Orderlist, but its not interruptable anymore and on a lower position'.[player.age,$actor.name,$actor.$orderlist.event.param2.{3}.$displayname]"/>
             </do_else>
           </do_elseif>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_cancel_all'">
           <do_all exact="$actor.$orderlist.count" counter="$i" reverse="true">
@@ -861,7 +839,7 @@ Which Orders are available depends on entity Type
               <remove_value name="$actor.$orderlist.{$i}"/>
             </do_if>
           </do_all>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <!--re-useable Object Selection Stuff - maybe add this to an own Cue because it may be used anywhere? -->
         <do_elseif value="event.param == 'comm_orders_select_playerobject'">
@@ -888,18 +866,6 @@ Which Orders are available depends on entity Type
           <open_conversation_menu menu="MapMenu" param="[0, 0, 'sector', $actor.container.sector, [player.galaxy,$actor.container.cluster,$actor.container.sector], $actor.container.zone, 'selectobject', [event.param2]]"/>
           <add_conversation_view view="closeupdetailmonitor" />
         </do_elseif>
-        
-        <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
-        <do_if value="$return?">
-          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'and select any Item'" position="4" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'without selection'" position="6" immediate="true" returnparam="$return"/>
-          <add_player_choice_return text="'(Back)'" position="close" immediate="true" returnparam="$return"/>
-          <remove_value name="$return"/>
-        </do_if>
       </actions>
     </library>
     
