@@ -219,7 +219,7 @@
         </cue>
       </cues>
     </library>
-    <library name="Actor_Init">
+    <library name="Actor_Init" version="11">
       <actions>
         <!-- set up Variables -->
         <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
@@ -276,7 +276,13 @@
           <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.navigation}" exact="if $actor.skill.navigation then param.ut_cac.experience.{$actor.skill.navigation} else 0"/>
           <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.science}" exact="if $actor.skill.science then param.ut_cac.experience.{$actor.skill.science} else 0"/-->
         </do_if>
+        <!-- Compatibility with Vim Razz' Human Ressources -->
+        <set_value name="$actor.$InUse" exact="true"/>
       </actions>
+      <patch sinceversion="11">
+        <!-- Compatibility with Vim Razz' Human Ressources -->
+        <set_value name="$actor.$InUse" exact="true"/>
+      </patch>
     </library>
     <!--
 Dialogue Tree - rough concept (for all Entity Types)
