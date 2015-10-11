@@ -39,10 +39,10 @@
             </do_else>
             <!-- Write Logbook Entry -->
             <do_if value="this.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$ordergiven">
-              <set_value name="$logbookentry" exact="{5554203,1}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name]"/>
+              <set_value name="$logbookentry" exact="{5554203,101}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name]"/>
               <do_all exact="$new_orders.count" counter="$i" reverse="false">
                 <do_if value="$new_orders.{$i}.$displayname?">
-                  <set_value name="$logbookentry" exact="{5554203,13}.[$logbookentry,$new_orders.{$i}.$displayname]"/>
+                  <set_value name="$logbookentry" exact="{5554203,114}.[$logbookentry,$new_orders.{$i}.$displayname]"/>
                 </do_if>
               </do_all>
               <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="$logbookentry"/>
@@ -68,10 +68,10 @@
           <do_elseif value="event.param == 'next order'">
             <do_if value="this.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$ordergiven and this.$orderlist.{1}.$displayname?">
               <do_if value="this.$orderlist.{2}? and this.$orderlist.{2}.$displayname?">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,12}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname,this.$orderlist.{2}.$displayname]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,112}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname,this.$orderlist.{2}.$displayname]"/>
               </do_if>
               <do_else>
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,13}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,113}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname]"/>
               </do_else>
             </do_if>
             <remove_value name="this.$orderlist.{1}"/>
