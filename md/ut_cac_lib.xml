@@ -238,9 +238,9 @@
               <do_if value="$transferamount != 0">
                 <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Transferring %4 Credits to Player'.[player.age,$actor.name,$actor.container.name,$transferamount/100]"/>
                 <transfer_money amount="$transferamount" from="$actor" to="player.entity"/>
-              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$surplustransfer">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nSurplus of %4 Credits Transferred to your Account'.[param.ut_cac.loglevel.$surplustransfer,$actor.container.name,$actor.name,($transferamount)Cr]"/>
-              </do_if>
+                <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$surplustransfer">
+                  <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nSurplus of %4 Credits Transferred to your Account'.[param.ut_cac.loglevel.$surplustransfer,$actor.container.name,$actor.name,($transferamount)Cr]"/>
+                </do_if>
               </do_if>
             </do_elseif>
             <reset_cue cue="Account_Manager"/>
@@ -931,11 +931,10 @@ Which Orders are available depends on entity Type
         <!--- ################################### -->
         <do_elseif value="event.param == 'comm_debug_main'">
           <add_player_choice text="'Restart Main Script'" position="1" section="comm_debug_script_restart"/>
-          <add_player_choice text="'Print Script Values to Debuglog'" position="2" section="comm_debug_print_vars"/>
+          <add_player_choice text="'Max out Skills'" position="2" section="comm_debug_fivestars"/>
           <add_player_choice text="'Toggle Debugging to Log: '+ $actor.$debug" position="3" section="comm_debug_toggle"/>
           <add_player_choice text="'Destroy Object for complete cleanup \033R(USE WITH CARE)\033X'" position="4" section="comm_debug_cleanup_object"/>
           <add_player_choice text="'Destroy Actor for cleanup'" position="5" section="comm_debug_cleanup_actor"/>
-          <add_player_choice text="'Max out Skills'" position="6" section="comm_debug_fivestars"/>
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_script_restart'">
@@ -960,9 +959,6 @@ Which Orders are available depends on entity Type
             <show_notification caption="'ERROR'" details="'Entitytype not supported\n%1'.[$actor.entitytype]"/>
             <debug_text filter="error" text="'Entitytype not supported for Script restart: %1'.[$actor.entitytype]"/>
           </do_else>
-        </do_elseif>
-        <do_elseif value="event.param == 'comm_debug_print_vars'">
-          <signal_objects object="$actor" param="'print script vars to logfile'"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_toggle'">
           <set_value name="$actor.$debug" exact="not $actor.$debug"/>

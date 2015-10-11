@@ -2,6 +2,7 @@
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.manager" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
   <params/>
   <interrupts>
+    <handler ref="OrderlistControl"/>
     <handler comment="Order Request Handler - uses this.$idle_subordinates to let the manager finish what he is currently doing but not let him forget about outstanding order requests">
       <conditions>
         <check_any>
@@ -12,7 +13,7 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <add_to_group groupname="this.$idle_subordinates" object="event.param2"/>
         <!-- in case a script checks for the orderlist length for pausing/termination add a do-nothing order -->
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order=null]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$order=null]"/>
       </actions>
     </handler>
     <handler comment="Zonetrade Cleanup">
@@ -90,7 +91,7 @@
       <!-- check if we have Idle Subordinates and find Jobs for them (priority, immediately start with finding orders fo them) -->
       <do_if value="this.$idle_subordinates.count gt 0">
         <do_all exact="this.$idle_subordinates.count" counter="$i">
-          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=this.$idle_subordinates.{$i},$interruptable=false]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=this.$idle_subordinates.{$i},$interruptable=false]"/>
         </do_all>
         <resume label="start with orderlist"/>
       </do_if>
@@ -111,7 +112,7 @@
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
           <set_value name="$miningorder.$wareslist" exact="$mineable_ressources"/>
           <set_value name="$miningorder.$next_call" exact="1min"/>
-          <append_to_list name="this.$orderlist" exact="$miningorder"/>
+          <signal_objects object="this" param="'new order'" param2="$miningorder"/>
           <set_value name="$next_miningstep" exact="player.age + 1min"/>
         </do_if>
         <do_else>
@@ -122,11 +123,11 @@
       <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
       <do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade and not this.$ut_cac_settings.$currenttrade">
         <set_value name="$next_zonetrade" exact="player.age + 7min"/>
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.zonetrade',$displayname='Perform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname='Perform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
       </do_if>
       
       <do_if value="this.$orderlist.count == 0">
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>
       </do_if>
       
       <resume label="start with orderlist"/>
