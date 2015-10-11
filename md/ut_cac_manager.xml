@@ -72,14 +72,14 @@ Rest is shared between all Actor types
                 </do_else>
               </do_if>
             </do_if>
-            <add_player_choice_sub text="'About your current Orders...'" position="1" section="comm_orders_main" selectable="false"/>
-            <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main"/>
-            <add_player_choice_sub text="'Connect me with...'" position="3" section="comm_connect_main"/>
-            <add_player_choice_sub text="'About your Subordinates...'" position="4" section="comm_subordinates_main"/>
-            <add_player_choice_sub text="'Lets talk about your Work / Personal Settings'" position="5" section="comm_personal_main"/>
+            <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main" selectable="false"/>
+            <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main"/>
+            <add_player_choice_sub text="{5554103,3}" position="3" section="comm_connect_main"/>
+            <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main"/>
+            <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
             <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
             <set_conversation_return_section section="comm_goodbye"/>
-            <add_player_choice_return text="'Goodbye'" position="close" />
+            <add_player_choice_return text="{5554103,6}" position="close" />
           </actions>
         </cue>
         
@@ -126,10 +126,10 @@ Rest is shared between all Actor types
                   <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
                 </do_elseif>
               </do_if>
-              <add_player_choice_sub text="if $actor.skill.navigation ge 1 then 'About your Operations Range...' else 'Restricted to Current Sector'" position="1" section="comm_settings_range" selectable="$actor.skill.navigation ge 1"/>
-              <add_player_choice_sub text="if $actor.container.istraderestricted then 'Trade with everyone (currently restricted)' else 'Only do Internal deliveries (currently everyone)'" position="2" section="comm_settings_trade_restriction"/>
-              <add_player_choice_return text="'(Back)'" position="6" />
-              <add_player_choice_return text="'(Back)'" position="close" />
+              <add_player_choice_sub text="if $actor.skill.navigation ge 1 then {5554103,241} else {5554103,242}" position="1" section="comm_settings_range" selectable="$actor.skill.navigation ge 1"/>
+              <add_player_choice_sub text="if $actor.container.istraderestricted then {5554103,243} else {5554103,244}" position="2" section="comm_settings_trade_restriction"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_range'">
               <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -177,8 +177,8 @@ Rest is shared between all Actor types
                   </do_else>
                 </do_if>
               </do_all>
-              <add_player_choice_return text="'(Back)'" position="6" />
-              <add_player_choice_return text="'(Back)'" position="close" />
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_mod'">
               <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -186,18 +186,18 @@ Rest is shared between all Actor types
               </do_if>
               <set_value name="$slot" exact="event.param2"/>
               <do_if value="$actor.$ut_cac_settings.$range.{$slot}">
-                <add_player_choice text="if $actor.$ut_cac_settings.$range_j.{$slot} then 'Remove Jump Range' else '\033BSet as Jump Range\033X'" position="1" section="comm_settings_range_toggle_jump"/>
-                <add_player_choice text="if $actor.$ut_cac_settings.$range_h.{$slot} then 'Remove Highway Range' else '\033YSet as Higway Range\033X'" position="2" section="comm_settings_range_toggle_highway"/>
-                <add_player_choice text="'Copy Range Setting to all Stations here'" position="3" section="null" selectable="false"/>
-                <add_player_choice text="'Remove Range'" position="4" section="comm_settings_range_remove"/>
-                <add_player_choice text="'Change Range'" position="5" section="comm_orders_select_space" choiceparam="'comm_settings_range_set'" comment="refering to re-useable Menu Call"/>
+                <add_player_choice text="if $actor.$ut_cac_settings.$range_j.{$slot} then {5554103,2411} else {5554103,2412}" position="1" section="comm_settings_range_toggle_jump"/>
+                <add_player_choice text="if $actor.$ut_cac_settings.$range_h.{$slot} then {5554103,2413} else {5554103,2414}" position="2" section="comm_settings_range_toggle_highway"/>
+                <add_player_choice text="{5554103,2415}" position="3" section="null" selectable="false"/>
+                <add_player_choice text="{5554103,2416}" position="4" section="comm_settings_range_remove"/>
+                <add_player_choice text="{5554103,2417}" position="5" section="comm_orders_select_space" choiceparam="'comm_settings_range_set'" comment="refering to re-useable Menu Call"/>
                 <do_if value="$actor.hascontext.{$actor.$ut_cac_settings.$range.{$slot}}">
-                  <add_player_choice text="'Share Range Settings on all Stations in this Area'" position="6" section="null" selectable="false"/>
+                  <add_player_choice text="{5554103,2418}" position="6" section="null" selectable="false"/>
                 </do_if>
                 <do_else>
-                  <add_player_choice_return text="'(Back)'" position="6" />
+                  <add_player_choice_return text="{5554103,7}" position="6" />
                 </do_else>
-                <add_player_choice_return text="'(Back)'" position="close" />
+                <add_player_choice_return text="{5554103,7}" position="close" />
               </do_if>
               <do_else>
                 <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_set']]"/>
