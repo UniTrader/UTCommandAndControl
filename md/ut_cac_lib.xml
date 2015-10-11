@@ -91,23 +91,28 @@
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his Commanders Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$ut_cac_settings.$experience,$actor.combinedskill]"/>
               <transfer_money from="$actor.container.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
               <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$wage">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nWage of %4 Credits received from Commander %5 on %6'.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr,$actor.container.commanderentity.name,$actor.container.commander.name]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,2}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr,$actor.container.commanderentity.name,$actor.container.commander.name]"/>
               </do_if>
             </do_if>
             <do_elseif value="$actor.hasownaccount and $actor.money gt $wage and $actor.type == entitytype.manager">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his own Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$ut_cac_settings.$experience,$actor.combinedskill]"/>
               <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
               <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$wage">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nWage of %4 Credits taken from my own Account'.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,3}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
               </do_if>
             </do_elseif>
             <do_elseif value="player.money gt $wage">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from Player Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$ut_cac_settings.$experience,$actor.combinedskill]"/>
               <transfer_money from="player.entity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
               <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$wage">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nWage of %4 Credits taken from your Account'.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,4}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
               </do_if>
             </do_elseif>
+            <do_else>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$wage">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,5}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
+              </do_if>
+            </do_else>
             
             <!-- simple EXP gain at certain total Wage Paid - will be changed at some point -->
             <set_value name="$actor.$ut_cac_settings.$experience" operation="add" exact="$wage"/>
@@ -119,7 +124,7 @@
               </do_all>
               <debug_text filter="general"  text="'%1 %2 %3 just got promoted. new combinedskill: %4'.[player.age,$actor.name,$actor.container.name,$actor.combinedskill]"/>
               <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$promotion">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nJust got Promoted, new combinedskill is %4'.[param.ut_cac.loglevel.$promotion,$actor.container.name,$actor.name,$actor.combinedskill]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,6}.[param.ut_cac.loglevel.$promotion,$actor.container.name,$actor.name,$actor.combinedskill]"/>
               </do_if>
             </do_if>
             
@@ -137,26 +142,26 @@
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his Commanders Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
               <transfer_money from="$actor.container.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
               <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$riskbonus">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nRiskbonus of %4 Credits received from Commander %5 on %6'.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($riskbonus)Cr,$actor.container.commanderentity.name,$actor.container.commander.name]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,7}.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($riskbonus)Cr,$actor.container.commanderentity.name,$actor.container.commander.name]"/>
               </do_if>
             </do_if>
             <do_elseif value="$actor.hasownaccount and $actor.money gt $riskbonus and $actor.type == entitytype.manager">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his own Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
               <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
               <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$riskbonus">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nRiskbonus of %4 Credits taken from my own Account'.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($wage)Cr]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,8}.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($riskbonus)Cr]"/>
               </do_if>
             </do_elseif>
             <do_elseif value="player.money gt $riskbonus">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from Player Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
               <transfer_money from="player.entity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
               <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$riskbonus">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nRiskbonus of %4 Credits taken from your Account'.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($wage)Cr]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,9}.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($riskbonus)Cr]"/>
               </do_if>
             </do_elseif>
             <do_else>
               <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$riskbonus">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nRiskbonus of %4 Credits NOT RECEIVED because nobody has the money'.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($wage)Cr]"/>
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,10}.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($riskbonus)Cr]"/>
               </do_if>
             </do_else>
           </actions>
@@ -239,7 +244,7 @@
                 <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Transferring %4 Credits to Player'.[player.age,$actor.name,$actor.container.name,$transferamount/100]"/>
                 <transfer_money amount="$transferamount" from="$actor" to="player.entity"/>
                 <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$surplustransfer">
-                  <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="'%1 : %2 : %3\nSurplus of %4 Credits Transferred to your Account'.[param.ut_cac.loglevel.$surplustransfer,$actor.container.name,$actor.name,($transferamount)Cr]"/>
+                  <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,11}.[param.ut_cac.loglevel.$surplustransfer,$actor.container.name,$actor.name,($transferamount)Cr]"/>
                 </do_if>
               </do_if>
             </do_elseif>
