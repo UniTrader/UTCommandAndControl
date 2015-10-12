@@ -28,7 +28,7 @@
     <actions>
       <wait min="0.1s" max="10s" comment="to avoid multiple order requests at the same moment" sinceversion="2"/>
       
-      <label name="start"/>
+      <label name="init"/>
       <do_if value="not this.$orderlist?">
         <create_list name="this.$orderlist"/>
       </do_if>
@@ -36,9 +36,9 @@
       <!-- first get to free Space/Undock, leave formations etc. to have a safe initial state -->
       <run_script name="'ut.cac.com.captain.move.free'"/>
       
-      <wait exact="100ms" />
       
-      <label name="start with orderlist"/>
+      <label name="start"/>
+      <wait exact="100ms" />
       
       <!-- fulfill all Orders in List in their order -->
       <do_while value="this.$orderlist.count gt 0">

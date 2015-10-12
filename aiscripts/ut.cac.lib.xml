@@ -9,9 +9,9 @@
       -->
         <conditions>
           <check_any>
-            <event_object_signalled object="this.ship" param="'new order'"/>
-            <event_object_signalled object="this.ship" param="'interrupt order'"/>
-            <event_object_signalled object="this.ship" param="'next order'"/>
+            <event_object_signalled object="this" param="'new order'"/>
+            <event_object_signalled object="this" param="'interrupt order'"/>
+            <event_object_signalled object="this" param="'next order'"/>
           </check_any>
         </conditions>
         <actions>
@@ -25,10 +25,10 @@
               <set_value name="$new_orders" exact="event.param2"/>
             </do_else>
             <do_if value="event.param == 'interrupt order'">
-              <!-- add Order as first one -->
-              <set_value name="$new_order_pos" exact="1"/>
+              <!-- add Order as first one possibly interrupting the current one-->
+              <set_value name="$new_order_pos" exact="0"/>
             </do_if>
-            <do_elseif value="event.param3 ge 1">
+            <do_elseif value="event.param3 gt 1">
               <!-- add Order at specified position -->
               <set_value name="$new_order_pos" exact="event.param3"/>
             </do_elseif>
@@ -44,11 +44,11 @@
                   <set_value name="$logbookentry" exact="{5554203,114}.[$logbookentry,$new_orders.{$i}.$displayname]"/>
                 </do_if>
               </do_all>
-              <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="$logbookentry"/>
+              <write_to_logbook category="general" object="this.container" interaction="guidance" text="$logbookentry"/>
             </do_if>
             <!-- reverse to keep the order of the new orders, we just want the list to be inserted at the specified position and going forward through the list would reverse their order -->
             <do_all exact="$new_orders.count" counter="$i" reverse="true">
-              <do_if value="$new_order_pos == 1" comment="insert as first order interrupting the current one">
+              <do_if value="$new_order_pos == 0" comment="insert as first order interrupting the current one">
                 <!-- ToDo: implement Condition for uninterruptable Orders like Docking, which should not be aborted (insert as second in this case)-->
                 <do_if value="true">
                   <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" operation="insert"/>
@@ -67,10 +67,10 @@
           <do_elseif value="event.param == 'next order'">
             <do_if value="this.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$ordergiven and this.$orderlist.{1}.$displayname?">
               <do_if value="this.$orderlist.{2}? and this.$orderlist.{2}.$displayname?">
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,112}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname,this.$orderlist.{2}.$displayname]"/>
+                <write_to_logbook category="general" object="this.container" interaction="guidance" text="{5554203,112}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname,this.$orderlist.{2}.$displayname]"/>
               </do_if>
               <do_else>
-                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,113}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname]"/>
+                <write_to_logbook category="general" object="this.container" interaction="guidance" text="{5554203,113}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname]"/>
               </do_else>
             </do_if>
             <remove_value name="this.$orderlist.{1}"/>

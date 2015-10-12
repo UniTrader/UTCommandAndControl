@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.manager" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.manager" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="11">
   <params/>
   <interrupts>
     <handler ref="OrderlistControl"/>
@@ -61,10 +61,11 @@
         <wait exact="1ms"/>
       </do_all>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 init finished\nSignalled %4 Subordinates'.[player.age,this.name,this.container.subordinates.{this.type}.count]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 init finished\nSignalled %3 Subordinates'.[player.age,this.name,this.container.subordinates.{this.type}.count]"/>
       
       
-      <label name="start with orderlist"/>
+      <label name="start"/>
+      <wait exact="100ms" sinceversion="11"/>
       
       <!-- fulfill all Orders in List in their order -->
       <do_while value="this.$orderlist.count gt 0">
@@ -93,7 +94,7 @@
         <do_all exact="this.$idle_subordinates.count" counter="$i">
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=this.$idle_subordinates.{$i},$interruptable=false]"/>
         </do_all>
-        <resume label="start with orderlist"/>
+        <resume label="start"/>
       </do_if>
       
       <!-- check if we have gasses as ressource and can mine them directly -->
@@ -130,7 +131,7 @@
         <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>
       </do_if>
       
-      <resume label="start with orderlist"/>
+      <resume label="start"/>
       
     </actions>
   </attention>
