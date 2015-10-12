@@ -41,8 +41,8 @@ Wrapper Script to switch Movement for L/XL Ships to UT CAC Movement (for testing
           <do_else>
             <set_value name="this.$debug" exact="false"/>
           </do_else>
-          <!-- first check for refuel, then move (fot L and XL Ships)-->
-          <do_if value="not this.$refueling?">
+          <!-- first check for refuel, then move (for L and XL Ships)-->
+          <do_if value="not this.$refueling? and this.ship.cargo.{ware.fuelcells}.count lt this.ship.cargo.{ware.fuelcells}.max * 0.2f">
             <set_value name="this.$refueling"/>
             <run_script name="'move.refuel'" sinceversion="2"/>
             <remove_value name="this.$refueling"/>
