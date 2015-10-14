@@ -401,8 +401,8 @@ Which Orders are available depends on entity Type
               <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
             </do_elseif>
           </do_if>
-          <add_player_choice_sub text="{5554103,51}" position="1" section="comm_personal_pester" selectable="false" confidence="$actor.$ut_cac_settings.$pesterlevel / 20" />
-          <add_player_choice_sub text="{5554103,52}" position="2" section="comm_personal_log" selectable="false" confidence="$actor.$ut_cac_settings.$loglevel / 20" />
+          <add_player_choice_sub text="{5554103,51}" position="1" section="comm_personal_pester" confidence="$actor.$ut_cac_settings.$pesterlevel / 20" />
+          <add_player_choice_sub text="{5554103,52}" position="2" section="comm_personal_log" confidence="$actor.$ut_cac_settings.$loglevel / 20" />
           <add_player_choice_sub text="{5554103,53}" position="3" section="comm_personal_transfer" selectable="false" comment="planned, but not necesary yet" />
           <add_player_choice_sub text="{5554103,54}" position="4" section="comm_personal_skills" confidence="$actor.combinedskill / 20" />
           <do_if value="$actor.type != entitytype.commander or $actor.type != entitytype.pilot">
@@ -522,12 +522,12 @@ Which Orders are available depends on entity Type
             <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           </do_if>
           <!--  (maybe replace this with a Slider?) -->
-          <add_player_choice text="{5554103,511}" position="1" section="comm_personal_pester" choiceparam="100" confidence="0" selectable="$actor.$ut_cac_settings.$pesterlevel != 100" />
-          <add_player_choice text="{5554103,512}" position="2" section="comm_personal_pester" choiceparam="80" confidence="1" selectable="$actor.$ut_cac_settings.$pesterlevel != 80" />
-          <add_player_choice text="{5554103,513}" position="3" section="comm_personal_pester" choiceparam="60" confidence="2" selectable="$actor.$ut_cac_settings.$pesterlevel != 60" />
-          <add_player_choice text="{5554103,514}" position="4" section="comm_personal_pester" choiceparam="40" confidence="3" selectable="$actor.$ut_cac_settings.$pesterlevel != 40" />
-          <add_player_choice text="{5554103,515}" position="5" section="comm_personal_pester" choiceparam="20" confidence="4" selectable="$actor.$ut_cac_settings.$pesterlevel != 20" />
-          <add_player_choice text="{5554103,516}" position="6" section="comm_personal_pester" choiceparam="0" confidence="5" selectable="$actor.$ut_cac_settings.$pesterlevel != 0" />
+          <add_player_choice text="{5554103,511}" position="1" section="comm_personal_pester" choiceparam="0" confidence="0" selectable="$actor.$ut_cac_settings.$pesterlevel != 0" />
+          <add_player_choice text="{5554103,512}" position="2" section="comm_personal_pester" choiceparam="20" confidence="1" selectable="$actor.$ut_cac_settings.$pesterlevel != 20" />
+          <add_player_choice text="{5554103,513}" position="3" section="comm_personal_pester" choiceparam="40" confidence="2" selectable="$actor.$ut_cac_settings.$pesterlevel != 40" />
+          <add_player_choice text="{5554103,514}" position="4" section="comm_personal_pester" choiceparam="60" confidence="3" selectable="$actor.$ut_cac_settings.$pesterlevel != 60" />
+          <add_player_choice text="{5554103,515}" position="5" section="comm_personal_pester" choiceparam="80" confidence="4" selectable="$actor.$ut_cac_settings.$pesterlevel != 80" />
+          <add_player_choice text="{5554103,516}" position="6" section="comm_personal_pester" choiceparam="100" confidence="5" selectable="$actor.$ut_cac_settings.$pesterlevel != 100" />
           <add_player_choice_return text="{5554103,7}" position="close" returnparam="'no change'" />
         </do_elseif>
         <!-- #### Slot5: Log Level Settings #### -->
@@ -644,12 +644,12 @@ Which Orders are available depends on entity Type
           <do_all exact="[$actor.container.subordinates.{$actor.type}.count,6].min" counter="$i">
             <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.isclass.station">
               <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.tradenpc.exists">
-                <add_player_choice_subconv text="{5554103,36}.[$actor.container.subordinates.{$actor.type}.{$i}.tradenpc.name]" position="$i" conversation="default"  actor="$actor.container.subordinates.{$actor.type}.{$i}.tradenpc"/>
+                <add_player_choice_subconv text="{5554103,35}.[$actor.container.subordinates.{$actor.type}.{$i}.tradenpc.name]" position="$i" conversation="default"  actor="$actor.container.subordinates.{$actor.type}.{$i}.tradenpc"/>
               </do_if>
             </do_if>
             <do_elseif value="$actor.container.subordinates.{$actor.type}.{$i}.isclass.ship">
               <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.pilot.exists">
-                <add_player_choice_subconv text="{5554103,37}.[$actor.container.subordinates.{$actor.type}.{$i}.pilot.name]" position="$i" conversation="default"  actor="$actor.container.subordinates.{$actor.type}.{$i}.pilot"/>
+                <add_player_choice_subconv text="{5554103,36}.[$actor.container.subordinates.{$actor.type}.{$i}.pilot.name]" position="$i" conversation="default"  actor="$actor.container.subordinates.{$actor.type}.{$i}.pilot"/>
               </do_if>
             </do_elseif>
           </do_all>

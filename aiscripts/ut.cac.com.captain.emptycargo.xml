@@ -46,6 +46,7 @@
       </do_if>
       
       <!-- first check Homebase if there is stuff we can Drop there -->
+      <create_list name="$buyoffers"/>
       <do_if value="this.ship.commander.exists">
         <do_all exact="$warelist.count" counter="$i" reverse="true">
           <find_buy_offer result="$buyoffer" buyer="this.ship.commander" wares="$warelist.{$i}" multiple="false" knowntoplayer="this.owner == faction.player">
@@ -61,7 +62,6 @@
       <set_value name="$sector" exact="this.sector"/>
       <label name="search sector"/>
       <!-- find buy Offers in current Sector where we can loose the whole amount in one trade run -->
-      <create_list name="$buyoffers"/>
       <do_all exact="$warelist.count" counter="$i" reverse="true">
         <find_buy_offer result="$buyoffer" space="$sector" wares="$warelist.{$i}" multiple="false" knowntoplayer="this.owner == faction.player">
           <amount min="this.ship.cargo.{$warelist.{$i}}.count"/>
