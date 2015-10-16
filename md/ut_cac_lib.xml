@@ -318,6 +318,231 @@
         <set_value name="$actor.$InUse" exact="true"/>
       </patch>
     </library>
+    <library name="Verify_Range">
+      <actions>
+        <set_value name="$removal_message" exact="[]"/>
+        <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
+        <!-- Checking Count Limit of Ranges to be apporiate for Manager Level -->
+        <!--set_value name="$rangepoints" exact="$actor.skill.navigation * param.ut_cac.rangeprices.$points_per_star + ( if $actor.$ut_cac_settings.$experience ge param.ut_cac.experience.{6} then  param.ut_cac.rangeprices.$sixth_star_points else 0 )"/-->
+        
+        <set_value name="$gatecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}"/>
+        <set_value name="$galaxycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{2}"/>
+        <set_value name="$clustercount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{3}"/>
+        <set_value name="$sectorcount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{4}"/>
+        <set_value name="$zonecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{5}"/>
+        <set_value name="$entrycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+        <do_all exact="$baserange.count" counter="$i">
+          <do_if value="$baserange.{$i}.exists and $baserange.{$i}.gatedistance.{$actor.container} gt $gatecount">
+            <append_to_list name="$removal_message" exact="{5554203,201}.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}]"/>
+            <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+            <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+            <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+          </do_if>
+          <do_elseif value="$baserange.{$i}.isclass.galaxy">
+            <do_if value="not $galaxycount">
+              <append_to_list name="$removal_message" exact="{5554203,202}.[$baserange.{$i}.name]"/>
+              <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+            </do_if>
+            <do_else>
+              <set_value name="$galaxycount" operation="subtract"/>
+            </do_else>
+          </do_elseif>
+          <do_elseif value="$baserange.{$i}.isclass.cluster">
+            <do_if value="not $clustercount">
+              <append_to_list name="$removal_message" exact="{5554203,203}.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{3}]"/>
+              <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+            </do_if>
+            <do_else>
+              <set_value name="$clustercount" operation="subtract"/>
+            </do_else>
+          </do_elseif>
+          <do_elseif value="$baserange.{$i}.isclass.sector">
+            <do_if value="not $sectorcount">
+              <append_to_list name="$removal_message" exact="{5554203,204}.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{4}]"/>
+              <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+            </do_if>
+            <do_else>
+              <set_value name="$sectorcount" operation="subtract"/>
+            </do_else>
+          </do_elseif>
+          <do_elseif value="$baserange.{$i}.isclass.zone">
+            <do_if value="not $zonecount">
+              <append_to_list name="$removal_message" exact="{5554203,205}.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{5}]"/>
+              <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+            </do_if>
+            <do_else>
+              <set_value name="$zonecount" operation="subtract"/>
+            </do_else>
+          </do_elseif>
+          <!-- More Extensive Algorithm to let the Max Range depend on a Point system instead of static Counts for each Range Type - will be implemented at a leter date 
+          <do_if value="$baserange.{$i}.exists">
+            <do_if value="param.ut_cac.rangeprices.{$baserange.{$i}.class}?">
+              <do_if value="param.ut_cac.rangeprices.{$baserange.{$i}.class} gt $rangepoints">
+                <append_to_list name="$removal_message" exact="{5554203,206}.[$baserange.{$i}.name]"/>
+                <remove_value name="$actor.$ut_cac_settings.$range.{$i}"/>
+                <remove_value name="$actor.$ut_cac_settings.$range_j.{$i}"/>
+                <remove_value name="$actor.$ut_cac_settings.$range_h.{$i}"/>
+              </do_if>
+              <do_else>
+                <set_value name="$rangepoints" operation="subtract" exact="param.ut_cac.rangeprices.{$baserange.{$i}.class}"/>
+              </do_else>
+            </do_if>
+            <do_else>
+              <append_to_list name="$removal_message" exact="{5554203,207}.[$baserange.{$i}.name]"/>
+              <remove_value name="$actor.$ut_cac_settings.$range.{$i}"/>
+              <remove_value name="$actor.$ut_cac_settings.$range_j.{$i}"/>
+              <remove_value name="$actor.$ut_cac_settings.$range_h.{$i}"/>
+            </do_else>
+          </do_if>
+          -->
+        </do_all>
+        
+        <!-- checking Jump Range Path to be completely in the whitelist and removing all Ranges which divert from this -->
+        <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
+        <set_value name="$range" exact="$actor.$ut_cac_settings.$range_j"/>
+        <do_all exact="$range.count" counter="$i">
+          <do_if value="$range.{$i}.exists">
+            <!-- if homebase is inside range condition is fulfilled - no further checks needed -->
+            <do_if value="$actor.container.hascontext.{$range.{$i}}">
+              <continue/>
+            </do_if>
+            <!-- get a Sector which has context with the Range setting -->
+            <do_if value="$range.{$i}.isclass.zone">
+              <set_value name="$endsector" exact="$range.{$i}.sector"/>
+            </do_if>
+            <do_elseif value="$range.{$i}.isclass.cluster">
+              <find_sector name="$endsector" space="$range.{$i}"/>
+            </do_elseif>
+            <do_else>
+              <set_value name="$endsector" exact="$range.{$i}"/>
+            </do_else>
+            <!-- for each range Setting get the Jump Path from the Actor/Station Zone to the Range-defining Space -->
+            <get_jump_path component="$waypoints" start="$actor.sector" end="$endsector" multiple="true"/>
+            <do_all exact="@$waypoints.count" counter="$j">
+              <!-- no need to check Gates on the Path -->
+              <do_if value="$waypoints.{$j}.isclass.gate">
+                <continue/>
+              </do_if>
+              <set_value name="$verified" exact="false"/>
+              <!-- and for each waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting and this always uses the last slot -->
+              <do_all exact="$baserange.count" counter="$k" reverse="true">
+                <do_if value="$baserange.{$k}.exists">
+                  <!-- if $baserange.{$k} is a Zone invert the context Check and find out if it has a JB (only in this case its a valid waypoint) -->
+                  <do_if value="$baserange.{$k}.isclass.zone and $baserange.{$k}.hascontext.{$waypoints.{$j}}">
+                    <find_object name="$beacon" space="$baserange.{$k}" class="class.jumpbeacon" knownto="$actor.owner" checkoperational="true"/>
+                    <do_if value="$beacon.exists">
+                      <set_value name="$verified"/>
+                      <break/>
+                    </do_if>
+                  </do_if>
+                  <do_elseif value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
+                    <set_value name="$verified"/>
+                    <break/>
+                  </do_elseif>
+                </do_if>
+              </do_all>
+              <do_if value="not $verified">
+                <break/>
+              </do_if>
+            </do_all>
+            <!-- remove Range Setting for Jumping if the continuty condition doesnt apply (applies if there is no Jump Path - we are already in the right Sector) -->
+            <do_if value="$verified? and not $verified">
+              <remove_value name="$verified"/>
+              <append_to_list name="$removal_message" exact="{5554203,208}.[$range.{$i}.name]"/>
+              <set_value name="$range.{$i}" exact="null"/>
+            </do_if>
+          </do_if>
+        </do_all>
+        <!-- checking Highway Range - similiar to Jump Range, but bi-directional and conditions are slightly diffrent -->
+        <set_value name="$range" exact="$actor.$ut_cac_settings.$range_h"/>
+        <do_all exact="$range.count" counter="$i">
+          <do_if value="$range.{$i}.exists">
+            <!-- if homebase is inside range condition is fulfilled - no further checks needed -->
+            <do_if value="$actor.container.hascontext.{$range.{$i}}">
+              <continue/>
+            </do_if>
+            <!-- for each range Setting get the Tube Path from the Range-defining Space to the Actor/Station Zone -->
+            <do_if value="$range.{$i}.isclass.zone">
+              <set_value name="$zone" exact="$range.{$i}"/>
+            </do_if>
+            <do_else>
+              <find_zone name="$zone" space="$range.{$i}" tempzone="false" priorityzone="true"/>
+            </do_else>
+            <get_global_path component="$waypoints" multiple="true"><start object="$zone"/><end object="$actor.zone"/></get_global_path>
+            <do_all exact="$waypoints.count"  counter="$j">
+              <!-- if $waypoints.{$j} is a Highway or Gate skip check (irrelevant for continuty) -->
+              <!-- no need to check highways or Gates on the path -->
+              <do_if value="$waypoints.{$j}.isclass.highway">
+                <continue/>
+              </do_if>
+              <do_if value="$waypoints.{$j}.isclass.gate">
+                <continue/>
+              </do_if>
+              <set_value name="$verified" exact="false"/>
+              <!-- and for each other waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting (always has context) and this always uses the last slot -->
+              <do_all exact="$range.count" counter="$k" reverse="true">
+                <do_if value="$baserange.{$k}.exists">
+                  <do_if value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
+                    <set_value name="$verified" exact="true"/>
+                    <break/>
+                  </do_if>
+                </do_if>
+              </do_all>
+              <do_if value="not $verified">
+                <break/>
+              </do_if>
+            </do_all>
+            <!-- remove Range Setting for Highways if the continuty condition doesnt apply -->
+            <do_if value="not $verified">
+              <append_to_list name="$removal_message" exact="{5554203,209}.[$range.{$i}.name]"/>
+              <set_value name="$range.{$i}" exact="null"/>
+              <continue/>
+            </do_if>
+            <!-- now the same for the other direction (swapped start and end) - code and comments see above-->
+            <get_global_path component="$waypoints" multiple="true"><start object="$actor.zone"/><end object="$zone"/></get_global_path>
+            <do_all exact="$waypoints.count"  counter="$j">
+              <do_if value="$waypoints.{$j}.isclass.highway">
+                <continue/>
+              </do_if>
+              <do_if value="$waypoints.{$j}.isclass.gate">
+                <continue/>
+              </do_if>
+              <set_value name="$verified" exact="false"/>
+              <do_all exact="$range.count" counter="$k" reverse="true">
+                <do_if value="$baserange.{$k}.exists">
+                  <do_if value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
+                    <set_value name="$verified" exact="true"/>
+                    <break/>
+                  </do_if>
+                </do_if>
+              </do_all>
+              <do_if value="not $verified">
+                <break/>
+              </do_if>
+            </do_all>
+            <do_if value="not $verified">
+              <append_to_list name="$removal_message" exact="{5554203,210}.[$range.{$i}.name]"/>
+              <set_value name="$range.{$i}" exact="null"/>
+              <continue/>
+            </do_if>
+          </do_if>
+        </do_all>
+        
+        <do_if value="$removal_message.count">
+          <show_notification caption="{5554203,211}" details="$removal_message"/>
+        </do_if>
+        <remove_value name="$removal_message"/>
+      </actions>
+    </library>
+    
     <!--
 Dialogue Tree - rough concept (for all Entity Types)
 1. Direct Orders (Entity Specific, but Managment is in this Script)(Displays all current Orders as first Menu, second Menu is what you can do with each Order, 1 is for the first/current Order which is a bis special, * is any other Order
