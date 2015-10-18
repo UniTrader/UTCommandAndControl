@@ -27,9 +27,12 @@
         <signal_cue_instantly cue="this.staticbase" param="$actor"/>
       </patch>
       <patch sinceversion="11" state="complete">
+        <!-- femove Fuelcells Tradeware (forgotten in previous Versions) -->
         <do_if value="$actor.station.tradewares.{ware.fuelcells}.exists">
           <remove_tradeware object="$actor.station" ware="ware.fuelcells"/>
         </do_if>
+         <!--Compatibility with Vim Razz' Human Ressources -->
+        <set_value name="$actor.$InUse" exact="true"/>
       </patch>
       <cues>
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
