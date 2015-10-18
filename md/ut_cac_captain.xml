@@ -3,7 +3,7 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="10">
+    <cue name="Main" instantiate="true" namespace="this" version="11">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
@@ -24,6 +24,10 @@
         <remove_value name="$actor.$loglevel"/>
         <cancel_cue cue="this"/>
         <signal_cue_instantly cue="this.staticbase" param="$actor"/>
+      </patch>
+      <patch sinceversion="11">
+         <!--Compatibility with Vim Razz' Human Ressources -->
+        <set_value name="$actor.$InUse" exact="true"/>
       </patch>
       <cues>
         <cue name="Delayed_scriptstart">
@@ -86,25 +90,27 @@ Rest is shared between all Actor types
           </conditions>
           <actions>
             <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-            <do_if value="event.name == 'event_conversation_started'">
-              <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
-              <do_if value="$actor.room == player.entity.room">
-                <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
-                <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
+            <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="event.name == 'event_conversation_started'">
+                <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
+                <do_if value="$actor.room == player.entity.room">
+                  <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
+                  <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
+                </do_if>
+                <do_else>
+                  <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi." />
+                  <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
+                </do_else>
               </do_if>
-              <do_else>
-                <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi." />
-                <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
-              </do_else>
             </do_if>
-            <add_player_choice_sub text="'About your current Orders...'" position="1" section="comm_orders_main"/>
-            <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main"/>
-            <add_player_choice_sub text="'Connect me with...'" position="3" section="comm_connect_main"/>
-            <add_player_choice_sub text="'About your Subordinates...'" position="4" section="comm_subordinates_main" selectable="false"/>
-            <add_player_choice_sub text="'Lets talk about your Work / Personal Settings'" position="5" section="comm_personal_main"/>
+            <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main"/>
+            <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main"/>
+            <add_player_choice_sub text="{5554103,3}" position="3" section="comm_connect_main"/>
+            <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main" selectable="false"/>
+            <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
             <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
             <set_conversation_return_section section="comm_goodbye"/>
-            <add_player_choice_return text="'Goodbye'" position="close" />
+            <add_player_choice_return text="{5554103,6}" position="close" />
           </actions>
         </cue>
         
@@ -136,35 +142,47 @@ Rest is shared between all Actor types
             
             <!-- Select new Order -->
             <do_if value="event.param == 'comm_orders_new' or event.param == 'comm_orders_insert' or event.param == 'comm_orders_replace'">
-              <add_player_choice text="'Combat'" position="1" section="comm_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
-              <add_player_choice text="'Signalling'" position="3" section="comm_orders_signals" />
-              <add_player_choice text="'Fly to...'" position="4" section="comm_orders_select_zone" choiceparam="'comm_orders_flyto_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
-              <add_player_choice_return text="'(Back)'" position="6" />
-              <add_player_choice_return text="'(Back)'" position="close" />
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
+              <add_player_choice text="{5554103,131}" position="1" section="comm_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
+              <add_player_choice text="{5554103,132}" position="3" section="comm_orders_signals" />
+              <add_player_choice text="{5554103,133}" position="4" section="comm_orders_select_zone" choiceparam="'comm_orders_flyto_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_orders_combat'">
-              <add_player_choice_return text="'(Back)'" position="6" />
-              <add_player_choice_return text="'(Back)'" position="close" />
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_flyto_selected'">
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
               <set_value name="$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$interruptable=true]"/>
-              <set_value name="$return"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_signals'">
-              <add_player_choice text="'Send Signal'" position="1" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
-              <add_player_choice text="'Send Signal to'" position="2" section="comm_orders_select_playerobject" choiceparam="'comm_orders_send_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
-              <add_player_choice text="'Send Signal to Commander'" position="3" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
-              <add_player_choice text="'Wait for Signal'" position="4" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
-              <add_player_choice text="'Wait for Signal on'" position="5" section="comm_orders_select_playerobject" choiceparam="'comm_orders_wait_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
-              <add_player_choice text="'Wait for Signal on Commander'" position="6" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
+              <add_player_choice text="{5554103,1321}" position="1" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
+              <add_player_choice text="{5554103,1322}" position="2" section="comm_orders_select_playerobject" choiceparam="'comm_orders_send_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice text="{5554103,1323}" position="3" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
+              <add_player_choice text="{5554103,1324}" position="4" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
+              <add_player_choice text="{5554103,1325}" position="5" section="comm_orders_select_playerobject" choiceparam="'comm_orders_wait_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice text="{5554103,1326}" position="6" section="comm_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_send_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='signalobject',$interruptable=true,$displayname='Send Signal to %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <set_value name="$return"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_wait_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='wait signal',$interruptable=true,$displayname='Wait for Signal on %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <set_value name="$return"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             
             <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
@@ -203,17 +221,7 @@ Rest is shared between all Actor types
               <remove_value name="$prev_order"/>
               <remove_value name="$new_order"/>
             </do_if>
-            <!-- return to Main Menu Point? (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
-            <do_if value="$return?">
-              <remove_value name="$return"/>
-              <add_player_choice_return text="'Just Ignore this'" position="1"/>
-              <add_player_choice_return text="'and select any Item'" position="4"/>
-              <add_player_choice_return text="'This is just a Workaround'" position="2"/>
-              <add_player_choice_return text="'for a missing Scrip function'" position="5"/>
-              <add_player_choice_return text="'to go back one Menu Level'" position="3"/>
-              <add_player_choice_return text="'without selection'" position="6"/>
-              <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
-            </do_if>
+            
           </actions>
         </cue>
         <!-- Menu 2: Object Settings specific to Captain -->
@@ -226,40 +234,43 @@ Rest is shared between all Actor types
           </conditions>
           <actions>
             <do_if value="event.param == 'comm_settings_main'">
-              <do_if value="event.name == 'event_conversation_next_section'">
-                <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-                <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
-              </do_if>
-              <do_elseif value="event.name == 'event_conversation_returned_to_section'">
-                <do_if value="event.param2 == 'no change'">
-                  <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <do_if value="event.name == 'event_conversation_next_section'">
+                  <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+                  <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
                 </do_if>
-                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
-              </do_elseif>
-              <add_player_choice_sub text="'About your Jumping behavior'" position="1" section="comm_settings_jump" selectable="$actor.skill.navigation gt 3"
+                <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+                  <do_if value="event.param2 == 'no change'">
+                    <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+                  </do_if>
+                  <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+                </do_elseif>
+              </do_if>
+              <add_player_choice_sub text="{5554103,231}" position="1" section="comm_settings_jump" selectable="$actor.skill.navigation gt 3"
                 confidence="( @$actor.$ut_cac_settings.$jumptype == 'random' ) * 1 + ( @$actor.$ut_cac_settings.$jumptype == 'auto' ) * 3 + ( @$actor.$ut_cac_settings.$jumptype == 'beacon' ) * 5" comment="confidence shows current Setting: 0 - not set, beacon: 5, Auto: 3, always Random: 1; Selection is only available when Nav Skill is greater than 3" />
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_jump'">
-              <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
-              <add_player_choice text="'Always use the Jump Beacons'" position="1" section="comm_settings_jump_type_set" choiceparam="'beacon'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'beacon' or $actor.$ut_cac_settings.$jumptype? )"/>
-              <add_player_choice text="'Decide yourself'" position="2" section="comm_settings_jump_type_set" choiceparam="'auto'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'auto' )"/>
-              <add_player_choice text="'Always make Jumps to a random Object'" position="3" section="comm_settings_jump_type_set" choiceparam="'random'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'random' )"/>
-              <add_player_choice text="'Also consider In-Sector-Jumps'" position="4" section="comm_settings_jump_insector_toggle" confidence="1" chance="(not $actor.$ut_cac_settings.$insectorjump) *100"/>
-              <add_player_choice text="'Dont Jump for In-Sector Travel'" position="4" section="comm_settings_jump_insector_toggle" confidence="5" chance="$actor.$ut_cac_settings.$insectorjump *100"/>
-              <add_player_choice_return text="'(Back)'" position="6" />
-              <add_player_choice_return text="'(Back)'" position="close" />
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+                <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+              </do_if>
+              <add_player_choice text="{5554103,2311}" position="1" section="comm_settings_jump_type_set" choiceparam="'beacon'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'beacon' or $actor.$ut_cac_settings.$jumptype? )"/>
+              <add_player_choice text="{5554103,2312}" position="2" section="comm_settings_jump_type_set" choiceparam="'auto'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'auto' )"/>
+              <add_player_choice text="{5554103,2313}" position="3" section="comm_settings_jump_type_set" choiceparam="'random'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'random' )"/>
+              <add_player_choice text="{5554103,2314}" position="4" section="comm_settings_jump_insector_toggle" confidence="1" chance="(not $actor.$ut_cac_settings.$insectorjump) *100"/>
+              <add_player_choice text="{5554103,2315}" position="4" section="comm_settings_jump_insector_toggle" confidence="5" chance="$actor.$ut_cac_settings.$insectorjump *100"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_jump_type_set'">
-              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               <set_value name="$actor.$ut_cac_settings.$jumptype" exact="event.param2"/>
-              <signal_cue_instantly cue="Comm_MainMenu"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_jump_insector_toggle'">
               <set_value name="$actor.$ut_cac_settings.$insectorjump" exact="not $actor.$ut_cac_settings.$insectorjump"/>
-              <signal_cue_instantly cue="Comm_MainMenu"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
           </actions>
         </cue>

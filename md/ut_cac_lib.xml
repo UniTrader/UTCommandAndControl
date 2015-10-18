@@ -90,15 +90,29 @@
             <do_if value="$actor.container.commanderentity.exists and $actor.container.commanderentity.hasownaccount and $actor.container.commanderentity.money gt $wage">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his Commanders Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$ut_cac_settings.$experience,$actor.combinedskill]"/>
               <transfer_money from="$actor.container.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$wage">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,102}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr,$actor.container.commanderentity.name,$actor.container.commander.name]"/>
+              </do_if>
             </do_if>
             <do_elseif value="$actor.hasownaccount and $actor.money gt $wage and $actor.type == entitytype.manager">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his own Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$ut_cac_settings.$experience,$actor.combinedskill]"/>
               <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$wage">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,103}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
+              </do_if>
             </do_elseif>
             <do_elseif value="player.money gt $wage">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from Player Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$ut_cac_settings.$experience,$actor.combinedskill]"/>
               <transfer_money from="player.entity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$wage">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,104}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
+              </do_if>
             </do_elseif>
+            <do_else>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$wage">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,105}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
+              </do_if>
+            </do_else>
             
             <!-- simple EXP gain at certain total Wage Paid - will be changed at some point -->
             <set_value name="$actor.$ut_cac_settings.$experience" operation="add" exact="$wage"/>
@@ -109,6 +123,9 @@
                 </do_if>
               </do_all>
               <debug_text filter="general"  text="'%1 %2 %3 just got promoted. new combinedskill: %4'.[player.age,$actor.name,$actor.container.name,$actor.combinedskill]"/>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$promotion">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,106}.[param.ut_cac.loglevel.$promotion,$actor.container.name,$actor.name,$actor.combinedskill]"/>
+              </do_if>
             </do_if>
             
           </actions>
@@ -124,15 +141,29 @@
             <do_if value="$actor.container.commanderentity.exists and $actor.container.commanderentity.hasownaccount and $actor.container.commanderentity.money gt $riskbonus">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his Commanders Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
               <transfer_money from="$actor.container.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$riskbonus">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,107}.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($riskbonus)Cr,$actor.container.commanderentity.name,$actor.container.commander.name]"/>
+              </do_if>
             </do_if>
             <do_elseif value="$actor.hasownaccount and $actor.money gt $riskbonus and $actor.type == entitytype.manager">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from his own Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
               <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$riskbonus">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,108}.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($riskbonus)Cr]"/>
+              </do_if>
             </do_elseif>
             <do_elseif value="player.money gt $riskbonus">
               <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Risk Bonus from Player Acc'.[player.age,$actor.name,$actor.container.name,$riskbonus]"/>
               <transfer_money from="player.entity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$riskbonus"/>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$riskbonus">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,109}.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($riskbonus)Cr]"/>
+              </do_if>
             </do_elseif>
+            <do_else>
+              <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$riskbonus">
+                <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,110}.[param.ut_cac.loglevel.$riskbonus,$actor.container.name,$actor.name,($riskbonus)Cr]"/>
+              </do_if>
+            </do_else>
           </actions>
           <cues>
             <cue name="Riskbonus_reset">
@@ -212,6 +243,9 @@
               <do_if value="$transferamount != 0">
                 <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Transferring %4 Credits to Player'.[player.age,$actor.name,$actor.container.name,$transferamount/100]"/>
                 <transfer_money amount="$transferamount" from="$actor" to="player.entity"/>
+                <do_if value="$actor.$ut_cac_settings.$loglevel ge param.ut_cac.loglevel.$surplustransfer">
+                  <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,111}.[param.ut_cac.loglevel.$surplustransfer,$actor.container.name,$actor.name,($transferamount)Cr]"/>
+                </do_if>
               </do_if>
             </do_elseif>
             <reset_cue cue="Account_Manager"/>
@@ -276,8 +310,235 @@
           <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.navigation}" exact="if $actor.skill.navigation then param.ut_cac.experience.{$actor.skill.navigation} else 0"/>
           <set_value name="$actor.$ut_cac_settings.$experience.{skilltype.science}" exact="if $actor.skill.science then param.ut_cac.experience.{$actor.skill.science} else 0"/-->
         </do_if>
+        <!-- Compatibility with Vim Razz' Human Ressources -->
+        <set_value name="$actor.$InUse" exact="true"/>
       </actions>
     </library>
+    <library name="Verify_Range">
+      <actions>
+        <set_value name="$removal_message" exact="[]"/>
+        <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
+        <!-- Checking Count Limit of Ranges to be apporiate for Manager Level -->
+        <!--set_value name="$rangepoints" exact="$actor.skill.navigation * param.ut_cac.rangeprices.$points_per_star + ( if $actor.$ut_cac_settings.$experience ge param.ut_cac.experience.{6} then  param.ut_cac.rangeprices.$sixth_star_points else 0 )"/-->
+        
+        <set_value name="$gatecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}"/>
+        <set_value name="$galaxycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{2}"/>
+        <set_value name="$clustercount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{3}"/>
+        <set_value name="$sectorcount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{4}"/>
+        <set_value name="$zonecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{5}"/>
+        <set_value name="$entrycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+        <do_all exact="$baserange.count" counter="$i">
+          <do_if value="$baserange.{$i}.exists and $baserange.{$i}.gatedistance.{$actor.container} gt $gatecount">
+            <append_to_list name="$removal_message" exact="{5554203,201}.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}]"/>
+            <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+            <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+            <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+          </do_if>
+          <do_elseif value="$baserange.{$i}.isclass.galaxy">
+            <do_if value="not $galaxycount">
+              <append_to_list name="$removal_message" exact="{5554203,202}.[$baserange.{$i}.name]"/>
+              <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+            </do_if>
+            <do_else>
+              <set_value name="$galaxycount" operation="subtract"/>
+            </do_else>
+          </do_elseif>
+          <do_elseif value="$baserange.{$i}.isclass.cluster">
+            <do_if value="not $clustercount">
+              <append_to_list name="$removal_message" exact="{5554203,203}.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{3}]"/>
+              <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+            </do_if>
+            <do_else>
+              <set_value name="$clustercount" operation="subtract"/>
+            </do_else>
+          </do_elseif>
+          <do_elseif value="$baserange.{$i}.isclass.sector">
+            <do_if value="not $sectorcount">
+              <append_to_list name="$removal_message" exact="{5554203,204}.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{4}]"/>
+              <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+            </do_if>
+            <do_else>
+              <set_value name="$sectorcount" operation="subtract"/>
+            </do_else>
+          </do_elseif>
+          <do_elseif value="$baserange.{$i}.isclass.zone">
+            <do_if value="not $zonecount">
+              <append_to_list name="$removal_message" exact="{5554203,205}.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{5}]"/>
+              <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
+              <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
+            </do_if>
+            <do_else>
+              <set_value name="$zonecount" operation="subtract"/>
+            </do_else>
+          </do_elseif>
+          <!-- More Extensive Algorithm to let the Max Range depend on a Point system instead of static Counts for each Range Type - will be implemented at a leter date 
+          <do_if value="$baserange.{$i}.exists">
+            <do_if value="param.ut_cac.rangeprices.{$baserange.{$i}.class}?">
+              <do_if value="param.ut_cac.rangeprices.{$baserange.{$i}.class} gt $rangepoints">
+                <append_to_list name="$removal_message" exact="{5554203,206}.[$baserange.{$i}.name]"/>
+                <remove_value name="$actor.$ut_cac_settings.$range.{$i}"/>
+                <remove_value name="$actor.$ut_cac_settings.$range_j.{$i}"/>
+                <remove_value name="$actor.$ut_cac_settings.$range_h.{$i}"/>
+              </do_if>
+              <do_else>
+                <set_value name="$rangepoints" operation="subtract" exact="param.ut_cac.rangeprices.{$baserange.{$i}.class}"/>
+              </do_else>
+            </do_if>
+            <do_else>
+              <append_to_list name="$removal_message" exact="{5554203,207}.[$baserange.{$i}.name]"/>
+              <remove_value name="$actor.$ut_cac_settings.$range.{$i}"/>
+              <remove_value name="$actor.$ut_cac_settings.$range_j.{$i}"/>
+              <remove_value name="$actor.$ut_cac_settings.$range_h.{$i}"/>
+            </do_else>
+          </do_if>
+          -->
+        </do_all>
+        
+        <!-- checking Jump Range Path to be completely in the whitelist and removing all Ranges which divert from this -->
+        <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
+        <set_value name="$range" exact="$actor.$ut_cac_settings.$range_j"/>
+        <do_all exact="$range.count" counter="$i">
+          <do_if value="$range.{$i}.exists">
+            <!-- if homebase is inside range condition is fulfilled - no further checks needed -->
+            <do_if value="$actor.container.hascontext.{$range.{$i}}">
+              <continue/>
+            </do_if>
+            <!-- get a Sector which has context with the Range setting -->
+            <do_if value="$range.{$i}.isclass.zone">
+              <set_value name="$endsector" exact="$range.{$i}.sector"/>
+            </do_if>
+            <do_elseif value="$range.{$i}.isclass.cluster">
+              <find_sector name="$endsector" space="$range.{$i}"/>
+            </do_elseif>
+            <do_else>
+              <set_value name="$endsector" exact="$range.{$i}"/>
+            </do_else>
+            <!-- for each range Setting get the Jump Path from the Actor/Station Zone to the Range-defining Space -->
+            <get_jump_path component="$waypoints" start="$actor.sector" end="$endsector" multiple="true"/>
+            <do_all exact="@$waypoints.count" counter="$j">
+              <!-- no need to check Gates on the Path -->
+              <do_if value="$waypoints.{$j}.isclass.gate">
+                <continue/>
+              </do_if>
+              <set_value name="$verified" exact="false"/>
+              <!-- and for each waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting and this always uses the last slot -->
+              <do_all exact="$baserange.count" counter="$k" reverse="true">
+                <do_if value="$baserange.{$k}.exists">
+                  <!-- if $baserange.{$k} is a Zone invert the context Check and find out if it has a JB (only in this case its a valid waypoint) -->
+                  <do_if value="$baserange.{$k}.isclass.zone and $baserange.{$k}.hascontext.{$waypoints.{$j}}">
+                    <find_object name="$beacon" space="$baserange.{$k}" class="class.jumpbeacon" knownto="$actor.owner" checkoperational="true"/>
+                    <do_if value="$beacon.exists">
+                      <set_value name="$verified"/>
+                      <break/>
+                    </do_if>
+                  </do_if>
+                  <do_elseif value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
+                    <set_value name="$verified"/>
+                    <break/>
+                  </do_elseif>
+                </do_if>
+              </do_all>
+              <do_if value="not $verified">
+                <break/>
+              </do_if>
+            </do_all>
+            <!-- remove Range Setting for Jumping if the continuty condition doesnt apply (applies if there is no Jump Path - we are already in the right Sector) -->
+            <do_if value="$verified? and not $verified">
+              <remove_value name="$verified"/>
+              <append_to_list name="$removal_message" exact="{5554203,208}.[$range.{$i}.name]"/>
+              <set_value name="$range.{$i}" exact="null"/>
+            </do_if>
+          </do_if>
+        </do_all>
+        <!-- checking Highway Range - similiar to Jump Range, but bi-directional and conditions are slightly diffrent -->
+        <set_value name="$range" exact="$actor.$ut_cac_settings.$range_h"/>
+        <do_all exact="$range.count" counter="$i">
+          <do_if value="$range.{$i}.exists">
+            <!-- if homebase is inside range condition is fulfilled - no further checks needed -->
+            <do_if value="$actor.container.hascontext.{$range.{$i}}">
+              <continue/>
+            </do_if>
+            <!-- for each range Setting get the Tube Path from the Range-defining Space to the Actor/Station Zone -->
+            <do_if value="$range.{$i}.isclass.zone">
+              <set_value name="$zone" exact="$range.{$i}"/>
+            </do_if>
+            <do_else>
+              <find_zone name="$zone" space="$range.{$i}" tempzone="false" priorityzone="true"/>
+            </do_else>
+            <get_global_path component="$waypoints" multiple="true"><start object="$zone"/><end object="$actor.zone"/></get_global_path>
+            <do_all exact="$waypoints.count"  counter="$j">
+              <!-- if $waypoints.{$j} is a Highway or Gate skip check (irrelevant for continuty) -->
+              <!-- no need to check highways or Gates on the path -->
+              <do_if value="$waypoints.{$j}.isclass.highway">
+                <continue/>
+              </do_if>
+              <do_if value="$waypoints.{$j}.isclass.gate">
+                <continue/>
+              </do_if>
+              <set_value name="$verified" exact="false"/>
+              <!-- and for each other waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting (always has context) and this always uses the last slot -->
+              <do_all exact="$range.count" counter="$k" reverse="true">
+                <do_if value="$baserange.{$k}.exists">
+                  <do_if value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
+                    <set_value name="$verified" exact="true"/>
+                    <break/>
+                  </do_if>
+                </do_if>
+              </do_all>
+              <do_if value="not $verified">
+                <break/>
+              </do_if>
+            </do_all>
+            <!-- remove Range Setting for Highways if the continuty condition doesnt apply -->
+            <do_if value="not $verified">
+              <append_to_list name="$removal_message" exact="{5554203,209}.[$range.{$i}.name]"/>
+              <set_value name="$range.{$i}" exact="null"/>
+              <continue/>
+            </do_if>
+            <!-- now the same for the other direction (swapped start and end) - code and comments see above-->
+            <get_global_path component="$waypoints" multiple="true"><start object="$actor.zone"/><end object="$zone"/></get_global_path>
+            <do_all exact="$waypoints.count"  counter="$j">
+              <do_if value="$waypoints.{$j}.isclass.highway">
+                <continue/>
+              </do_if>
+              <do_if value="$waypoints.{$j}.isclass.gate">
+                <continue/>
+              </do_if>
+              <set_value name="$verified" exact="false"/>
+              <do_all exact="$range.count" counter="$k" reverse="true">
+                <do_if value="$baserange.{$k}.exists">
+                  <do_if value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
+                    <set_value name="$verified" exact="true"/>
+                    <break/>
+                  </do_if>
+                </do_if>
+              </do_all>
+              <do_if value="not $verified">
+                <break/>
+              </do_if>
+            </do_all>
+            <do_if value="not $verified">
+              <append_to_list name="$removal_message" exact="{5554203,210}.[$range.{$i}.name]"/>
+              <set_value name="$range.{$i}" exact="null"/>
+              <continue/>
+            </do_if>
+          </do_if>
+        </do_all>
+        
+        <do_if value="$removal_message.count">
+          <show_notification caption="{5554203,211}" details="$removal_message"/>
+        </do_if>
+        <remove_value name="$removal_message"/>
+      </actions>
+    </library>
+    
     <!--
 Dialogue Tree - rough concept (for all Entity Types)
 1. Direct Orders (Entity Specific, but Managment is in this Script)(Displays all current Orders as first Menu, second Menu is what you can do with each Order, 1 is for the first/current Order which is a bis special, * is any other Order
@@ -349,66 +610,78 @@ Which Orders are available depends on entity Type
         <!--                       Personal Menu                          -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_personal_main'">
-          <do_if value="event.name == 'event_conversation_next_section'">
-            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
-          </do_if>
-          <do_elseif value="event.name == 'event_conversation_returned_to_section'">
-            <do_if value="event.param2 == 'no change'">
-              <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="event.name == 'event_conversation_next_section'">
+              <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
             </do_if>
-            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
-          </do_elseif>
-          <add_player_choice_sub text="'About your verbosity...'" position="1" section="comm_personal_pester" selectable="false" confidence="$actor.$ut_cac_settings.$pesterlevel / 20" />
-          <add_player_choice_sub text="'About your Log Activity...'" position="2" section="comm_personal_log" selectable="false" confidence="$actor.$ut_cac_settings.$loglevel / 20" />
-          <add_player_choice_sub text="'About your workplace..'" position="3" section="comm_personal_transfer" selectable="false" comment="planned, but not necesary yet" />
-          <add_player_choice_sub text="'Show me your Skills, please!'" position="4" section="comm_personal_skills" confidence="$actor.combinedskill / 20" />
+            <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+              <do_if value="event.param2 == 'no change'">
+                <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+              </do_if>
+              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+            </do_elseif>
+          </do_if>
+          <add_player_choice_sub text="{5554103,51}" position="1" section="comm_personal_pester" confidence="$actor.$ut_cac_settings.$pesterlevel / 20" />
+          <add_player_choice_sub text="{5554103,52}" position="2" section="comm_personal_log" confidence="$actor.$ut_cac_settings.$loglevel / 20" />
+          <add_player_choice_sub text="{5554103,53}" position="3" section="comm_personal_transfer" selectable="false" comment="planned, but not necesary yet" />
+          <add_player_choice_sub text="{5554103,54}" position="4" section="comm_personal_skills" confidence="$actor.combinedskill / 20" />
           <do_if value="$actor.type != entitytype.commander or $actor.type != entitytype.pilot">
-            <add_player_choice_sub text="{10004,1611}" position="5" section="comm_personal_money" confidence="3" selectable="$actor.hasownaccount" comment="planned function for confidence: show if the Actor has not enough or too much money (optimum is 3)"/>
+            <add_player_choice_sub text="{5554103,55}" position="5" section="comm_personal_money" confidence="3" selectable="$actor.hasownaccount" comment="planned function for confidence: show if the Actor has not enough or too much money (optimum is 3)"/>
           </do_if>
           <do_else>
-            <add_player_choice text="'Money: %1Cr'.[if $actor.hasownaccount then ($actor.money)Cr else 'No Account']" position="5" section="comm_personal_money" selectable="false" comment="Not Selectable because Pilots/Commanders only have the Money which is reserved for a Job."/>
+            <add_player_choice text="if $actor.hasownaccount then {5554103,56}.[($actor.money)Cr] else {5554103,57}" position="5" section="comm_personal_money" selectable="false" comment="Not Selectable because Pilots/Commanders only have the Money which is reserved for a Job."/>
           </do_else>
-          <add_player_choice_return text="'(Back)'" position="6" />
-          <add_player_choice_return text="'(Back)'" position="close" />
+          <add_player_choice_return text="{5554103,7}" position="6" />
+          <add_player_choice_return text="{5554103,7}" position="close" />
         </do_if>
         <!-- ##### Slot1: Skills #### -->
         <do_elseif value="event.param == 'comm_personal_skills'">
-          <add_npc_line speaker="player.entity" line="[1130,1110].random" hidechoices="false" comment="Show me your profile/skills, please." />
-          <add_npc_line speaker="$actor" line="[4110,4111,1582,1583].random" hidechoices="false" comment="Here you go. | Take a look, I'm more than qualified. | I hope these impress you, I'm quite proud." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1130,1110].random" hidechoices="false" comment="Show me your profile/skills, please." />
+            <add_npc_line speaker="$actor" line="[4110,4111,1582,1583].random" hidechoices="false" comment="Here you go. | Take a look, I'm more than qualified. | I hope these impress you, I'm quite proud." />
+          </do_if>
           <open_conversation_menu menu="CharProfileMenu" param="[0, 0, $actor, 0, 1, $actor.container]" />
         </do_elseif>
         <!-- #### Slot2: Money Sub-Menu #### -->
         <do_elseif value="event.param == 'comm_personal_money'">
-          <do_if value="event.name == 'event_conversation_next_section'">
-            <add_npc_line speaker="player.entity" line="[1611].random" hidechoices="false" comment="About your budget..." />
-            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="event.name == 'event_conversation_next_section'">
+              <add_npc_line speaker="player.entity" line="[1611].random" hidechoices="false" comment="About your budget..." />
+              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+            </do_if>
+            <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+              <add_npc_line speaker="player.entity" line="[1613].random" hidechoices="false" comment="Confirming budget changes." />
+              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="Here you go." />
+            </do_elseif>
           </do_if>
-          <do_elseif value="event.name == 'event_conversation_returned_to_section'">
-            <add_npc_line speaker="player.entity" line="[1613].random" hidechoices="false" comment="Confirming budget changes." />
-            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="Here you go." />
-          </do_elseif>
-          <add_player_choice_sub text="'Account Minimum: %1Cr'.[($actor.minbudget)Cr]" position="1" section="comm_personal_money_minbudget" selectable="false"/>
-          <add_player_choice_sub text="'%1Cr :Account Maximum'.[($actor.maxbudget)Cr]" position="4" section="comm_personal_money_maxbudget" selectable="false"/>
-          <add_player_choice_sub text="'Current Account: %1Cr'.[($actor.money)Cr]" position="2" section="comm_personal_money_transfer"/>
-          <add_player_choice_sub text="'%1Cr :Give wanted Money plus 25%2'.[($actor.container.wantedmoney)Cr,'%']" position="5" section="comm_personal_money_wanted"/>
-          <add_player_choice_sub text="'Share Account with...'" position="3" section="comm_personal_money_shareaccount" selectable="false"/>
-          <add_player_choice_return text="'(Back)'" position="6" returnparam="'no change'" />
-          <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
+          <add_player_choice_sub text="{5554103,551}.[($actor.minbudget)Cr]" position="1" section="comm_personal_money_minbudget" selectable="false"/>
+          <add_player_choice_sub text="{5554103,554}.[($actor.maxbudget)Cr]" position="4" section="comm_personal_money_maxbudget" selectable="false"/>
+          <add_player_choice_sub text="{5554103,552}.[($actor.money)Cr]" position="2" section="comm_personal_money_transfer"/>
+          <add_player_choice_sub text="{5554103,555}.[($actor.container.wantedmoney)Cr,'%']" position="5" section="comm_personal_money_wanted"/>
+          <add_player_choice_sub text="{5554103,553}" position="3" section="comm_personal_money_shareaccount" selectable="false"/>
+          <add_player_choice_return text="{5554103,7}" position="6" returnparam="'no change'" />
+          <add_player_choice_return text="{5554103,7}" position="close" returnparam="'no change'" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_money_minbudget'">
-          <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          </do_if>
           <open_conversation_menu menu="SetMoneyLimitMenu" param="[0, 0, $actor, 'min']" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_money_maxbudget'">
-          <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          </do_if>
           <open_conversation_menu menu="SetMoneyLimitMenu" param="[0, 0, $actor, 'max']" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_money_transfer'">
-          <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          </do_if>
           <open_conversation_menu menu="MoneyTransferMenu" param="[0, 0, $actor]" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_money_wanted'">
@@ -420,29 +693,33 @@ Which Orders are available depends on entity Type
             <set_actor_min_budget actor="$actor" amount="$actor.container.wantedmoney / 10"/>
           </do_if>
           <transfer_money from="player.entity" to="$actor" amount="( $actor.container.wantedmoney * 1.25 ) - $actor.money"/>
-          <do_if value="$actor.container.wantedmoney lt $actor.money" comment="Player has not enough Money - modify dialogue to indicate this">
-            <add_npc_line speaker="player.entity" line="[1511,1613,1717,1732].random" hidechoices="false" comment="Ka-Ching! | Confirming budget changes. | Deal. | Begin and let me know if you encounter any problems." />
-            <add_npc_line speaker="$actor" line="[1119,4803].random" hidechoices="false" comment="The current funding is insufficient sir. | Please get back to me to discuss my budget as soon as you can." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="$actor.container.wantedmoney lt $actor.money" comment="Player has not enough Money - modify dialogue to indicate this">
+              <add_npc_line speaker="player.entity" line="[1511,1613,1717,1732].random" hidechoices="false" comment="Ka-Ching! | Confirming budget changes. | Deal. | Begin and let me know if you encounter any problems." />
+              <add_npc_line speaker="$actor" line="[1119,4803].random" hidechoices="false" comment="The current funding is insufficient sir. | Please get back to me to discuss my budget as soon as you can." />
+            </do_if>
+            <do_else>
+              <add_npc_line speaker="player.entity" line="[1511,1613,1717,1732].random" hidechoices="false" comment="Ka-Ching! | Confirming budget changes. | Deal. | Begin and let me know if you encounter any problems." />
+              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019,1120,4804].random" hidechoices="false" comment="generic confirmation | Affirmative, funding is looking good. All green. | Confirming budget changes." />
+            </do_else>
           </do_if>
-          <do_else>
-            <add_npc_line speaker="player.entity" line="[1511,1613,1717,1732].random" hidechoices="false" comment="Ka-Ching! | Confirming budget changes. | Deal. | Begin and let me know if you encounter any problems." />
-            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019,1120,4804].random" hidechoices="false" comment="generic confirmation | Affirmative, funding is looking good. All green. | Confirming budget changes." />
-          </do_else>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <!-- #### Slot3: Reassignment (to antarctica :P ) #### -->
         <do_elseif value="event.param == 'comm_personal_transfer'">
-          <!-- ToDo: Spoken Text -->
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="5000" hidechoices="false" comment="Of course, Sir. What is my new assignment?" />
+          </do_if>
           <do_if value="player.entity.container != $actor.container">
-            <add_player_choice text="'Work here'" position="1" section="comm_personal_transfer_selected" choiceparam="player.entity.room"/>
+            <add_player_choice text="{5554103,531}" position="1" section="comm_personal_transfer_selected" choiceparam="player.entity.room"/>
           </do_if>
           <do_elseif value="$actor.container != player.primaryship">
-            <add_player_choice text="'Come on board of the %1'.[player.primaryship.name]" position="1" section="comm_personal_transfer_selected" choiceparam="player.primaryship"/>
+            <add_player_choice text="{5554103,532}.[player.primaryship.name]" position="1" section="comm_personal_transfer_selected" choiceparam="player.primaryship"/>
           </do_elseif>
-          <add_player_choice text="'Work somewhere else'" position="2" section="comm_personal_transfer_selectobject"/>
-          <add_player_choice text="'You\'re fired'" position="3" section="comm_personal_transfer_fired"/>
-          <add_player_choice text="'Suspend your Work/Start working'" position="4" section="comm_transfer_suspend"/>
-          <add_player_choice_return text="'(Back)'" position="6" />
+          <add_player_choice text="{5554103,533}" position="2" section="comm_personal_transfer_selectobject"/>
+          <add_player_choice text="{5554103,534}" position="3" section="comm_personal_transfer_fired"/>
+          <add_player_choice text="{5554103,535}" position="4" section="comm_transfer_suspend"/>
+          <add_player_choice_return text="'{5554103,7}'" position="6" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer_selected'">
           <!-- check if target is maybe docked at the actor location or the other way around and just warp him directly in this case -->
@@ -461,18 +738,18 @@ Which Orders are available depends on entity Type
           <do_if value="typeof event.param2 != datatype.null">
             <set_value name="$actor.$ut_cac_settings.$pesterlevel" exact="(event.param2)i"/>
           </do_if>
-          <do_if value="event.name == 'event_conversation_next_section'">
+          <do_if value="event.name == 'event_conversation_next_section' and $actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
             <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           </do_if>
           <!--  (maybe replace this with a Slider?) -->
-          <add_player_choice text="'dont. say. anything. ever.'" position="1" section="comm_personal_pester" choiceparam="0" confidence="0" selectable="$actor.$ut_cac_settings.$pesterlevel != 0" />
-          <add_player_choice text="'Ask me only in case of emergency'" position="2" section="comm_personal_pester" choiceparam="20" confidence="1" selectable="$actor.$ut_cac_settings.$pesterlevel != 20" />
-          <add_player_choice text="'Ask me only for the important Stuff'" position="3" section="comm_personal_pester" choiceparam="40" confidence="2" selectable="$actor.$ut_cac_settings.$pesterlevel != 40" />
-          <add_player_choice text="'Call me in case of doubt.'" position="4" section="comm_personal_pester" choiceparam="60" confidence="3" selectable="$actor.$ut_cac_settings.$pesterlevel != 60" />
-          <add_player_choice text="'Call me in case of even trivial questions'" position="5" section="comm_personal_pester" choiceparam="80" confidence="4" selectable="$actor.$ut_cac_settings.$pesterlevel != 80" />
-          <add_player_choice text="'Contact me for absolutely everything!'" position="6" section="comm_personal_pester" choiceparam="100" confidence="5" selectable="$actor.$ut_cac_settings.$pesterlevel != 100" />
-          <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
+          <add_player_choice text="{5554103,511}" position="1" section="comm_personal_pester" choiceparam="0" confidence="0" selectable="$actor.$ut_cac_settings.$pesterlevel != 0" />
+          <add_player_choice text="{5554103,512}" position="2" section="comm_personal_pester" choiceparam="20" confidence="1" selectable="$actor.$ut_cac_settings.$pesterlevel != 20" />
+          <add_player_choice text="{5554103,513}" position="3" section="comm_personal_pester" choiceparam="40" confidence="2" selectable="$actor.$ut_cac_settings.$pesterlevel != 40" />
+          <add_player_choice text="{5554103,514}" position="4" section="comm_personal_pester" choiceparam="60" confidence="3" selectable="$actor.$ut_cac_settings.$pesterlevel != 60" />
+          <add_player_choice text="{5554103,515}" position="5" section="comm_personal_pester" choiceparam="80" confidence="4" selectable="$actor.$ut_cac_settings.$pesterlevel != 80" />
+          <add_player_choice text="{5554103,516}" position="6" section="comm_personal_pester" choiceparam="100" confidence="5" selectable="$actor.$ut_cac_settings.$pesterlevel != 100" />
+          <add_player_choice_return text="{5554103,7}" position="close" returnparam="'no change'" />
         </do_elseif>
         <!-- #### Slot5: Log Level Settings #### -->
         <do_elseif value="event.param == 'comm_personal_log'">
@@ -480,31 +757,20 @@ Which Orders are available depends on entity Type
           <do_if value="typeof event.param2 != datatype.null">
             <set_value name="$actor.$ut_cac_settings.$loglevel" exact="(event.param2)i"/>
           </do_if>
-          <do_if value="event.name == 'event_conversation_next_section'">
+          <do_if value="event.name == 'event_conversation_next_section' and $actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
             <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           </do_if>
           <!--  (maybe replace this with a Slider?) -->
-          <add_player_choice text="'dont. log. anything. ever.'" position="1" section="comm_personal_log" choiceparam="0" confidence="0" selectable="$actor.$ut_cac_settings.$loglevel != 0" />
-          <add_player_choice text="'Write down only the really important stuff'" position="2" section="comm_personal_log" choiceparam="20" confidence="1" selectable="$actor.$ut_cac_settings.$loglevel != 20" />
-          <add_player_choice text="'Just Log important stuff'" position="3" section="comm_personal_log" choiceparam="40" confidence="2" selectable="$actor.$ut_cac_settings.$loglevel != 40" />
-          <add_player_choice text="'Write a usual Log file'" position="4" section="comm_personal_log" choiceparam="60" confidence="3" selectable="$actor.$ut_cac_settings.$loglevel != 60" />
-          <add_player_choice text="'Write something when something happens'" position="5" section="comm_personal_log" choiceparam="80" confidence="4" selectable="$actor.$ut_cac_settings.$loglevel != 80" />
-          <add_player_choice text="'Log absolutely everything!'" position="6" section="comm_personal_log" choiceparam="100" confidence="5" selectable="$actor.$ut_cac_settings.$loglevel != 100" />
+          <add_player_choice text="'dont. log. anything. ever.'" position="1" section="comm_personal_log" choiceparam="100" confidence="0" selectable="$actor.$ut_cac_settings.$loglevel != 100" />
+          <add_player_choice text="'Write down only the really important stuff'" position="2" section="comm_personal_log" choiceparam="80" confidence="1" selectable="$actor.$ut_cac_settings.$loglevel != 80" />
+          <add_player_choice text="'Just Log important stuff'" position="3" section="comm_personal_log" choiceparam="60" confidence="2" selectable="$actor.$ut_cac_settings.$loglevel != 60" />
+          <add_player_choice text="'Write a usual Log file'" position="4" section="comm_personal_log" choiceparam="40" confidence="3" selectable="$actor.$ut_cac_settings.$loglevel != 40" />
+          <add_player_choice text="'Write something when something happens'" position="5" section="comm_personal_log" choiceparam="20" confidence="4" selectable="$actor.$ut_cac_settings.$loglevel != 20" />
+          <add_player_choice text="'Log absolutely everything!'" position="6" section="comm_personal_log" choiceparam="0" confidence="5" selectable="$actor.$ut_cac_settings.$loglevel != 0" />
           <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
         </do_elseif>
         
-        <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
-        <do_if value="$return?">
-          <remove_value name="$return"/>
-          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
-          <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
-          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
-          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
-          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
-          <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
-          <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
-        </do_if>
       </actions>
     </library>
     <library name="Comm_Common_Connect" instantiate="true">
@@ -525,99 +791,106 @@ Which Orders are available depends on entity Type
         <!--                        Connect Menu                          -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_connect_main'">
-          <add_npc_line speaker="player.entity" line="[102081].random" hidechoices="false" comment="Just put him through." />
-          <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[102081].random" hidechoices="false" comment="Just put him through." />
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
           <!-- Slot1: Defense Officer -->
           <do_if value="$actor.container.defencenpc.exists">
-            <add_player_choice_subconv text="'Defence: %s'.[$actor.container.defencenpc.name]" position="1" conversation="default"  actor="$actor.container.defencenpc" selectable="$actor.container.defencenpc != $actor"/>
+            <add_player_choice_subconv text="{5554103,31}.[$actor.container.defencenpc.name]" position="1" conversation="default"  actor="$actor.container.defencenpc" selectable="$actor.container.defencenpc != $actor"/>
           </do_if>
           <do_elseif value="$actor.container.buildingmodule.container.defencenpc.exists">
-            <add_player_choice_subconv text="'Defence: %s'.[$actor.container.buildingmodule.container.defencenpc.name]" position="1" conversation="default"  actor="$actor.container.buildingmodule.container.defencenpc" selectable="$actor.container.buildingmodule.container.defencenpc != $actor"/>
+            <add_player_choice_subconv text="{5554103,31}.[$actor.container.buildingmodule.container.defencenpc.name]" position="1" conversation="default"  actor="$actor.container.buildingmodule.container.defencenpc" selectable="$actor.container.buildingmodule.container.defencenpc != $actor"/>
           </do_elseif>
           <do_elseif value="$actor.container.buildmodule.buildanchor.defencenpc.exists">
-            <add_player_choice_subconv text="'Defence: %s'.[$actor.container.buildmodule.buildanchor.defencenpc.name]" position="1" conversation="default"  actor="$actor.container.buildmodule.buildanchor.defencenpc" selectable="$actor.container.buildmodule.buildanchor.defencenpc != $actor"/>
+            <add_player_choice_subconv text="{5554103,31}.[$actor.container.buildmodule.buildanchor.defencenpc.name]" position="1" conversation="default"  actor="$actor.container.buildmodule.buildanchor.defencenpc" selectable="$actor.container.buildmodule.buildanchor.defencenpc != $actor"/>
           </do_elseif>
           <!-- Slot2: Engineer -->
           <do_if value="$actor.container.engineer.exists">
-            <add_player_choice_subconv text="'Engineer: %s'.[$actor.container.engineer.name]" position="2" conversation="default"  actor="$actor.container.engineer" selectable="$actor.container.engineer != $actor"/>
+            <add_player_choice_subconv text="{5554103,32}.[$actor.container.engineer.name]" position="2" conversation="default"  actor="$actor.container.engineer" selectable="$actor.container.engineer != $actor"/>
           </do_if>
           <do_elseif value="$actor.container.buildingmodule.container.engineer.exists">
-            <add_player_choice_subconv text="'Engineer: %s'.[$actor.container.buildingmodule.container.engineer.name]" position="2" conversation="default"  actor="$actor.container.buildingmodule.container.engineer" selectable="$actor.container.buildingmodule.container.engineer != $actor"/>
+            <add_player_choice_subconv text="{5554103,32}.[$actor.container.buildingmodule.container.engineer.name]" position="2" conversation="default"  actor="$actor.container.buildingmodule.container.engineer" selectable="$actor.container.buildingmodule.container.engineer != $actor"/>
           </do_elseif>
           <do_elseif value="$actor.container.buildmodule.buildanchor.engineer.exists">
-            <add_player_choice_subconv text="'Engineer: %s'.[$actor.container.buildmodule.buildanchor.engineer.name]" position="2" conversation="default"  actor="$actor.container.buildmodule.buildanchor.engineer" selectable="$actor.container.buildmodule.buildanchor.engineer != $actor"/>
+            <add_player_choice_subconv text="{5554103,32}.[$actor.container.buildmodule.buildanchor.engineer.name]" position="2" conversation="default"  actor="$actor.container.buildmodule.buildanchor.engineer" selectable="$actor.container.buildmodule.buildanchor.engineer != $actor"/>
           </do_elseif>
           <!-- Slot3: Architect -->
           <do_if value="$actor.container.architect.exists">
-            <add_player_choice_subconv text="'Architect: %s'.[$actor.container.architect.name]" position="3" conversation="default"  actor="$actor.container.architect" selectable="$actor.container.architect != $actor"/>
+            <add_player_choice_subconv text="{5554103,33}.[$actor.container.architect.name]" position="3" conversation="default"  actor="$actor.container.architect" selectable="$actor.container.architect != $actor"/>
           </do_if>
           <do_elseif value="$actor.container.buildingmodule.container.architect.exists">
-            <add_player_choice_subconv text="'Architect: %s'.[$actor.container.buildingmodule.container.architect.name]" position="3" conversation="default"  actor="$actor.container.buildingmodule.container.architect" selectable="$actor.container.buildingmodule.container.architect != $actor"/>
+            <add_player_choice_subconv text="{5554103,33}.[$actor.container.buildingmodule.container.architect.name]" position="3" conversation="default"  actor="$actor.container.buildingmodule.container.architect" selectable="$actor.container.buildingmodule.container.architect != $actor"/>
           </do_elseif>
           <do_elseif value="$actor.container.buildmodule.buildanchor.architect.exists">
-            <add_player_choice_subconv text="'Architect: %s'.[$actor.container.buildmodule.buildanchor.architect.name]" position="3" conversation="default"  actor="$actor.container.buildmodule.buildanchor.architect" selectable="$actor.container.buildmodule.buildanchor.architect != $actor"/>
+            <add_player_choice_subconv text="{5554103,33}.[$actor.container.buildmodule.buildanchor.architect.name]" position="3" conversation="default"  actor="$actor.container.buildmodule.buildanchor.architect" selectable="$actor.container.buildmodule.buildanchor.architect != $actor"/>
           </do_elseif>
           <!-- Slot4: Superior -->
           <do_if value="$actor.container.commanderentity.exists">
-            <add_player_choice_subconv text="'Superior: %s'.[$actor.container.commanderentity.name]" position="4" conversation="default"  actor="$actor.container.commanderentity" selectable="$actor.container.commanderentity != $actor"/>
+            <add_player_choice_subconv text="{5554103,34}.[$actor.container.commanderentity.name]" position="4" conversation="default"  actor="$actor.container.commanderentity" selectable="$actor.container.commanderentity != $actor"/>
           </do_if>
           <do_elseif value="$actor.container.buildingmodule.container.architect.exists">
-            <add_player_choice_subconv text="'Superior: %s'.[$actor.container.buildingmodule.container.commanderentity.name]" position="4" conversation="default"  actor="$actor.container.buildingmodule.container.commanderentity" selectable="$actor.container.buildingmodule.container.commanderentity != $actor"/>
+            <add_player_choice_subconv text="{5554103,34}.[$actor.container.buildingmodule.container.commanderentity.name]" position="4" conversation="default"  actor="$actor.container.buildingmodule.container.commanderentity" selectable="$actor.container.buildingmodule.container.commanderentity != $actor"/>
           </do_elseif>
           <do_elseif value="$actor.container.buildmodule.buildanchor.architect.exists">
-            <add_player_choice_subconv text="'Superior: %s'.[$actor.container.buildmodule.buildanchor.commanderentity.name]" position="4" conversation="default"  actor="$actor.container.buildmodule.buildanchor.commanderentity" selectable="$actor.container.buildmodule.buildanchor.commanderentity != $actor"/>
+            <add_player_choice_subconv text="{5554103,34}.[$actor.container.buildmodule.buildanchor.commanderentity.name]" position="4" conversation="default"  actor="$actor.container.buildmodule.buildanchor.commanderentity" selectable="$actor.container.buildmodule.buildanchor.commanderentity != $actor"/>
           </do_elseif>
           <do_if value="$actor.container.pilot.exists">
-            <add_player_choice_subconv text="'Captain: %s'.[$actor.container.pilot.name]" position="5" conversation="default"  actor="$actor.container.pilot" selectable="$actor.container.pilot != $actor"/>
+            <add_player_choice_subconv text="{5554103,35}.[$actor.container.pilot.name]" position="5" conversation="default"  actor="$actor.container.pilot" selectable="$actor.container.pilot != $actor"/>
           </do_if>
           <!-- Slot5: Pilot/Captain/Manager -->
           <do_elseif value="$actor.container.tradenpc.exists">
-            <add_player_choice_subconv text="'Manager: %s'.[$actor.container.tradenpc.name]" position="5" conversation="default"  actor="$actor.container.tradenpc" selectable="$actor.container.tradenpc != $actor"/>
+            <add_player_choice_subconv text="{5554103,36}.[$actor.container.tradenpc.name]" position="5" conversation="default"  actor="$actor.container.tradenpc" selectable="$actor.container.tradenpc != $actor"/>
           </do_elseif>
           <do_elseif value="$actor.container.buildingmodule.container.pilot.exists">
-            <add_player_choice_subconv text="'Captain: %s'.[$actor.container.buildingmodule.container.pilot.name]" position="5" conversation="default"  actor="$actor.container.buildingmodule.container.pilot" selectable="$actor.container.buildingmodule.container.pilot != $actor"/>
+            <add_player_choice_subconv text="{5554103,35}.[$actor.container.buildingmodule.container.pilot.name]" position="5" conversation="default"  actor="$actor.container.buildingmodule.container.pilot" selectable="$actor.container.buildingmodule.container.pilot != $actor"/>
           </do_elseif>
           <do_elseif value="$actor.container.buildingmodule.container.tradenpc.exists">
-            <add_player_choice_subconv text="'Manager: %s'.[$actor.container.buildingmodule.container.tradenpc.name]" position="5" conversation="default"  actor="$actor.container.buildingmodule.container.tradenpc" selectable="$actor.container.buildingmodule.container.tradenpc != $actor"/>
+            <add_player_choice_subconv text="{5554103,36}.[$actor.container.buildingmodule.container.tradenpc.name]" position="5" conversation="default"  actor="$actor.container.buildingmodule.container.tradenpc" selectable="$actor.container.buildingmodule.container.tradenpc != $actor"/>
           </do_elseif>
           <do_elseif value="$actor.container.buildmodule.buildanchor.pilot.exists">
-            <add_player_choice_subconv text="'Captain: %s'.[$actor.container.buildmodule.buildanchor.pilot.name]" position="5" conversation="default"  actor="$actor.container.buildmodule.buildanchor.pilot" selectable="$actor.container.buildmodule.buildanchor.pilot != $actor"/>
+            <add_player_choice_subconv text="{5554103,35}.[$actor.container.buildmodule.buildanchor.pilot.name]" position="5" conversation="default"  actor="$actor.container.buildmodule.buildanchor.pilot" selectable="$actor.container.buildmodule.buildanchor.pilot != $actor"/>
           </do_elseif>
           <do_elseif value="$actor.container.buildmodule.buildanchor.tradenpc.exists">
-            <add_player_choice_subconv text="'Manager: %s'.[$actor.container.buildmodule.buildanchor.tradenpc.name]" position="5" conversation="default"  actor="$actor.container.buildmodule.buildanchor.tradenpc" selectable="$actor.container.buildmodule.buildanchor.tradenpc != $actor"/>
+            <add_player_choice_subconv text="{5554103,36}.[$actor.container.buildmodule.buildanchor.tradenpc.name]" position="5" conversation="default"  actor="$actor.container.buildmodule.buildanchor.tradenpc" selectable="$actor.container.buildmodule.buildanchor.tradenpc != $actor"/>
           </do_elseif>
           <!-- Slot6: Subordinates -->
-          <add_player_choice_sub text="'Subordinates: %s'.[$actor.container.subordinates.{$actor.type}.count]" position="6" section="comm_connect_subordinates" selectable="$actor.container.subordinates.{$actor.type}.count" confidence="[$actor.container.subordinates.{$actor.type}.count - 1,5].min"/>
-          <add_player_choice_return text="'(Back)'" position="close" />
+          <add_player_choice_sub text="{5554103,37}.[$actor.container.subordinates.{$actor.type}.count]" position="6" section="comm_connect_subordinates" selectable="$actor.container.subordinates.{$actor.type}.count" confidence="[$actor.container.subordinates.{$actor.type}.count - 1,5].min"/>
+          <add_player_choice_return text="{5554103,7}" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_connect_subordinates'">
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
           <do_all exact="[$actor.container.subordinates.{$actor.type}.count,6].min" counter="$i">
             <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.isclass.station">
               <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.tradenpc.exists">
-                <add_player_choice_subconv text="'Manager: %s'.[$actor.container.subordinates.{$actor.type}.{$i}.tradenpc.name]" position="$i" conversation="default"  actor="$actor.container.subordinates.{$actor.type}.{$i}.tradenpc"/>
+                <add_player_choice_subconv text="{5554103,35}.[$actor.container.subordinates.{$actor.type}.{$i}.tradenpc.name]" position="$i" conversation="default"  actor="$actor.container.subordinates.{$actor.type}.{$i}.tradenpc"/>
               </do_if>
             </do_if>
             <do_elseif value="$actor.container.subordinates.{$actor.type}.{$i}.isclass.ship">
               <do_if value="$actor.container.subordinates.{$actor.type}.{$i}.pilot.exists">
-                <add_player_choice_subconv text="'Captain: %s'.[$actor.container.subordinates.{$actor.type}.{$i}.pilot.name]" position="$i" conversation="default"  actor="$actor.container.subordinates.{$actor.type}.{$i}.pilot"/>
+                <add_player_choice_subconv text="{5554103,36}.[$actor.container.subordinates.{$actor.type}.{$i}.pilot.name]" position="$i" conversation="default"  actor="$actor.container.subordinates.{$actor.type}.{$i}.pilot"/>
               </do_if>
             </do_elseif>
           </do_all>
-          <add_player_choice_return text="'(Back)'" position="6" returnparam="'no change'" />
-          <add_player_choice_return text="'(Back)'" position="close" returnparam="'no change'" />
+          <add_player_choice_return text="{5554103,7}" position="6" returnparam="'no change'" />
+          <add_player_choice_return text="{5554103,7}" position="close" returnparam="'no change'" />
         </do_elseif>
         <!-- ToDo: Use this Snippet once again to make a new Conversation which doesnt return to the old one on cmpletion -->
         <do_elseif value="event.param == 'comm_connect_selected'">
           <!-- CHOICE SNIPPET (Example)-->
-          <add_player_choice text="'Captain: %s'.[$actor.container.subordinates.{$actor.type}.{$i}.pilot.name]" position="$i" section="comm_connect_selected" choiceparam="$actor.container.subordinates.{$actor.type}.{$i}.pilot" selectable="$actor.container.subordinates.{$actor.type}.{$i}.pilot != $actor"/>
+          <add_player_choice text="{5554103,35}.[$actor.container.subordinates.{$actor.type}.{$i}.pilot.name]" position="$i" section="comm_connect_selected" choiceparam="$actor.container.subordinates.{$actor.type}.{$i}.pilot" selectable="$actor.container.subordinates.{$actor.type}.{$i}.pilot != $actor"/>
           <!-- /CHOICE SNIPPET -->
           <!-- Cancel this Conversation and start a new one with the desired Person -->
-          <do_if value="$actor.room != player.entity.room" >
-            <add_npc_line speaker="$actor" line="[11,12,1005].random" hidechoices="false"/>
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="$actor.room != player.entity.room" >
+              <add_npc_line speaker="$actor" line="[11,12,1005].random" hidechoices="false"/>
+            </do_if>
+            <do_else>
+              <add_npc_line speaker="$actor" line="[11,12,1006].random" hidechoices="false"/>
+            </do_else>
           </do_if>
-          <do_else>
-            <add_npc_line speaker="$actor" line="[11,12,1006].random" hidechoices="false"/>
-          </do_else>
           <cancel_conversation actor="$actor"/>
           <start_conversation actor="event.param2" conversation="default"/>
         </do_elseif>
@@ -640,46 +913,37 @@ Which Orders are available depends on entity Type
         <!-- Subordinate Managment (also assign to superior) -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_subordinates_main'">
-          <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
-          <add_player_choice text="'Take all my direct Subordinates'" position="1" section="comm_subordinates_take_playersquad" selectable="player.primaryship.subordinates.{1}?"/>
-          <add_player_choice text="'Add Subordinate'" position="2" section="comm_subordinates_add_subordinate" selectable="false"/>
-          <add_player_choice_sub text="'Take this Ship and all its Subordinates'" position="3" section="comm_subordinates_take_shipsquad" selectable="false" comment="not implemented yet"/>
-          <add_player_choice text="'Give your Subordinates to me'" position="4" section="comm_subordinates_transfer_to_playersquad" selectable="false" comment="no practical usage for this yet"/>
-          <add_player_choice text="'Select Superior'" position="5" section="comm_subordinates_select_superior" selectable="false"/>
-          <add_player_choice_return text="'(Back)'" position="6" />
-          <add_player_choice_return text="'(Back)'" position="close" />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+          </do_if>
+          <add_player_choice text="{5554103,41}" position="1" section="comm_subordinates_take_playersquad" selectable="player.primaryship.subordinates.{1}?"/>
+          <add_player_choice text="{5554103,42}" position="2" section="comm_subordinates_add_subordinate" selectable="false"/>
+          <add_player_choice_sub text="{5554103,43}" position="3" section="comm_subordinates_take_shipsquad" selectable="false" comment="not implemented yet"/>
+          <add_player_choice text="{5554103,44}" position="4" section="comm_subordinates_transfer_to_playersquad" selectable="false" comment="no practical usage for this yet"/>
+          <add_player_choice text="{5554103,45}" position="5" section="comm_subordinates_select_superior" selectable="false"/>
+          <add_player_choice_return text="{5554103,7}" position="6" />
+          <add_player_choice_return text="{5554103,7}" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_subordinates_take_playersquad'">
-          <!-- ToDo: Add Dialogue -->
-          <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1055].random" hidechoices="false" comment="Perfect. I'll make sure she's put to work." />
+          </do_if>
           <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
             <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
             <set_object_commander object="player.primaryship.subordinates.{$i}" commander="$actor.container" type="$actor.type"/>
           </do_all>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_subordinates_transfer_to_playersquad'">
-          <!-- ToDo: Add Dialogue -->
-          <!--add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-          <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." /-->
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1057].random" hidechoices="false" comment="Preparing to abort current operations." />
+          </do_if>
           <do_all exact="$actor.subordinates.count" counter="$i" reverse="true">
             <add_to_player_squad object="$actor.subordinates.{$i}" />
           </do_all>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
-        <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
-        <do_if value="$return?">
-          <remove_value name="$return"/>
-          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
-          <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
-          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
-          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
-          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
-          <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
-          <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
-        </do_if>
       </actions>
     </library>
     <library name="Comm_Common_Orders" instantiate="true">
@@ -697,7 +961,7 @@ Which Orders are available depends on entity Type
       <actions>
         <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'comm_orders_main'">
-          <do_if value="event.name == 'event_conversation_next_section'">
+          <do_if value="event.name == 'event_conversation_next_section' and $actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
             <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           </do_if>
@@ -713,29 +977,31 @@ Which Orders are available depends on entity Type
             <set_value name="$order_number" operation="add"/>
           </do_while>
           <do_if value="$slot le 6">
-            <add_player_choice_sub text="'\033YNew Order...\033X'" position="$slot" section="comm_orders_new" comment="see Entity-Specific main Script"/>
+            <add_player_choice_sub text="{5554103,11}" position="$slot" section="comm_orders_new" comment="see Entity-Specific main Script"/>
           </do_if>
-          <show_help position="8" custom="'Orders not Displayed: %1\n(%2 because of missing Name)'.[$slot -1 - $actor.$orderlist.count,$order_number - $slot]" duration="10s" log="false"/>
-          <add_player_choice_return text="'(Back)'" position="6" />
-          <add_player_choice_return text="'(Back)'" position="close" />
+          <add_player_choice_return text="{5554103,7}" position="6" />
+          <add_player_choice_return text="{5554103,7}" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_orders_modify'">
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019,1058,1058,1058].random" hidechoices="false" comment="generic confirmation|Ready for new orders, Sir." />
+          </do_if>
           <do_if value="event.param2.{1} == 1" comment="current/first Order">
-            <add_player_choice text="'Replace Order - WiP, use Insert+Cancel for now'" position="1" section="comm_orders_replace" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
-            <add_player_choice text="'Insert Order, finish current later'" position="2" section="comm_orders_insert" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
-            <add_player_choice text="'Move Order, finish it later'" position="3" section="comm_orders_move" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
-            <add_player_choice text="'Cancel ALL Orders'" position="4" section="comm_orders_cancel_all" choiceparam="true" comment="choiceparam true tells com_orders_cancel_all to cancel all orders including the first"/>
-            <add_player_choice text="'Cancel Order, continue with next'" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
+            <add_player_choice text="{5554103,111}" position="1" section="comm_orders_replace" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
+            <add_player_choice text="{5554103,112}" position="2" section="comm_orders_insert" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
+            <add_player_choice text="{5554103,113}" position="3" section="comm_orders_move" choiceparam="event.param2" selectable="false" comment="not implemented yet"/>
+            <add_player_choice text="{5554103,114}" position="4" section="comm_orders_cancel_all" choiceparam="true" comment="choiceparam true tells com_orders_cancel_all to cancel all orders including the first"/>
+            <add_player_choice text="{5554103,115}" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
           </do_if>
           <do_else>
-            <add_player_choice text="'Replace Order'" position="1" section="comm_orders_replace" choiceparam="event.param2"/>
-            <add_player_choice text="'Insert Order'" position="2" section="comm_orders_insert" choiceparam="event.param2"/>
-            <add_player_choice text="'Move Order'" position="3" section="comm_orders_move" choiceparam="event.param2"/>
-            <add_player_choice text="'Cancel All Orders except Number 1'" position="4" section="comm_orders_cancel_all" choiceparam="false" comment="choiceparam false tells com_orders_cancel_all not the first order"/>
-            <add_player_choice text="'Cancel Order'" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
+            <add_player_choice text="{5554103,121}" position="1" section="comm_orders_replace" choiceparam="event.param2"/>
+            <add_player_choice text="{5554103,122}" position="2" section="comm_orders_insert" choiceparam="event.param2"/>
+            <add_player_choice text="{5554103,123}" position="3" section="comm_orders_move" choiceparam="event.param2"/>
+            <add_player_choice text="{5554103,124}" position="4" section="comm_orders_cancel_all" choiceparam="false" comment="choiceparam false tells com_orders_cancel_all not the first order"/>
+            <add_player_choice text="{5554103,125}" position="5" section="comm_orders_cancel" choiceparam="event.param2"/>
           </do_else>
-          <add_player_choice_return text="'(Back) - better get used to [Esc] though'" position="6" />
-          <add_player_choice_return text="'(Back)'" position="close" />
+          <add_player_choice_return text="{5554103,7}" position="6" />
+          <add_player_choice_return text="{5554103,7}" position="close" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_move'">
           <do_if value="$selected_order_A?">
@@ -767,9 +1033,12 @@ Which Orders are available depends on entity Type
             </do_if>
             <remove_value name="$selected_order_A"/>
             <remove_value name="$selected_order_B"/>
-            <set_value name="$return"/>
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
           </do_if>
           <do_else>
+            <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019,1036,1036,1036].random" hidechoices="false" comment="generic confirmation|As you wish, Sir. Proceeding as planned." />
+            </do_if>
             <set_value name="$selected_order_A" exact="event.param2"/>
             <!-- Select a second order to swap with this one -->
             <set_value name="$slot" exact="1"/>
@@ -787,7 +1056,7 @@ Which Orders are available depends on entity Type
                 </do_if>
                 <do_else>
                   <!-- This is the Order already selected - its not selectable, but highlighted in Blue to make clear its the already selected one -->
-                  <add_player_choice text="'\033B%1\033X'.[$order.$displayname]" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="false"/>
+                  <add_player_choice text="{5554103,12}.[$order.$displayname]" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="false"/>
                 </do_else>
                 <set_value name="$slot" operation="add"/>
               </do_if>
@@ -816,7 +1085,7 @@ Which Orders are available depends on entity Type
               <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Trying to remove Order %4 from Orderlist, but its not interruptable anymore and on a lower position'.[player.age,$actor.name,$actor.$orderlist.event.param2.{3}.$displayname]"/>
             </do_else>
           </do_elseif>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_cancel_all'">
           <do_all exact="$actor.$orderlist.count" counter="$i" reverse="true">
@@ -824,7 +1093,7 @@ Which Orders are available depends on entity Type
               <remove_value name="$actor.$orderlist.{$i}"/>
             </do_if>
           </do_all>
-          <set_value name="$return"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <!--re-useable Object Selection Stuff - maybe add this to an own Cue because it may be used anywhere? -->
         <do_elseif value="event.param == 'comm_orders_select_playerobject'">
@@ -851,18 +1120,6 @@ Which Orders are available depends on entity Type
           <open_conversation_menu menu="MapMenu" param="[0, 0, 'sector', $actor.container.sector, [player.galaxy,$actor.container.cluster,$actor.container.sector], $actor.container.zone, 'selectobject', [event.param2]]"/>
           <add_conversation_view view="closeupdetailmonitor" />
         </do_elseif>
-        
-        <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
-        <do_if value="$return?">
-          <remove_value name="$return"/>
-          <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
-          <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
-          <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
-          <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
-          <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
-          <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
-          <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
-        </do_if>
       </actions>
     </library>
     
@@ -884,28 +1141,25 @@ Which Orders are available depends on entity Type
         <!--                            Goodbye                              -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_goodbye'">
-          <add_npc_line speaker="player.entity" line="[1102,1103].random" hidechoices="false" comment="Goodbye. | See ya." />
-          <do_if value="$actor.room != player.entity.room" >
-            <add_npc_line speaker="$actor" line="[11,12,15,1005].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Closing Comms." />
+          <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1102,1103].random" hidechoices="false" comment="Goodbye. | See ya." />
+            <do_if value="$actor.room != player.entity.room" >
+              <add_npc_line speaker="$actor" line="[11,12,15,1005].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Closing Comms." />
+            </do_if>
+            <do_else>
+              <add_npc_line speaker="$actor" line="[11,12,15,1006].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Goodbye, Sir." />
+            </do_else>
           </do_if>
-          <do_else>
-            <add_npc_line speaker="$actor" line="[11,12,15,1006].random" hidechoices="false" comment="Good luck out there! | Goodbye! | Glad to be of service.|Goodbye, Sir." />
-          </do_else>
         </do_if>
         <!--- ################################### -->
         <!--                              Debug                                -->
         <!--- ################################### -->
         <do_elseif value="event.param == 'comm_debug_main'">
-          <!-- temp fix to remove fuelcell Trade Wares from prev Versions (needs to be executed manually by entering the debug-menu)-->
-          <do_if value="$actor.station.tradewares.{ware.fuelcells}.exists">
-            <remove_tradeware object="$actor.station" ware="ware.fuelcells"/>
-          </do_if>
           <add_player_choice text="'Restart Main Script'" position="1" section="comm_debug_script_restart"/>
-          <add_player_choice text="'Print Script Values to Debuglog'" position="2" section="comm_debug_print_vars"/>
+          <add_player_choice text="'Max out Skills'" position="2" section="comm_debug_fivestars"/>
           <add_player_choice text="'Toggle Debugging to Log: '+ $actor.$debug" position="3" section="comm_debug_toggle"/>
           <add_player_choice text="'Destroy Object for complete cleanup \033R(USE WITH CARE)\033X'" position="4" section="comm_debug_cleanup_object"/>
           <add_player_choice text="'Destroy Actor for cleanup'" position="5" section="comm_debug_cleanup_actor"/>
-          <add_player_choice text="'Max out Skills'" position="6" section="comm_debug_fivestars"/>
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_script_restart'">
@@ -930,9 +1184,6 @@ Which Orders are available depends on entity Type
             <show_notification caption="'ERROR'" details="'Entitytype not supported\n%1'.[$actor.entitytype]"/>
             <debug_text filter="error" text="'Entitytype not supported for Script restart: %1'.[$actor.entitytype]"/>
           </do_else>
-        </do_elseif>
-        <do_elseif value="event.param == 'comm_debug_print_vars'">
-          <signal_objects object="$actor" param="'print script vars to logfile'"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_toggle'">
           <set_value name="$actor.$debug" exact="not $actor.$debug"/>

@@ -119,7 +119,7 @@
       <do_if value="this.ship.cargo.{$ware}.count and not $mininglist.indexof.{$ware}">
         <create_trade_offer name="$buyoffer" buyer="this.ship.commander" object="this.ship.commander" amount="this.ship.cargo.{$ware}.count" ware="$ware" price="0Cr" playeronly="true"/>
         <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.amount" price="0Cr"/>
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
         <remove_trade_offer object="this.ship.commander" tradeoffer="$buyoffer"/>
         <!-- throw out Minerals we didnt want -->
         <do_if value="$amount and this.ship.cargo.{$ware}.count gt $amount">
@@ -141,12 +141,12 @@
           
           <create_trade_offer name="$buyoffer" buyer="this.ship.commander" object="this.ship.commander" amount="this.ship.cargo.{$mininglist.{$i}}.count" ware="$mininglist.{$i}" price="0Cr" playeronly="true"/>
           <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.amount" price="0Cr"/>
-          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
           <remove_trade_offer object="this.ship.commander" tradeoffer="$buyoffer"/>
         </do_if>
       </do_all>
       <!-- when last Ware is unloaded we want to undock -->
-      <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Mining Run)',$undock=1,$interruptable=true]"/>
+      <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Mining Run)',$undock=1,$interruptable=true]"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Done Adding Trade Orders, exitig'.[player.age,this.name,this.container.name]"/>
       
     </actions>

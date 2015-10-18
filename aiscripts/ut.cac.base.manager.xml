@@ -1,20 +1,8 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.manager" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.manager" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="11">
   <params/>
   <interrupts>
-    <handler comment="Print Script Vars">
-      <conditions>
-        <event_object_signalled object="this" param="'print script vars to logfile'"/>
-      </conditions>
-      <actions>
-        <debug_text filter="general" text="'\n
-        Manager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
-        this.$ut_cac_settings = ' + this.$ut_cac_settings + '\n
-        this.$orderlist = ' + this.$orderlist + '\n
-        $bug = ' + $bug + '\n
-        this.$idle_subordinates = ' + this.$idle_subordinates"/>
-      </actions>
-    </handler>
+    <handler ref="OrderlistControl"/>
     <handler comment="Order Request Handler - uses this.$idle_subordinates to let the manager finish what he is currently doing but not let him forget about outstanding order requests">
       <conditions>
         <check_any>
@@ -25,7 +13,7 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <add_to_group groupname="this.$idle_subordinates" object="event.param2"/>
         <!-- in case a script checks for the orderlist length for pausing/termination add a do-nothing order -->
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$order=null]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$order=null]"/>
       </actions>
     </handler>
     <handler comment="Zonetrade Cleanup">
@@ -67,24 +55,17 @@
       <set_value name="$next_zonetrade" exact="player.age"/>
       <set_value name="$next_miningstep" exact="player.age"/>
       
-      <!-- add Fuelcells as Trade Ware if Sctation has Cargo for them so Energy Freighters will buy it and put it into the Station Cargo for Refueling of Station Ships -->
-      <!--do_if value="this.container.cargo.{ware.fuelcells}.free gt 0">
-        <add_tradeware object="this.container" ware="ware.fuelcells" allowbuy="true" allowsell="false"/>
-        <add_cargo object="this.container" ware="ware.fuelcells" exact="1"/>
-        <set_value name="this.container.cargo.{ware.fuelcells}.target" exact="2500"/>
-      </do_if-->
-      
-      
       <!-- register Subordinates - see event Handlers for actual adding procedure -->
       <do_all exact="this.container.subordinates.{this.type}.count" counter="$i">
         <signal_objects object="this" param="this.container.subordinates.{this.type}.{$i}" param2="'register subordinate'" />
         <wait exact="1ms"/>
       </do_all>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 init finished\nSignalled %4 Subordinates'.[player.age,this.name,this.container.subordinates.{this.type}.count]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 init finished\nSignalled %3 Subordinates'.[player.age,this.name,this.container.subordinates.{this.type}.count]"/>
       
       
-      <label name="start with orderlist"/>
+      <label name="start"/>
+      <wait exact="100ms" sinceversion="11"/>
       
       <!-- fulfill all Orders in List in their order -->
       <do_while value="this.$orderlist.count gt 0">
@@ -111,9 +92,9 @@
       <!-- check if we have Idle Subordinates and find Jobs for them (priority, immediately start with finding orders fo them) -->
       <do_if value="this.$idle_subordinates.count gt 0">
         <do_all exact="this.$idle_subordinates.count" counter="$i">
-          <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=this.$idle_subordinates.{$i},$interruptable=false]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=this.$idle_subordinates.{$i},$interruptable=false]"/>
         </do_all>
-        <resume label="start with orderlist"/>
+        <resume label="start"/>
       </do_if>
       
       <!-- check if we have gasses as ressource and can mine them directly -->
@@ -132,7 +113,7 @@
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
           <set_value name="$miningorder.$wareslist" exact="$mineable_ressources"/>
           <set_value name="$miningorder.$next_call" exact="1min"/>
-          <append_to_list name="this.$orderlist" exact="$miningorder"/>
+          <signal_objects object="this" param="'new order'" param2="$miningorder"/>
           <set_value name="$next_miningstep" exact="player.age + 1min"/>
         </do_if>
         <do_else>
@@ -143,14 +124,14 @@
       <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
       <do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade and not this.$ut_cac_settings.$currenttrade">
         <set_value name="$next_zonetrade" exact="player.age + 7min"/>
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.com.manager.zonetrade',$displayname='Perform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname='Perform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
       </do_if>
       
       <do_if value="this.$orderlist.count == 0">
-        <append_to_list name="this.$orderlist" exact="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>
       </do_if>
       
-      <resume label="start with orderlist"/>
+      <resume label="start"/>
       
     </actions>
   </attention>

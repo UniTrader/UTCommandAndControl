@@ -94,6 +94,14 @@ This Script is intended to be called regulary with >the same< Table as $params b
       
       <!-- nothing to mine - aborting -->
       <do_if value="$wareslist.count == 0">
+        <!--do_if value="$params.$gascollectormk1quota?">
+          <stop_mass_traffic_quota quota="$params.$gascollectormk1quota"/>
+          <remove_value name="$params.$gascollectormk1quota"/>
+        </do_if>
+        <do_if value="$params.$gascollectormk2quota?">
+          <stop_mass_traffic_quota quota="$params.$gascollectormk2quota"/>
+          <remove_value name="$params.$gascollectormk2quota"/>
+        </do_if-->
         <return/>
       </do_if>
       
@@ -117,6 +125,13 @@ This Script is intended to be called regulary with >the same< Table as $params b
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Gathering started'.[player.age,this.name,this.container.name]"/>
       <!-- launch drones to collect gas - only for show -->
+      <!-- Better method, but owner faction not set-able, so using old method.. -->
+      <!--do_if value="not $params.$gascollectormk1quota?">
+        <add_mass_traffic_quota quota="$params.$gascollectormk1quota" zone="this.zone" start="this.container" end="this.container" macro="macro.units_size_drone_liquid_collector_mk1_macro" amount="this.container.units.{unitcategory.gascollector}.mk.{1}.count" />
+      </do_if>
+      <do_if value="not $params.$gascollectormk2quota?">
+        <add_mass_traffic_quota quota="$params.$gascollectormk2quota" zone="this.zone" start="this.container" end="this.container" macro="macro.units_size_drone_liquid_collector_mk2_macro" amount="this.container.units.{unitcategory.gascollector}.mk.{2}.count" />
+      </do_if-->
       <do_if value="this.container.attention ge attention.visible">
         <debug_text filter="general" chance="@this.$debug * 100" text="'launching Drones'"/>
         <find_object_component groupname="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true"/>

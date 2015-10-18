@@ -3,7 +3,7 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="10">
+    <cue name="Main" instantiate="true" namespace="this" version="11">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
@@ -25,6 +25,14 @@
         <remove_value name="$actor.$loglevel"/>
         <cancel_cue cue="this"/>
         <signal_cue_instantly cue="this.staticbase" param="$actor"/>
+      </patch>
+      <patch sinceversion="11" state="complete">
+        <!-- femove Fuelcells Tradeware (forgotten in previous Versions) -->
+        <do_if value="$actor.station.tradewares.{ware.fuelcells}.exists">
+          <remove_tradeware object="$actor.station" ware="ware.fuelcells"/>
+        </do_if>
+         <!--Compatibility with Vim Razz' Human Ressources -->
+        <set_value name="$actor.$InUse" exact="true"/>
       </patch>
       <cues>
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
@@ -49,30 +57,31 @@ Rest is shared between all Actor types
             <check_any>
               <event_conversation_started actor="$actor" conversation="default"/>
               <event_conversation_returned_to_section actor="$actor" section="default"/>
-              <event_cue_signalled/>
             </check_any>
           </conditions>
           <actions>
             <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
             <do_if value="event.name == 'event_conversation_started'">
               <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
-              <do_if value="$actor.room == player.entity.room">
-                <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
-                <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <do_if value="$actor.room == player.entity.room">
+                  <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
+                  <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
+                </do_if>
+                <do_else>
+                  <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi." />
+                  <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
+                </do_else>
               </do_if>
-              <do_else>
-                <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi." />
-                <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
-              </do_else>
             </do_if>
-            <add_player_choice_sub text="'About your current Orders...'" position="1" section="comm_orders_main" selectable="false"/>
-            <add_player_choice_sub text="'Lets talk about your Operating Instructions'" position="2" section="comm_settings_main"/>
-            <add_player_choice_sub text="'Connect me with...'" position="3" section="comm_connect_main"/>
-            <add_player_choice_sub text="'About your Subordinates...'" position="4" section="comm_subordinates_main"/>
-            <add_player_choice_sub text="'Lets talk about your Work / Personal Settings'" position="5" section="comm_personal_main"/>
+            <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main" selectable="false"/>
+            <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main"/>
+            <add_player_choice_sub text="{5554103,3}" position="3" section="comm_connect_main"/>
+            <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main"/>
+            <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
             <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
             <set_conversation_return_section section="comm_goodbye"/>
-            <add_player_choice_return text="'Goodbye'" position="close" />
+            <add_player_choice_return text="{5554103,6}" position="close" />
           </actions>
         </cue>
         
@@ -85,7 +94,6 @@ Rest is shared between all Actor types
             <check_any>
               <event_conversation_next_section sectionprefix="comm_orders_" actor="$actor"/>
               <event_conversation_returned_to_section sectionprefix="comm_orders_" actor="$actor"/>
-              <event_cue_signalled/>
             </check_any>
           </conditions>
           <actions>
@@ -98,7 +106,6 @@ Rest is shared between all Actor types
             <check_any>
               <event_conversation_next_section sectionprefix="comm_settings_" actor="$actor"/>
               <event_conversation_returned_to_section sectionprefix="comm_settings_" actor="$actor"/>
-              <event_cue_signalled cue="Signalcue"/>
             </check_any>
           </conditions>
           <actions>
@@ -107,21 +114,28 @@ Rest is shared between all Actor types
             <!--                       Settings Menu                          -->
             <!--- ################################### -->
             <do_if value="event.param == 'comm_settings_main'">
-              <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
-                <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-                <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
-              </do_if>
-              <do_elseif value="event.name == 'event_conversation_returned_to_section'">
-                <do_if value="event.param2 == 'no change'">
-                  <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
+                  <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+                  <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
                 </do_if>
-                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
-              </do_elseif>
-              <add_player_choice_sub text="if $actor.skill.navigation ge 1 then 'About your Operations Range...' else 'Restricted to Current Sector'" position="1" section="comm_settings_range" selectable="$actor.skill.navigation ge 1"/>
-              <add_player_choice_return text="'(Back)'" position="6" />
-              <add_player_choice_return text="'(Back)'" position="close" />
+                <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+                  <do_if value="event.param2 == 'no change'">
+                    <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+                  </do_if>
+                  <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+                </do_elseif>
+              </do_if>
+              <add_player_choice_sub text="if $actor.skill.navigation ge 1 then {5554103,241} else {5554103,242}" position="1" section="comm_settings_range" selectable="$actor.skill.navigation ge 1"/>
+              <add_player_choice_sub text="if $actor.container.istraderestricted then {5554103,243} else {5554103,244}" position="2" section="comm_settings_trade_restriction"/>
+              <add_player_choice_sub text="{5554103,245}" position="3" section="comm_settings_trade_legality"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_range'">
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
               <resize_list list="$actor.$ut_cac_settings.$range" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
               <resize_list list="$actor.$ut_cac_settings.$range_h" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
               <resize_list list="$actor.$ut_cac_settings.$range_j" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
@@ -164,24 +178,27 @@ Rest is shared between all Actor types
                   </do_else>
                 </do_if>
               </do_all>
-              <add_player_choice_return text="'(Back)'" position="6" />
-              <add_player_choice_return text="'(Back)'" position="close" />
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_mod'">
+              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
               <set_value name="$slot" exact="event.param2"/>
               <do_if value="$actor.$ut_cac_settings.$range.{$slot}">
-                <add_player_choice text="if $actor.$ut_cac_settings.$range_j.{$slot} then 'Remove Jump Range' else '\033BSet as Jump Range\033X'" position="1" section="comm_settings_range_toggle_jump"/>
-                <add_player_choice text="if $actor.$ut_cac_settings.$range_h.{$slot} then 'Remove Highway Range' else '\033YSet as Higway Range\033X'" position="2" section="comm_settings_range_toggle_highway"/>
-                <add_player_choice text="'Copy Range Setting to all Stations here'" position="3" section="null" selectable="false"/>
-                <add_player_choice text="'Remove Range'" position="4" section="comm_settings_range_remove"/>
-                <add_player_choice text="'Change Range'" position="5" section="comm_orders_select_space" choiceparam="'comm_settings_range_set'" comment="refering to re-useable Menu Call"/>
+                <add_player_choice text="if $actor.$ut_cac_settings.$range_j.{$slot} then {5554103,2411} else {5554103,2412}" position="1" section="comm_settings_range_toggle_jump"/>
+                <add_player_choice text="if $actor.$ut_cac_settings.$range_h.{$slot} then {5554103,2413} else {5554103,2414}" position="2" section="comm_settings_range_toggle_highway"/>
+                <add_player_choice text="{5554103,2415}" position="3" section="null" selectable="false"/>
+                <add_player_choice text="{5554103,2416}" position="4" section="comm_settings_range_remove"/>
+                <add_player_choice text="{5554103,2417}" position="5" section="comm_orders_select_space" choiceparam="'comm_settings_range_set'" comment="refering to re-useable Menu Call"/>
                 <do_if value="$actor.hascontext.{$actor.$ut_cac_settings.$range.{$slot}}">
-                  <add_player_choice text="'Share Range Settings on all Stations in this Area'" position="6" section="null" selectable="false"/>
+                  <add_player_choice text="{5554103,2418}" position="6" section="null" selectable="false"/>
                 </do_if>
                 <do_else>
-                  <add_player_choice_return text="'(Back)'" position="6" />
+                  <add_player_choice_return text="{5554103,7}" position="6" />
                 </do_else>
-                <add_player_choice_return text="'(Back)'" position="close" />
+                <add_player_choice_return text="{5554103,7}" position="close" />
               </do_if>
               <do_else>
                 <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_set']]"/>
@@ -196,7 +213,7 @@ Rest is shared between all Actor types
               <do_else>
                 <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
               </do_else>
-              <set_value name="$return"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_toggle_highway'">
               <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$slot}}">
@@ -205,32 +222,44 @@ Rest is shared between all Actor types
               <do_else>
                 <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
               </do_else>
-              <set_value name="$return"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_remove'">
               <set_value name="$actor.$ut_cac_settings.$range.{$slot}" exact="null"/>
               <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="null"/>
               <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="null"/>
-              <set_value name="$return"/>
+              <include_actions ref="md.UT_CAC_lib.Verify_Range"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set'">
               <set_value name="$actor.$ut_cac_settings.$range.{$slot}" exact="event.param2.{3}"/>
               <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="event.param2.{3}"/>
               <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="event.param2.{3}"/>
-              <set_value name="$return"/>
+              <include_actions ref="md.UT_CAC_lib.Verify_Range"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
-            <!-- return to Previous Menu Point (no direct return function in Vanilla - abusing a full menu of Returns for this) -->
-            <do_if value="$return?">
-              <remove_value name="$return"/>
-              <signal_cue cue="Verify_Range" comment="confirm that the Ranges are continonous"/>
-              <add_player_choice_return text="'Just Ignore this'" position="1" immediate="true"/>
-              <add_player_choice_return text="'and select any Item'" position="4" immediate="true"/>
-              <add_player_choice_return text="'This is just a Workaround'" position="2" immediate="true"/>
-              <add_player_choice_return text="'for a missing Script function'" position="5" immediate="true"/>
-              <add_player_choice_return text="'to go back one Menu Level'" position="3" immediate="true"/>
-              <add_player_choice_return text="'without selection'" position="6" immediate="true"/>
-              <add_player_choice_return text="'(Back)'" position="close" immediate="true"/>
-            </do_if>
+            <do_elseif value="event.param == 'comm_settings_trade_restriction'">
+              <!-- currently this is a simple Toggle between restricted and non-restricted, but planning to change this to a finer definition consisting of own only, own+allied, own+allied+friend, own+allied+friend+neutral and own+allied+friend+neutral+docking allowed -->
+              <do_if value="$actor.container.istraderestricted">
+                <set_trade_restrictions object="$actor.container" restricted="false"/>
+              </do_if>
+              <do_else>
+                <set_trade_restrictions object="$actor.container" restricted="true"/>
+              </do_else>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_trade_legality'">
+              <add_player_choice text="{5554103,2431}" position="1" section="comm_settings_trade_legality_set" choiceparam="3"/>
+              <add_player_choice text="{5554103,2432}" position="2" section="comm_settings_trade_legality_set" choiceparam="2" selectable="$actor.skill.morale ge 2"/>
+              <add_player_choice text="{5554103,2433}" position="3" section="comm_settings_trade_legality_set" choiceparam="1" selectable="$actor.skill.morale ge 3"/>
+              <add_player_choice text="{5554103,2434}" position="4" section="comm_settings_trade_legality_set" choiceparam="0" selectable="$actor.skill.morale ge 4"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_trade_legality_set'">
+              <set_value name="$actor.$ut_cac_settings.$legality" exact="event.param2"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
           </actions>
         </cue>
         <!-- Menu 3: Connect with other Actor-->
@@ -288,213 +317,6 @@ Rest is shared between all Actor types
             </do_elseif>
           </actions>
         </cue>
-        
-        <cue name="Verify_Range" instantiate="true">
-          <conditions>
-            <event_cue_signalled/>
-          </conditions>
-          <actions>
-            <set_value name="$removal_message" exact="[]"/>
-            <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
-            <!-- Checking Count Limit of Ranges to be apporiate for Manager Level -->
-            <set_value name="$gatecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}"/>
-            <set_value name="$galaxycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{2}"/>
-            <set_value name="$clustercount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{3}"/>
-            <set_value name="$sectorcount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{4}"/>
-            <set_value name="$zonecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{5}"/>
-            <set_value name="$entrycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
-            <do_all exact="$baserange.count" counter="$i">
-              <do_if value="$baserange.{$i}.exists and $baserange.{$i}.gatedistance.{$actor.container} gt $gatecount">
-                <append_to_list name="$removal_message" exact="'Removed %1 because i can only look %2 Gates far'.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}]"/>
-                <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
-                <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
-                <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
-              </do_if>
-              <do_elseif value="$baserange.{$i}.isclass.galaxy">
-                <do_if value="not $galaxycount">
-                  <append_to_list name="$removal_message" exact="'Removed %1 because i cannt manage so many Galaxies'.[$baserange.{$i}.name]"/>
-                  <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
-                  <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
-                  <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
-                </do_if>
-                <do_else>
-                  <set_value name="$galaxycount" operation="subtract"/>
-                </do_else>
-              </do_elseif>
-              <do_elseif value="$baserange.{$i}.isclass.cluster">
-                <do_if value="not $clustercount">
-                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Clusters'.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{3}]"/>
-                  <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
-                  <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
-                  <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
-                </do_if>
-                <do_else>
-                  <set_value name="$clustercount" operation="subtract"/>
-                </do_else>
-              </do_elseif>
-              <do_elseif value="$baserange.{$i}.isclass.sector">
-                <do_if value="not $sectorcount">
-                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Sectors'.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{4}]"/>
-                  <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
-                  <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
-                  <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
-                </do_if>
-                <do_else>
-                  <set_value name="$sectorcount" operation="subtract"/>
-                </do_else>
-              </do_elseif>
-              <do_elseif value="$baserange.{$i}.isclass.zone">
-                <do_if value="not $zonecount">
-                  <append_to_list name="$removal_message" exact="'Removed %1 because i can only manage %2 Zones'.[$baserange.{$i}.name,param.ut_cac.rangelimits.{$actor.skill.navigation}.{5}]"/>
-                  <set_value name="$actor.$ut_cac_settings.$range.{$i}" exact="null"/>
-                  <set_value name="$actor.$ut_cac_settings.$range_j.{$i}" exact="null"/>
-                  <set_value name="$actor.$ut_cac_settings.$range_h.{$i}" exact="null"/>
-                </do_if>
-                <do_else>
-                  <set_value name="$zonecount" operation="subtract"/>
-                </do_else>
-              </do_elseif>
-            </do_all>
-            
-            <!-- checking Jump Range Path to be completely in the whitelist and removing all Ranges which divert from this -->
-            <set_value name="$baserange" exact="$actor.$ut_cac_settings.$range"/>
-            <set_value name="$range" exact="$actor.$ut_cac_settings.$range_j"/>
-            <do_all exact="$range.count" counter="$i">
-              <do_if value="$range.{$i}.exists">
-                <!-- if homebase is inside range condition is fulfilled - no further checks needed -->
-                <do_if value="$actor.container.hascontext.{$range.{$i}}">
-                  <continue/>
-                </do_if>
-                <!-- get a Sector which has context with the Range setting -->
-                <do_if value="$range.{$i}.isclass.zone">
-                  <set_value name="$endsector" exact="$range.{$i}.sector"/>
-                </do_if>
-                <do_elseif value="$range.{$i}.isclass.cluster">
-                  <find_sector name="$endsector" space="$range.{$i}"/>
-                </do_elseif>
-                <do_else>
-                  <set_value name="$endsector" exact="$range.{$i}"/>
-                </do_else>
-                <!-- for each range Setting get the Jump Path from the Actor/Station Zone to the Range-defining Space -->
-                <get_jump_path component="$waypoints" start="$actor.sector" end="$endsector" multiple="true"/>
-                <do_all exact="@$waypoints.count" counter="$j">
-                  <!-- no need to check Gates on the Path -->
-                  <do_if value="$waypoints.{$j}.isclass.gate">
-                    <continue/>
-                  </do_if>
-                  <set_value name="$verified" exact="false"/>
-                  <!-- and for each waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting and this always uses the last slot -->
-                  <do_all exact="$baserange.count" counter="$k" reverse="true">
-                    <do_if value="$baserange.{$k}.exists">
-                      <!-- if $baserange.{$k} is a Zone invert the context Check and find out if it has a JB (only in this case its a valid waypoint) -->
-                      <do_if value="$baserange.{$k}.isclass.zone and $baserange.{$k}.hascontext.{$waypoints.{$j}}">
-                        <find_object name="$beacon" space="$baserange.{$k}" class="class.jumpbeacon" knownto="$actor.owner" checkoperational="true"/>
-                        <do_if value="$beacon.exists">
-                          <set_value name="$verified"/>
-                          <break/>
-                        </do_if>
-                      </do_if>
-                      <do_elseif value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
-                        <set_value name="$verified"/>
-                        <break/>
-                      </do_elseif>
-                    </do_if>
-                  </do_all>
-                  <do_if value="not $verified">
-                    <break/>
-                  </do_if>
-                </do_all>
-                <!-- remove Range Setting for Jumping if the continuty condition doesnt apply (applies if there is no Jump Path - we are already in the right Sector) -->
-                <do_if value="$verified? and not $verified">
-                  <remove_value name="$verified"/>
-                  <append_to_list name="$removal_message" exact="'Removed %1 from Jump Range because Jump Path is not completely in Whitelist'.[$range.{$i}.name]"/>
-                  <set_value name="$range.{$i}" exact="null"/>
-                </do_if>
-              </do_if>
-            </do_all>
-            <!-- checking Highway Range - similiar to Jump Range, but bi-directional and conditions are slightly diffrent -->
-            <set_value name="$range" exact="$actor.$ut_cac_settings.$range_h"/>
-            <do_all exact="$range.count" counter="$i">
-              <do_if value="$range.{$i}.exists">
-                <!-- if homebase is inside range condition is fulfilled - no further checks needed -->
-                <do_if value="$actor.container.hascontext.{$range.{$i}}">
-                  <continue/>
-                </do_if>
-                <!-- for each range Setting get the Tube Path from the Range-defining Space to the Actor/Station Zone -->
-                <do_if value="$range.{$i}.isclass.zone">
-                  <set_value name="$zone" exact="$range.{$i}"/>
-                </do_if>
-                <do_else>
-                  <find_zone name="$zone" space="$range.{$i}" tempzone="false" priorityzone="true"/>
-                </do_else>
-                <get_global_path component="$waypoints" multiple="true"><start object="$zone"/><end object="$actor.zone"/></get_global_path>
-                <do_all exact="$waypoints.count"  counter="$j">
-                  <!-- if $waypoints.{$j} is a Highway or Gate skip check (irrelevant for continuty) -->
-                  <!-- no need to check highways or Gates on the path -->
-                  <do_if value="$waypoints.{$j}.isclass.highway">
-                    <continue/>
-                  </do_if>
-                  <do_if value="$waypoints.{$j}.isclass.gate">
-                    <continue/>
-                  </do_if>
-                  <set_value name="$verified" exact="false"/>
-                  <!-- and for each other waypoint check if its somewhere inside the allowed Range - reversing because verifying is "switched off" by adding a Galaxy Range Setting (always has context) and this always uses the last slot -->
-                  <do_all exact="$range.count" counter="$k" reverse="true">
-                    <do_if value="$baserange.{$k}.exists">
-                      <do_if value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
-                        <set_value name="$verified" exact="true"/>
-                        <break/>
-                      </do_if>
-                    </do_if>
-                  </do_all>
-                  <do_if value="not $verified">
-                    <break/>
-                  </do_if>
-                </do_all>
-                <!-- remove Range Setting for Highways if the continuty condition doesnt apply -->
-                <do_if value="not $verified">
-                  <append_to_list name="$removal_message" exact="'Removed %1 from Highway Range because Path from Destination is not completely in Whitelist'.[$range.{$i}.name]"/>
-                  <set_value name="$range.{$i}" exact="null"/>
-                  <continue/>
-                </do_if>
-                <!-- now the same for the other direction (swapped start and end) - code and comments see above-->
-                <get_global_path component="$waypoints" multiple="true"><start object="$actor.zone"/><end object="$zone"/></get_global_path>
-                <do_all exact="$waypoints.count"  counter="$j">
-                  <do_if value="$waypoints.{$j}.isclass.highway">
-                    <continue/>
-                  </do_if>
-                  <do_if value="$waypoints.{$j}.isclass.gate">
-                    <continue/>
-                  </do_if>
-                  <set_value name="$verified" exact="false"/>
-                  <do_all exact="$range.count" counter="$k" reverse="true">
-                    <do_if value="$baserange.{$k}.exists">
-                      <do_if value="$waypoints.{$j}.hascontext.{$baserange.{$k}} or $waypoints.{$j} == $baserange.{$k}">
-                        <set_value name="$verified" exact="true"/>
-                        <break/>
-                      </do_if>
-                    </do_if>
-                  </do_all>
-                  <do_if value="not $verified">
-                    <break/>
-                  </do_if>
-                </do_all>
-                <do_if value="not $verified">
-                  <append_to_list name="$removal_message" exact="'Removed %1 from Highway Range because Path to Destination is not completely in Whitelist'.[$range.{$i}.name]"/>
-                  <set_value name="$range.{$i}" exact="null"/>
-                  <continue/>
-                </do_if>
-              </do_if>
-            </do_all>
-            
-            <do_if value="$removal_message.count">
-              <show_notification caption="'Range not accepted'" details="$removal_message"/>
-            </do_if>
-            <remove_value name="$removal_message"/>
-          </actions>
-        </cue>
-        
-        <cue name="Signalcue"/>
         
         <cue name="NPC_Destroyed">
           <conditions>

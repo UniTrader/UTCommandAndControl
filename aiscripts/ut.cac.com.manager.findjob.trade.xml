@@ -491,14 +491,29 @@ $entity  = ' + $entity"/>
           </do_else>
           <remove_value name="$buyoffer"/>
           
+          <!-- calculate minimum amount to avoid unnecesary transports -->
+          <!-- either 10% of Cargo Space, or quarter the Value of the current Ship, whichever is less -->
+          <get_object_value result="$shipvalue" object="$entity.container"/>
+          <set_value name="$minamount" exact="[ $entity.container.cargo.{$ware}.free / 10 , ( $shipvalue / 4 ) / $price ].min" />
+          
+          
           <!-- check all Ranges if there is an Offer there -->
           <do_all exact="$range.count" counter="$j" reverse="false">
             <do_if value="$range.{$j} != null" comment="ignore empty slots">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching %4 for Sell Offers, Ware: %5, Max Price: %6'.[player.age,this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
-              <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
-                <offeramount min="$entity.container.cargo.{$ware}.free / 10"/>
-                <price max="$price"/>
-              </find_sell_offer>
+              <do_if value="this.container.istraderestricted">
+                <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
+                  <offeramount min="$minamount"/>
+                  <price max="$price"/>
+                  <match_seller owner="this.owner"/>
+                </find_sell_offer>
+              </do_if>
+              <do_else>
+                <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
+                  <offeramount min="$minamount"/>
+                  <price max="$price"/>
+                </find_sell_offer>
+              </do_else>
               <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
               <do_if value="$selloffer.available">
                 <break/>
@@ -558,14 +573,29 @@ $entity  = ' + $entity"/>
           </do_else>
           <remove_value name="$selloffer"/>
           
+          <!-- calculate minimum amount to avoid unnecesary transports -->
+          <!-- either 10% of Cargo Space, or quarter the Value of the current Ship, whichever is less -->
+          <get_object_value result="$shipvalue" object="$entity.container"/>
+          <set_value name="$minamount" exact="[ $entity.container.cargo.{$ware}.free / 10 , ( $shipvalue / 4 ) / $price" />
+          
+          
           <!-- check all Ranges if there is an Offer there -->
           <do_all exact="$range.count" counter="$j" reverse="false">
             <do_if value="$range.{$j} != null" comment="ignore empty slots">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching %4 for Buy Offers, Ware: %5, Min Price: %6'.[player.age,this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
-              <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
-                <offeramount min="$entity.container.cargo.{$ware}.free / 10"/>
-                <price min="$price"/>
-              </find_buy_offer>
+              <do_if value="this.container.istraderestricted">
+                <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
+                  <offeramount min="$minamount"/>
+                  <price min="$price"/>
+                  <match_buyer owner="this.owner"/>
+                </find_buy_offer>
+              </do_if>
+              <do_else>
+                <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
+                  <offeramount min="$minamount"/>
+                  <price min="$price"/>
+                </find_buy_offer>
+              </do_else>
               <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
               <do_if value="$buyoffer.available">
                 <break/>
