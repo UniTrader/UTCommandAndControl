@@ -1155,6 +1155,10 @@ Which Orders are available depends on entity Type
         <!--                              Debug                                -->
         <!--- ################################### -->
         <do_elseif value="event.param == 'comm_debug_main'">
+          <!-- temp fix to remove fuelcell Trade Wares from prev Versions (needs to be executed manually by entering the debug-menu)-->
+          <do_if value="$actor.station.tradewares.{ware.fuelcells}.exists">
+            <remove_tradeware object="$actor.station" ware="ware.fuelcells"/>
+          </do_if>
           <add_player_choice text="'Restart Main Script'" position="1" section="comm_debug_script_restart"/>
           <add_player_choice text="'Max out Skills'" position="2" section="comm_debug_fivestars"/>
           <add_player_choice text="'Toggle Debugging to Log: '+ $actor.$debug" position="3" section="comm_debug_toggle"/>
