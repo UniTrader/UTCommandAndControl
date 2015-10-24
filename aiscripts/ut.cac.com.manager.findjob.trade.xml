@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.manager.findjob.trade" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
@@ -556,7 +556,7 @@ $entity  = ' + $entity"/>
             <add_sell_order object="$entity.ship" trade="$buyoffer" amount="$amount" price="$selloffer.unitprice"/>
             <remove_trade_offer object="this.container" tradeoffer="$buyoffer"/>
             <!-- tell the Ship to get the Wares and bring them back ( ^= 2 single trade runs ) -->
-            <signal_objects object="$entity.ship" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=false] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=false] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] ]"/>
+            <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=false] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=false] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] ]"/>
             <break/>
           </do_if>
         </do_if>
@@ -626,7 +626,7 @@ $entity  = ' + $entity"/>
             <add_sell_order object="$entity.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
             <remove_trade_offer object="this.container" tradeoffer="$selloffer"/>
             <!-- tell the Ship to get the Wares and bring them back ( ^= 2 single trade runs ) -->
-            <signal_objects object="$entity.ship" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=false] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=false] ]"/>
+            <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=false] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=false] ]"/>
             <!--do_if value="$entity.$orderlist.{1}.$order == 'wait minmax'">
               <signal_objects object="$entity.ship" param="'next order'"/>
             </do_if-->
