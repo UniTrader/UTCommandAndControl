@@ -1,0 +1,156 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.lib.calculatedroneamount" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <params>
+    <param name="object" comment="the Object fo which the Drones are"/>
+    <param name="additionalunits" default="false" comment="return total or additional units? (default is total amount)"/>
+    <param name="ignorecurrentunits" default="false" comment="ignore Units already on the Ship (returns default Values)"/>
+  </params>
+  <actions>
+    <!-- Drone Amount Calculation differs for following:
+    => Stations are an own Category, default Settings here are relative amounts of total capacity (ore and liquid collectors are filtered out if not viable)
+    => for Ships the Amount is defined for each Class and purpose, and both are multiplied to get either a relative or absolute value (if both are defined as absolute Value they are added though)
+    => there is also a way to define special Drone Loadouts for specific Object Types, again as either relative or absolute Value
+    -->
+    <!-- set often used values -->
+    <set_value name="$unitcategories" exact="params.ut_cac.$drone_loadout.$UnitcategoryList"/>
+    
+    
+    <!-- first check if we have a specific loadout (use it without changes) - NOTE: Ignores current Units-->
+    <do_if value="params.ut_cac.$drone_loadout.{$object.macro}?">
+      <set_value name="$droneamount" exact="params.ut_cac.$drone_loadout.{$object.macro}.clone"/>
+      <!-- ToDo: Add current Units -->
+    </do_if>
+    <!-- then check if its a Station and calculate relative amounts to absolute ones -->
+    <do_elseif value="$object.isclass.station">
+      <set_value name="$droneamount" exact="params.ut_cac.$drone_loadout.{class.station}.clone"/>
+      <set_value name="$unitcategories" exact="$droneamount.keys.list"/>
+      <set_value name="$totalunits" exact="0"/>
+      <do_all exact="$unitcategories.count" counter="$i">
+        <do_if value="not $droneamount.{$unitcategories.{$i}}?">
+          <continue/>
+        </do_if>
+        <!-- calculate absolute amounts from relative ones -->
+        <do_if value="1.0 ge $droneamount.{$unitcategories.{$i}} ge 0.0">
+          <set_value name="$droneamount.{$unitcategories.{$i}}" exact="[$object.units.maxcount * $droneamount.{$unitcategories.{$i}} , if $ignorecurrentunits then 0 else $object.units.{$unitcategories.{$i}}.count ].max"/>
+        </do_if>
+        <set_value name="$totalunits" operation="add" exact="$droneamount.{$unitcategories.{$i}}"/>
+      </do_all>
+      <!-- filter out unneeded unit types (gas and ore collectors if no collection is possible or necesary at location) -->
+      <set_value name="$mine_liquids" exact="false"/>
+      <set_value name="$mine_asteroids" exact="false"/>
+      <set_value name="$resources" exact="$object.resources.list" />
+      <do_all exact="$resources.count" counter="$i">
+        <set_value name="$ware" exact="$resources.{$i}" />
+        <do_if value="$ware.tags.indexof.{tag.minable}">
+          <do_if value="$ware.waretransport == waretransport.liquid">
+            <do_if value="not $mine_liquids">
+              <do_if value="$object.units.{unitcategory.gascollector}.count == 0 and $object.units.count lt $object.units.maxcount">
+                <add_units object="$object" category="unitcategory.gascollector" mk="1" exact="1"/>
+                <set_value name="$added_temp_drone" exact="unitcategory.gascollector"/>
+              </do_if>
+            </do_if>
+            <do_else>
+              <continue/>
+            </do_else>
+          </do_if>
+          <do_if value="$ware.waretransport == waretransport.bulk">
+            <!-- not interested in Asteroid Mining currently - skipping, so orecollectors are removed from equipment List -->
+            <continue/>
+            <do_if value="not $mine_asteroids">
+              <do_if value="$object.units.{unitcategory.orecollector}.count == 0 and $object.units.count lt $object.units.maxcount">
+                <add_units object="$object" category="unitcategory.orecollector" mk="1" exact="1"/>
+                <set_value name="$added_temp_drone" exact="unitcategory.orecollector"/>
+              </do_if>
+            </do_if>
+            <do_else>
+              <continue/>
+            </do_else>
+          </do_if>
+          <get_resource_gatherrate name="$result" zone="$object.zone" refobject="$object" ware="$ware"/>
+          <do_if value="$added_temp_drone">
+            <remove_units object="$object" category="$added_temp_drone" mk="1" exact="1"/>
+            <remove_value name="$added_temp_drone"/>
+          </do_if>
+          <do_if value="$result">
+            <do_if value="$ware.waretransport == waretransport.liquid">
+              <set_value name="$mine_liquids" exact="true"/>
+            </do_if>
+            <do_elseif value="$ware.waretransport == waretransport.bulk">
+              <set_value name="$mine_asteroids" exact="true"/>
+            </do_elseif>
+            <do_else>
+              <debug_text filter="error" text="'What the hell? there is another mineable Waretransport besides Gas and bulk??? PLEASE REPORT!!'"/>
+            </do_else>
+          </do_if>
+        </do_if>
+      </do_all>
+      <do_if value="not $mine_liquids and $droneamount.{unitcategory.gascollector}?">
+        <set_value name="$totalunits" operation="subtract" exact="$droneamount.{unitcategory.gascollector}"/>
+        <remove_value name="$droneamount.{unitcategory.gascollector}"/>
+      </do_if>
+      <do_if value="not $mine_asteroids and $droneamount.{unitcategory.orecollector}?">
+        <set_value name="$totalunits" operation="subtract" exact="$droneamount.{unitcategory.orecollector}"/>
+        <remove_value name="$droneamount.{unitcategory.orecollector}"/>
+      </do_if>
+      <!-- next up is checking wheter there is space for all Drones, but this can be shared with the calculation for Ships so its after the next do_elseif -->
+    </do_elseif>
+    <!-- Calculate Drone Amount for Ships (depends on Objectpurpose and Class) -->
+    <do_elseif value="$object.isclass.ship">
+      <set_value name="$droneamount" exact="table[]"/>
+      <set_value name="$unitcategories" exact="params.ut_cac.$drone_loadout.$UnitcategoryList"/>
+      <set_value name="$totalunits" exact="0"/>
+      <do_all exact="$unitcategories.count" counter="$i">
+        <do_if value="params.ut_cac.$drone_loadout.{$object.primarypurpose}? and params.ut_cac.$drone_loadout.{$object.class}?">
+          <do_if value="params.ut_cac.$drone_loadout.{$object.primarypurpose} ge 1 and params.ut_cac.$drone_loadout.{$object.class} ge 1">
+            <set_value name="$droneamount.{$unitcategories.{$i}}" exact="params.ut_cac.$drone_loadout.{$object.primarypurpose} + params.ut_cac.$drone_loadout.{$object.class}"/>
+          </do_if>
+          <do_else>
+            <set_value name="$droneamount.{$unitcategories.{$i}}" exact="params.ut_cac.$drone_loadout.{$object.primarypurpose} * params.ut_cac.$drone_loadout.{$object.class}"/>
+          </do_else>
+        </do_if>
+        <do_elseif value="params.ut_cac.$drone_loadout.{$object.primarypurpose}?">
+          <set_value name="$droneamount.{$unitcategories.{$i}}" exact="params.ut_cac.$drone_loadout.{$object.primarypurpose}"/>
+        </do_elseif>
+        <do_elseif value="params.ut_cac.$drone_loadout.{$object.class}?">
+          <set_value name="$droneamount.{$unitcategories.{$i}}" exact="params.ut_cac.$drone_loadout.{$object.class}"/>
+        </do_elseif>
+        <!-- calculate absolute amounts from relative ones -->
+        <do_if value="1.0 ge $droneamount.{$unitcategories.{$i}} ge 0.0">
+          <set_value name="$droneamount.{$unitcategories.{$i}}" exact="$object.units.maxcount * $droneamount.{$unitcategories.{$i}}"/>
+        </do_if>
+        <do_if value="not $ignorecurrentunits">
+          <set_value name="$droneamount.{$unitcategories.{$i}}" exact="[$droneamount.{$unitcategories.{$i}} , $object.units.{$unitcategories.{$i}}.count ].max"/>
+        </do_if>
+        <set_value name="$totalunits" operation="add" exact="$droneamount.{$unitcategories.{$i}}"/>
+      </do_all>
+      <!-- filter out unneeded unit types (gas and ore collectors if no collection is possible or necesary at location) -->
+      <do_if value="not $object.waretransport.indexof.{waretransport.liquid} and $droneamount.{unitcategory.gascollector}?">
+        <set_value name="$totalunits" operation="subtract" exact="$droneamount.{unitcategory.gascollector}"/>
+        <remove_value name="$droneamount.{unitcategory.gascollector}"/>
+      </do_if>
+      <do_if value="not $object.waretransport.indexof.{waretransport.bulk} and $droneamount.{unitcategory.orecollector}?">
+        <set_value name="$totalunits" operation="subtract" exact="$droneamount.{unitcategory.orecollector}"/>
+        <remove_value name="$droneamount.{unitcategory.orecollector}"/>
+      </do_if>
+    </do_elseif>
+    <!-- check if we have more units than the count which can be stored, and downsize this in such a way that relative amounts of drones are kept but the total count is within the limit (but keep all existing drones) -->
+    <do_if value="$totalunits gt $object.units.maxcount">
+      <set_value name="$removeableunits" exact="$totalunits - $object.units.count"/>
+      <set_value name="$removeunitcount" exact="$totalunits - $object.units.maxcount"/>
+      <set_value name="$removeratio" exact="($removeunitcount)f / ($removeableunits)f"/>
+      <set_value name="$a"/>
+    </do_if>
+    <!-- subtract existing units and filter out types where amount is 0 and turn floats to ints if necesary-->
+    <do_all exact="$unitcategories.count" counter="$i">
+      <do_if value="$additionalunits">
+        <set_value name="$droneamount.{$unitcategories.{$i}}" operation="subtract" exact="$object.units.{$unitcategories.{$i}}.count"/>
+      </do_if>
+      <do_if value="typeof $droneamount.{$unitcategories.{$i}} == datatype.float">
+        <set_value name="$droneamount.{$unitcategories.{$i}}" exact="( $droneamount.{$unitcategories.{$i}} )i"/>
+      </do_if>
+      <do_if value="$droneamount.{$unitcategories.{$i}} == 0">
+        <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
+      </do_if>
+    </do_all>
+  </actions>
+</aiscript>

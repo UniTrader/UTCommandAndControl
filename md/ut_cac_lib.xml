@@ -1167,6 +1167,9 @@ Which Orders are available depends on entity Type
           <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="Reset to default Settings"/>
           <do_if value="$actor.type == entitytype.manager">
             <remove_value name="$actor.$orderlist"/>
+            <set_value name="$actor.$ut_cac_settings.$range" exact="[$actor.sector]"/>
+            <set_value name="$actor.$ut_cac_settings.$range_j" exact="[$actor.sector]"/>
+            <set_value name="$actor.$ut_cac_settings.$range_h" exact="[$actor.sector]"/>
             <start_script object="$actor" name="'ut.cac.base.manager'"/>
           </do_if>
           <do_elseif value="$actor.type == entitytype.pilot">

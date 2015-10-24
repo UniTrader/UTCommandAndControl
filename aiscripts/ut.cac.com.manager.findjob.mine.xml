@@ -67,7 +67,7 @@ $mininglist = ' + $mininglist"/>
       <wait min="3s" max="15s" />
       <!-- check how much we actually need (either needed by Station or limited by Storage) -->
       <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-      <set_value name="$amount" exact="[this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count - $incomingamount , $entity.ship.cargo.{$ware}.free].min"/>
+      <set_value name="$amount" exact="[this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count - $incomingamount , $entity.ship.cargo.{$ware}.free - incomingamount ].min"/>
       <!-- $zone is a Return Value!!! -->
       <do_all exact="$range.count" counter="$i" reverse="false">
         <do_if value="$range.{$i}.exists">
@@ -76,7 +76,7 @@ $mininglist = ' + $mininglist"/>
           <!-- found Ressource in Range - exit with success -->
           <do_if value="$zone.exists and ( $zone.hascontext.{$range.{$i}} or $zone == $range.{$i} )">
             <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Found wanted Ressource in Range:\nRange: %4 - Zone: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$zone]"/>
-            <signal_objects object="$entity.ship" param="'new order'" param2="table[$script='ut.cac.com.captain.mining',$displayname='Mining in %1 (Manager)'.[$zone.knownname],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=false]"/>
+            <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.mining',$displayname='Mining in %1 (Manager)'.[$zone.knownname],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=false]"/>
             <return value="true"/>
           </do_if>
         </do_if>
