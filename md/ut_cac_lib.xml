@@ -1184,9 +1184,11 @@ Which Orders are available depends on entity Type
             <show_notification caption="'ERROR'" details="'Entitytype not supported\n%1'.[$actor.entitytype]"/>
             <debug_text filter="error" text="'Entitytype not supported for Script restart: %1'.[$actor.entitytype]"/>
           </do_else>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_toggle'">
           <set_value name="$actor.$debug" exact="not $actor.$debug"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_cleanup_object'">
           <disconnect_from_build_location object="$actor.container.buildingmodule.container"/>
@@ -1204,6 +1206,7 @@ Which Orders are available depends on entity Type
           <set_skill entity="$actor" type="skilltype.morale" exact="5"/>
           <set_skill entity="$actor" type="skilltype.navigation" exact="5"/>
           <set_skill entity="$actor" type="skilltype.science" exact="5"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
 
       </actions>
