@@ -3,7 +3,7 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="11">
+    <cue name="Main" instantiate="true" namespace="this" version="12">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
@@ -33,6 +33,12 @@
         </do_if>
          <!--Compatibility with Vim Razz' Human Ressources -->
         <set_value name="$actor.$InUse" exact="true"/>
+      </patch>
+      <patch sinceversion="12" state="complete">
+        <!-- the definition of consumables changed slightly; just updating to current default Values because the changed part was not used yet. -->
+        <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}.$onetimedelivery" exact="param.ut_cac.setting_defaults.$consumables.{ware.fuelcells}.$onetimedelivery"/>
+        <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}.$unbundle" exact="param.ut_cac.setting_defaults.$consumables.{ware.fuelcells}.$unbundle"/>
+        <remove_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}.$type"/>
       </patch>
       <cues>
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">

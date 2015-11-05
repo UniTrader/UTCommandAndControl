@@ -31,6 +31,10 @@
       $range_j
       $experience (Start Values depend on current Skill, see next Param)
       -->
+      <!--
+      $consumables.$target defines the desired Amount which should be kept in Cargo (treated like the Target Amount for Ressources)
+      $consumables.$onetimedelivery defines an Amount to be ordered one time only (may be split into multiple Traderuns; will be added to target amount for Trade searches)
+      $consumables.$unbundle defines if the Wares should be unbundled on arrival (possible values are true, false, 'target' and 'onetimedelivery' which unbundles only the specified part of the Delivery -->
       <param name="setting_defaults" value="table[
       {'$pesterlevel'} = 60,
       {'$loglevel'} = 60,
@@ -38,7 +42,7 @@
       {'$jumptype'} = 'beacon',
       {'$insectorjump'} = false,
       {'$currenttrade'} = null,
-      {'$consumables'} = table[ { ware.fuelcells } = table[{'$target'}=2500 , {'$type'}= 'keepamount'] ]
+      {'$consumables'} = table[ { ware.fuelcells } = table[{'$target'}=2500 , {'$onetimedelivery'}=0 , {'$unbundle'}=false] ]
       ]"/>
       <param name="pesterlevel" value="table[
       {'$mayspeak'} = 2
