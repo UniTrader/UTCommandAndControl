@@ -67,16 +67,7 @@
           <do_if value="this.$orderlist.{2}? or this.$orderlist.{1} != $params">
             <return/>
           </do_if>
-          <wait exact="$waittime">
-            <interrupt>
-              <conditions>
-                <check_any>
-                  <event_object_signalled object="this" param="'new order'"/>
-                  <event_object_signalled object="this" param="'request orders'"/>
-                </check_any>
-              </conditions>
-            </interrupt>
-          </wait>
+          <wait exact="$waittime"/>
           <set_value name="$waittime" exact="$waittime * 1.59" chance="(100 - $waittime)i" comment="slowly/randomly increase the checking interval to about 100s" />
         </do_while>
       </do_elseif>

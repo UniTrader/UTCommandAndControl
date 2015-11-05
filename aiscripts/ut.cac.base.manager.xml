@@ -3,19 +3,6 @@
   <params/>
   <interrupts>
     <handler ref="OrderlistControl"/>
-    <handler comment="Order Request Handler - uses this.$idle_subordinates to let the manager finish what he is currently doing but not let him forget about outstanding order requests">
-      <conditions>
-        <check_any>
-          <event_object_signalled object="this" param="'request orders'"/>
-        </check_any>
-      </conditions>
-      <actions>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
-        <add_to_group groupname="this.$idle_subordinates" object="event.param2"/>
-        <!-- in case a script checks for the orderlist length for pausing/termination add a do-nothing order -->
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$order=null]"/>
-      </actions>
-    </handler>
     <handler comment="Zonetrade Cleanup">
       <conditions>
         <check_any>
@@ -41,11 +28,6 @@
       <!-- set up orderlist -->
       <do_if value="not this.$orderlist?">
         <create_list name="this.$orderlist"/>
-      </do_if>
-      
-      <!-- set up Idle Subordinates Group for other Objects to register to -->
-      <do_if value="not this.$idle_subordinates?">
-        <create_group groupname="this.$idle_subordinates"/>
       </do_if>
       
       <!-- Set up mining Command (must re-use the same table since i am also using it to store persistent Values) - only $mininglist is updated with every iteration so the miningscript knows what is needed -->
@@ -88,14 +70,6 @@
       <!-- no outstanding direct orders - look up what makes sense and append it to Orderlist -->
       
       <label name="find job"/>
-      
-      <!-- check if we have Idle Subordinates and find Jobs for them (priority, immediately start with finding orders fo them) -->
-      <do_if value="this.$idle_subordinates.count gt 0">
-        <do_all exact="this.$idle_subordinates.count" counter="$i">
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=this.$idle_subordinates.{$i},$interruptable=false]"/>
-        </do_all>
-        <resume label="start"/>
-      </do_if>
       
       <!-- check if we have gasses as ressource and can mine them directly -->
       <do_if value="player.age gt $next_miningstep">
