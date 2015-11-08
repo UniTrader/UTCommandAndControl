@@ -133,13 +133,25 @@
         <remove_value name="$droneamount.{unitcategory.orecollector}"/>
       </do_if>
     </do_elseif>
-    <!-- check if we have more units than the count which can be stored, and downsize this in such a way that relative amounts of drones are kept but the total count is within the limit (but keep all existing drones) -->
+    
+    <!-- check if we have more units than the count which can be stored, and downsize until we can store all units (but keep all existing drones) -->
     <do_if value="$totalunits gt $object.units.maxcount">
-      <set_value name="$removeableunits" exact="$totalunits - $object.units.count"/>
-      <set_value name="$removeunitcount" exact="$totalunits - $object.units.maxcount"/>
-      <set_value name="$removeratio" exact="($removeunitcount)f / ($removeableunits)f"/>
-      <set_value name="$a"/>
+      <set_value name="$i" exact="1"/>
+      <do_while value="$totalunits gt $object.units.maxcount">
+        <!-- reduce unit count by 1 if unit type is in return list, has a value greater than the current amount in stock (or 0 if we only want the default setting ) -->
+        <do_if value="$droneamount.{$unitcategories.{$i}}? and $droneamount.{$unitcategories.{$i}} gt ( if $ignorecurrentunits then 0 else $droneamount.{$unitcategories.{$i}} gt $object.units.{$unitcategories.{$i}}.count )">
+          <set_value name="$droneamount.{$unitcategories.{$i}}" operation="subtract"/>
+          <set_value name="$totalunits" operation="subtract"/>
+        </do_if>
+        <do_if value="$i gt $unitcategories.count">
+          <set_value name="$i" exact="1"/>
+        </do_if>
+        <do_else>
+          <set_value name="$i" operation="add"/>
+        </do_else>
+      </do_while>
     </do_if>
+    
     <!-- subtract existing units and filter out types where amount is 0 and turn floats to ints if necesary-->
     <do_all exact="$unitcategories.count" counter="$i">
       <do_if value="$additionalunits">
@@ -152,5 +164,6 @@
         <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
       </do_if>
     </do_all>
+    <return value="$droneamount" />
   </actions>
 </aiscript>
