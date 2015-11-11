@@ -83,31 +83,31 @@
       </do_if-->
       
       <!-- if we have no fuel for even one Jump - go refueling first (intended to be only called on init if no Fuel is on board to speed things up - Manager will give this order frequently anyway) -->
-      <do_if value="this.ship.cargo.{ware.fuelcells} lt this.ship.jumpcostto.{this.sector}">
+      <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{this.sector}">
         <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (default)',$undock=1,$interruptable=true]"/>
         <resume label="start"/>
       </do_if>
       
       <!-- Check wheter we need some Drones (missing Cargo Drones for Trade & Mining Ships and missing mining Drones for Mining ships trigger re-droning Script every time, otherwise re-droning will be done if below 25% of capacity) -->
       <do_if value="this.ship.primarypurpose == objectpurpose.trade">
-        <do_if value="this.ship.units.{unitcategory.transport} lt 10">
+        <do_if value="this.ship.units.{unitcategory.transport}.count lt 10">
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
           <resume label="start"/>
         </do_if>
       </do_if>
       <do_if value="this.ship.primarypurpose == objectpurpose.mine">
-        <do_if value="this.ship.units.{unitcategory.transport} lt 10">
+        <do_if value="this.ship.units.{unitcategory.transport}.count lt 10">
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
           <resume label="start"/>
         </do_if>
         <do_if value="this.ship.cargo.tags.indexof.{tag.liquid}">
-          <do_if value="this.ship.units.{unitcategory.gascollector} lt 10">
+          <do_if value="this.ship.units.{unitcategory.gascollector}.count lt 10">
             <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
             <resume label="start"/>
           </do_if>
         </do_if>
         <do_if value="this.ship.cargo.tags.indexof.{tag.bulk}">
-          <do_if value="this.ship.units.{unitcategory.orecollector} lt 10">
+          <do_if value="this.ship.units.{unitcategory.orecollector}.count lt 10">
             <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
             <resume label="start"/>
           </do_if>

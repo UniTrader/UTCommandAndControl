@@ -1,15 +1,14 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <aiscript name="ut.cac.com.captain.restockdrones" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
-    This Script attempts to empty the Cargo Bay of the current Ship.
-    -> first it looks which wares are inside the Cargobay to sell
-    -> second it tries to unload them on the Superiors Station
-    -> then it finds Sell Offers in the current Sector and temporarily stores them
-    -> as next it adds these sell Orders (nearest first, them from this the nearest etc.) to the Trade List and adds a single Trade run per item to this.$orderlist
-    -> next it looks in the Cluster for Tradeoffers of the remaining Wares which couldnt be sold and then continues in this Sector to Sell wares (can be turned off)
+    This Script attempts to Restock the Drones on the current Ship.
+    -> first it looks up the intended Amount for all drones using a lib
+    -> then it finds Buy Offers in the current Sector and temporarily stores them
+    -> as next it adds these buy Orders (nearest first, them from this the nearest etc.) to the Trade List and adds a single Trade run per item to this.$orderlist
+    -> next it looks in the Cluster for Tradeoffers of the remaining Wares which couldnt be bought and then continues in this Sector to Buy drones (can be turned off)
     -> as last all Cargo which cannt be sold is thrown out (Selling stuff can be skipped if the Cargobay should just be emptied)
     
-    Note: this Script is not intended to look for Profits - it is just intended to empty the Cargobay somewhere without wasting it.
+    Note: this Script is just a quick and dirty way to make sure all managed Ships are properly equipped with Drones - i know it is not the optimum, but you have to start somewhere.
   -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
@@ -24,7 +23,7 @@
       </do_if>
       
       <!-- first confirm that we can still buy some Drones - if not just exit -->
-      <do_if value="$object.units.count == $object.units.maxcount">
+      <do_if value="this.ship.units.count == this.ship.units.maxcount">
         <return/>
       </do_if>
       
@@ -40,33 +39,34 @@
       </run_script>
       
       <!-- create List of Drones to buy -->
-      <set_value name="$warelist" exact="$droneamounts.keys.list"/>
+      <set_value name="$unitcategorylist" exact="$droneamounts.keys.list"/>
       <create_list name="$selloffers" />
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trying so buy these Units somewhere:\n%4'.[player.age,this.name,this.container.name,$warelist]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trying so buy these Units somewhere:\n%4'.[player.age,this.name,this.container.name,$unitcategorylist]"/>
       
       <!-- first check Homebase if there is stuff we can Grab there -->
-      <do_if value="this.ship.commander.exists">
-        <do_all exact="$warelist.count" counter="$i" reverse="true">
-          <find_sell_offer result="$selloffer" buyer="this.ship.commander" wares="$warelist.{$i}" multiple="false" knowntoplayer="this.owner == faction.player">
-            <amount min="$droneamounts.{$warelist.{$i}}"/>
+      <!--do_if value="this.ship.commander.exists">
+        <do_all exact="$unitcategorylist.count" counter="$i" reverse="true">
+          <find_sell_offer result="$selloffer" buyer="this.ship.commander" wares="param.ut_cac.unitcategory_to_wares.{$unitcategorylist.{$i}}" multiple="false" knowntoplayer="this.owner == faction.player">
+            <amount min="$droneamounts.{$unitcategorylist.{$i}}"/>
           </find_sell_offer>
           <do_if value="$selloffer.available">
             <append_to_list name="$selloffers" exact="$selloffer"/>
-            <remove_value name="$warelist.{$i}"/>
+            <remove_value name="$unitcategorylist.{$i}"/>
           </do_if>
         </do_all>
-      </do_if>
+      </do_if-->
       
       <set_value name="$sector" exact="this.sector"/>
       <label name="search sector"/>
       <!-- find buy Offers in current Sector where we can loose the whole amount in one trade run -->
-      <do_all exact="$warelist.count" counter="$i" reverse="true">
-        <find_sell_offer result="$selloffer" space="$sector" wares="$warelist.{$i}" multiple="false" knowntoplayer="this.owner == faction.player">
-          <amount min="$droneamounts.{$warelist.{$i}}"/>
+      <do_all exact="$unitcategorylist.count" counter="$i" reverse="true">
+        <find_sell_offer result="$selloffer" space="$sector" wares="param.ut_cac.unitcategory_to_wares.{$unitcategorylist.{$i}}" multiple="false" knowntoplayer="this.owner == faction.player">
+          <amount min="$droneamounts.{$unitcategorylist.{$i}}"/>
         </find_sell_offer>
         <do_if value="$selloffer.available">
           <append_to_list name="$selloffers" exact="$selloffer"/>
-          <remove_value name="$warelist.{$i}"/>
+          <set_value name="$droneamounts.{$selloffer.ware}" exact="$droneamounts.{$unitcategorylist.{$i}}"/>
+          <remove_value name="$unitcategorylist.{$i}"/>
         </do_if>
       </do_all>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found %4 Sell Offers in sector'.[player.age,this.name,this.container.name,$selloffers.count]"/>
@@ -85,14 +85,14 @@
         <do_all exact="$selloffers.count" counter="$i" reverse="true">
           <!-- Offer is in current Zone - just add it to the Trade Orders -->
           <do_if value="$selloffers.{$i}.owner.zone == $currentzone">
-            <do_if value="this.commanderentity.money ge $droneamounts.{$selloffers.{$i}.ware} * $selloffers.{$i}.unitprice">
-              <transfer_money from="this.commanderentity" to="this" amount="$droneamounts.{$selloffers.{$i}.ware} * $selloffers.{$i}.unitprice"/>
+            <do_if value="this.container.commanderentity.money ge $droneamounts.{$selloffers.{$i}.ware} * $selloffers.{$i}.unitprice">
+              <transfer_money from="this.container.commanderentity" to="this" amount="$droneamounts.{$selloffers.{$i}.ware} * $selloffers.{$i}.unitprice"/>
             </do_if>
             <do_else>
               <!-- Commander has not enough Money - just exit -->
               <return/>
             </do_else>
-            <add_sell_order object="this.ship" trade="$selloffers.{$i}" amount="$droneamounts.{$selloffers.{$i}.ware}" price="$selloffers.{$i}.unitprice" unbundle="true"/>
+            <add_buy_order object="this.ship" trade="$selloffers.{$i}" amount="$droneamounts.{$selloffers.{$i}.ware}" price="$selloffers.{$i}.unitprice" unbundle="true"/>
             <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Restock Drones)',$repeat=0]"/>
             <remove_value name="$selloffers.{$i}"/>
             <do_if value="$mindistindex">
@@ -119,15 +119,15 @@
         </do_all>
         <!-- add nearest Offer in a diffrent Zone to the Trade List and set it as new origin Point -->
         <do_if value="$mindistindex">
-          <do_if value="this.commanderentity.money ge $droneamounts.{$selloffers.{$i}.ware} * $selloffers.{$i}.unitprice">
-            <transfer_money from="this.commanderentity" to="this" amount="$droneamounts.{$selloffers.{$i}.ware} * $selloffers.{$i}.unitprice"/>
+          <do_if value="this.container.commanderentity.money ge $droneamounts.{$selloffers.{$mindistindex}.ware} * $selloffers.{$mindistindex}.unitprice">
+            <transfer_money from="this.container.commanderentity" to="this" amount="$droneamounts.{$selloffers.{$mindistindex}.ware} * $selloffers.{$mindistindex}.unitprice"/>
           </do_if>
           <do_else>
             <!-- Commander has not enough Money - just exit -->
             <return/>
           </do_else>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Offer to Trade List:\n%4'.[player.age,this.name,this.container.name,$selloffers.{$mindistindex}]"/>
-          <add_sell_order object="this.ship" trade="$selloffers.{$mindistindex}" amount="$droneamounts.{$selloffers.{$mindistindex}.ware}" price="$selloffers.{$mindistindex}.unitprice" unbundle="true"/>
+          <add_buy_order object="this.ship" trade="$selloffers.{$mindistindex}" amount="$droneamounts.{$selloffers.{$mindistindex}.ware}" price="$selloffers.{$mindistindex}.unitprice" unbundle="true"/>
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Restock Drones)',$command=command.freetrade]"/>
           <set_value name="$currentzone" exact="$selloffers.{$mindistindex}.owner.zone"/>
         </do_if>
@@ -145,13 +145,14 @@
       
       <!-- Cluster-wide search for Offers - if one is found add it to the Trade list and continue in the Sector there with search for further Offers -->
       <do_if value="not $onlysector">
-        <do_all exact="$warelist.count" counter="$i" reverse="true">
-          <find_sell_offer result="$selloffer" space="this.cluster" wares="$warelist.{$i}" multiple="false" knowntoplayer="this.owner == faction.player">
-            <amount min="$droneamounts.{$warelist.{$i}}"/>
+        <do_all exact="$unitcategorylist.count" counter="$i" reverse="true">
+          <find_sell_offer result="$selloffer" space="this.cluster" wares="param.ut_cac.unitcategory_to_wares.{$unitcategorylist.{$i}}" multiple="false" knowntoplayer="this.owner == faction.player">
+            <amount min="$droneamounts.{$unitcategorylist.{$i}}"/>
           </find_sell_offer>
           <do_if value="$selloffer.available">
             <append_to_list name="$selloffers" exact="$selloffer"/>
-            <remove_value name="$warelist.{$i}"/>
+            <set_value name="$droneamounts.{$selloffer.ware}" exact="$droneamounts.{$unitcategorylist.{$i}}"/>
+            <remove_value name="$unitcategorylist.{$i}"/>
             <set_value name="$sector" exact="$selloffer.owner.sector"/>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Trade Offer in another Sector, continuing there:\n%4'.[player.age,this.name,this.container.name,$selloffer]"/>
             <resume label="search sector" comment="goto line 47"/>
