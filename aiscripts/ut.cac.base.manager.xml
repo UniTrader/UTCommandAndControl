@@ -36,6 +36,7 @@
       <!--immediately allow Zone Trading and Mining -->
       <set_value name="$next_zonetrade" exact="player.age"/>
       <set_value name="$next_miningstep" exact="player.age"/>
+      <set_value name="$next_offerupdate" exact="player.age"/>
       
       <!-- register Subordinates - see event Handlers for actual adding procedure -->
       <do_all exact="this.container.subordinates.{this.type}.count" counter="$i">
@@ -70,6 +71,15 @@
       <!-- no outstanding direct orders - look up what makes sense and append it to Orderlist -->
       
       <label name="find job"/>
+      
+      <!-- Update Offer/Consumable List for required Drones (every 10 minutes) -->
+      <do_if value="player.age gt $next_offerupdate">
+        <do_if value="this.ship.units.count lt this.ship.units.maxcount">
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.updateconsumeables',$displayname='Update Consumable Offers (default)',$interruptable=true]"/>
+        </do_if>
+        <set_value name="$next_offerupdate" exact="player.age + 10min"/>
+      </do_if>
+      
       
       <!-- check if we have gasses as ressource and can mine them directly -->
       <do_if value="player.age gt $next_miningstep">

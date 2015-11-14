@@ -18,7 +18,6 @@
     <!-- first check if we have a specific loadout (use it without changes) - NOTE: Ignores current Units-->
     <do_if value="param.ut_cac.drone_loadout.{$object.macro}?">
       <set_value name="$droneamount" exact="param.ut_cac.drone_loadout.{$object.macro}.clone"/>
-      <!-- ToDo: Add current Units -->
     </do_if>
     <!-- then check if its a Station and calculate relative amounts to absolute ones -->
     <do_elseif value="$object.isclass.station">
@@ -101,7 +100,8 @@
       <set_value name="$totalunits" exact="0"/>
       <do_all exact="$unitcategories.count" counter="$i">
         <do_if value="param.ut_cac.drone_loadout.{$object.primarypurpose}.{$unitcategories.{$i}}? and param.ut_cac.drone_loadout.{$object.class}.{$unitcategories.{$i}}?">
-          <do_if value="param.ut_cac.drone_loadout.{$object.primarypurpose}.{$unitcategories.{$i}} ge 1 and param.ut_cac.drone_loadout.{$object.class}.{$unitcategories.{$i}} ge 1">
+          <!-- if both are integers add them, else multiply -->
+          <do_if value="typeof ( param.ut_cac.drone_loadout.{$object.primarypurpose}.{$unitcategories.{$i}} ) == typeof ( param.ut_cac.drone_loadout.{$object.class}.{$unitcategories.{$i}} ge 1 ) == datatype.integer">
             <set_value name="$droneamount.{$unitcategories.{$i}}" exact="param.ut_cac.drone_loadout.{$object.primarypurpose}.{$unitcategories.{$i}} + param.ut_cac.drone_loadout.{$object.class}.{$unitcategories.{$i}}"/>
           </do_if>
           <do_else>
@@ -115,13 +115,14 @@
           <set_value name="$droneamount.{$unitcategories.{$i}}" exact="param.ut_cac.drone_loadout.{$object.class}.{$unitcategories.{$i}}"/>
         </do_elseif>
         <!-- calculate absolute amounts from relative ones -->
-        <do_if value="1.0 ge $droneamount.{$unitcategories.{$i}} ge 0.0">
+        <do_if value="1.0 ge $droneamount.{$unitcategories.{$i}} and $droneamount.{$unitcategories.{$i}} ge 0.0">
           <set_value name="$droneamount.{$unitcategories.{$i}}" exact="$object.units.maxcount * $droneamount.{$unitcategories.{$i}}"/>
         </do_if>
         <do_if value="not $ignorecurrentunits">
           <set_value name="$droneamount.{$unitcategories.{$i}}" exact="[$droneamount.{$unitcategories.{$i}} , $object.units.{$unitcategories.{$i}}.count ].max"/>
         </do_if>
         <set_value name="$totalunits" operation="add" exact="$droneamount.{$unitcategories.{$i}}"/>
+        <debug_text filter="general" text="'create Dronelist:\n' + $droneamount" chance="this.$debug * 100" />
       </do_all>
       <!-- filter out unneeded unit types (gas and ore collectors if no collection is possible or necesary at location) -->
       <do_if value="not $object.waretransport.indexof.{waretransport.liquid} and $droneamount.{unitcategory.gascollector}?">
@@ -143,16 +144,20 @@
           <set_value name="$droneamount.{$unitcategories.{$i}}" operation="subtract"/>
           <set_value name="$totalunits" operation="subtract"/>
         </do_if>
+        <do_if value="$droneamount.{$unitcategories.{$i}} le 0">
+          <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
+        </do_if>
         <do_if value="$i ge $unitcategories.count">
           <set_value name="$i" exact="1"/>
         </do_if>
         <do_else>
           <set_value name="$i" operation="add"/>
         </do_else>
+        <debug_text filter="general" text="'shrink Dronelist:\n' + $droneamount" chance="this.$debug * 100"/>
       </do_while>
     </do_if>
     
-    <!-- subtract existing units and filter out types where amount is 0 and turn floats to ints if necesary-->
+    <!-- subtract existing units and filter out types where amount is 0 or less and turn floats to ints if necesary-->
     <do_all exact="$unitcategories.count" counter="$i">
       <do_if value="$additionalunits">
         <set_value name="$droneamount.{$unitcategories.{$i}}" operation="subtract" exact="$object.units.{$unitcategories.{$i}}.count"/>
@@ -160,9 +165,10 @@
       <do_if value="typeof $droneamount.{$unitcategories.{$i}} == datatype.float">
         <set_value name="$droneamount.{$unitcategories.{$i}}" exact="( $droneamount.{$unitcategories.{$i}} )i"/>
       </do_if>
-      <do_if value="$droneamount.{$unitcategories.{$i}} == 0">
+      <do_if value="$droneamount.{$unitcategories.{$i}}? and $droneamount.{$unitcategories.{$i}} le 0">
         <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
       </do_if>
+      <debug_text filter="general" text="'filter Dronelist:\n' + $droneamount" chance="this.$debug * 100"/>
     </do_all>
     <return value="$droneamount" />
   </actions>

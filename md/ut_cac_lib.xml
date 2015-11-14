@@ -642,6 +642,7 @@ Which Orders are available depends on entity Type
             <add_npc_line speaker="$actor" line="[4110,4111,1582,1583].random" hidechoices="false" comment="Here you go. | Take a look, I'm more than qualified. | I hope these impress you, I'm quite proud." />
           </do_if>
           <open_conversation_menu menu="CharProfileMenu" param="[0, 0, $actor, 0, 1, $actor.container]" />
+          <add_conversation_view view="closeupdetailmonitor" />
         </do_elseif>
         <!-- #### Slot2: Money Sub-Menu #### -->
         <do_elseif value="event.param == 'comm_personal_money'">
@@ -1155,10 +1156,10 @@ Which Orders are available depends on entity Type
         <!--                              Debug                                -->
         <!--- ################################### -->
         <do_elseif value="event.param == 'comm_debug_main'">
-          <add_player_choice text="'Restart Main Script'" position="1" section="comm_debug_script_restart"/>
+          <add_player_choice text="'Restart Main Script'" position="1" section="comm_debug_script_restart" selectable="player.debug"/>
           <add_player_choice text="'Max out Skills'" position="2" section="comm_debug_fivestars"/>
           <add_player_choice text="'Toggle Debugging to Log: '+ $actor.$debug" position="3" section="comm_debug_toggle"/>
-          <add_player_choice text="'Destroy Object for complete cleanup \033R(USE WITH CARE)\033X'" position="4" section="comm_debug_cleanup_object"/>
+          <add_player_choice text="'Destroy Object for complete cleanup \033R(USE WITH CARE)\033X'" position="4" section="comm_debug_cleanup_object" selectable="player.debug"/>
           <add_player_choice text="'Destroy Actor for cleanup'" position="5" section="comm_debug_cleanup_actor"/>
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_elseif>

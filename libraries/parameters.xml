@@ -72,24 +72,29 @@
       
       Floats less than 1 are interpreted as percentage of total Drone Space, other Numbers are taken as absolute Value
       -->
-      <!-- ToDo: add Station Welder Drones when Engineer is ready -->
+      <!-- Special Cases:
+      units_size_xl_cargo_hauler_3_macro / Scaldis - is categorized as Trade Ship, but practically its more like a Miner, so assigning Mining Drones here 
+      -->
       <param name="drone_loadout" value="table[
       {'$UnitcategoryList'}=[unitcategory.attack, unitcategory.defence, unitcategory.gascollector, unitcategory.orecollector, unitcategory.transport, unitcategory.welder],
+      
+      {macro.units_size_xl_cargo_hauler_3_macro} = table[{unitcategory.attack}=0, {unitcategory.defence}=20, {unitcategory.gascollector}=30, {unitcategory.orecollector}=30, {unitcategory.transport}=30, {unitcategory.welder}=20],
+      
       {class.station}=table[{unitcategory.attack}=0.1, {unitcategory.defence}=0.25, {unitcategory.gascollector}=0.1, {unitcategory.orecollector}=0.1, {unitcategory.transport}=0.3, {unitcategory.welder}=0.2],
       {class.ship_xl}=table[{unitcategory.attack}=1.0, {unitcategory.defence}=1.0, {unitcategory.gascollector}=1.0, {unitcategory.orecollector}=1.0, {unitcategory.transport}=1.0, {unitcategory.welder}=1.0],
-      {class.ship_l}=table[{unitcategory.attack}=15, {unitcategory.defence}=15, {unitcategory.gascollector}=0, {unitcategory.orecollector}=0, {unitcategory.transport}=1.0, {unitcategory.welder}=1.0],
+      {class.ship_l}=table[{unitcategory.attack}=1.0, {unitcategory.defence}=1.0, {unitcategory.gascollector}=1.0, {unitcategory.orecollector}=1.0, {unitcategory.transport}=1.0, {unitcategory.welder}=1.0],
       {class.ship_m}=table[{unitcategory.attack}=0.0, {unitcategory.defence}=0.0, {unitcategory.gascollector}=1.0, {unitcategory.orecollector}=1.0, {unitcategory.transport}=0.0, {unitcategory.welder}=0.0],
       {class.ship_s}=null,
       {class.ship_xs}=null,
 
-      {objectpurpose.trade}=table[{unitcategory.attack}=0, {unitcategory.defence}=15, {unitcategory.transport}=25, {unitcategory.welder}=10],
-      {objectpurpose.fight}=table[{unitcategory.attack}=15, {unitcategory.defence}=15, {unitcategory.gascollector}=0, {unitcategory.orecollector}=0, {unitcategory.transport}=10, {unitcategory.welder}=20],
-      {objectpurpose.build}=table[{unitcategory.attack}=0, {unitcategory.defence}=15, {unitcategory.gascollector}=0, {unitcategory.orecollector}=0, {unitcategory.transport}=20, {unitcategory.welder}=40],
+      {objectpurpose.trade}=table[{unitcategory.attack}=0, {unitcategory.defence}=15, {unitcategory.gascollector}=0.0, {unitcategory.orecollector}=0.0, {unitcategory.transport}=25, {unitcategory.welder}=10],
+      {objectpurpose.fight}=table[{unitcategory.attack}=15, {unitcategory.defence}=15, {unitcategory.gascollector}=0.0, {unitcategory.orecollector}=0.0, {unitcategory.transport}=10, {unitcategory.welder}=20],
+      {objectpurpose.build}=table[{unitcategory.attack}=0, {unitcategory.defence}=15, {unitcategory.gascollector}=0.0, {unitcategory.orecollector}=0.0, {unitcategory.transport}=20, {unitcategory.welder}=40],
       {objectpurpose.mine}=table[{unitcategory.attack}=0, {unitcategory.defence}=15, {unitcategory.gascollector}=20, {unitcategory.orecollector}=20, {unitcategory.transport}=20, {unitcategory.welder}=10],
       {objectpurpose.hack}=null,
       {objectpurpose.scan}=null
       ]"/>
-      <param name="unitcategory_to_wares" value="table[
+      <param name="warelookup" value="table[
       {unitcategory.attack}=[ware.drp_assault],
       {unitcategory.defence}=[ware.drp_interceptor_mk1,ware.drp_interceptor_mk2,ware.drp_intrepid_mk1,ware.drp_intrepid_mk2,ware.drp_overrun_mk1,ware.drp_overrun_mk2],
       {unitcategory.gascollector}=[ware.drp_scoopcollector_mk1,ware.drp_scoopcollector_mk2],
