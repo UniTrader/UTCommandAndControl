@@ -237,7 +237,7 @@ $entity  = ' + $entity"/>
             <debug_text filter="general" chance="$debug_detailoutput" text="'Adding it to the beginning of the List'"/>
             <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
             <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
-            <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
+            <set_value name="$wareslist_buysell.{1}" exact="'buy consumable'" operation="insert"/>
             <!-- set value to indicate that a mineable ware is needed with prio 1.0 right now to prevent looking for other Wares even if they have the same prio -->
             <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
               <set_value name="$miningpriority"/>
@@ -248,7 +248,7 @@ $entity  = ' + $entity"/>
             <debug_text filter="general" chance="$debug_detailoutput" text="'Starting the List with it'"/>
             <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
             <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
-            <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
+            <set_value name="$wareslist_buysell.{1}" exact="'buy consumable'" operation="insert"/>
           </do_elseif>
           <do_else>
             <set_value name="$inserted" exact="false"/>
@@ -257,7 +257,7 @@ $entity  = ' + $entity"/>
                 <debug_text filter="general" chance="$debug_detailoutput" text="'Inserting it into the List At Position ' + $j"/>
                 <set_value name="$wareslist.{$j+1}" exact="$ware" operation="insert"/>
                 <set_value name="$wareslist_prio.{$j+1}" exact="$prio" operation="insert"/>
-                <set_value name="$wareslist_buysell.{$j + 1}" exact="'buy'" operation="insert"/>
+                <set_value name="$wareslist_buysell.{$j + 1}" exact="'buy consumable'" operation="insert"/>
                 <set_value name="$inserted" exact="true"/>
                 <break/>
               </do_if>
@@ -463,7 +463,7 @@ $entity  = ' + $entity"/>
       <do_all exact="$wareslist.count" counter="$i" reverse="false">
         <set_value name="$ware" exact="$wareslist.{$i}"/>
         <!-- Aquire Products -->
-        <do_if value="$wareslist_buysell.{$i} == 'buy'">
+        <do_if value="$wareslist_buysell.{$i} == 'buy' or $wareslist_buysell.{$i} == 'buy consumable'">
           <!-- If we encounter a mineable Ware and the Ship is considered a Miner send it mining for all Minerals needed -->
           <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
             <debug_text filter="general" chance="@this.$debug * 100" text="'Checking Ressorce for mining: %1'.[$ware]"/>
@@ -481,16 +481,18 @@ $entity  = ' + $entity"/>
             </do_else>
           </do_if>
           
-          <!-- Get Price we want to get this Ware for - either from Station Offer to respect player Settings or, if none available, use Ware average price -->
-          <!-- ToDo: Find a method to aquire the Player Settings instead -->
-          <find_buy_offer result="$buyoffer" buyer="this.container" wares="$ware"/>
-          <do_if value="$buyoffer.available">
-            <set_value name="$price" exact="$buyoffer.unitprice"/>
+          <!-- Get Price we want to get this Ware for - three possible sources in order of Priority: Station Price Setting (since 4.0), Station Trade Offer, Average Price Setting -->
+          <set_value name="$price" exact="@this.container.buyprice.{$ware}"/>
+          <do_if value="not $price">
+            <find_buy_offer result="$buyoffer" buyer="this.container" wares="$ware"/>
+            <do_if value="$buyoffer.available">
+              <set_value name="$price" exact="$buyoffer.unitprice"/>
+            </do_if>
+            <do_else>
+              <set_value name="$price" exact="$ware.averageprice"/>
+            </do_else>
+            <remove_value name="$buyoffer"/>
           </do_if>
-          <do_else>
-            <set_value name="$price" exact="$ware.averageprice"/>
-          </do_else>
-          <remove_value name="$buyoffer"/>
           
           <!-- calculate minimum amount to avoid unnecesary transports -->
           <!-- either 10% of Cargo Space, or quarter the Value of the current Ship, whichever is less -->
@@ -545,29 +547,34 @@ $entity  = ' + $entity"/>
               <debug_text filter="general" chance="@this.$debug * 100" text="'possible amount is 0 - continuing with next ware'"/>
               <continue/>
             </do_if>
-            <do_if value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == true">
-              <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
+            <do_if value="this.$ut_cac_settings.$consumables.{$ware}?">
+              <do_if value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == true">
+                <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
+              </do_if>
+              <do_elseif value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == 'target'">
+                <set_value name="$bundledamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery , $amount].min"/>
+                <do_if value="$bundledamount lt $amount">
+                  <set_value name="$unbundleamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$target , $amount - $bundledamount].min"/>
+                  <create_trade_offer name="$buyoffer2" buyer="this.container" object="this.container" amount="$unbundleamount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
+                </do_if>
+                <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$bundledamount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
+              </do_elseif>
+              <do_elseif value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == 'onetimedelivery'">
+                <set_value name="$unbundleamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$target , $amount].min"/>
+                <do_if value="$bundledamount lt $amount">
+                  <set_value name="$bundledamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery , $amount - $unbundleamount].min"/>
+                  <create_trade_offer name="$buyoffer2" buyer="this.container" object="this.container" amount="$bundledamount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
+                </do_if>
+                <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$unbundleamount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
+              </do_elseif>
+              <do_else>
+                <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
+              </do_else>
             </do_if>
-            <do_elseif value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == 'target'">
-              <set_value name="$bundledamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery , $amount].min"/>
-              <do_if value="$bundledamount lt $amount">
-                <set_value name="$unbundleamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$target , $amount - $bundledamount].min"/>
-                <create_trade_offer name="$buyoffer2" buyer="this.container" object="this.container" amount="$unbundleamount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
-              </do_if>
-              <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$bundledamount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
-            </do_elseif>
-            <do_elseif value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == 'onetimedelivery'">
-              <set_value name="$unbundleamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$target , $amount].min"/>
-              <do_if value="$bundledamount lt $amount">
-                <set_value name="$bundledamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery , $amount - $unbundleamount].min"/>
-              <create_trade_offer name="$buyoffer2" buyer="this.container" object="this.container" amount="$bundledamount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
-              </do_if>
-              <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$unbundleamount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
-            </do_elseif>
             <do_else>
               <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
             </do_else>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.offeramount , ( if this.$ut_cac_settings.$consumables.{$ware} then this.$ut_cac_settings.$consumables.{$ware}.$target + this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count , ( if this.$ut_cac_settings.$consumables.{$ware} then this.$ut_cac_settings.$consumables.{$ware}.$target + this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.offeramount , ( if this.$ut_cac_settings.$consumables.{$ware}? then this.$ut_cac_settings.$consumables.{$ware}.$target + this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count , ( if this.$ut_cac_settings.$consumables.{$ware}? then this.$ut_cac_settings.$consumables.{$ware}.$target + this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/>
             <!--clamp_trade_amount result="$amount" seller="this.container" seller="$entity.ship" trade="$buyoffer" amount="$amount"/-->
             <do_if value="not $entity.hasownaccount">
               <set_actor_account actor="$entity"/>
@@ -575,9 +582,9 @@ $entity  = ' + $entity"/>
             <debug_text filter="general" chance="@this.$debug * 100" text="'transfering %1 Credits from manager ( %2 Cr ) to trader ( %3 Cr ) for a total of %4 Cr'.[($amount * $selloffer.unitprice - $entity.money)/100,(this.money)/100,($entity.money)/100,($amount * $selloffer.unitprice)/100]"/>
             <transfer_money from="this" to="$entity" amount="$amount * $selloffer.unitprice - $entity.money"/>
             <add_buy_order object="$entity.ship" trade="$selloffer" amount="$amount" price="$selloffer.unitprice"/>
-            <add_sell_order object="$entity.ship" trade="$buyoffer" amount="$amount" price="$selloffer.unitprice"/>
+            <add_sell_order object="$entity.ship" trade="$buyoffer" amount="$amount" price="0Cr"/>
             <remove_trade_offer object="this.container" tradeoffer="$buyoffer"/>
-            <do_if value="$buyoffer2">
+            <do_if value="$buyoffer2?">
               <add_sell_order object="$entity.ship" trade="$buyoffer2" amount="$amount" price="$selloffer.unitprice"/>
               <remove_trade_offer object="this.container" tradeoffer="$buyoffer2"/>
               <!-- tell the Ship to get the Wares and bring them back ( ^= 3 single trade runs, because back-delivery has 2 parts ) -->
@@ -592,16 +599,18 @@ $entity  = ' + $entity"/>
         </do_if>
         <do_elseif value="$wareslist_buysell.{$i} == 'sell'">
           
-          <!-- Get Price we want to sell this Ware for - either from Station Offer to respect player Settings or, if none available, use Ware average price -->
-          <!-- ToDo: Find a method to aquire the Player Settings instead -->
-          <find_sell_offer result="$selloffer" seller="this.container" wares="$ware"/>
-          <do_if value="$selloffer.available">
-            <set_value name="$price" exact="$selloffer.unitprice"/>
+          <!-- Get Price we want to sell this Ware for - three possible sources in order of Priority: Station Price Setting (since 4.0), Station Trade Offer, Average Price Setting -->
+          <set_value name="$price" exact="@this.container.sellprice.{$ware}"/>
+          <do_if value="not $price">
+            <find_sell_offer result="$selloffer" seller="this.container" wares="$ware"/>
+            <do_if value="$selloffer.available">
+              <set_value name="$price" exact="$selloffer.unitprice"/>
+            </do_if>
+            <do_else>
+              <set_value name="$price" exact="$ware.averageprice"/>
+            </do_else>
+            <remove_value name="$selloffer"/>
           </do_if>
-          <do_else>
-            <set_value name="$price" exact="$ware.averageprice"/>
-          </do_else>
-          <remove_value name="$selloffer"/>
           
           <!-- calculate minimum amount to avoid unnecesary transports -->
           <!-- either 10% of Cargo Space, or quarter the Value of the current Ship, whichever is less -->

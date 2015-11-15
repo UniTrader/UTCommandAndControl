@@ -66,7 +66,7 @@
             </do_else>
           </do_if>
           <get_resource_gatherrate name="$result" zone="$object.zone" refobject="$object" ware="$ware"/>
-          <do_if value="$added_temp_drone">
+          <do_if value="$added_temp_drone?">
             <remove_units object="$object" category="$added_temp_drone" mk="1" exact="1"/>
             <remove_value name="$added_temp_drone"/>
           </do_if>
@@ -144,7 +144,7 @@
           <set_value name="$droneamount.{$unitcategories.{$i}}" operation="subtract"/>
           <set_value name="$totalunits" operation="subtract"/>
         </do_if>
-        <do_if value="$droneamount.{$unitcategories.{$i}} le 0">
+        <do_if value="$droneamount.{$unitcategories.{$i}}? and $droneamount.{$unitcategories.{$i}} le 0">
           <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
         </do_if>
         <do_if value="$i ge $unitcategories.count">

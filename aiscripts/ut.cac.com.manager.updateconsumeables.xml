@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.com.manager.updateconsumeables" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+    This Script Creates the Demand for Drones on Stations
+    -> first it looks up the intended Amount for all drones using a lib
+    -> then it adds them to the consumable List for aquiring Wares so Assigned Ships will take care of it
+    -> planned: also create Trade Offers requesting Drones so other Factions can deliver them
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      <do_if value="$params">
+      </do_if>
+      
+      <!-- first confirm that we can still buy some Drones - if not just exit -->
+      <do_if value="this.container.units.count == this.container.units.maxcount">
+        <return/>
+      </do_if>
+      
+      <!-- get the Amount of Drones we want - calculated in a seperate lib -->
+      <run_script name="'ut.cac.lib.calculatedroneamount'" result="$droneamounts" >
+        <param name="object" value="this.container"/>
+        <param name="additionalunits" value="true"/>
+      </run_script>
+      
+      <!-- Add Drones to consumable List - Subordinates will take care of the rest -->
+      <set_value name="$keys" exact="$droneamounts.keys.list"/>
+      <do_all exact="$keys.count" counter="$i">
+        <do_all exact="param.ut_cac.warelookup.{$keys.{$i}}.count" counter="$j">
+          <set_value name="$ware" exact="param.ut_cac.warelookup.{$keys.{$i}}.{$j}"/>
+          <do_if value="not this.$ut_cac_settings.$consumables.{$ware}?">
+            <set_value name="this.$ut_cac_settings.$consumables.{$ware}" exact="table[]"/>
+          </do_if>
+          <set_value name="this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery" exact="$droneamounts.{$keys.{$i}}/param.ut_cac.warelookup.{$keys.{$i}}.count"/>
+          <do_if value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle?">
+            <do_if value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == false">
+              <set_value name="this.$ut_cac_settings.$consumables.{$ware}.$unbundle" exact="'onetimedelivery'"/>
+            </do_if>
+            <do_else>
+              <set_value name="this.$ut_cac_settings.$consumables.{$ware}.$unbundle" exact="true"/>
+            </do_else>
+          </do_if>
+          <do_else>
+            <set_value name="this.$ut_cac_settings.$consumables.{$ware}.$unbundle" exact="'onetimedelivery'"/>
+          </do_else>
+          <set_value name="this.$ut_cac_settings.$consumables.{$ware}.$prioritymulti" exact="if this.station.units.{$keys.{$i}}.count gt 10 then 0.5 else 1.0"/>
+          <do_if value="not this.$ut_cac_settings.$consumables.{$ware}.$target?">
+            <set_value name="this.$ut_cac_settings.$consumables.{$ware}.$target" exact="0"/>
+          </do_if>
+        </do_all>
+      </do_all>
+    </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>
