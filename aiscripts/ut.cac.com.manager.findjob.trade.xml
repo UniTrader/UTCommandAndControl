@@ -481,18 +481,31 @@ $entity  = ' + $entity"/>
             </do_else>
           </do_if>
           
-          <!-- Get Price we want to get this Ware for - three possible sources in order of Priority: Station Price Setting (since 4.0), Station Trade Offer, Average Price Setting -->
-          <set_value name="$price" exact="@this.container.buyprice.{$ware}"/>
-          <do_if value="not $price">
-            <find_buy_offer result="$buyoffer" buyer="this.container" wares="$ware"/>
-            <do_if value="$buyoffer.available">
-              <set_value name="$price" exact="$buyoffer.unitprice"/>
+          <!-- Get Price we want to get this Ware for - 
+          for consumables this is either the defined amount or, if none set, the default Price
+          for regurlar Ressources there are three possible sources for the price, in order of Priority:
+          Station Price Setting (since 4.0), Station Trade Offer, Average Price of Ware -->
+          <do_if value="$wareslist_buysell.{$i} == 'buy consumable'">
+            <do_if value="this.$ut_cac_settings.$consumables.{$ware}.$price?">
+              <set_value name="$price" exact="this.$ut_cac_settings.$consumables.{$ware}.$price"/>
             </do_if>
             <do_else>
               <set_value name="$price" exact="$ware.averageprice"/>
             </do_else>
-            <remove_value name="$buyoffer"/>
           </do_if>
+          <do_else>
+          <set_value name="$price" exact="@this.container.buyprice.{$ware}"/>
+            <do_if value="not $price">
+              <find_buy_offer result="$buyoffer" buyer="this.container" wares="$ware"/>
+              <do_if value="$buyoffer.available">
+                <set_value name="$price" exact="$buyoffer.unitprice"/>
+              </do_if>
+              <do_else>
+                <set_value name="$price" exact="$ware.averageprice"/>
+              </do_else>
+              <remove_value name="$buyoffer"/>
+            </do_if>
+          </do_else>
           
           <!-- calculate minimum amount to avoid unnecesary transports -->
           <!-- either 10% of Cargo Space, or quarter the Value of the current Ship, whichever is less -->
@@ -547,7 +560,7 @@ $entity  = ' + $entity"/>
               <debug_text filter="general" chance="@this.$debug * 100" text="'possible amount is 0 - continuing with next ware'"/>
               <continue/>
             </do_if>
-            <do_if value="this.$ut_cac_settings.$consumables.{$ware}?">
+            <do_if value="$wareslist_buysell.{$i} == 'buy consumable'">
               <do_if value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == true">
                 <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
               </do_if>
