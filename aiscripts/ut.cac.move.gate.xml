@@ -200,8 +200,13 @@
   <on_abort>
     <!-- remove ourselves from the waiting List if we are in it -->
     <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
-      <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
-      <!--signal_objects object="global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/-->
+      <do_if value="global.$gate_queue.{$gate}.{1} == this.ship">
+        <remove_value name="global.$gate_queue.{$gate}.{1}"/>
+        <signal_objects object="global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
+      </do_if>
+      <do_else>
+        <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
+      </do_else>
     </do_if>
   </on_abort>
 </aiscript>
