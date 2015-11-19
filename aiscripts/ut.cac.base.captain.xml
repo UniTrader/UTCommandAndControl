@@ -33,7 +33,7 @@
         <create_list name="this.$orderlist"/>
       </do_if>
       
-      <set_value name="$next_dronecheck" exact="player.age" comment="check drones immediately"/>
+      <set_value name="$next_equipmentcheck" exact="player.age" comment="check drones/equipment immediately"/>
       
       <!-- first get to free Space/Undock, leave formations etc. to have a safe initial state -->
       <run_script name="'ut.cac.com.captain.move.free'"/>
@@ -84,14 +84,13 @@
         <resume label="start"/>
       </do_if-->
       
-      <!-- if we have no fuel for even one Jump - go refueling first (intended to be only called on init if no Fuel is on board to speed things up - Manager will give this order frequently anyway) -->
-      <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{this.sector}">
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (default)',$undock=1,$interruptable=true]"/>
-        <resume label="start"/>
-      </do_if>
-        
-      <do_if value="player.age gt $next_dronecheck">
-        <set_value name="$next_dronecheck" exact="player.age + 10min"/>
+      <do_if value="player.age gt $next_equipmentcheck">
+        <set_value name="$next_equipmentcheck" exact="player.age + 10min"/>
+        <!-- if we have no fuel for even one Jump - go refueling first (intended to be only called on init if no Fuel is on board to speed things up - Manager will give this order frequently anyway) -->
+        <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{this.sector}">
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (default)',$undock=1,$interruptable=true]"/>
+          <resume label="start"/>
+        </do_if>
         <!-- Check wheter we need some Drones (missing Cargo Drones for Trade & Mining Ships and missing mining Drones for Mining ships trigger re-droning Script every time, otherwise re-droning will be done if below 25% of capacity) -->
         <do_if value="this.ship.primarypurpose == objectpurpose.trade">
           <do_if value="this.ship.units.{unitcategory.transport}.count lt 10">
