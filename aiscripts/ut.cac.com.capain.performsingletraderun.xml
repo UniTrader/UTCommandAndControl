@@ -2,7 +2,7 @@
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.performsingletraderun" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
-    <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this (also does not refresh Reservations from Trade List, call once before with 'refreshreservations' = true to do this)"/>
+    <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this NOTE: BROKEN, NEEDS FIXING!!! (also does not refresh Reservations from Trade List, call once before with 'refreshreservations' = true to do this)"/>
     <param name="amount" default="null" comment="Specific Amount to Trade in case a specific Trade is ordered"/>
     <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list ONLY (does not execute any Trade)"/>
     <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
@@ -132,7 +132,7 @@
       </do_elseif>
       <do_else>
         <!-- no valid Trade Partner - remove shoppinglist item, and check list again -->
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No valid Trade Partner - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" chance="@this.$debug * 100" text="'%1 %2 %3 No valid Trade Partner - aborting'.[player.age,this.name,this.container.name]"/>
         <resume label="abort trade"/>
       </do_else>
       
@@ -153,7 +153,9 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Move to correct Zone:\n$tradepartner.zone= %4'.[player.age,this.name,this.container.name,$tradepartner.zone.knownname]"/>
       <do_if value="this.zone != $tradepartner.zone">
         <set_command_action commandaction="commandaction.flyingto" param="$tradepartner.zone"/>
-        <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+        <do_if value="this.$ut_cac_settings?">
+          <set_value name="this.$ut_cac_settings.$isactive"/>
+        </do_if>
         <run_script name="'ut.cac.move.generic'">
           <param name="destination" value="$tradepartner" />
           <param name="endintargetspace" value="true" />
@@ -163,7 +165,9 @@
       <!-- dock/park at target -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Dock at Trade Station:\n$tradepartner.name=%4'.[player.age,this.name,this.container.name,$tradepartner.knownname]"/>
       <set_command_action commandaction="commandaction.docking"/>
-      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+      <do_if value="this.$ut_cac_settings?">
+        <set_value name="this.$ut_cac_settings.$isactive"/>
+      </do_if>
       <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l">
         <set_value name="$offer" exact="null" />
         <!-- ToDo: Ware Exchange Case: Active Partner -->
@@ -225,6 +229,7 @@
       <get_trade_from_shoppinglist object="this.ship" result="$trade2" />
       <do_if value="$trade == $trade2" negate="true">
         <!-- the current trade is no longer at the top of the shopping list -->
+        <!-- ToDo: fix Trade behavior if a Trade was passed directly instead of using the Shoppinglist-->
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade no longer on top of Shopping List - aborting'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
@@ -372,7 +377,7 @@
       <!-- If after execute there is no trade order(e.g. cleared by player) finish - should not happen since player is not supposed to remove trade Orders from CAC Ships! -->
       <do_if value="not $trade.exists">
         <detach_from_masstraffic object="this.ship" wait="true"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade removed (sould not happen with UT CAC since Player is not supposed to clear shoppinglist)'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade removed (should not happen with UT CAC since Player is not supposed to clear shoppinglist)'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
 
