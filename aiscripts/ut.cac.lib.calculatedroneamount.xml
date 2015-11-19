@@ -14,6 +14,7 @@
     <!-- set often used values -->
     <set_value name="$unitcategories" exact="param.ut_cac.drone_loadout.$UnitcategoryList"/>
     
+    <set_value name="$totalunits" exact="0"/>
     
     <!-- first check if we have a specific loadout (use it without changes) - NOTE: Ignores current Units-->
     <do_if value="param.ut_cac.drone_loadout.{$object.macro}?">
@@ -23,7 +24,6 @@
     <do_elseif value="$object.isclass.station">
       <set_value name="$droneamount" exact="param.ut_cac.drone_loadout.{class.station}.clone"/>
       <set_value name="$unitcategories" exact="$droneamount.keys.list"/>
-      <set_value name="$totalunits" exact="0"/>
       <do_all exact="$unitcategories.count" counter="$i">
         <do_if value="not $droneamount.{$unitcategories.{$i}}?">
           <continue/>
@@ -97,7 +97,6 @@
     <do_elseif value="$object.isclass.ship">
       <set_value name="$droneamount" exact="table[]"/>
       <set_value name="$unitcategories" exact="param.ut_cac.drone_loadout.$UnitcategoryList"/>
-      <set_value name="$totalunits" exact="0"/>
       <do_all exact="$unitcategories.count" counter="$i">
         <do_if value="param.ut_cac.drone_loadout.{$object.primarypurpose}.{$unitcategories.{$i}}? and param.ut_cac.drone_loadout.{$object.class}.{$unitcategories.{$i}}?">
           <!-- if both are integers add them, else multiply -->
