@@ -130,6 +130,7 @@
           <add_buy_order object="this.ship" trade="$selloffers.{$mindistindex}" amount="$droneamounts.{$selloffers.{$mindistindex}.ware}" price="$selloffers.{$mindistindex}.unitprice" unbundle="true"/>
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Restock Drones)',$command=command.freetrade]"/>
           <set_value name="$currentzone" exact="$selloffers.{$mindistindex}.owner.zone"/>
+          <remove_value name="$selloffers.{$mindistindex}"/>
         </do_if>
         <!-- Path Length for small Ships, raw Distance for Big Ships -->
         <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
@@ -138,7 +139,6 @@
         <do_else>
           <set_value name="$mindistance" exact="1e12m"/>
         </do_else>
-        <remove_value name="$selloffers.{$mindistindex}"/>
         <set_value name="$mindistindex" exact="null"/>
       </do_while>
       

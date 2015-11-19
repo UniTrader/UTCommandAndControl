@@ -118,6 +118,7 @@
           <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$buyoffers.{$mindistindex}.ware}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$command=command.freetrade]"/>
           <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.owner.zone"/>
+          <set_value name="$mindistindex" exact="null"/>
         </do_if>
         <!-- Path Length for small Ships, raw Distance for Big Ships -->
         <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
@@ -127,7 +128,6 @@
           <set_value name="$mindistance" exact="1e12m"/>
         </do_else>
         <remove_value name="$buyoffers.{$mindistindex}"/>
-        <set_value name="$mindistindex" exact="null"/>
       </do_while>
       
       <!-- Cluster-wide search for Offers - if one is found add it to the Trade list and continue in the Sector there with search for further Offers -->
