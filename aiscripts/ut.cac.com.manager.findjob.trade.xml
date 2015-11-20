@@ -232,24 +232,13 @@ $entity  = ' + $entity"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio + ' and has a priority multiplier of ' + this.$ut_cac_settings.$consumables.{$ware}.$prioritymulti"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
-          <!-- prio 1.0, so always in the beginning (higher prios are possible for products, see the respective part) -->
-          <do_if value="$prio == 1f">
-            <debug_text filter="general" chance="$debug_detailoutput" text="'Adding it to the beginning of the List'"/>
-            <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
-            <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
-            <set_value name="$wareslist_buysell.{1}" exact="'buy consumable'" operation="insert"/>
-            <!-- set value to indicate that a mineable ware is needed with prio 1.0 right now to prevent looking for other Wares even if they have the same prio -->
-            <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
-              <set_value name="$miningpriority"/>
-            </do_if>
-          </do_if>
           <!-- first Value in the Target List, no need for any Sorting-->
-          <do_elseif value="$wareslist.count == 0">
+          <do_if value="$wareslist.count == 0">
             <debug_text filter="general" chance="$debug_detailoutput" text="'Starting the List with it'"/>
             <set_value name="$wareslist.{1}" exact="$ware" operation="insert"/>
             <set_value name="$wareslist_prio.{1}" exact="$prio" operation="insert"/>
             <set_value name="$wareslist_buysell.{1}" exact="'buy consumable'" operation="insert"/>
-          </do_elseif>
+          </do_if>
           <do_else>
             <set_value name="$inserted" exact="false"/>
             <do_all exact="$wareslist_prio.count" counter="$j" reverse="true">
