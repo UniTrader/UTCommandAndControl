@@ -122,13 +122,13 @@
         </do_all>
         <!-- add nearest Offer in a diffrent Zone to the Trade List and set it as new origin Point -->
         <do_if value="$mindistindex">
-          <set_value name="$amount" exact="[this.container.commanderentity.money / $selloffers.{$i}.unitprice , $selloffers.{$i}.amount , $droneamounts.{$selloffers.{$i}.ware} ].min" />
+          <set_value name="$amount" exact="[this.container.commanderentity.money / $selloffers.{$mindistindex}.unitprice , $selloffers.{$mindistindex}.amount , $droneamounts.{$selloffers.{$mindistindex}.ware} ].min" />
           <do_if value="$amount gt 0">
-            <transfer_money from="this.container.commanderentity" to="this" amount="$amount * $selloffers.{$i}.unitprice"/>
+            <transfer_money from="this.container.commanderentity" to="this" amount="$amount * $selloffers.{$mindistindex}.unitprice"/>
           </do_if>
           <!-- Cannt buy these Drones - try the next ones.. -->
           <do_else>
-            <remove_value name="$selloffers.{$i}"/>
+            <remove_value name="$selloffers.{$mindistindex}"/>
             <!-- Path Length for small Ships, raw Distance for Big Ships -->
             <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
               <set_value name="$mindistance" exact="999"/>
