@@ -60,9 +60,7 @@
       <label name="search sector"/>
       <!-- find buy Offers in current Sector where we can loose the whole amount in one trade run -->
       <do_all exact="$unitcategorylist.count" counter="$i" reverse="true">
-        <find_sell_offer result="$selloffer" space="$sector" wares="param.ut_cac.warelookup.{$unitcategorylist.{$i}}" multiple="false" knowntoplayer="this.owner == faction.player">
-          <amount min="$droneamounts.{$unitcategorylist.{$i}}"/>
-        </find_sell_offer>
+        <find_sell_offer result="$selloffer" space="$sector" wares="param.ut_cac.warelookup.{$unitcategorylist.{$i}}" multiple="false" knowntoplayer="this.owner == faction.player"/>
         <do_if value="$selloffer.available">
           <append_to_list name="$selloffers" exact="$selloffer"/>
           <set_value name="$droneamounts.{$selloffer.ware}" exact="$droneamounts.{$unitcategorylist.{$i}}"/>
@@ -85,14 +83,19 @@
         <do_all exact="$selloffers.count" counter="$i" reverse="true">
           <!-- Offer is in current Zone - just add it to the Trade Orders -->
           <do_if value="$selloffers.{$i}.owner.zone == $currentzone">
-            <do_if value="this.container.commanderentity.money ge $droneamounts.{$selloffers.{$i}.ware} * $selloffers.{$i}.unitprice">
-              <transfer_money from="this.container.commanderentity" to="this" amount="$droneamounts.{$selloffers.{$i}.ware} * $selloffers.{$i}.unitprice"/>
+            <set_value name="$amount" exact="[this.container.commanderentity.money/$selloffers.{$i}.unitprice , $selloffers.{$i}.amount, $droneamounts.{$selloffers.{$i}.ware}].min"/>
+            <do_if value="$amount gt 0">
+              <transfer_money from="this.container.commanderentity" to="this" amount="$amount * $selloffers.{$i}.unitprice"/>
             </do_if>
             <do_else>
-              <!-- Commander has not enough Money - just exit -->
-              <return/>
+              <!-- Cannt buy these Drones - try the next ones.. -->
+              <remove_value name="$selloffers.{$i}"/>
+              <do_if value="$mindistindex">
+                <set_value name="$mindistindex" operation="subtract" comment="to keep them in sync"/>
+              </do_if>
+              <continue/>
             </do_else>
-            <add_buy_order object="this.ship" trade="$selloffers.{$i}" amount="$droneamounts.{$selloffers.{$i}.ware}" price="$selloffers.{$i}.unitprice" unbundle="true"/>
+            <add_buy_order object="this.ship" trade="$selloffers.{$i}" amount="$amount" price="$selloffers.{$i}.unitprice" unbundle="true"/>
             <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Restock Drones)',$repeat=0]"/>
             <remove_value name="$selloffers.{$i}"/>
             <do_if value="$mindistindex">
@@ -119,15 +122,25 @@
         </do_all>
         <!-- add nearest Offer in a diffrent Zone to the Trade List and set it as new origin Point -->
         <do_if value="$mindistindex">
-          <do_if value="this.container.commanderentity.money ge $droneamounts.{$selloffers.{$mindistindex}.ware} * $selloffers.{$mindistindex}.unitprice">
-            <transfer_money from="this.container.commanderentity" to="this" amount="$droneamounts.{$selloffers.{$mindistindex}.ware} * $selloffers.{$mindistindex}.unitprice"/>
+          <set_value name="$amount" exact="[this.container.commanderentity.money / $selloffers.{$i}.unitprice , $selloffers.{$i}.amount , $droneamounts.{$selloffers.{$i}.ware} ].min" />
+          <do_if value="$amount gt 0">
+            <transfer_money from="this.container.commanderentity" to="this" amount="$amount * $selloffers.{$i}.unitprice"/>
           </do_if>
+          <!-- Cannt buy these Drones - try the next ones.. -->
           <do_else>
-            <!-- Commander has not enough Money - just exit -->
-            <return/>
+            <remove_value name="$selloffers.{$i}"/>
+            <!-- Path Length for small Ships, raw Distance for Big Ships -->
+            <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
+              <set_value name="$mindistance" exact="999"/>
+            </do_if>
+            <do_else>
+              <set_value name="$mindistance" exact="1e12m"/>
+            </do_else>
+            <set_value name="$mindistindex" exact="null"/>
+            <continue/>
           </do_else>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Offer to Trade List:\n%4'.[player.age,this.name,this.container.name,$selloffers.{$mindistindex}]"/>
-          <add_buy_order object="this.ship" trade="$selloffers.{$mindistindex}" amount="$droneamounts.{$selloffers.{$mindistindex}.ware}" price="$selloffers.{$mindistindex}.unitprice" unbundle="true"/>
+          <add_buy_order object="this.ship" trade="$selloffers.{$mindistindex}" amount="$amount" price="$selloffers.{$mindistindex}.unitprice" unbundle="true"/>
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Restock Drones)',$command=command.freetrade]"/>
           <set_value name="$currentzone" exact="$selloffers.{$mindistindex}.owner.zone"/>
           <remove_value name="$selloffers.{$mindistindex}"/>
