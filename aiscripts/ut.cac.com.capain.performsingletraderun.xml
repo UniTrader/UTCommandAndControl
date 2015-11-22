@@ -341,9 +341,13 @@
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
           <do_if value="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery?">
             <set_value name="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery" operation="subtract" exact="$amount"/>
-            <do_if value="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery lt 0">
-              <remove_value name="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery"/>
+            <!-- if we have all One-Time Orders set the ramaining amount to 0 if below it, and if there is also no target amount remove the Ware completely -->
+            <do_if value="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery le 0 and $trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$target == 0">
+              <remove_value name="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}"/>
             </do_if>
+            <do_elseif value="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery lt 0">
+              <set_value name="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery" exact="0"/>
+            </do_elseif>
           </do_if>
         </do_elseif>
         <do_else>
