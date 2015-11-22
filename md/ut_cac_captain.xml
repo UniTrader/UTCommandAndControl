@@ -3,13 +3,22 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="11">
+    <cue name="Main" instantiate="true" namespace="this" version="12">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
       <actions>
         <set_value name="$actor" exact="event.param" />
         <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="setting neccesary Variables"/>
+        <!-- setting Object-Specific Drone Loadout in case the Object is already equipped properly (at least half the Space is used for Drones)-->
+        <do_if value="$actor.ship.units.count gt $actor.ship.units.maxcount * 0.5">
+          <set_value name="$actor.$ut_cac_settings.$drone_loadout" exact="table[]"/>
+          <do_all exact="param.ut_cac.drone_loadout.$UnitcategoryList.count" counter="$i">
+            <do_if value="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count">
+              <set_value name="$actor.$ut_cac_settings.$drone_loadout.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}" exact="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count"/>
+            </do_if>
+          </do_all>
+        </do_if>
         <!-- cancel Vanilla Dialogue -->
         <signal_objects object="$actor" param="'cancel Vanilla dialogue tree'"/>
         <set_comm_handler actor="$actor" customhandler="true" />
@@ -28,6 +37,17 @@
       <patch sinceversion="11">
          <!--Compatibility with Vim Razz' Human Ressources -->
         <set_value name="$actor.$InUse" exact="true"/>
+      </patch>
+      <patch sinceversion="12">
+        <!-- setting Object-Specific Drone Loadout in case the Object is already equipped properly (at least half the Space is used for Drones)-->
+        <do_if value="$actor.ship.units.count gt $actor.ship.units.maxcount * 0.5">
+          <set_value name="$actor.$ut_cac_settings.$drone_loadout" exact="table[]"/>
+          <do_all exact="param.ut_cac.drone_loadout.$UnitcategoryList.count" counter="$i">
+            <do_if value="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count">
+              <set_value name="$actor.$ut_cac_settings.$drone_loadout.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}" exact="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count"/>
+            </do_if>
+          </do_all>
+        </do_if>
       </patch>
       <cues>
         <cue name="Delayed_scriptstart">

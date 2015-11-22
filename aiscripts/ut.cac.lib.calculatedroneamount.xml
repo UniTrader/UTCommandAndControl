@@ -16,10 +16,14 @@
     
     <set_value name="$totalunits" exact="0"/>
     
-    <!-- first check if we have a specific loadout (use it without changes) - NOTE: Ignores current Units-->
-    <do_if value="param.ut_cac.drone_loadout.{$object.macro}?">
-      <set_value name="$droneamount" exact="param.ut_cac.drone_loadout.{$object.macro}.clone"/>
+    
+    <do_if value="this.$ut_cac_settings.$drone_loadout?">
+      <set_value name="$droneamount" exact="this.$ut_cac_settings.$drone_loadout?"/>
     </do_if>
+    <!-- first check if we have a specific loadout (use it without changes) -->
+    <do_elseif value="param.ut_cac.drone_loadout.{$object.macro}?">
+      <set_value name="$droneamount" exact="param.ut_cac.drone_loadout.{$object.macro}.clone"/>
+    </do_elseif>
     <!-- then check if its a Station and calculate relative amounts to absolute ones -->
     <do_elseif value="$object.isclass.station">
       <set_value name="$droneamount" exact="param.ut_cac.drone_loadout.{class.station}.clone"/>
