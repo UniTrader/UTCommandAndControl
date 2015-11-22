@@ -77,7 +77,7 @@
       </do_if>
       
       <set_value name="$buyamount" exact="$refuelamount - this.ship.cargo.{ware.fuelcells}.count"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'Buying/Grabbing %1 Units of Fuel'.[player.age,this.name,this.container.name,$buyamount]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Buying/Grabbing %4 Units of Fuel'.[player.age,this.name,this.container.name,$buyamount]"/>
       
       <!-- find nearest Source for Fuel Cells (first check current Station and Home Station (Offers and Cargo), then Sector and as last the Cluster) ToDo: Respect Range -->
       <set_value name="$selloffer" exact="null"/>
@@ -135,6 +135,7 @@
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Found! Going to get it!'"/>
       <transfer_money from="this.ship.commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'Transferred %1 ( %2 * %3 )Credits from Commander to pay, current account: %4'.[$buyamount * $selloffer.unitprice , $buyamount , $selloffer.unitprice , this.money]"/>
       <add_buy_order object="this.ship" trade="$selloffer" amount="$buyamount" price="$selloffer.unitprice"/>
       <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Refuel (Buy from Offer)',$undock=2,$interruptable=false]"/>
       
