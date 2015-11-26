@@ -98,7 +98,9 @@
             <resume label="start"/>
           </do_if>
         </do_if>
-        <do_if value="this.ship.primarypurpose == objectpurpose.mine">
+        <find_object_component name="$miningturret" object="this.ship" macro="macro.turret_medium_ml_macro"/>
+        <do_if value="$miningturret.exists or this.ship.primarypurpose == objectpurpose.mine">
+          <remove_value name="$miningturret"/>
           <do_if value="this.ship.units.{unitcategory.transport}.count lt 10">
             <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
             <resume label="start"/>
@@ -116,6 +118,7 @@
             </do_if>
           </do_if>
         </do_if>
+        <remove_value name="$miningturret"/>
         <do_if value="this.ship.units.count lt this.ship.units.count * 0.75">
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
           <resume label="start"/>
