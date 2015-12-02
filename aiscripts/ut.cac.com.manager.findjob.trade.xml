@@ -37,8 +37,8 @@ $entity  = ' + $entity"/>
       </do_if>
       
       <set_command_action commandaction="commandaction.searchingtrades"/>
-      <do_if value="this.$ut_cac_settings?">
-        <set_value name="this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       <wait exact="1s"/>
       
@@ -62,10 +62,10 @@ $entity  = ' + $entity"/>
       
       <!-- Get Range to be used - either Jump Range or Tube Range -->
       <do_if value="$entity.ship.isclass.{[class.ship_xl , class.ship_l]}">
-        <set_value name="$range" exact="this.$ut_cac_settings.$range_j"/>
+        <set_value name="$range" exact="this.$ut_cac.$range_j"/>
       </do_if>
       <do_elseif value="$entity.ship.canenterhighway">
-        <set_value name="$range" exact="this.$ut_cac_settings.$range_h"/>
+        <set_value name="$range" exact="this.$ut_cac.$range_h"/>
       </do_elseif>
       <!-- fallback case: ship can neither jump nor enter tubes - restricted to Zone Trade -->
       <do_else>
@@ -89,23 +89,23 @@ $entity  = ' + $entity"/>
         </do_if>
         
         <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
-        <do_if value="$ware.illegal and this.$ut_cac_settings.$legality ge 3">
+        <do_if value="$ware.illegal and this.$ut_cac.$legality ge 3">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal'.[$ware]"/>
           <continue/>
         </do_if>
-        <do_elseif value="not this.zone.policefaction and $ware.illegal and this.$ut_cac_settings.$legality ge 1">
+        <do_elseif value="not this.zone.policefaction and $ware.illegal and this.$ut_cac.$legality ge 1">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal and current Zone has no policefaction for licenses'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac_settings.$legality ge 2">
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac.$legality ge 2">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal in this Zone'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac_settings.$legality ge 1">
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac.$legality ge 1">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal in this Zone and we dont have a license'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="this.$ut_cac_settings.$legality == 0">
+        <do_elseif value="this.$ut_cac.$legality == 0">
           <debug_text filter="general" chance="$debug_detailoutput" text="'Buying anything - including %1'.[$ware]"/>
         </do_elseif>
         <do_else>
@@ -193,7 +193,7 @@ $entity  = ' + $entity"/>
       
       
       <!-- also add Consumables (Consumeables are Ammo and Fuel - no Ressource per se, but you have to keep them stocked ) -->
-      <set_value name="$consumables_list" exact="this.$ut_cac_settings.$consumables.keys.list"/>
+      <set_value name="$consumables_list" exact="this.$ut_cac.$consumables.keys.list"/>
       <do_all exact="$consumables_list.count" counter="$i">
         <set_value name="$ware" exact="$consumables_list.{$i}"/>
         <!-- not interested in Wares which the Ship cannt transport -->
@@ -203,23 +203,23 @@ $entity  = ' + $entity"/>
         </do_if>
         
         <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
-        <do_if value="$ware.illegal and this.$ut_cac_settings.$legality ge 3">
+        <do_if value="$ware.illegal and this.$ut_cac.$legality ge 3">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal'.[$ware]"/>
           <continue/>
         </do_if>
-        <do_elseif value="not this.zone.policefaction and $ware.illegal and this.$ut_cac_settings.$legality ge 1">
+        <do_elseif value="not this.zone.policefaction and $ware.illegal and this.$ut_cac.$legality ge 1">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal and current Zone has no policefaction for licenses'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac_settings.$legality ge 2">
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac.$legality ge 2">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal in this Zone'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac_settings.$legality ge 1">
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac.$legality ge 1">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal in this Zone and we dont have a license'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="this.$ut_cac_settings.$legality == 0">
+        <do_elseif value="this.$ut_cac.$legality == 0">
           <debug_text filter="general" chance="$debug_detailoutput" text="'Buying anything - including %1'.[$ware]"/>
         </do_elseif>
         <do_else>
@@ -227,9 +227,9 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
-        <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac_settings.$consumables.{$ware}.$target + this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery )f )"/>
-        <set_value name="$prio" exact="$prio * this.$ut_cac_settings.$consumables.{$ware}.$prioritymulti"/>
-        <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio + ' and has a priority multiplier of ' + this.$ut_cac_settings.$consumables.{$ware}.$prioritymulti"/>
+        <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac.$consumables.{$ware}.$target + this.$ut_cac.$consumables.{$ware}.$onetimedelivery )f )"/>
+        <set_value name="$prio" exact="$prio * this.$ut_cac.$consumables.{$ware}.$prioritymulti"/>
+        <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio + ' and has a priority multiplier of ' + this.$ut_cac.$consumables.{$ware}.$prioritymulti"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
           <!-- first Value in the Target List, no need for any Sorting-->
@@ -271,23 +271,23 @@ $entity  = ' + $entity"/>
           <continue/>
         </do_if>
         <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
-        <do_if value="$ware.illegal and this.$ut_cac_settings.$legality ge 3">
+        <do_if value="$ware.illegal and this.$ut_cac.$legality ge 3">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not selling %1 because it is illegal'.[$ware]"/>
           <continue/>
         </do_if>
-        <do_elseif value="not this.zone.policefaction and $ware.illegal and this.$ut_cac_settings.$legality ge 1">
+        <do_elseif value="not this.zone.policefaction and $ware.illegal and this.$ut_cac.$legality ge 1">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not selling %1 because it is illegal and current Zone has no policefaction for licenses'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac_settings.$legality ge 2">
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac.$legality ge 2">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not selling %1 because it is illegal in this Zone'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac_settings.$legality ge 1">
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac.$legality ge 1">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not selling %1 because it is illegal in this Zone and we dont have a license'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="this.$ut_cac_settings.$legality == 0">
+        <do_elseif value="this.$ut_cac.$legality == 0">
           <debug_text filter="general" chance="$debug_detailoutput" text="'Selling anything - including %1'.[$ware]"/>
         </do_elseif>
         <do_else>
@@ -347,23 +347,23 @@ $entity  = ' + $entity"/>
           <continue/>
         </do_if>
         <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
-        <do_if value="$ware.illegal and this.$ut_cac_settings.$legality ge 3">
+        <do_if value="$ware.illegal and this.$ut_cac.$legality ge 3">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not trading with %1 because it is illegal'.[$ware]"/>
           <continue/>
         </do_if>
-        <do_elseif value="not this.zone.policefaction and $ware.illegal and this.$ut_cac_settings.$legality ge 1">
+        <do_elseif value="not this.zone.policefaction and $ware.illegal and this.$ut_cac.$legality ge 1">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not trading with %1 because it is illegal and current Zone has no policefaction for licenses'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac_settings.$legality ge 2">
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac.$legality ge 2">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not trading with %1 because it is illegal in this Zone'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac_settings.$legality ge 1">
+        <do_elseif value="$ware.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac.$legality ge 1">
           <debug_text filter="general" chance="$debug_detailoutput" text="'not trading with %1 because it is illegal in this Zone and we dont have a license'.[$ware]"/>
           <continue/>
         </do_elseif>
-        <do_elseif value="this.$ut_cac_settings.$legality == 0">
+        <do_elseif value="this.$ut_cac.$legality == 0">
           <debug_text filter="general" chance="$debug_detailoutput" text="'Trading with anything - including %1'.[$ware]"/>
         </do_elseif>
         <do_else>
@@ -475,8 +475,8 @@ $entity  = ' + $entity"/>
           for regurlar Ressources there are three possible sources for the price, in order of Priority:
           Station Price Setting (since 4.0), Station Trade Offer, Average Price of Ware -->
           <do_if value="$wareslist_buysell.{$i} == 'buy consumable'">
-            <do_if value="this.$ut_cac_settings.$consumables.{$ware}.$price?">
-              <set_value name="$price" exact="this.$ut_cac_settings.$consumables.{$ware}.$price"/>
+            <do_if value="this.$ut_cac.$consumables.{$ware}.$price?">
+              <set_value name="$price" exact="this.$ut_cac.$consumables.{$ware}.$price"/>
             </do_if>
             <do_else>
               <set_value name="$price" exact="$ware.averageprice"/>
@@ -534,7 +534,7 @@ $entity  = ' + $entity"/>
             <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
             <set_value name="$amount" exact="[ 
                 $selloffer.offeramount, 
-                ( if this.$ut_cac_settings.$consumables.{$ware}? then this.$ut_cac_settings.$consumables.{$ware}.$target + this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count - $incomingamount, 
+                ( if this.$ut_cac.$consumables.{$ware}? then this.$ut_cac.$consumables.{$ware}.$target + this.$ut_cac.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count - $incomingamount, 
                 this.container.cargo.{$ware}.free - $incomingamount, 
                 $entity.ship.cargo.{$ware}.free, 
                 (this.money/$selloffer.unitprice)i 
@@ -550,21 +550,21 @@ $entity  = ' + $entity"/>
               <continue/>
             </do_if>
             <do_if value="$wareslist_buysell.{$i} == 'buy consumable'">
-              <do_if value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == true">
+              <do_if value="this.$ut_cac.$consumables.{$ware}.$unbundle == true">
                 <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
               </do_if>
-              <do_elseif value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == 'target'">
-                <set_value name="$bundledamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery , $amount].min"/>
+              <do_elseif value="this.$ut_cac.$consumables.{$ware}.$unbundle == 'target'">
+                <set_value name="$bundledamount" exact="[this.$ut_cac.$consumables.{$ware}.$onetimedelivery , $amount].min"/>
                 <do_if value="$bundledamount lt $amount">
-                  <set_value name="$unbundleamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$target , $amount - $bundledamount].min"/>
+                  <set_value name="$unbundleamount" exact="[this.$ut_cac.$consumables.{$ware}.$target , $amount - $bundledamount].min"/>
                   <create_trade_offer name="$buyoffer2" buyer="this.container" object="this.container" amount="$unbundleamount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
                 </do_if>
                 <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$bundledamount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
               </do_elseif>
-              <do_elseif value="this.$ut_cac_settings.$consumables.{$ware}.$unbundle == 'onetimedelivery'">
-                <set_value name="$unbundleamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$target , $amount].min"/>
+              <do_elseif value="this.$ut_cac.$consumables.{$ware}.$unbundle == 'onetimedelivery'">
+                <set_value name="$unbundleamount" exact="[this.$ut_cac.$consumables.{$ware}.$target , $amount].min"/>
                 <do_if value="$bundledamount lt $amount">
-                  <set_value name="$bundledamount" exact="[this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery , $amount - $unbundleamount].min"/>
+                  <set_value name="$bundledamount" exact="[this.$ut_cac.$consumables.{$ware}.$onetimedelivery , $amount - $unbundleamount].min"/>
                   <create_trade_offer name="$buyoffer2" buyer="this.container" object="this.container" amount="$bundledamount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
                 </do_if>
                 <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$unbundleamount" ware="$ware" price="$selloffer.unitprice" playeronly="true" unbundle="true"/>
@@ -576,7 +576,7 @@ $entity  = ' + $entity"/>
             <do_else>
               <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
             </do_else>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.offeramount , ( if this.$ut_cac_settings.$consumables.{$ware}? then this.$ut_cac_settings.$consumables.{$ware}.$target + this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count , ( if this.$ut_cac_settings.$consumables.{$ware}? then this.$ut_cac_settings.$consumables.{$ware}.$target + this.$ut_cac_settings.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.offeramount , ( if this.$ut_cac.$consumables.{$ware}? then this.$ut_cac.$consumables.{$ware}.$target + this.$ut_cac.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count , ( if this.$ut_cac.$consumables.{$ware}? then this.$ut_cac.$consumables.{$ware}.$target + this.$ut_cac.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/>
             <!--clamp_trade_amount result="$amount" seller="this.container" seller="$entity.ship" trade="$buyoffer" amount="$amount"/-->
             <do_if value="not $entity.hasownaccount">
               <set_actor_account actor="$entity"/>

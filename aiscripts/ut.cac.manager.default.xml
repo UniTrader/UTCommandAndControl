@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.manager.default" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <params>
+    <param name="params" comment="Persistent Params Table to keep track of what should be done and when"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      
+      <!-- Set up Persistent Vars needed by this Script -->
+      <!-- Set up mining Command (must re-use the same table since i am also using it to store persistent Values) - only $mininglist is updated with every iteration so the miningscript knows what is needed -->
+      <do_if value="not $params.$miningorder?">
+        <set_value name="$params.$miningorder" exact="table[$script='ut.cac.com.manager.gatherressources',$displayname='Gather Ressources (default)',$interruptable=false]"/>
+      </do_if>
+      <!--immediately allow Zone Trading and Mining -->
+      <do_if value="not $params.$next_zonetrade?">
+        <set_value name="$next_zonetrade" exact="player.age"/>
+      </do_if>
+      <do_if value="not $params.$next_miningstep?">
+        <set_value name="$next_miningstep" exact="player.age"/>
+      </do_if>
+      <do_if value="not $params.$next_offerupdate?">
+        <set_value name="$next_offerupdate" exact="player.age"/>
+      </do_if>
+      
+      <!-- register Subordinates - see event Handlers for actual adding procedure -->
+      <!-- ToDo: Externalize to MD - not really fitting in here!!! -->
+      <do_all exact="this.container.subordinates.{this.type}.count" counter="$i">
+        <signal_objects object="this" param="this.container.subordinates.{this.type}.{$i}" param2="'register subordinate'" />
+        <wait exact="1ms"/>
+      </do_all>
+      
+      <!-- Look up what Orders makes sense and append to Orderlist -->
+      <!-- Update Offer/Consumable List for required Drones (every 10 minutes) -->
+      <do_if value="player.age gt $next_offerupdate">
+        <do_if value="this.container.units.count lt this.container.units.maxcount">
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.updateconsumeables',$displayname='Update Consumable Offers (default)',$interruptable=true]"/>
+        </do_if>
+        <set_value name="$next_offerupdate" exact="player.age + 10min"/>
+      </do_if>
+      
+      <!-- check if we have gasses as ressource and can mine them directly -->
+      <do_if value="player.age gt $next_miningstep">
+        <create_list name="$mineable_ressources"/>
+        <do_all exact="this.container.resources.list.count" counter="$i">
+          <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
+          <do_if value="$ware.tags.indexof.{tag.minable} and this.container.cargo.{$ware}.count lt this.container.cargo.{$ware}.target and this.zone.yield.indexof.{$ware}">
+            <get_resource_gatherrate name="$gatherrate" refobject="this.container" ware="$ware" zone="this.zone" />
+            <do_if value="$gatherrate">
+              <append_to_list name="$mineable_ressources" exact="$ware"/>
+            </do_if>
+          </do_if>
+        </do_all>
+        <do_if value="$mineable_ressources.count or ( $miningorder.gatherware? and $miningorder.$gatherstart? and $miningorder.$gatherrate? )">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
+          <set_value name="$miningorder.$wareslist" exact="$mineable_ressources"/>
+          <set_value name="$miningorder.$next_call" exact="1min"/>
+          <signal_objects object="this" param="'new order'" param2="$miningorder"/>
+          <set_value name="$next_miningstep" exact="player.age + 1min"/>
+        </do_if>
+        <do_else>
+          <set_value name="$next_miningstep" exact="player.age + 5min"/>
+        </do_else>
+      </do_if>
+      
+      <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
+      <do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade and not this.$ut_cac.$currenttrade">
+        <set_value name="$next_zonetrade" exact="player.age + 7min"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname='Perform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
+      </do_if>
+      
+      <do_if value="this.$orderlist.count == 0">
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>
+      </do_if>
+      
+      <return/>
+      
+    </actions>
+  </attention>
+</aiscript>

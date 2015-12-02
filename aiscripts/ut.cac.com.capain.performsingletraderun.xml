@@ -100,8 +100,8 @@
       
       <set_command command="$command" param="$trade.owner"/>
       <set_command_action commandaction="commandaction.calculating"/>
-      <do_if value="this.$ut_cac_settings?">
-        <set_value name="this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       
       <!--in case something went wrong while docking - jumps back from line 207 or 218 -->
@@ -153,8 +153,8 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Move to correct Zone:\n$tradepartner.zone= %4'.[player.age,this.name,this.container.name,$tradepartner.zone.knownname]"/>
       <do_if value="this.zone != $tradepartner.zone">
         <set_command_action commandaction="commandaction.flyingto" param="$tradepartner.zone"/>
-        <do_if value="this.$ut_cac_settings?">
-          <set_value name="this.$ut_cac_settings.$isactive"/>
+        <do_if value="this.$ut_cac?">
+          <set_value name="this.$ut_cac.$isactive"/>
         </do_if>
         <run_script name="'ut.cac.move.generic'">
           <param name="destination" value="$tradepartner" />
@@ -165,8 +165,8 @@
       <!-- dock/park at target -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Dock at Trade Station:\n$tradepartner.name=%4'.[player.age,this.name,this.container.name,$tradepartner.knownname]"/>
       <set_command_action commandaction="commandaction.docking"/>
-      <do_if value="this.$ut_cac_settings?">
-        <set_value name="this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l">
         <set_value name="$offer" exact="null" />
@@ -238,8 +238,8 @@
       <!-- to skip the moving/docking in case we are already docked at the right station - jumps forward from line 75 -->
       <label name="execute trade"/>
       <set_command_action commandaction="commandaction.executingtrade"/>
-      <do_if value="this.$ut_cac_settings?">
-        <set_value name="this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Executing Trade, Details:\nWare:%4 Amount:%5 Price:%6 Tradepartner:%7 in %8'.[player.age,this.name,this.container.name,$trade.ware,$trade.amount,$trade.price,$tradepartner.knownname,$tradepartner.zone.knownname]"/>
       <do_if value="$trade.seller.exists" comment="we want to buy something, look for sell offers">
@@ -339,14 +339,14 @@
             <interrupt_after_time time="121min" />
           </execute_trade>
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
-          <do_if value="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery?">
-            <set_value name="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery" operation="subtract" exact="$amount"/>
+          <do_if value="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery?">
+            <set_value name="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery" operation="subtract" exact="$amount"/>
             <!-- if we have all One-Time Orders set the ramaining amount to 0 if below it, and if there is also no target amount remove the Ware completely -->
-            <do_if value="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery le 0 and $trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$target == 0">
-              <remove_value name="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}"/>
+            <do_if value="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery le 0 and $trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$target == 0">
+              <remove_value name="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}"/>
             </do_if>
-            <do_elseif value="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery lt 0">
-              <set_value name="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery" exact="0"/>
+            <do_elseif value="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery lt 0">
+              <set_value name="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery" exact="0"/>
             </do_elseif>
           </do_if>
         </do_elseif>
@@ -370,10 +370,10 @@
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
-          <do_if value="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery?">
-            <set_value name="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery" operation="subtract" exact="$amount"/>
-            <do_if value="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery lt 0">
-              <remove_value name="$trade.buyer.tradenpc.$ut_cac_settings.$consumables.{$trade.ware}.$onetimedelivery"/>
+          <do_if value="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery?">
+            <set_value name="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery" operation="subtract" exact="$amount"/>
+            <do_if value="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery lt 0">
+              <remove_value name="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery"/>
             </do_if>
           </do_if>
         </do_if>

@@ -46,7 +46,7 @@
       
       <set_command command="command.mining" param="$zone"/>
       <set_command_action commandaction="commandaction.calculating" />
-      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+      <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
       
       <wait min="5s" max="15s" />
       
@@ -87,8 +87,8 @@
       
       <!-- Go to Ordered Zone near any Asteroid with the desired Ware to speed up collection start -->
       <set_command_action commandaction="commandaction.flyingto" param="$zone"/>
-      <do_if value="this.$ut_cac_settings?">
-        <set_value name="this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       <run_script name="'ut.cac.move.generic'">
         <param name="destination" value="$zone.sector" />

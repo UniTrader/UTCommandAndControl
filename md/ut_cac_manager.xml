@@ -10,9 +10,9 @@
       <actions>
         <set_value name="$actor" exact="event.param" />
         <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="setting neccesary Variables"/>
-        <set_value name="$actor.$ut_cac_settings.$range" exact="[$actor.sector]"/>
-        <set_value name="$actor.$ut_cac_settings.$range_h" exact="[$actor.sector]"/>
-        <set_value name="$actor.$ut_cac_settings.$range_j" exact="[$actor.sector]"/>
+        <set_value name="$actor.$ut_cac.$range" exact="[$actor.sector]"/>
+        <set_value name="$actor.$ut_cac.$range_h" exact="[$actor.sector]"/>
+        <set_value name="$actor.$ut_cac.$range_j" exact="[$actor.sector]"/>
         <set_actor_max_budget actor="$actor" amount="1000000000Cr"/>
         <transfer_money from="player.entity" to="$actor" amount="500000000Cr"/>
         <debug_text filter="general" text="'%1 now uses UT CAC Manager comm handlers'.[$actor.name]" />
@@ -38,9 +38,9 @@
       </patch>
       <patch sinceversion="12" state="complete">
         <!-- the definition of consumables changed slightly; just updating to current default Values because the changed part was not used yet. -->
-        <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}.$onetimedelivery" exact="param.ut_cac.setting_defaults.$consumables.{ware.fuelcells}.$onetimedelivery"/>
-        <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}.$unbundle" exact="param.ut_cac.setting_defaults.$consumables.{ware.fuelcells}.$unbundle"/>
-        <remove_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}.$type"/>
+        <set_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$onetimedelivery" exact="param.ut_cac.setting_defaults.$consumables.{ware.fuelcells}.$onetimedelivery"/>
+        <set_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$unbundle" exact="param.ut_cac.setting_defaults.$consumables.{ware.fuelcells}.$unbundle"/>
+        <remove_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$type"/>
       </patch>
       <cues>
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
@@ -71,7 +71,7 @@ Rest is shared between all Actor types
             <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
             <do_if value="event.name == 'event_conversation_started'">
               <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <do_if value="$actor.room == player.entity.room">
                   <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
                   <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
@@ -122,7 +122,7 @@ Rest is shared between all Actor types
             <!--                       Settings Menu                          -->
             <!--- ################################### -->
             <do_if value="event.param == 'comm_settings_main'">
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
                   <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
                   <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
@@ -141,43 +141,43 @@ Rest is shared between all Actor types
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_range'">
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
-              <resize_list list="$actor.$ut_cac_settings.$range" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
-              <resize_list list="$actor.$ut_cac_settings.$range_h" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
-              <resize_list list="$actor.$ut_cac_settings.$range_j" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
-              <do_all exact="$actor.$ut_cac_settings.$range.count" counter="$i">
+              <resize_list list="$actor.$ut_cac.$range" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+              <resize_list list="$actor.$ut_cac.$range_h" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+              <resize_list list="$actor.$ut_cac.$range_j" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+              <do_all exact="$actor.$ut_cac.$range.count" counter="$i">
                 <!-- Text Block is for apporiate Coloring of Range Entry - see also deactivated doif/elseif version below (wanted to try stacked inline ifs :D )-->
                 <add_player_choice_sub position="$i" section="comm_settings_range_mod" choiceparam="$i" text="
-                if $actor.$ut_cac_settings.$range.{$i} then
-                ( if $actor.$ut_cac_settings.$range_h.{$i} then 
-                  ( if $actor.$ut_cac_settings.$range_j.{$i} then 
-                    '\033G%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name] else 
-                    '\033Y%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name] )
+                if $actor.$ut_cac.$range.{$i} then
+                ( if $actor.$ut_cac.$range_h.{$i} then 
+                  ( if $actor.$ut_cac.$range_j.{$i} then 
+                    '\033G%1\033X'.[$actor.$ut_cac.$range.{$i}.name] else 
+                    '\033Y%1\033X'.[$actor.$ut_cac.$range.{$i}.name] )
                   else 
-                  ( if $actor.$ut_cac_settings.$range_j.{$i} then 
-                    '\033B%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name] else 
-                    '\033A%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name] )
+                  ( if $actor.$ut_cac.$range_j.{$i} then 
+                    '\033B%1\033X'.[$actor.$ut_cac.$range.{$i}.name] else 
+                    '\033A%1\033X'.[$actor.$ut_cac.$range.{$i}.name] )
                 )
                 else '&gt; &gt; unused &lt; &lt;\033X'" />
                 <do_if value="false">
-                  <do_if value="$actor.$ut_cac_settings.$range.{$i}" >
+                  <do_if value="$actor.$ut_cac.$range.{$i}" >
                     <!-- jump and highway Range Slot -->
-                    <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}} and $actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}}">
-                      <add_player_choice_sub text="'\033G%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                    <do_if value="$actor.$ut_cac.$range_h.indexof.{$actor.$ut_cac.$range.{$i}} and $actor.$ut_cac.$range_h.indexof.{$actor.$ut_cac.$range.{$i}}">
+                      <add_player_choice_sub text="'\033G%1\033X'.[$actor.$ut_cac.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
                     </do_if>
                     <!-- jump Range Slot -->
-                    <do_elseif value="$actor.$ut_cac_settings.$range_j.indexof.{$actor.$ut_cac_settings.$range.{$i}}">
-                      <add_player_choice_sub text="'\033B%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                    <do_elseif value="$actor.$ut_cac.$range_j.indexof.{$actor.$ut_cac.$range.{$i}}">
+                      <add_player_choice_sub text="'\033B%1\033X'.[$actor.$ut_cac.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
                     </do_elseif>
                     <!-- highway Range Slot -->
-                    <do_elseif value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$i}}">
-                      <add_player_choice_sub text="'\033Y%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                    <do_elseif value="$actor.$ut_cac.$range_h.indexof.{$actor.$ut_cac.$range.{$i}}">
+                      <add_player_choice_sub text="'\033Y%1\033X'.[$actor.$ut_cac.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
                     </do_elseif>
                     <!-- only passthrough Range -->
                     <do_else>
-                      <add_player_choice_sub text="'\033A%1\033X'.[$actor.$ut_cac_settings.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                      <add_player_choice_sub text="'\033A%1\033X'.[$actor.$ut_cac.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
                     </do_else>
                   </do_if>
                   <!-- unused Range Slot -->
@@ -190,17 +190,17 @@ Rest is shared between all Actor types
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_mod'">
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <set_value name="$slot" exact="event.param2"/>
-              <do_if value="$actor.$ut_cac_settings.$range.{$slot}">
-                <add_player_choice text="if $actor.$ut_cac_settings.$range_j.{$slot} then {5554103,2411} else {5554103,2412}" position="1" section="comm_settings_range_toggle_jump"/>
-                <add_player_choice text="if $actor.$ut_cac_settings.$range_h.{$slot} then {5554103,2413} else {5554103,2414}" position="2" section="comm_settings_range_toggle_highway"/>
+              <do_if value="$actor.$ut_cac.$range.{$slot}">
+                <add_player_choice text="if $actor.$ut_cac.$range_j.{$slot} then {5554103,2411} else {5554103,2412}" position="1" section="comm_settings_range_toggle_jump"/>
+                <add_player_choice text="if $actor.$ut_cac.$range_h.{$slot} then {5554103,2413} else {5554103,2414}" position="2" section="comm_settings_range_toggle_highway"/>
                 <add_player_choice text="{5554103,2415}" position="3" section="null" selectable="false"/>
                 <add_player_choice text="{5554103,2416}" position="4" section="comm_settings_range_remove"/>
                 <add_player_choice text="{5554103,2417}" position="5" section="comm_orders_select_space" choiceparam="'comm_settings_range_set'" comment="refering to re-useable Menu Call"/>
-                <do_if value="$actor.hascontext.{$actor.$ut_cac_settings.$range.{$slot}}">
+                <do_if value="$actor.hascontext.{$actor.$ut_cac.$range.{$slot}}">
                   <add_player_choice text="{5554103,2418}" position="6" section="null" selectable="false"/>
                 </do_if>
                 <do_else>
@@ -215,34 +215,34 @@ Rest is shared between all Actor types
             </do_elseif>
               <!-- Toggle Jump range/Not Jump Range by removing/Adding the Space to the related List (same for highway Range) -->
             <do_elseif value="event.param == 'comm_settings_range_toggle_jump'">
-              <do_if value="$actor.$ut_cac_settings.$range_j.{$slot}">
-                <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="null"/>
+              <do_if value="$actor.$ut_cac.$range_j.{$slot}">
+                <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="null"/>
               </do_if>
               <do_else>
-                <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
+                <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="$actor.$ut_cac.$range.{$slot}"/>
               </do_else>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_toggle_highway'">
-              <do_if value="$actor.$ut_cac_settings.$range_h.indexof.{$actor.$ut_cac_settings.$range.{$slot}}">
-                <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="null"/>
+              <do_if value="$actor.$ut_cac.$range_h.indexof.{$actor.$ut_cac.$range.{$slot}}">
+                <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="null"/>
               </do_if>
               <do_else>
-                <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="$actor.$ut_cac_settings.$range.{$slot}"/>
+                <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="$actor.$ut_cac.$range.{$slot}"/>
               </do_else>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_remove'">
-              <set_value name="$actor.$ut_cac_settings.$range.{$slot}" exact="null"/>
-              <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="null"/>
-              <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="null"/>
+              <set_value name="$actor.$ut_cac.$range.{$slot}" exact="null"/>
+              <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="null"/>
+              <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="null"/>
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set'">
-              <set_value name="$actor.$ut_cac_settings.$range.{$slot}" exact="event.param2.{3}"/>
-              <set_value name="$actor.$ut_cac_settings.$range_j.{$slot}" exact="event.param2.{3}"/>
-              <set_value name="$actor.$ut_cac_settings.$range_h.{$slot}" exact="event.param2.{3}"/>
+              <set_value name="$actor.$ut_cac.$range.{$slot}" exact="event.param2.{3}"/>
+              <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
+              <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
@@ -265,7 +265,7 @@ Rest is shared between all Actor types
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_trade_legality_set'">
-              <set_value name="$actor.$ut_cac_settings.$legality" exact="event.param2"/>
+              <set_value name="$actor.$ut_cac.$legality" exact="event.param2"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
           </actions>
@@ -306,7 +306,7 @@ Rest is shared between all Actor types
               <do_all exact="$actor.container.subordinates.count" counter="$i">
                 <set_value name="$fuelcells_targetamount" exact="[$actor.container.subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
               </do_all>
-              <set_value name="$actor.$ut_cac_settings.$consumables.{ware.fuelcells}.$target" exact="$fuelcells_targetamount"/>
+              <set_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$target" exact="$fuelcells_targetamount"/>
             </do_if>
             <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
               <do_if value="@event.param.pilot.$XRCLS and @event.param.pilot.$XRCLS.{1} == true" comment="MT Station Logistics Ship - Ignore as new Subordinate"/>
