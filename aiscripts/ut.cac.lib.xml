@@ -58,8 +58,7 @@
               <do_if value="$new_order_pos == 0" comment="insert as first order interrupting the current one">
                 <do_if value="this.$orderlist.{1}.$interruptable">
                   <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" operation="insert"/>
-                  <abort_scripts entity="this"/>
-                  <resume label="start"/>
+                  <abort_called_scripts resume="start"/>
                 </do_if>
                 <do_else>
                   <set_value name="this.$orderlist.{2}" exact="$new_orders.{$i}" operation="insert"/>
