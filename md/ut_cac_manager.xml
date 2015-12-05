@@ -16,7 +16,8 @@
         <debug_text filter="general" text="'%1 now uses UT CAC Manager comm handlers'.[$actor.name]" />
         <set_comm_handler actor="$actor" customhandler="true" />
         <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
-        <start_script object="$actor" name="'ut.cac.base.manager'"/>
+        <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.manager.default']"/>
+        <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
       </actions>
       <!-- making a break in Version 10 because of overhaul for default settings: these are now taken from the libraries.xml instead of being defined in the Script - old settings should be retained though -->
       <patch sinceversion="4" state="complete">
