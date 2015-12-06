@@ -135,7 +135,7 @@
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Found! Going to get it!'"/>
       <transfer_money from="this.ship.commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'Transferred %1 ( %2 * %3 )Credits from Commander to pay, current account: %4'.[$buyamount * $selloffer.unitprice , $buyamount , $selloffer.unitprice , this.money]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'Transferred %1 ( %2 * %3 )Credits from Commander (%5) to pay, current account: %4'.[$buyamount * $selloffer.unitprice , $buyamount , $selloffer.unitprice , this.money,this.ship.commanderentity.name]"/>
       <add_buy_order object="this.ship" trade="$selloffer" amount="$buyamount" price="$selloffer.unitprice"/>
       <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Refuel (Buy from Offer)',$undock=2,$interruptable=false]"/>
       
