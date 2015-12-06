@@ -1164,30 +1164,25 @@ Which Orders are available depends on entity Type
           <add_player_choice_return text="'(Back)'" position="close" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_script_restart'">
-          <remove_value name="$actor.$ut_cac"/>
+          <remove_value name="$actor.$orderlist"/>
+          <!--remove_value name="$actor.$ut_cac"/>
           <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="Reset to default Settings"/>
           <do_if value="$actor.type == entitytype.manager">
-            <remove_value name="$actor.$orderlist"/>
             <set_value name="$actor.$ut_cac.$range" exact="[$actor.sector]"/>
             <set_value name="$actor.$ut_cac.$range_j" exact="[$actor.sector]"/>
             <set_value name="$actor.$ut_cac.$range_h" exact="[$actor.sector]"/>
-            <start_script object="$actor" name="'ut.cac.base.manager'"/>
+            <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.manager.default']"/>
           </do_if>
           <do_elseif value="$actor.type == entitytype.pilot">
-            <remove_value name="$actor.$orderlist"/>
-            <start_script object="$actor" name="'ut.cac.base.captain'"/>
+            <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.captain.default']"/>
           </do_elseif>
           <do_elseif value="$actor.type == entitytype.commander">
-            <remove_value name="$actor.$orderlist"/>
-            <start_script object="$actor" name="'ut.cac.base.captain'"/>
-          </do_elseif>
-          <do_elseif value="$actor.type == entitytype.manager">
-            <start_script object="$actor" name="'ut.cac.base.manager'"/>
           </do_elseif>
           <do_else>
             <show_notification caption="'ERROR'" details="'Entitytype not supported\n%1'.[$actor.entitytype]"/>
             <debug_text filter="error" text="'Entitytype not supported for Script restart: %1'.[$actor.entitytype]"/>
-          </do_else>
+          </do_else-->
+          <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_toggle'">
