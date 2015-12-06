@@ -50,11 +50,11 @@
             </do_if>
           </do_if>
         </do_all>
-        <do_if value="$mineable_ressources.count or ( $miningorder.gatherware? and $miningorder.$gatherstart? and $miningorder.$gatherrate? )">
+        <do_if value="$mineable_ressources.count or ( $params.$miningorder.gatherware? and $params.$miningorder.$gatherstart? and $params.$miningorder.$gatherrate? )">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
-          <set_value name="$miningorder.$wareslist" exact="$mineable_ressources"/>
-          <set_value name="$miningorder.$next_call" exact="1min"/>
-          <signal_objects object="this" param="'new order'" param2="$miningorder"/>
+          <set_value name="$params.$miningorder.$wareslist" exact="$mineable_ressources"/>
+          <set_value name="$params.$miningorder.$next_call" exact="1min"/>
+          <signal_objects object="this" param="'new order'" param2="$params.$miningorder"/>
           <set_value name="$next_miningstep" exact="player.age + 1min"/>
         </do_if>
         <do_else>

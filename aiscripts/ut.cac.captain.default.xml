@@ -9,7 +9,7 @@
       <!-- Set up Persistent Vars needed by this Script -->
       <!--immediately allow Equipment Check -->
       <do_if value="not $params.$next_equipmentcheck?">
-        <set_value name="$params.$next_equipmentcheck" exact="player.age"/>
+        <set_value name="$params.$next_equipmentcheck" exact="0s" comment="immediately!"/>
       </do_if>
       
       <!-- if there are outstanding Trade Orders: do trade. -->
@@ -32,8 +32,8 @@
         <return/>
       </do_if-->
       
-      <do_if value="player.age gt $next_equipmentcheck">
-        <set_value name="$next_equipmentcheck" exact="player.age + 10min"/>
+      <do_if value="player.age gt $params.$next_equipmentcheck">
+        <set_value name="$params.$next_equipmentcheck" exact="player.age + 10min"/>
         <!-- if we have no fuel for even one Jump - go refueling first (intended to be only called on init if no Fuel is on board to speed things up - Manager will give this order frequently anyway) -->
         <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{this.sector}">
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (default)',$undock=1,$interruptable=true]"/>
