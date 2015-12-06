@@ -181,8 +181,13 @@ Rest is shared between all Actor types
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
+              <add_player_choice text="'\033RH\033X Retreat'" position="1" section="comm_orders_retrat" comment="same Key as the Orders Menu, first Order and Combat for quick Access (Sequence 1 - 1 - 1 - 1 )" />
               <add_player_choice_return text="{5554103,7}" position="6" />
               <add_player_choice_return text="{5554103,7}" position="close" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_retreat'">
+              <!-- ToDo: Write the related Order - i am currently just reserving the Slot here so i will not use it for something else -->
+              <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$displayname='\033RHN\033X Retreat',$order='wait exact',$time=10s,$interruptable=true]"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_flyto_selected'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -272,8 +277,8 @@ Rest is shared between all Actor types
                   <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
                 </do_elseif>
               </do_if>
-              <add_player_choice_sub text="{5554103,231}" position="1" section="comm_settings_jump" selectable="$actor.skill.navigation gt 3"
-                confidence="( @$actor.$ut_cac.$jumptype == 'random' ) * 1 + ( @$actor.$ut_cac.$jumptype == 'auto' ) * 3 + ( @$actor.$ut_cac.$jumptype == 'beacon' ) * 5" comment="confidence shows current Setting: 0 - not set, beacon: 5, Auto: 3, always Random: 1; Selection is only available when Nav Skill is greater than 3" />
+              <add_player_choice_sub text="{5554103,231}" position="1" section="comm_settings_jump" selectable="$actor.skill.navigation gt 3" confidence="( @$actor.$ut_cac.$jumptype == 'random' ) * 1 + ( @$actor.$ut_cac.$jumptype == 'auto' ) * 3 + ( @$actor.$ut_cac.$jumptype == 'beacon' ) * 5" comment="confidence shows current Setting: 0 - not set, beacon: 5, Auto: 3, always Random: 1; Selection is only available when Nav Skill is greater than 3" />
+              <add_player_choice_sub text="'\033RH\033X Behavior: %1'" position="2" section="comm_settings_behavior" comment="Select the main Behavior of this Ship (quick access 2 -2)"/>
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
@@ -296,6 +301,25 @@ Rest is shared between all Actor types
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_jump_insector_toggle'">
               <set_value name="$actor.$ut_cac.$insectorjump" exact="not $actor.$ut_cac.$insectorjump"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_behavior'">
+              <add_player_choice_sub text="'\033RH\033X Station Trader/Miner'" position="1" section="comm_settings_behavior_station_trader" comment="Assign this Ship as Trading/Mining Ship (default)" selectable="this.ship.commanderentity.type == entitytype.manager"/>
+              <add_player_choice_sub text="'\033RH\033X Independent Trader'" position="2" section="comm_settings_behavior_independent_trader" comment="Assign this Ship as free Trader"/>
+              <add_player_choice_sub text="'\033RH\033X Independent Trader'" position="3" section="comm_settings_behavior_independent_trader_yat" comment="Assign this Ship as free Trader (YAT Trade Search)" selectable="false"/>
+              <add_player_choice_return text="'(Back)'" position="6" />
+              <add_player_choice_return text="'(Back)'" position="close" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_behavior_station_trader'">
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.captain.default']"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_behavior_independent_trader'">
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.captain.independent_trader']"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_behavior_independent_trader_yat'">
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.captain.independent_trader_yat']"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
           </actions>
