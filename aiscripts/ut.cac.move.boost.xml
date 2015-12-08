@@ -210,6 +210,10 @@
           <do_if value="this.ship.canboost and not this.ship.isboostactive">
             <start_boost object="this.ship"/>
           </do_if>
+          <do_if value="this.ship == player.ship">
+            <!-- cache Assets of destination if player is on board to make transition smooth -->
+            <precache_hint zone="$targetzone"/>
+          </do_if>
           <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false">
             <position value="$targetpos" />
             <interrupt>
