@@ -36,7 +36,7 @@
         <set_value name="$params.$next_equipmentcheck" exact="player.age + 10min"/>
         <!-- if we have no fuel for even one Jump - go refueling first -->
         <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{this.sector}">
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (default)',$undock=1,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (default)',$undock=2,$interruptable=true]"/>
           <return/>
         </do_if>
         <!-- Check wheter we need some Drones (missing Cargo Drones for Trade & Mining Ships and missing mining Drones for Mining ships trigger re-droning Script every time, otherwise re-droning will be done if below 25% of capacity) -->
@@ -118,12 +118,12 @@
         </do_if>
         <add_buy_order object="this.ship" trade="$selloffer" amount="$amount" price="$selloffer.unitprice"/>
         <add_sell_order object="this.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
-        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=1,$interruptable=false] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=1,$interruptable=false]  ]"/>
+        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=2,$interruptable=true]  ]"/>
       </do_if>
       <do_elseif value="$buyoffer.available">
         <set_value name="$amount" exact="[$selloffer.amount , $buyoffer.amount , this.ship.cargo.{$selloffer.ware}.free , ( this.commanderentity.money + this.money ) / $selloffer.unitprice ].min"/>
         <add_sell_order object="this.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
-        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=1,$interruptable=false] ]"/>
+        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=2,$interruptable=true] ]"/>
       </do_elseif>
       <do_else>
         <!-- nothing to do - wait till better Offers are available -->

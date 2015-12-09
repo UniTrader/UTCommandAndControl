@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.performsingletraderun" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.performsingletraderun" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="13">
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this NOTE: BROKEN, NEEDS FIXING!!! (also does not refresh Reservations from Trade List, call once before with 'refreshreservations' = true to do this)"/>
@@ -302,11 +302,21 @@
           </do_elseif>
         </do_if>
       </do_else>
-
+      
       <!-- tradeoffer found, now transfer cargo -->
       <set_value name="$timeout" exact="player.age + 2h" />
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Commencing Ware Transfer \nWare: %4 Amount here: %5 Amount Partner: %6'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count]"/>
+      
+      <!-- Script shouldnt be Interrupted/aborted at this point anymore -->
+      <set_value name="$params.$interruptable" exact="false"/>
+      
+      <!-- since the Order is almost finished try to get some new Orders in advance if necesary (Orderlist empty and the current Order is the last one)-->
+      <do_if value="this.$orderlist.count le 1 and $params == this.$orderlist.{1}">
+        <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="13">
+          <param name="params" value="this.$ut_cac.$defaultorders"/>
+        </run_script>
+      </do_if>
       
       <do_if value="$tradeoffer.available">
         <do_if value="$tradeoffer.seller.isoperational">

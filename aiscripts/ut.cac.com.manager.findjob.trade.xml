@@ -590,11 +590,11 @@ $entity  = ' + $entity"/>
               <add_sell_order object="$entity.ship" trade="$buyoffer2" amount="$amount" price="$selloffer.unitprice"/>
               <remove_trade_offer object="this.container" tradeoffer="$buyoffer2"/>
               <!-- tell the Ship to get the Wares and bring them back ( ^= 3 single trade runs, because back-delivery has 2 parts ) -->
-              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=false] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=false] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=false] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] ]"/>
+              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] ]"/>
             </do_if>
             <do_else>
               <!-- tell the Ship to get the Wares and bring them back ( ^= 2 single trade runs ) -->
-              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=false] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=false] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] ]"/>
+              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] ]"/>
             </do_else>
             <break/>
           </do_if>
@@ -666,8 +666,8 @@ $entity  = ' + $entity"/>
             <add_buy_order object="$entity.ship" trade="$selloffer" amount="$amount" price="0Cr"/>
             <add_sell_order object="$entity.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
             <remove_trade_offer object="this.container" tradeoffer="$selloffer"/>
-            <!-- tell the Ship to get the Wares and bring them back ( ^= 2 single trade runs ) -->
-            <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=false] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=false] ]"/>
+            <!-- tell the Ship to get the Wares and sell them ( ^= 2 single trade runs ) -->
+            <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=2,$interruptable=true] ]"/>
             <!--do_if value="$entity.$orderlist.{1}.$order == 'wait minmax'">
               <signal_objects object="$entity.ship" param="'next order'"/>
             </do_if-->
