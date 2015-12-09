@@ -41,12 +41,12 @@
         </do_if>
         <!-- Check wheter we need some Drones (missing Cargo Drones for Trade & Mining Ships and missing mining Drones for Mining ships trigger re-droning Script every time, otherwise re-droning will be done if below 25% of capacity) -->
         <do_if value="this.ship.primarypurpose == objectpurpose.trade or this.ship.primarypurpose == objectpurpose.mine">
-          <do_if value="this.ship.units.{unitcategory.transport}.count lt 10">
+          <do_if value="this.ship.units.{unitcategory.transport}.count lt 5">
             <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
             <return/>
           </do_if>
         </do_if>
-        <do_if value="this.ship.units.count lt this.ship.units.count * 0.75">
+        <do_if value="this.ship.units.count lt this.ship.units.maxcount * 0.5">
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
           <return/>
         </do_if>
