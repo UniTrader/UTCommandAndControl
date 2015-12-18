@@ -207,28 +207,21 @@
       <do_while value="( this.zone != $targetzone ) or ( this.ship.distanceto.{$targetpos} gt 5000 )">
         <do_if value="this.ship.canboost or this.ship.isboostactive">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!'.[player.age,this.name,this.container.name]"/>
-          <do_if value="this.ship.canboost and not this.ship.isboostactive">
-            <start_boost object="this.ship"/>
-          </do_if>
           <do_if value="this.ship == player.ship">
             <!-- cache Assets of destination if player is on board to make transition smooth -->
             <precache_hint zone="$targetzone"/>
           </do_if>
-          <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false">
+          <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false" boost="true">
             <position value="$targetpos" />
-            <interrupt>
+            <!--interrupt>
               <conditions>
                 <event_boost_stopped object="this.ship"/>
               </conditions>
               <actions>
                 <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost interrupted'.[player.age,this.name,this.container.name]"/>
               </actions>
-            </interrupt>
+            </interrupt-->
           </move_to>
-          <do_if value="this.ship.isboostactive">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost End'.[player.age,this.name,this.container.name]"/>
-            <stop_boost object="this.ship"/>
-          </do_if>
         </do_if>
         <do_else>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Cannt activate Booster - Snail movement'.[player.age,this.name,this.container.name]"/>
