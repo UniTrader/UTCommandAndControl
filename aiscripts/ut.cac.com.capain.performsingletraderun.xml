@@ -259,12 +259,12 @@
             </do_all>
           </do_elseif>
           <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to happen here, for now just remove Tradeorder and continue with next Order -->
-          <do_if value="not $tradeoffer.available and not $trade.owner == this.ship.commander">
+          <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
             <!-- no fitting Trade found -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting'.[player.age,this.name,this.container.name]"/>
             <resume label="abort trade"/>
           </do_if>
-          <do_elseif value=" not $trade.owner == this.ship.commander and $tradeoffer.offeramount.{this} lt $amount">
+          <do_elseif value="not ($trade.owner == this.ship.commander) and $tradeoffer.offeramount.{this} lt $amount">
             <!-- no Offer with enough Wares found -->
             <!-- ToDo: Adjust Amounts for this Trade and the next Selling Trade -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer amount too low - aborting'.[player.age,this.name,this.container.name]"/>
@@ -299,12 +299,12 @@
             </do_all>
           </do_elseif>
             <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to happen here, for now just remove Tradeorder and continue with next Order -->
-          <do_if value="not $tradeoffer.available and not $trade.owner == this.ship.commander">
+          <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
             <!-- no fitting Trade found -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting (2nd)'.[player.age,this.name,this.container.name]"/>
             <resume label="abort trade"/>
           </do_if>
-          <do_elseif value="not $trade.owner == this.ship.commander and $tradeoffer.offeramount.{this} lt $amount">
+          <do_elseif value="not ($trade.owner == this.ship.commander) and $tradeoffer.offeramount.{this} lt $amount">
             <!-- buyer no longer buys the amount we want to sell -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer amount too low - aborting (2nd)'.[player.age,this.name,this.container.name]"/>
             <resume label="abort trade"/>
