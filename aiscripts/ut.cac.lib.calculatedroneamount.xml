@@ -141,23 +141,40 @@
     <!-- check if we have more units than the count which can be stored, and downsize until we can store all units (but keep all existing drones) -->
     <do_if value="$totalunits gt $object.units.maxcount">
       <set_value name="$i" exact="1"/>
-      <do_while value="$totalunits gt $object.units.maxcount">
-        <!-- reduce unit count by 1 if unit type is in return list, has a value greater than the current amount in stock (or 0 if we only want the default setting ) -->
-        <do_if value="$droneamount.{$unitcategories.{$i}}? and $droneamount.{$unitcategories.{$i}} gt ( if $ignorecurrentunits then 0 else $droneamount.{$unitcategories.{$i}} gt $object.units.{$unitcategories.{$i}}.count )">
-          <set_value name="$droneamount.{$unitcategories.{$i}}" operation="subtract"/>
-          <set_value name="$totalunits" operation="subtract"/>
-        </do_if>
-        <do_if value="$droneamount.{$unitcategories.{$i}}? and $droneamount.{$unitcategories.{$i}} le 0">
-          <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
-        </do_if>
-        <do_if value="$i ge $unitcategories.count">
-          <set_value name="$i" exact="1"/>
+      <set_value name="$droneamount_keys" exact="$droneamount.keys.list"/>
+      <set_value name="$removeunits" exact="($totalunits - $object.units.maxcount) / $droneamount_keys.count"/>
+      <do_all exact="$droneamount_keys.count" counter="$i">
+        <do_if value="$droneamount.{$droneamount_keys.{$i}} gt $removeunits">
+          <set_value name="$droneamount.{$droneamount_keys.{$i}}" operation="subtract" exact="$removeunits"/>
+          <set_value name="$totalunits" operation="subtract" exact="$removeunits"/>
         </do_if>
         <do_else>
-          <set_value name="$i" operation="add"/>
+          <set_value name="$totalunits" operation="subtract" exact="$droneamount.{$unitcategories.{$i}}"/>
+          <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
         </do_else>
-        <debug_text filter="general" text="'shrink Dronelist:\n' + $droneamount" chance="this.$debug * 100"/>
-      </do_while>
+      </do_all>
+      <debug_text filter="general" text="'shrink Dronelist:\n' + $droneamount" chance="this.$debug * 100"/>
+      <!--if we still have too many units reduce amount step-by-step -->
+      <do_if value="$totalunits gt $object.units.maxcount">
+        <set_value name="$i" exact="1"/>
+        <do_while value="$totalunits gt $object.units.maxcount">
+          <!-- reduce unit count by 1 if unit type is in return list, has a value greater than the current amount in stock (or 0 if we only want the default setting ) -->
+          <do_if value="$droneamount.{$unitcategories.{$i}}? and $droneamount.{$unitcategories.{$i}} gt ( if $ignorecurrentunits then 0 else $droneamount.{$unitcategories.{$i}} gt $object.units.{$unitcategories.{$i}}.count )">
+            <set_value name="$droneamount.{$unitcategories.{$i}}" operation="subtract"/>
+            <set_value name="$totalunits" operation="subtract"/>
+          </do_if>
+          <do_if value="$droneamount.{$unitcategories.{$i}}? and $droneamount.{$unitcategories.{$i}} le 0">
+            <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
+          </do_if>
+          <do_if value="$i ge $unitcategories.count">
+            <set_value name="$i" exact="1"/>
+          </do_if>
+          <do_else>
+            <set_value name="$i" operation="add"/>
+          </do_else>
+          <debug_text filter="general" text="'shrink Dronelist stepwise:\n' + $droneamount" chance="this.$debug * 100"/>
+        </do_while>
+      </do_if>
     </do_if>
     
     <!-- subtract existing units and filter out types where amount is 0 or less and turn floats to ints if necesary-->

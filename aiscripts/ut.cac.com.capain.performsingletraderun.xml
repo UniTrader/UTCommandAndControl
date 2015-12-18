@@ -318,10 +318,10 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Commencing Ware Transfer \nWare: %4 Amount here: %5 Amount Partner: %6'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count]"/>
       
       <!-- Script shouldnt be Interrupted/aborted at this point anymore -->
-      <set_value name="$params.$interruptable" exact="false"/>
+      <set_value name="$params.$interruptable" exact="false" chance="$params? * 100"/>
       
-      <!-- since the Order is almost finished try to get some new Orders in advance if necesary (Orderlist empty and the current Order is the last one)-->
-      <do_if value="this.$orderlist.count le 1 and $params == this.$orderlist.{1}">
+      <!-- since the Order is almost finished try to get some new Orders in advance if necesary (Orderlist empty and the current Order is the last one) - only for Script calls via Orderlist/with Params-->
+      <do_if value="$params? and this.$orderlist.count le 1 and $params == this.$orderlist.{1}">
         <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="14">
           <param name="params" value="this.$ut_cac.$defaultorders"/>
         </run_script>
