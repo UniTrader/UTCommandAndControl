@@ -40,13 +40,13 @@ This Script is intended to be called regulary with >the same< Table as $params b
       
       <!-- first check if we already started gathering Ressources and add them to the Station -->
       <do_if value="$params.$gatherware?">
-        <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware"/>
+        <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware" type="sell"/>
         <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$params.$gatherware" />
         <set_value name="$gatherrate" exact="$gatherrate / 3" comment="Station Gas Mining is only 30% as effective as it could be"/>
         <set_value name="$gatherrate" exact="[$gatherrate,$params.$gatherrate].min"/>
         <set_value name="$gathertime" exact="player.age - $params.$gatherstart" />
         <set_value name="$gathered" exact="$gathertime * $gatherrate" />
-        <get_ware_reservation ware="$params.$gatherware" object="this.container" result="$incomingamount"/>
+        <get_ware_reservation ware="$params.$gatherware" object="this.container" result="$incomingamount" type="sell"/>
         <set_value name="$gathered" exact=" [ this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count - $incomingamount , $gathered ].min"/>
         <do_if value="$gathered gt 0">
           <deplete_yield zone="this.zone" container="this.container" ware="$params.$gatherware" amount="$gathered" />
@@ -65,7 +65,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
       <create_list name="$wareslist_prio" exact="$wareslist.count"/>
       <do_all exact="$wareslist.count" counter="$i" reverse="true">
         <do_if value="$wareslist.{$i}.tags.indexof.{tag.liquid}">
-          <get_ware_reservation ware="$wareslist.{$i}" object="this.container" result="$incomingamount"/>
+          <get_ware_reservation ware="$wareslist.{$i}" object="this.container" result="$incomingamount" type="sell"/>
           <set_value name="$wareslist_prio.{$i}" exact="1 - ( ( this.container.cargo.{$wareslist.{$i}}.count + $incomingamount )f  / ( this.container.cargo.{$wareslist.{$i}}.target )f )"/>
           <!-- filter out Wares we dont need (very low demand) and Wares which can not be mined here -->
           <do_if value="$wareslist_prio.{$i} lt 0.003 or not this.zone.yield.indexof.{$wareslist.{$i}}">
@@ -117,7 +117,7 @@ This Script is intended to be called regulary with >the same< Table as $params b
         <return/>
       </do_if>
       <set_value name="$gatherrate" exact="$gatherrate / 3" comment="Station Gas Mining is only 30% as effective as it could be"/>
-      <add_ware_reservation object="this.container" entity="this" ware="$wareslist.{1}" amount="$gatherrate * $next_call"/>
+      <add_ware_reservation object="this.container" entity="this" ware="$wareslist.{1}" amount="$gatherrate * $next_call" type="sell"/>
       <!-- save values to $params to add Ressources on the next call -->
       <set_value name="$params.$gatherstart" exact="player.age" />
       <set_value name="$params.$gatherrate" exact="$gatherrate" />

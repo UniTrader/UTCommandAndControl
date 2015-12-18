@@ -82,7 +82,7 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Starting new mining Run'.[player.age,this.name,this.container.name]"/>
       
       <!-- make Reservations for the Ware we primarily mine  -->
-      <add_ware_reservation object="this.ship.commander" entity="this" ware="$ware" amount="$amount" duration="2h"/>
+      <add_ware_reservation object="this.ship.commander" entity="this" ware="$ware" amount="$amount" duration="2h" type="sell"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reserved Space for %4 units of %5'.[player.age,this.name,this.container.name,$amount,$ware]"/>
       
       <!-- Go to Ordered Zone near any Asteroid with the desired Ware to speed up collection start -->
@@ -115,7 +115,7 @@
       
       
       <!-- Check what we got effectively and plan Trade Orders to get the Wares to the Commander -->
-      <remove_ware_reservation object="$homebase" entity="this" ware="$ware" />
+      <remove_ware_reservation object="$homebase" entity="this" ware="$ware" type="sell"/>
       <do_if value="this.ship.cargo.{$ware}.count and not $mininglist.indexof.{$ware}">
         <create_trade_offer name="$buyoffer" buyer="this.ship.commander" object="this.ship.commander" amount="this.ship.cargo.{$ware}.count" ware="$ware" price="0Cr" playeronly="true"/>
         <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.amount" price="0Cr"/>
@@ -131,7 +131,7 @@
       <do_all exact="$mininglist.count" counter="$i">
         <do_if value="this.ship.cargo.{$mininglist.{$i}}.count">
           <!-- throw out Stuff the Commander doesnt need -->
-          <get_ware_reservation ware="$mininglist.{$i}" object="this.container.commander" result="$incomingamount"/>
+          <get_ware_reservation ware="$mininglist.{$i}" object="this.container.commander" result="$incomingamount" type="sell"/>
           <set_value name="$amount" exact="[this.container.commander.cargo.{$ware}.target - this.container.commander.cargo.{$ware}.count - $incomingamount , this.ship.cargo.{$ware}.count].min"/>
           <do_if value="this.ship.cargo.{$ware}.count gt $amount">
             <!--set_value name="$removeamount" exact="$amount - this.ship.cargo.{$ware}.count"/>
@@ -153,7 +153,7 @@
   </attention>
   <on_abort>
     <do_if value="$homebase.exists">
-      <remove_ware_reservation object="$homebase" entity="this" ware="$ware"/>
+      <remove_ware_reservation object="$homebase" entity="this" ware="$ware" type="sell"/>
     </do_if>
   </on_abort>
 </aiscript>

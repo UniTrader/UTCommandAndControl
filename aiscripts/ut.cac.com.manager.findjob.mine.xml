@@ -66,7 +66,7 @@ $mininglist = ' + $mininglist"/>
       </do_if>
       <wait min="3s" max="15s" />
       <!-- check how much we actually need (either needed by Station or limited by Storage) -->
-      <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
+      <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
       <set_value name="$amount" exact="[this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count - $incomingamount , $entity.ship.cargo.{$ware}.free - $incomingamount ].min"/>
       <!-- $zone is a Return Value!!! -->
       <do_all exact="$range.count" counter="$i" reverse="false">

@@ -112,7 +112,7 @@ $entity  = ' + $entity"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Buying %1'.[$ware]"/>
         </do_else>
         
-        <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
+        <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
         <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.container.cargo.{$ware}.target )f )"/>
         <do_if value="this.container.resources.{$ware}.secondary">
           <set_value name="$prio" exact="$prio * 0.75"/>
@@ -226,7 +226,7 @@ $entity  = ' + $entity"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Buying %1'.[$ware]"/>
         </do_else>
         
-        <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
+        <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
         <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac.$consumables.{$ware}.$target + this.$ut_cac.$consumables.{$ware}.$onetimedelivery )f )"/>
         <set_value name="$prio" exact="$prio * this.$ut_cac.$consumables.{$ware}.$prioritymulti"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio + ' and has a priority multiplier of ' + this.$ut_cac.$consumables.{$ware}.$prioritymulti"/>
@@ -294,7 +294,7 @@ $entity  = ' + $entity"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Selling %1'.[$ware]"/>
         </do_else>
         
-        <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount"/>
+        <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount" type="buy"/>
         <set_value name="$prio" exact="( this.container.cargo.{$ware}.count - $reservedamount )f / ( this.container.cargo.{$ware}.target )f"/>
         <!-- modify prio value (-1.0, but not negative) in case of intermediate ware (should only be sold over the target value ) -->
         <do_if value="this.container.products.{$ware}.intermediate">
@@ -370,7 +370,7 @@ $entity  = ' + $entity"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Trading with %1'.[$ware]"/>
         </do_else>
         
-        <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount"/>
+        <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount" type="sell"/>
         <!-- first calculate the Buy Prio (half prio of Ressources), and insert it ionto the List - then do the same for Sell Prio -->
         <set_value name="$prio" exact="( 1.0 - ( ( this.container.cargo.{$ware}.count + $reservedamount )f  / ( this.container.cargo.{$ware}.target )f ) ) * 0.5"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Tradeware Buying is: ' + $prio"/>
@@ -404,6 +404,7 @@ $entity  = ' + $entity"/>
           </do_else>
         </do_if>
         <!-- Sell Priority -->
+        <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount" type="buy"/>
         <set_value name="$prio" exact="( this.container.cargo.{$ware}.count - $reservedamount )f / ( this.container.cargo.{$ware}.target )f * 0.5"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Tradeware Selling is: ' + $prio"/>
         <!-- no need to include the Wares we dont have in cargo (prio results in 0.0)-->
@@ -531,7 +532,7 @@ $entity  = ' + $entity"/>
             <!--find_buy_offer buyer="this.container" wares="$ware" result="$buyoffer" />
                 <do_if value="not $buyoffer.available"-->
             <!-- create a temp buyoffer so we can add an Trade Order to the Ship -->
-            <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount"/>
+            <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
             <set_value name="$amount" exact="[ 
                 $selloffer.offeramount, 
                 ( if this.$ut_cac.$consumables.{$ware}? then this.$ut_cac.$consumables.{$ware}.$target + this.$ut_cac.$consumables.{$ware}.$onetimedelivery else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count - $incomingamount, 
@@ -646,7 +647,7 @@ $entity  = ' + $entity"/>
           
           <do_if value="$buyoffer.available">
             <debug_text filter="general" chance="@this.$debug * 100" text="'found buy offer: %1 ( %2 %3 %4 %5 )'.[$buyoffer,$buyoffer.owner.knownname,$buyoffer.owner.zone.knownname,$buyoffer.ware,$buyoffer.offeramount]"/>
-            <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount"/>
+            <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount" type="buy"/>
             <set_value name="$amount" exact="[ 
                 $buyoffer.offeramount, 
                 this.container.cargo.{$ware}.count - $reservedamount, 
