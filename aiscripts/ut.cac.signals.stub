@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.signals.stub" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <params>
+    <param name="scriptparams"/>
+    <param name="signalparams"/>
+    <param name="signalcount"/>
+  </params>
+  <init/>
+  <interrupts/>
+  <actions>
+    <do_if value="$signalparams.$signals.count ge $signalcount">
+      <run_script name="this.$ut_cac.$defaultorders.$signals.{$signalcount}">
+        <param name="signalparams" value="$signalparams"/>
+        <param name="signalcount" value="$signalcount + 1"/>
+        <param name="scriptparams" value="$scriptparams"/>
+      </run_script>
+    </do_if>
+    <do_else>
+      <run_script name="$scriptparams.$script">
+        <param name="params" value="$scriptparams"/>
+      </run_script>
+    </do_else>
+  </actions>
+  <on_abort/>
+</aiscript>

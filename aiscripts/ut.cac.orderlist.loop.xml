@@ -4,6 +4,8 @@
   <interrupts>
     <handler>
       <!-- 
+      Signal Handlers for Orderlist Managment
+      
       add a new Order to the queue - param2 = Order List; param3 = Position in List (0=end; 1=first, interrupt current Order (will be repeated), any other Number: Insert at Position)
       Order List Structure is a table, which contains all Info about the Script.
       -->
@@ -106,6 +108,11 @@
         <debug_text filter="error" text="'%1 %2 %3 No default Orders Script - Abort'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
+      <!-- check if we have a Defaultorders Signals Script - if not use a default Stub Script for this -->
+      <do_if value="(not this.$ut_cac.$defaultorders.$signals?) or this.$ut_cac.$defaultorders.$signals.count lt 1">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Falling back to default Signals Script'.[player.age,this.name,this.container.name]"/>
+        <set_value name="this.$ut_cac.$defaultorders.$signals" exact="'[ut.cac.signals.stub]'"/>
+      </do_if>
       
       <!-- set up orderlist -->
       <do_if value="not this.$orderlist?">
@@ -123,9 +130,10 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}"/>
         <do_if value="typeof $order == datatype.table">
-          <set_value name="$order.$interruptable" exact="false"/>
-          <run_script name="$order.$script">
-            <param name="params" value="$order"/>
+          <run_script name="this.$ut_cac.$defaultorders.$signals">
+            <param name="signalparams" value="this.$ut_cac.$defaultorders"/>
+            <param name="signalcount" value="1"/>
+            <param name="scriptparams" value="$order"/>
           </run_script>
         </do_if>
         <!-- If current first Order is still the same as before executing it - remove it from Orderlist so we can continue with the next one - after that wait a split-second to prevent Freezes should something go wrong -->
@@ -154,7 +162,7 @@
   </attention>
   <on_abort>
     <do_if value="this.ship.exists">
-      <!-- remove all trade Orders and Reservations -->
+      <!-- Ship Cleanup: remove all trade Orders and Reservations -->
       <get_trade_from_shoppinglist result="$trades" object="this.ship" multiple="true" />
       <do_all exact="@$trades.count" counter="$i">
         <remove_ware_reservation object="$trades.{$i}.owner" entity="this" ware="$trades.{$i}.ware"/>
@@ -162,9 +170,7 @@
       </do_all>
     </do_if>
     <do_elseif value="this.station.exists">
-      <do_if value="this.container.tradewares.{ware.fuelcells}.exists">
-        <remove_tradeware object="this.container" ware="ware.fuelcells"/>
-      </do_if>
+      <!-- Station Cleanup: Nothing yet -->
     </do_elseif>
   </on_abort>
 </aiscript>
