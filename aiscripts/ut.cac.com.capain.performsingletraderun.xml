@@ -41,15 +41,15 @@
           <!-- Note: trade Orders for the same ware with the same Station are not supported - always just grab the amount you can get in one run. -->
           <do_if value="$trades.{$i}.seller.exists">
             <!-- is this really correct? its the same as in buyer, even the amount, so i wonder how the game differs between sell and buy? -->
-            <add_ware_reservation object="$trades.{$i}.seller" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission" virtual="$trades.{$i}.unbundle"/>
+            <add_ware_reservation object="$trades.{$i}.seller" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission" virtual="$trades.{$i}.unbundle" type="buy"/>
           </do_if>
           <do_elseif value="$trades.{$i}.buyer.exists">
             <do_if value="not $trades.{$i}.unbundle">
-              <add_ware_reservation object="$trades.{$i}.buyer" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission"/>
+              <add_ware_reservation object="$trades.{$i}.buyer" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission" type="sell"/>
             </do_if>
            </do_elseif>
           <do_else>
-            <debug_text filter="error" text="'%1 %2 %3 Ordered Trade %4 (ware: %5 amount: %6 unitprice: %7 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[player.age,this.name,this.container.name,$trades.{$i},$trades.{$i}.ware,$trades.{$i}.amount,$trades.{$i}.unitprice]"/>
+            <debug_text filter="error" text="'%1 %2 %3 Ordered Queue Trade %4 (ware: %5 amount: %6 unitprice: %7 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[player.age,this.name,this.container.name,$trades.{$i},$trades.{$i}.ware,$trades.{$i}.amount,$trades.{$i}.unitprice]"/>
             <remove_trade_order object="this.ship" trade="$trades.{$i}"/>
           </do_else>
         </do_all>
@@ -74,8 +74,17 @@
         </do_if>
       </do_if>
       <do_else>
-        <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission"/>
         <set_value name="$non_shoppinglist_trade"/>
+        <do_if value="$trade.seller.exists">
+          <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
+        </do_if>
+        <do_elseif value="$trade.buyer.exists">
+          <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission" type="sell"/>
+        </do_elseif>
+        <do_else>
+          <debug_text filter="error" text="'%1 %2 %3 Ordered Trade %4 (ware: %5 amount: %6 unitprice: %7 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[player.age,this.name,this.container.name,$trade,$trade.ware,$trade.amount,$trade.unitprice]"/>
+          <return/>
+        </do_else>
       </do_else>
       
       <set_command command="$command" param="$trade.owner"/>
@@ -203,8 +212,8 @@
           <param name="destination" value="$tradepartner" />
         </run_script>
         <do_if value="not $dockresult">
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not docked? retrying after short delay (also removing ware reservation since i assume something is wrong!)'.[player.age,this.name,this.container.name]"/>
+          <!--remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission"/-->
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not docked? retrying after short delay'.[player.age,this.name,this.container.name]"/>
           <wait min="30s" max="100s" />
           <resume label="retry" comment="line 89" />
         </do_if>
@@ -321,7 +330,7 @@
       <do_if value="$tradeoffer.available">
         <do_if value="$tradeoffer.seller.isoperational">
           <!-- BUY -->
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
+          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
           <execute_trade tradeoffer="$tradeoffer" tradepartner="this.ship" amount="$amount" unbundle="$trade.unbundle" result="$traderesult">
             <interrupt_after_time time="121min" />
           </execute_trade>
@@ -338,7 +347,7 @@
           <execute_trade tradeoffer="$tradeoffer" tradepartner="this.ship" amount="$amount" unbundle="$trade.unbundle" result="$traderesult">
             <interrupt_after_time time="121min" />
           </execute_trade>
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
+          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
           <do_if value="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery?">
             <set_value name="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery" operation="subtract" exact="$amount"/>
             <!-- if we have all One-Time Orders set the ramaining amount to 0 if below it, and if there is also no target amount remove the Ware completely -->
@@ -360,7 +369,7 @@
       <do_elseif value="$trade.owner == this.ship.commander">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No offer found - Exchanging Wares'.[player.age,this.name,this.container.name]"/>
         <do_if value="$trade.seller.isoperational">
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
+          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
           <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
@@ -369,7 +378,7 @@
           <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
+          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
           <do_if value="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery?">
             <set_value name="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery" operation="subtract" exact="$amount"/>
             <do_if value="$trade.buyer.tradenpc.$ut_cac.$consumables.{$trade.ware}.$onetimedelivery lt 0">
