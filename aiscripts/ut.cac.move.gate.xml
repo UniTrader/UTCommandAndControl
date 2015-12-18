@@ -10,7 +10,7 @@
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="gate" default="false" comment="Gate to go through (Must be in the same Zone)"/>
-    <param name="cleargate" default="true" comment="Clear the Gate after Passage? (if set to 2 it will also skip the deactivation of Boosters so we can continue boosting without interruption)"/>
+    <param name="cleargate" default="true" comment="Clear the Gate after Passage?"/>
     
     <param name="queue_position" default="false" comment="position in the Gate queue where Fight Ships add themselves to to pass the Gate before unarmed Ships (false will assume this is the leader and add to the End)"/>
     
@@ -180,19 +180,14 @@
       
       <!-- a very short Boost forward to clear Entry Area (or if not possible right now clear in normal flight) -->
       <do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
-        <do_if value="this.ship.canboost" comment=" and this.ship.pilot.skill.navigation ge 3">
-          <start_boost object="this.ship"/>
-        </do_if>
         <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >
           <position x="0m" y="0m" z="(this.ship.size *3)"/>
         </transform_position>
         <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
-        <move_to object="this.ship" destination="this.zone" >
+        <move_to object="this.ship" destination="this.zone" boost="true" comment="boost=this.ship.pilot.skill.navigation ge 3">
           <position value="$safeposition"/>
+          <interrupt_after_time time="3s"/>
         </move_to>
-        <do_if value="this.ship.isboostactive and $cleargate != 2">
-          <stop_boost object="this.ship"/>
-        </do_if>
       </do_if>
       
     </actions>
