@@ -111,7 +111,7 @@
       <!-- check if we have a Defaultorders Signals Script - if not use a default Stub Script for this -->
       <do_if value="(not this.$ut_cac.$defaultorders.$signals?) or this.$ut_cac.$defaultorders.$signals.count lt 1">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Falling back to default Signals Script'.[player.age,this.name,this.container.name]"/>
-        <set_value name="this.$ut_cac.$defaultorders.$signals" exact="'[ut.cac.signals.stub]'"/>
+        <set_value name="this.$ut_cac.$defaultorders.$signals" exact="['ut.cac.signals.stub']"/>
       </do_if>
       
       <!-- set up orderlist -->
@@ -130,7 +130,7 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}"/>
         <do_if value="typeof $order == datatype.table">
-          <run_script name="this.$ut_cac.$defaultorders.$signals">
+          <run_script name="this.$ut_cac.$defaultorders.$signals.{1}">
             <param name="signalparams" value="this.$ut_cac.$defaultorders"/>
             <param name="signalcount" value="1"/>
             <param name="scriptparams" value="$order"/>
