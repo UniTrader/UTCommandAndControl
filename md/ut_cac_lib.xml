@@ -1090,7 +1090,7 @@ Which Orders are available depends on entity Type
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_cancel_all'">
           <do_all exact="$actor.$orderlist.count" counter="$i" reverse="true">
-            <do_if value="@$actor.$orderlist.{$i}.$interruptable and ( not $i == 1 or event.param2 )" comment="event.param2 == true says that we shall also cancel the first order (see comm_orders_modify)">
+            <do_if value="@$actor.$orderlist.{$i}.$interruptable and ( not ( $i == 1 ) or event.param2 )" comment="event.param2 == true says that we shall also cancel the first order (see comm_orders_modify)">
               <remove_value name="$actor.$orderlist.{$i}"/>
             </do_if>
           </do_all>
