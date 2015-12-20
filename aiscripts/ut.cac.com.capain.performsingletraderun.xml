@@ -66,7 +66,7 @@
       <do_if value="not $trade">
         <get_trade_from_shoppinglist result="$trade" object="this.ship"/>
         <do_if value="not $trade.exists">
-          <debug_text filter="error" text="'%1 %2 %3 No Trade to do given'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 %3 No Trade to do given - exit-ing'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
         <do_if value="$amount == null">
@@ -140,6 +140,8 @@
         <debug_text filter="error" chance="@this.$debug * 100" text="'%1 %2 %3 Ware exchange not supported yet - aborting'.[player.age,this.name,this.container.name]"/>
         <resume label="abort trade"/>
       </do_if>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Parameters:\nthis.money: %4 trade.price: %5 $amount: %6'.[player.age,this.name,this.container.name,this.money,$trade.price,$amount]"/>
       
       <do_if value="@this.ship.parkedat.container == $tradepartner">
         <!-- skip the movement step if we are already there -->
