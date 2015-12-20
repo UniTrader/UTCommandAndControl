@@ -14,7 +14,7 @@
       
       <!-- if there are outstanding Trade Orders: do trade. -->
       <get_trade_from_shoppinglist object="this.ship" result="$trade"/>
-      <do_if value="$trade.exists">
+      <do_if value="$trade.exists and not ( this.$orderlist.{1}.$script == 'ut.cac.com.captain.performsingletraderun')">
         <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (default)',$repeat=0,$interruptable=true]"/>
         <return/>
       </do_if>
