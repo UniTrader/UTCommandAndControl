@@ -72,10 +72,12 @@
               </do_elseif>
               <do_else>
                 <set_value name="this.$orderlist.{2}" exact="$new_orders.{$i}" operation="insert"/>
+                <signal_objects object="this" param="'new order received'" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
               </do_else>
             </do_if>
             <do_else comment="insert order at specific position in queue">
               <set_value name="this.$orderlist.{$new_order_pos}" exact="$new_orders.{$i}" operation="insert"/>
+              <signal_objects object="this" param="'new order received'" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
             </do_else>
           </do_all>
         </do_if>
