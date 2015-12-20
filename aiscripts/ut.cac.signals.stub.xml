@@ -8,10 +8,20 @@
   <init/>
   <interrupts/>
   <actions>
+    <!-- remove unneeded Signal Bind or increase $signalcount-->
+    <do_if value="this.$ut_cac.$defaultorders.$signals.count gt 1">
+      <remove_value name="this.$ut_cac.$defaultorders.$signals.{$signalcount}"/>
+      <return value="false" comment="Signal was removed - previous Script should set up the next Signals or start the Main Script "/>
+    </do_if>
+    <do_else>
+      <set_value name="$signalcount" operation="add"/>
+    </do_else>
+    <!-- run next Signal bind Script or the Intended Task which should be performed -->
+    <label name="set up next signal"/>
     <do_if value="$signalparams.$signals.count ge $signalcount">
-      <run_script name="this.$ut_cac.$defaultorders.$signals.{$signalcount}">
+      <run_script name="this.$ut_cac.$defaultorders.$signals.{$signalcount}" result="$result">
         <param name="signalparams" value="$signalparams"/>
-        <param name="signalcount" value="$signalcount + 1"/>
+        <param name="signalcount" value="$signalcount"/>
         <param name="scriptparams" value="$scriptparams"/>
       </run_script>
     </do_if>
@@ -19,7 +29,12 @@
       <run_script name="$scriptparams.$script">
         <param name="params" value="$scriptparams"/>
       </run_script>
+      <set_value name="$result" exact="true" comment="Main Script (last) has exit-ed - no need to set up further signals"/>
     </do_else>
+    <do_if value="$result == false">
+      <resume label="set up next signal"/>
+    </do_if>
+    <return value="true" comment="Signal was set up sucessfully and Signal Stack can dissolve"/>
   </actions>
   <on_abort/>
 </aiscript>
