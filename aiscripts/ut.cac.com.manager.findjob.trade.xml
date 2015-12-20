@@ -227,7 +227,7 @@ $entity  = ' + $entity"/>
         </do_else>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
-        <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) + ( if this.$ut_cac.$consumables.{$ware}.$onetimedelivery? then this.$ut_cac.$consumables.{$ware}.$onetimedelivery else 0 )f )"/>
+        <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) + ( if this.$ut_cac.$consumables.{$ware}.$onetimedelivery? then this.$ut_cac.$consumables.{$ware}.$onetimedelivery else 0) )f )"/>
         <set_value name="$prio" exact="$prio * this.$ut_cac.$consumables.{$ware}.$prioritymulti"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio + ' and has a priority multiplier of ' + this.$ut_cac.$consumables.{$ware}.$prioritymulti"/>
         <!-- no need to include the Wares where we have the desired amount -->
