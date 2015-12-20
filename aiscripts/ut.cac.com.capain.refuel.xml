@@ -144,13 +144,14 @@
       <!-- execute next Trade without undocking if the Trade partner is the same -->
       <do_if value="$undock==2">
         <get_trade_from_shoppinglist object="this.ship" result="$trade" />
+        
         <do_if value="this.ship.parkedat.exists">
           <set_value name="$tradepartner" exact="this.ship.parkedat"/>
         </do_if>
         <do_elseif value="this.ship.dockedat.exists">
           <set_value name="$tradepartner" exact="this.ship.dockedat"/>
         </do_elseif>
-        <do_if value="$tradepartner.exists and ($trade.seller == $tradepartner or $trade.buyer == $tradepartner)">
+        <do_if value="$tradepartner.exists and $trade.exists and ($trade.seller == $tradepartner or $trade.buyer == $tradepartner)">
           <set_value name="$undock" exact="false"/>
         </do_if>
         <do_else>
