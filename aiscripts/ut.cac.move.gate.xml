@@ -113,7 +113,7 @@
       
       <!-- calculate Approach Position and rotation which lies behind the gate to use it as efficient as possible  -->
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
-        <position x="0m" y="0m" z="0 - ( $gate.size + this.ship.size ) / 2 "/>
+        <position x="0m" y="0m" z="0 - ( $gate.size + this.ship.size )"/>
       </transform_position>
       <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="this.ship"/>
       <create_orientation name="$rotation" orientation="look_at" refobject="$gate">
@@ -125,18 +125,6 @@
         <position value="$safeposition" />
         <rotation value="$rotation" />
       </move_to>
-      
-      
-      <!-- ======= Old Temp Code ======== -->
-      <!-- fly to said position - temporary usage of vanilla scripts here -->
-      <!-- will be replaced by my own Movement Script -->
-      <!--run_script name="'move.generic'" >
-        <param name="destination" value="$gate.zone" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
-        <param name="position" value="$safeposition" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
-        <param name="lookat" value="$gate.position" comment="position the ship should point to - overridden by rotation"/>
-        <param name="nojump" value="true" comment="set true to prevent Big ships from using their jumpdrive (only use for insector movement - for review when we have capship in-sector boosters)"/>
-      </run_script-->
-      <!-- ======= End Old Temp Code ======== -->
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
       
@@ -184,7 +172,7 @@
           <position x="0m" y="0m" z="(this.ship.size *3)"/>
         </transform_position>
         <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
-        <move_to object="this.ship" destination="this.zone" boost="true" comment="boost=this.ship.pilot.skill.navigation ge 3">
+        <move_to object="this.ship" destination="this.zone" boost="true" flightbehaviour="steering" comment="boost=this.ship.pilot.skill.navigation ge 3">
           <position value="$safeposition"/>
           <interrupt_after_time time="3s"/>
         </move_to>
