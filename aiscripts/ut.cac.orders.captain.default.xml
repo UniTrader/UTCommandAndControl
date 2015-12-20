@@ -42,40 +42,52 @@
         <!-- Check wheter we need some Drones (missing Cargo Drones for Trade & Mining Ships and missing mining Drones for Mining ships trigger re-droning Script every time, otherwise re-droning will be done if below 25% of capacity) -->
         <do_if value="this.ship.primarypurpose == objectpurpose.trade">
           <do_if value="this.ship.units.{unitcategory.transport}.count lt 5">
-            <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
-            <return/>
+            <run_script name="'ut.cac.com.captain.restockdrones'">
+              <param name="onlysector" value="true"/>
+            </run_script>
           </do_if>
         </do_if>
         <find_object_component name="$miningturret" object="this.ship" macro="macro.turret_medium_ml_macro"/>
         <do_if value="$miningturret.exists or this.ship.primarypurpose == objectpurpose.mine">
           <remove_value name="$miningturret"/>
           <do_if value="this.ship.units.{unitcategory.transport}.count lt 5">
-            <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
-            <return/>
+            <run_script name="'ut.cac.com.captain.restockdrones'">
+              <param name="onlysector" value="true"/>
+            </run_script>
           </do_if>
           <do_if value="this.ship.cargo.tags.indexof.{tag.liquid}">
             <do_if value="this.ship.units.{unitcategory.gascollector}.count lt 5">
-              <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
-              <return/>
+              <run_script name="'ut.cac.com.captain.restockdrones'">
+                <param name="onlysector" value="true"/>
+              </run_script>
             </do_if>
           </do_if>
           <do_if value="this.ship.cargo.tags.indexof.{tag.bulk}">
             <do_if value="this.ship.units.{unitcategory.orecollector}.count lt 5">
-              <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
-              <return/>
+              <run_script name="'ut.cac.com.captain.restockdrones'">
+                <param name="onlysector" value="true"/>
+              </run_script>
             </do_if>
           </do_if>
         </do_if>
         <remove_value name="$miningturret"/>
         <do_if value="this.ship.units.count lt this.ship.units.maxcount * 0.5">
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.restockdrones',$displayname='Restock Drones (default)',$onlysector=true,$interruptable=true]"/>
-          <return/>
+          <run_script name="'ut.cac.com.captain.restockdrones'">
+            <param name="onlysector" value="true"/>
+          </run_script>
         </do_if>
       </do_if>
       
       <!-- Cargobay (more than) half full without any other orders, so its dead weight - empty it. -->
       <do_if value="this.ship.cargo.free lt this.ship.cargo.capacity/2">
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.emptycargo',$displayname='Empty Cargobay (default)',$onlysector=true,$interruptable=true]"/>
+        <run_script name="'ut.cac.com.captain.emptycargo'">
+          <param name="onlysector" value="true"/>
+        </run_script>
+      </do_if>
+      
+      <!-- received new Maintinence Orders from himself - execute them first -->
+      <!--wait exact="10ms" comment="wait for possible new Orders received by called Scripts"-->
+      <do_if value="this.$orderlist.count gt 0">
         <return/>
       </do_if>
       
