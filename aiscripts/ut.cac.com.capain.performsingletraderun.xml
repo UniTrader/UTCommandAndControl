@@ -141,7 +141,7 @@
         <resume label="abort trade"/>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Parameters:\nthis.money: %4 trade.price: %5 $amount: %6'.[player.age,this.name,this.container.name,this.money,$trade.price,$amount]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Parameters:\nthis.money: %4 trade.price: %5 $amount: %6 $trade.ware: %7'.[player.age,this.name,this.container.name,this.money,$trade.price,$amount,$trade.ware]"/>
       
       <do_if value="@this.ship.parkedat.container == $tradepartner">
         <!-- skip the movement step if we are already there -->
@@ -242,12 +242,13 @@
       <do_if value="this.$ut_cac?">
         <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Executing Trade, Details:\nWare:%4 Amount:%5 Price:%6 Tradepartner:%7 in %8'.[player.age,this.name,this.container.name,$trade.ware,$amount,$trade.price,$tradepartner.knownname,$tradepartner.zone.knownname]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Executing Trade, Details:\nWare:%4 Amount:%5 Price:%6 Tradepartner:%7 in %8, this.money:%9'.[player.age,this.name,this.container.name,$trade.ware,$amount,$trade.price,$tradepartner.knownname,$tradepartner.zone.knownname,this.money]"/>
       <do_if value="$trade.seller.exists" comment="we want to buy something, look for sell offers">
         <do_if value="not $trade.ismission">
           <set_value name="$tradeoffer" exact="null"/>
           <find_sell_offer result="$tradeoffers" seller="$trade.seller" wares="$trade.ware" tradepartner="this.ship" multiple="true" >
             <offeramount min="$amount" entity="this" />
+            <price max="$trade.unitprice"/>
           </find_sell_offer>
           <do_if value="$tradeoffers.count == 1">
             <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
@@ -260,11 +261,12 @@
               </do_if>
             </do_all>
           </do_elseif>
-          <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to happen here, for now just remove Tradeorder and continue with next Order -->
+          <!-- check if we have valid results and make them "valid" if needed -->
           <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
             <!-- no fitting Trade found -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting'.[player.age,this.name,this.container.name]"/>
-            <resume label="abort trade"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - setting our sheduled Trade as $tradeoffer to force using our reserved price (buy case)'.[player.age,this.name,this.container.name]"/>
+            <set_value name="$tradeoffer" exact="$trade"/>
+            <!--resume label="abort trade"/-->
           </do_if>
           <do_elseif value="not ($trade.owner == this.ship.commander) and $tradeoffer.offeramount.{this} lt $amount">
             <!-- no Offer with enough Wares found -->
@@ -288,6 +290,7 @@
           <set_value name="$tradeoffer" exact="null"/>
           <find_buy_offer result="$tradeoffers" buyer="$trade.buyer" wares="$trade.ware" tradepartner="this.ship" multiple="true" >
             <offeramount min="$amount" entity="this" />
+            <price min="$trade.unitprice"/>
           </find_buy_offer>
           <do_if value="$tradeoffers.count == 1">
             <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
@@ -300,11 +303,12 @@
               </do_if>
             </do_all>
           </do_elseif>
-            <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to happen here, for now just remove Tradeorder and continue with next Order -->
+          <!-- check if we have valid results and make them "valid" if needed -->
           <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
             <!-- no fitting Trade found -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting (2nd)'.[player.age,this.name,this.container.name]"/>
-            <resume label="abort trade"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - setting our sheduled Trade as $tradeoffer to force using our reserved price (sell case)'.[player.age,this.name,this.container.name]"/>
+            <set_value name="$tradeoffer" exact="$trade"/>
+            <!--resume label="abort trade"/-->
           </do_if>
           <do_elseif value="not ($trade.owner == this.ship.commander) and $tradeoffer.offeramount.{this} lt $amount">
             <!-- buyer no longer buys the amount we want to sell -->
@@ -322,8 +326,12 @@
       <!-- Script shouldnt be Interrupted/aborted at this point anymore -->
       <set_value name="$params.$interruptable" exact="false" chance="$params? * 100"/>
       
-      <!-- since the Order is almost finished try to get some new Orders in advance if necesary (Orderlist empty and the current Order is the last one) - only for Script calls via Orderlist/with Params-->
-      <do_if value="$params? and this.$orderlist.count le 1 and $params == this.$orderlist.{1}">
+      <!-- since the Order is almost finished try to get some new Orders in advance if necesary - only if called with params
+      3 Possible Scenarios where this happens:
+      A) Orderlist is completely empty
+      B) One Order remaining in Orderlist - the current Order
+      C) Two Orders remaining in Orderlist: current one on top, and refuel as second (because refuel may skip itself entirely)-->
+      <do_if value="$params? and (this.$orderlist.count == 0 or this.$orderlist.count == 1 and $params == this.$orderlist.{1} or this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.capain.refuel')">
         <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="14">
           <param name="params" value="this.$ut_cac.$defaultorders"/>
         </run_script>
