@@ -331,14 +331,14 @@
       A) Orderlist is completely empty
       B) One Order remaining in Orderlist - the current Order
       C) Two Orders remaining in Orderlist: current one on top, and refuel as second (because refuel may skip itself entirely)-->
-      <do_if value="$params? and (this.$orderlist.count == 0 or this.$orderlist.count == 1 and $params == this.$orderlist.{1} or ( this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.capain.refuel' ) )">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance'.[player.age,this.name,this.container.name]"/>
+      <do_if value="$params? and (this.$orderlist.count == 0 or ( this.$orderlist.count == 1 and $params == this.$orderlist.{1} ) or ( this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.capain.refuel' ) )">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance, Reason: orderlist empty: %4 last Order: %5 Last Order before refuel: %6'.[player.age,this.name,this.container.name, this.$orderlist.count == 0 , this.$orderlist.count == 1 and $params == this.$orderlist.{1} , ( this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.capain.refuel' )]"/>
         <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="14">
           <param name="params" value="this.$ut_cac.$defaultorders"/>
         </run_script>
       </do_if>
       <do_else>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 NOT Requesting new Orders'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 NOT Requesting new Orders, Reason: orderlist empty: %4 last Order: %5 Last Order before refuel: %6'.[player.age,this.name,this.container.name, this.$orderlist.count == 0 , this.$orderlist.count == 1 and $params == this.$orderlist.{1} , ( this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.capain.refuel' )]"/>
       </do_else>
       
       <do_if value="$tradeoffer.available">
