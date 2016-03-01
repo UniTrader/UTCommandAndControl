@@ -55,6 +55,21 @@ $entity  = ' + $entity"/>
           <set_value name="$miningship" exact="true"/>
         </do_if>
       </do_else>
+      <!-- set Mining as Priority if set up this way -->
+      <do_if value="$miningship">
+        <do_if value="$entity.$ut_cac.$miningpriority?">
+          <set_value name="$miningpriority" exact="$entity.$ut_cac.$miningpriority"/>
+        </do_if>
+        <do_elseif value="this.$ut_cac.$miningpriority?">
+          <set_value name="$miningpriority" exact="this.$ut_cac.$miningpriority"/>
+        </do_elseif>
+        <do_else>
+          <set_value name="$miningpriority" exact="false"/>
+        </do_else>
+      </do_if>
+      <do_else>
+        <set_value name="$miningpriority" exact="false"/>
+      </do_else>
       
       <!-- to suppress unnecesary debug output (dont want to remove it completely yet, but its too verbose) -->
       <set_value name="$debug_detailoutput" exact="false" comment="this.$debug * 100" />
@@ -131,7 +146,7 @@ $entity  = ' + $entity"/>
             <set_value name="$wareslist_buysell.{1}" exact="'buy'" operation="insert"/>
             <!-- set value to indicate that a mineable ware is needed with prio 1.0 right now to prevent looking for other Wares even if they have the same prio -->
             <do_if value="$ware.tags.indexof.{tag.minable} and $miningship">
-              <set_value name="$miningpriority"/>
+              <set_value name="$miningpriority" exact="true"/>
             </do_if>
           </do_if>
           <!-- first Value in the Target List, no need for any Sorting-->
@@ -174,21 +189,21 @@ $entity  = ' + $entity"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'Sorted Ware List to Mine: \n%1'.[$mininglist]"/>
       </do_if>
       
-      <!-- if it is a mining Ship and Mining is very important right now send it directly to mining, no need to search for other stuff yet -->
-      <do_if value="$miningpriority?">
+      <!-- if it is a mining Ship and Mining is very important right now/by Player Choice send it directly to mining, no need to search for other stuff yet -->
+      <do_if value="$miningpriority">
+        <do_all exact="$mininglist.count" counter="$i">
         <debug_text filter="general" chance="@this.$debug * 100" text="'Checking Ressorces for mining: %1 (Priority Case)'.[$mininglist]"/>
-        <run_script name="'ut.cac.com.manager.findjob.mine'" result="$success">
-          <param name="entity" value="$entity"/>
-          <param name="range" value="$range"/>
-          <param name="ware" value="$mininglist.{1}"/>
-          <param name="mininglist" value="$mininglist"/>
-        </run_script>
-        <do_if value="$success">
-          <return/>
-        </do_if>
-        <do_else>
+          <run_script name="'ut.cac.com.manager.findjob.mine'" result="$success">
+            <param name="entity" value="$entity"/>
+            <param name="range" value="$range"/>
+            <param name="ware" value="$mininglist.{$i}"/>
+            <param name="mininglist" value="$mininglist"/>
+          </run_script>
+          <do_if value="$success">
+            <return/>
+          </do_if>
           <remove_value name="$success"/>
-        </do_else>
+        </do_all>
       </do_if>
       
       
