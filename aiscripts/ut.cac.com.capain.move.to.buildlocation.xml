@@ -103,9 +103,11 @@ roughly based on move.buildership but with many changes
           <debug_text filter="error" text="'%1 %2 %3 Buildlocation already taken'.[player.age,this.name,this.container.name]"/>
         </do_if>
         <do_else>
-          <!--Successfully reached build location-->
-          <signal_objects object="this.ship" param="'move.buildership'" param2="true"/>
-          <debug_text filter="general" text="'%1 %2 %3 Moved to Buildlocation'.[player.age,this.name,this.container.name]"/>
+          <!--Successfully reached build location - check if it was the rough location only before sending the sucess signal -->
+          <do_if value="$macro != null">
+            <signal_objects object="this.ship" param="'move.buildership'" param2="true"/>
+            <debug_text filter="general" text="'%1 %2 %3 Moved to Buildlocation'.[player.age,this.name,this.container.name]"/>
+          </do_if>
         </do_else>
       </do_if>
       <do_elseif value="$station">
