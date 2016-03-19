@@ -23,7 +23,7 @@
           <do_if value="event.param == 'request orders'">
             <!-- ToDo: make this more specific/handle more cases -->
             <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=event.param2,$interruptable=false] ]"/>
-            <set_value name="$new_order_pos" exact="0"/>
+            <set_value name="$order_pos" exact="0"/>
           </do_if>
           <do_else>
             <do_if value="typeof event.param2 == datatype.list" negate="true">
@@ -35,19 +35,19 @@
             </do_else>
             <do_if value="event.param == 'interrupt order'">
               <!-- add Order as first one possibly interrupting the current one-->
-              <set_value name="$new_order_pos" exact="0"/>
+              <set_value name="$order_pos" exact="0"/>
             </do_if>
             <do_elseif value="event.param3 gt 1">
               <!-- add Order at specified position -->
-              <set_value name="$new_order_pos" exact="event.param3"/>
+              <set_value name="$order_pos" exact="event.param3"/>
             </do_elseif>
             <do_else>
               <!-- add Order as last one -->
-              <set_value name="$new_order_pos" exact="this.$orderlist.count + 1"/>
+              <set_value name="$order_pos" exact="this.$orderlist.count + 1"/>
             </do_else>
             <!-- make sure the Orderlist Position is valid -->
-            <do_if value="$new_order_pos gt this.$orderlist.count">
-              <set_value name="$new_order_pos" exact="this.$orderlist.count + 1"/>
+            <do_if value="$order_pos gt this.$orderlist.count">
+              <set_value name="$order_pos" exact="this.$orderlist.count + 1"/>
             </do_if>
             <!-- Write Logbook Entry -->
             <do_if value="this.$ut_cac.$loglevel ge param.ut_cac.loglevel.$ordergiven">
@@ -62,7 +62,7 @@
           </do_else>
           <!-- reverse to keep the order of the new orders, we just want the list to be inserted at the specified position and going forward through the list would reverse their order -->
           <do_all exact="$new_orders.count" counter="$i" reverse="true">
-            <do_if value="$new_order_pos == 0" comment="insert as first order interrupting the current one or add the first Order in the List">
+            <do_if value="$order_pos == 0" comment="insert as first order interrupting the current one or add the first Order in the List">
               <do_if value="this.$orderlist.count lt 1">
                 <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" operation="insert"/>
               </do_if>
@@ -76,12 +76,39 @@
               </do_else>
             </do_if>
             <do_else comment="insert order at specific position in queue">
-              <set_value name="this.$orderlist.{$new_order_pos}" exact="$new_orders.{$i}" operation="insert"/>
+              <set_value name="this.$orderlist.{$order_pos}" exact="$new_orders.{$i}" operation="insert"/>
               <signal_objects object="this" param="'new order received'" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
             </do_else>
           </do_all>
+          <remove_value name="$order_pos"/>
         </do_if>
-        <do_elseif value="event.param == 'next order'">
+        <do_elseif value="event.param == 'cancel order'">
+          <!-- a Order Table is given resolve it to the first Order of it in the Orderlist - if not present just abort -->
+          <do_if value="typeof event.param2 == datatype.table">
+            <set_value name="$order_pos" exact="this.orderlist.indexof.{event.param2}"/>
+          </do_if>
+          <!-- in all other cases assume the Order Number itself was passed -->
+          <do_else>
+            <set_value name="$order_pos" exact="event.param2"/>
+          </do_else>
+          <!-- check if the Order Number could be resolved properly and if it is interruptable -->
+          <do_if value="$order_pos and this.$orderlist.{$order_pos}.$interruptable">
+            <!-- check if an abort Script was defined and execute it -->
+            <do_if value="this.$orderlist.{$order_pos}.$abortscript?">
+              <run_interrupt_script name="this.$orderlist.{$order_pos}.$abortscript" >
+                 <param name="params" value="this.$orderlist.{$order_pos}"/>
+                 <param name="order_pos" value="$order_pos"/>
+              </run_interrupt_script>
+            </do_if>
+            <!-- remove Order from Orderlist if its not the first one - otherwise let the next_order Signal handle this -->
+            <do_if value="$order_pos gt 1">
+              <remove_value name="this.$orderlist.{$order_pos}"/>
+              <remove_value name="$order_pos"/>
+            </do_if>
+          </do_if>
+        </do_elseif>
+        <!-- continue with next Order - also handles the case of aborting the first Order -->
+        <do_if value="( event.param == 'next order' or ( event.param == 'cancel order' and $order_pos == 1 ) ) and this.$orderlist.{1}.$interruptable">
           <do_if value="this.$ut_cac.$loglevel ge param.ut_cac.loglevel.$ordergiven and this.$orderlist.{1}.$displayname?">
             <do_if value="this.$orderlist.{2}? and this.$orderlist.{2}.$displayname?">
               <write_to_logbook category="general" object="this.container" interaction="guidance" text="{5554203,112}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname,this.$orderlist.{2}.$displayname]"/>
@@ -93,7 +120,7 @@
           <remove_value name="this.$orderlist.{1}"/>
           <abort_scripts entity="this"/>
           <resume label="start"/>
-        </do_elseif>
+        </do_if>
       </actions>
     </handler>
   </interrupts>

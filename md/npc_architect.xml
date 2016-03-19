@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<diff>
+  <add sel="//cue[@name='DefaultComm']/actions/do_else/do_if[@value='$actor.isplayerowned and $actor.container.buildmodule?']/do_if[@value='not @$station']/do_else">
+      <add_player_choice text="{5554103,9}" section="cArch_UT_CAC" position="bottom_left"/>
+  </add>
+  <add sel="//cue[@name='SectionHandler']/actions/do_else" pos="before">
+    <do_elseif value="event.param == 'cArch_UT_CAC'">
+      <debug_text text="'Start CAC dialogue'" filter="general"/>
+      <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="$actor"/>
+      <cancel_cue cue="Base"/>
+    </do_elseif>
+  </add>
+</diff>

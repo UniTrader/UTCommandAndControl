@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.move.to.buildlocation" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+  Routine for Moving a Ship to a Build Location
+  Can start Moving as soon as the Build Location is decided, the specifics can be delivere/decided later.
+  Will be non-Interruptable once the specifics are decided.
+  When done it will continue with holding the Build Position and if necessary make adjustments.
+roughly based on move.buildership but with many changes
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="buildlocation" default="null" comment="build location"/>
+    <param name="zone" default="null" comment="build location zone"/>
+    <param name="macro" default="null" comment="macro of object to be built"/>
+    <param name="station" default="null" comment="station to move to (has priority over buildlocation + macro)"/>
+  </params>
+  <interrupts>
+    <handler ref="TargetInvalidHandler"/>
+    <!-- Add the previously missing Station Macro so we can move exactly to the intended Position -->
+    <handler>
+      <conditions>
+        <event_object_signalled object="this" param="'Set Build Macro'"/>
+      </conditions>
+      <actions>
+        <set_value name="$macro" exact="event.param2"/>
+        <!-- set Display Values in Command Params for player Feedback -->
+        <set_value name="$params.$displayname" exact="'Moving to Build Position for %1'.[$macro.name]"/>
+        <set_value name="$params.$interruptable" exact="false"/>
+        <debug_text filter="general" text="'%1 %2 %3 Architect build script updated with param: %4 %5'.[player.age,this.name,this.container.name,event.param2]"/>
+        <resume label="start"/>
+      </actions>
+    </handler>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <do_if value="$params">
+        <do_if value="$params.$buildlocation?">
+          <set_value name="$buildlocation" exact="$params.$buildlocation"/>
+        </do_if>
+        <do_if value="$params.$zone?">
+          <set_value name="$zone" exact="$params.$zone"/>
+        </do_if>
+        <do_if value="$params.$macro?">
+          <set_value name="$macro" exact="$params.$macro"/>
+        </do_if>
+        <do_if value="$params.$station?">
+          <set_value name="$station" exact="$params.$station"/>
+        </do_if>
+      </do_if>
+      <debug_text filter="general" text="'%1 %2 %3 Captain move to build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+      <!-- first aquire the Destination Zone and (rough) Position -->
+      <label name="start"/>
+      <do_if value="$station.exists">
+        <do_if value="not $station.buildingmodule">
+          <!-- get the exact Position to move to -->
+          <set_value name="$buildlocation" exact="$station.buildlocation"/>
+          <set_value name="$zone" exact="$station.zone"/>
+          <get_building_position position="$position" object="this.ship" macro="$station.macro" buildlocation="$buildlocation"/>
+          <debug_text filter="general" text="'%1 %2 %3 Moving to build location of existing station: \nstation macro: %4 position: %5'.[player.age,this.name,this.container.name,$station.name,$position]"/>
+        </do_if>
+      </do_if>
+      <do_elseif value="$buildlocation">
+        <!-- ToDo: Get Zone from actual Build Location to prevent errors -->
+        <!--set_value name="$zone" exact="$buildlocation.component.zone"/-->
+        <do_if value="$macro != null">
+          <!-- get the exact Position to move to -->
+          <get_building_position position="$position" object="this.ship" macro="$macro" buildlocation="$buildlocation"/>
+          <set_value name="$lookatpos" exact="$buildlocation.offset"/>
+          <debug_text filter="general" text="'%1 %2 %3 Moving to build location: \nstation macro: %4 position: %5 lookat: %6'.[player.age,this.name,this.container.name,$macro.name,$position,$lookatpos]"/>
+        </do_if>
+        <do_else>
+          <!-- get the rough Position to move to -->
+          <transform_position name="$position" refposition="$buildlocation.offset" refrotation="$buildlocation.rotation">
+            <position x="0m" y="0m" z="-7km"/>
+          </transform_position>
+          <get_safe_pos result="$position" allowyaxis="true" zone="$zone" value="$position" radius="this.ship.size*2" ignored="this.ship"/>
+          <set_value name="$lookatpos" exact="$buildlocation.offset"/>
+          <debug_text filter="general" text="'%1 %2 %3 Moving to rough build location: \nposition: %4 lookat: %5'.[player.age,this.name,this.container.name,$position,$lookatpos]"/>
+        </do_else>
+      </do_elseif>
+      <do_if value="not $zone?">
+        <return value="false"/>
+      </do_if>
+      <run_script name="'ut.cac.move.free'"/>
+      <label name="movetozone"/>
+      <set_command command="command.buildstation"/>
+      <set_command_action commandaction="commandaction.flyingto" param="$zone"/>
+      <leave_formation object="this.ship"/>
+      <!-- fly to given Position -->
+      <get_safe_pos result="$safepos" value="$position" radius="this.ship.size" zone="$zone"/>
+      <set_value name="this.$debug" exact="true"/>
+      <run_script name="'ut.cac.move.generic'">
+        <param name="destination" value="$zone"/>
+        <param name="position" value="$safepos"/>
+        <param name="lookat" value="$buildlocation.offset"/>
+      </run_script>
+      <set_value name="this.$debug" exact="false"/>
+      <debug_text filter="general" text="'%1 %2 %3 Moving to build location end: \n position: %4 rotation: %5'.[player.age,this.name,this.container.name,this.container.position,this.container.rotation]"/>
+      <do_if value="$buildlocation">
+        <do_if value="$buildlocation.child">
+          <!--Build location taken-->
+          <signal_objects object="this.ship" param="'move.buildership'" param2="false"/>
+          <debug_text filter="error" text="'%1 %2 %3 Buildlocation already taken'.[player.age,this.name,this.container.name]"/>
+        </do_if>
+        <do_else>
+          <!--Successfully reached build location-->
+          <signal_objects object="this.ship" param="'move.buildership'" param2="true"/>
+          <debug_text filter="general" text="'%1 %2 %3 Moved to Buildlocation'.[player.age,this.name,this.container.name]"/>
+        </do_else>
+      </do_if>
+      <do_elseif value="$station">
+        <do_if value="$station.buildingmodule">
+          <!--Station already has a building module-->
+          <signal_objects object="this.ship" param="'move.buildership'" param2="false"/>
+          <debug_text filter="error" text="'%1 %2 %3 Station already has a CV'.[player.age,this.name,this.container.name]"/>
+        </do_if>
+        <do_else>
+          <!--Successfully reached station-->
+          <signal_objects object="this.ship" param="'move.buildership'" param2="true"/>
+          <debug_text filter="general" text="'%1 %2 %3 Moved to Station'.[player.age,this.name,this.container.name]"/>
+        </do_else>
+      </do_elseif>
+    </actions>
+  </attention>
+  <on_abort>
+    <!--Ship was aborted-->
+    <debug_text text="'aborting move.buildership'"/>
+    <signal_objects object="this.ship" param="'move.buildership'" param2="false"/>
+  </on_abort>
+</aiscript>
