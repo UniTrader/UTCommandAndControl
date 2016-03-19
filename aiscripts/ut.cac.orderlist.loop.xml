@@ -65,6 +65,7 @@
             <do_if value="$order_pos == 0" comment="insert as first order interrupting the current one or add the first Order in the List">
               <do_if value="this.$orderlist.count lt 1">
                 <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" operation="insert"/>
+                <resume label="start"/>"
               </do_if>
               <do_elseif value="this.$orderlist.{1}.$interruptable">
                 <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" operation="insert"/>
