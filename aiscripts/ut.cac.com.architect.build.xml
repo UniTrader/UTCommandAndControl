@@ -73,12 +73,22 @@
         <!-- Update Params of Captain Movement Script (or call it again in case it already finished) -->
         <do_if value="this.ship.pilot.exists">
           <do_if value="this.ship.pilot.$orderlist.{1}.$script == 'ut.cac.com.captain.move.to.buildlocation'">
+            <set_value name="this.ship.pilot.$orderlist.{1}.$macro" exact="$station"/>
+            <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Moving to Build Position for %1'.[$station.name]"/>
+            <set_value name="this.ship.pilot.$orderlist.{1}.$interruptable" exact="false"/>
             <debug_text filter="general" text="'%1 %2 %3 Signalling Captain about new Plans'.[player.age,this.name,this.container.name]"/>
-            <signal_objects object="this.ship.pilot" param="'Set Build Macro'" param2="$station" />
+            <signal_objects object="this.ship.pilot" param="'Set Build Macro'"/>
           </do_if>
           <do_elseif value="@this.ship.pilot.$orderlist.{2}.$script == 'ut.cac.com.captain.move.to.buildlocation'">
             <set_value name="this.ship.pilot.$orderlist.{2}.$macro" exact="$station"/>
+            <set_value name="this.ship.pilot.$orderlist.{2}.$displayname" exact="'Moving to Build Position for %1'.[$station.name]"/>
             <set_value name="this.ship.pilot.$orderlist.{2}.$interruptable" exact="false"/>
+            <debug_text filter="general" text="'%1 %2 %3 changing queued Order about new Plans'.[player.age,this.name,this.container.name]"/>
+          </do_elseif>
+          <do_elseif value="@this.ship.pilot.$orderlist.{3}.$script == 'ut.cac.com.captain.move.to.buildlocation'">
+            <set_value name="this.ship.pilot.$orderlist.{3}.$macro" exact="$station"/>
+            <set_value name="this.ship.pilot.$orderlist.{3}.$displayname" exact="'Moving to Build Position for %1'.[$station.name]"/>
+            <set_value name="this.ship.pilot.$orderlist.{3}.$interruptable" exact="false"/>
             <debug_text filter="general" text="'%1 %2 %3 changing queued Order about new Plans'.[player.age,this.name,this.container.name]"/>
           </do_elseif>
           <do_else>

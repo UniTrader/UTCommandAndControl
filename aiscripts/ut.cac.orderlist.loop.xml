@@ -65,7 +65,7 @@
             <do_if value="$order_pos == 0" comment="insert as first order interrupting the current one or add the first Order in the List">
               <do_if value="this.$orderlist.count lt 1">
                 <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" operation="insert"/>
-                <resume label="start"/>"
+                <abort_called_scripts resume="start"/>
               </do_if>
               <do_elseif value="this.$orderlist.{1}.$interruptable">
                 <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" operation="insert"/>
@@ -177,7 +177,7 @@
       <label name="find job"/>
       <do_if value="player.age gt $next_default_order_call">
         <!-- limit looking up default orders to once per minute -->
-        <set_value name="$next_default_order_call" exact="player.age + 1min"/>
+        <set_value name="$next_default_order_call" exact="player.age + 10s"/>
         <!-- no outstanding direct orders - call defined Default Orders Script to get new ones -->
         <run_script name="this.$ut_cac.$defaultorders.$script">
           <param name="params" value="this.$ut_cac.$defaultorders"/>

@@ -22,12 +22,8 @@ roughly based on move.buildership but with many changes
         <event_object_signalled object="this" param="'Set Build Macro'"/>
       </conditions>
       <actions>
-        <set_value name="$macro" exact="event.param2"/>
-        <!-- set Display Values in Command Params for player Feedback -->
-        <set_value name="$params.$displayname" exact="'Moving to Build Position for %1'.[$macro.name]"/>
-        <set_value name="$params.$interruptable" exact="false"/>
-        <debug_text filter="general" text="'%1 %2 %3 Architect build script updated with param: %4 %5'.[player.age,this.name,this.container.name,event.param2]"/>
-        <resume label="start"/>
+        <debug_text filter="general" text="'%1 %2 %3 Move Builder Ship - received Updated Orders - restarting.'.[player.age,this.name,this.container.name]"/>
+        <abort_called_scripts resume="start"/>
       </actions>
     </handler>
   </interrupts>
