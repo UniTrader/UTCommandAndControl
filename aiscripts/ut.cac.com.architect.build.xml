@@ -43,7 +43,6 @@
         </do_if>
       </do_if>
       <debug_text filter="general" text="'%1 %2 %3 Architect build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
-      <remove_value name="$params"/>
       
       
       <!-- sanity checks -->
@@ -95,6 +94,7 @@
             <signal_objects object="this.ship.pilot" param="'new order'" param2="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Moving to Build Position for %1'.[$station.name],$buildlocation=$buildlocation,$zone=$zone,$interruptable=false]"/>
             <debug_text filter="general" text="'%1 %2 %3 Giving Moveto buildlocation Order with final Plans'.[player.age,this.name,this.container.name]"/>
           </do_else>
+          <set_value name="this.ship.pilot.$ut_cac.$defaultorders.$script" exact="'ut.cac.orders.captain.buildership'"/>
         </do_if>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Builder Ship has no Pilot - aborting'.[player.age,this.name,this.container.name]"/>
@@ -170,6 +170,7 @@
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
           <construct_station object="this.ship" macro="$station"  buildlocation="$buildlocation" buildplan="buildplan.['a',0]" updatebuild="true"/>
           <remove_build_location_claim buildlocation="$buildlocation"/>
+         <remove_blocked_area blocker="this" zone="this.zone"/>
           <set_value name="$station" exact="this.ship.buildmodule.buildanchor" comment="re-define $station from station type to actual Station"/>
           <!-- create buildplan from now physically present Station -->
           <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
@@ -213,7 +214,9 @@
           <find_object_component name="$specialist" object="$station" entitytype="$specialisttypes.{$i}" />
           <do_if value="not $specialist.exists">
             <find_object_component name="$specialist" object="this.ship" entitytype="$specialisttypes.{$i}" />
-            <start_actor_transport actor="$specialist" target="$station"/>
+            <do_if value="$specialist.exists">
+              <start_actor_transport actor="$specialist" target="$station"/>
+            </do_if>
           </do_if>
         </do_all>
         
@@ -223,27 +226,26 @@
       
       <!-- in the latter case Upgrade Station -->
       <do_else>
-        
-          <add_blocked_area blocker="this" zone="this.zone">
-            <position value="$buildlocation.offset" space="this.zone"/>
-            <rotation value="$buildlocation.rotation"/>
-            <boundingbox max="$station.boundingbox.max" center="$station.boundingbox.center" />
-          </add_blocked_area>
-          <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$station">
-            <position value="$buildlocation.offset" space="this.zone"/>
-            <rotation value="$buildlocation.rotation"/>
-            <boundingbox max="$station.boundingbox.max" center="$station.boundingbox.center" />
+        <!-- ToDo: Make sure we are still in building position!!! if not tell Pilot!!! -->
+        <add_blocked_area blocker="this" zone="this.zone">
+          <position value="this.ship.buildanchor.buildlocation.offset" space="this.zone"/>
+          <rotation value="this.ship.buildanchor.buildlocation.rotation"/>
+          <boundingbox max="this.ship.buildanchor.macro.boundingbox.max" center="this.ship.buildanchor.macro.boundingbox.center" />
+        </add_blocked_area>
+        <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="this.ship.buildanchor.macro">
+          <position value="this.ship.buildanchor.buildlocation.offset" space="this.zone"/>
+          <rotation value="this.ship.buildanchor.buildlocation.rotation"/>
+          <boundingbox max="this.ship.buildanchor.macro.boundingbox.max" center="this.ship.buildanchor.macro.boundingbox.center" />
+        </check_is_area_obstructed>
+        <do_while value="$obstructed" >
+          <wait exact="10s"/>
+          <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="this.ship.buildanchor.macro">
+            <position value="this.ship.buildanchor.buildlocation.offset" space="this.zone"/>
+            <rotation value="this.ship.buildanchor.buildlocation.rotation"/>
+            <boundingbox max="this.ship.buildanchor.macro.boundingbox.max" center="this.ship.buildanchor.macro.boundingbox.center" />
           </check_is_area_obstructed>
-          <do_while value="$obstructed" >
-            <wait exact="10s"/>
-            <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$station">
-              <position value="$buildlocation.offset" space="this.zone"/>
-              <rotation value="$buildlocation.rotation"/>
-              <boundingbox max="$station.boundingbox.max" center="$station.boundingbox.center" />
-            </check_is_area_obstructed>
-          </do_while>
-          <remove_from_player_squad object="this.ship"/>
-          <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
+        </do_while>
+        <connect_to_build_location object="this.ship" buildlocation="this.ship.buildanchor.buildlocation"/>
       </do_else>
       
       <label name="finish"/>
@@ -251,5 +253,7 @@
     </actions>
   </attention>
   <on_abort>
+    <remove_build_location_claim buildlocation="$buildlocation"/>
+    <remove_blocked_area blocker="this" zone="this.zone"/>
   </on_abort>
 </aiscript>

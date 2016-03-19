@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Testing_Cheats" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
+  <cues>
+    <cue name="Cheat_Ship_with_surplus_crew">
+      <actions>
+        <create_ship name="$ship" macro="macro.units_size_xl_builder_ship_macro" zone="player.zone">
+          <owner exact="faction.player"/>
+          <units>
+            <unit category="unitcategory.welder" mk="1" exact="100"/>
+          </units>
+          <safepos x="0m" y="0m" z="-10km" radius="2km"/>
+        </create_ship>
+        <find_dock_location name="$dock" container="$ship" multiple="false" />
+        <create_platform_actor name="$pilot" dockingbay="$dock.component" type="entitytype.pilot"><owner exact="faction.player"/></create_platform_actor>
+        <assign_pilot actor="$pilot" object="$ship"/>
+        <create_platform_actor name="$defencemanager" dockingbay="$dock.component" type="entitytype.defencecontrol"><owner exact="faction.player"/></create_platform_actor>
+        <assign_defence_manager actor="$defencemanager" object="$ship" />
+        <create_platform_actor name="$defencemanager" dockingbay="$dock.component" type="entitytype.defencecontrol"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$engineer" dockingbay="$dock.component" type="entitytype.engineer"><owner exact="faction.player"/></create_platform_actor>
+        <assign_engineer actor="$engineer" object="$ship"/>
+        <create_platform_actor name="$architect" dockingbay="$dock.component" type="entitytype.architect"><owner exact="faction.player"/></create_platform_actor>
+        <assign_architect actor="$architect" object="$ship"/>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.manager"><owner exact="faction.player"/></create_platform_actor>
+        <add_to_player_squad object="$ship"/>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistagriculture"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistpowerstorage"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistfood"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistchemical"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistprecision"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistweapons"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistpharmaceuticals"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistmetals"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistgeophysics"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistsurfacesystems"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistpowersupply"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistaquatics"><owner exact="faction.player"/></create_platform_actor>
+      </actions>
+      <cues>
+        <cue name="Cheat_Build_mats" instantiate="true">
+          <conditions>
+            <event_build_started object="$ship"/>
+          </conditions>
+          <actions>
+            <set_value name="$buildmaterials" exact="$ship.buildmodule.neededslotresources.list.clone"/>
+            <do_all exact="$buildmaterials.count" counter="$i">
+              <add_cargo object="$ship" ware="$buildmaterials.{$i}" exact="$ship.buildmodule.neededslotresources.{$buildmaterials.{$i}}.count"/>
+            </do_all>
+          </actions>
+        </cue>
+      </cues>
+    </cue>
+    <cue name="Cheat_money">
+      <actions>
+        <reward_player money="1000000000Cr"/>
+      </actions>
+    </cue>
+  </cues>
+</mdscript>
