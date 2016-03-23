@@ -10,7 +10,7 @@
     <param name="station" default="null" comment="a Station to Extend, or a Station Macro to build (if $buildlocation is supplied)" />
     <param name="sequence" default="null" comment="the Sequence which shall be Upgraded. supported for extending an existing Station only, not for buildlocations. (will upgrade to the next Stage, or abort if fully built)"/>
     <param name="stage" default="null" comment="optional; to which Stage the previous sequence should be upgraded - defaults to current + 1 (if possible)"/>
-    <param name="buildplanlist" default="null" comment="optional, a List of sequences and the Stage they should be upgraded to (takes priority over sequence and Stage)"/>
+    <!--param name="buildplanlist" default="null" comment="optional, a List of sequences and the Stage they should be upgraded to (takes priority over sequence and Stage) - NOT IMPLEMENTED YET"/-->
     <param name="upgradeplan" default="null" comment="Upgrade Plan for this Part. May be used to change the existing Plan if a Station but no Sequence to Upgrade is provided." />
     <param name="buildplan" default="null" comment="optional, the complete desired buildplan (takes priority over sequence, stage, buildplanlist and upgradeplanlist)"/>
   </params>
@@ -32,9 +32,9 @@
         <do_if value="$params.$stage?">
           <set_value name="$stage" exact="$params.$stage"/>
         </do_if>
-        <do_if value="$params.$buildplanlist?">
+        <!--do_if value="$params.$buildplanlist?">
           <set_value name="$buildplanlist" exact="$params.$buildplanlist"/>
-        </do_if>
+        </do_if-->
         <do_if value="$params.$upgradeplan?">
           <set_value name="$upgradeplan" exact="$params.$upgradeplan"/>
         </do_if>
@@ -82,6 +82,7 @@
             <set_value name="this.ship.pilot.$orderlist.{2}.$macro" exact="$station"/>
             <set_value name="this.ship.pilot.$orderlist.{2}.$displayname" exact="'Moving to Build Position for %1'.[$station.name]"/>
             <set_value name="this.ship.pilot.$orderlist.{2}.$interruptable" exact="false"/>
+            <set_value name="this.ship.pilot.$ut_cac.$orders_locked"/>
             <debug_text filter="general" text="'%1 %2 %3 changing queued Order about new Plans'.[player.age,this.name,this.container.name]"/>
           </do_elseif>
           <do_elseif value="@this.ship.pilot.$orderlist.{3}.$script == 'ut.cac.com.captain.move.to.buildlocation'">
@@ -121,13 +122,13 @@
         </do_if>
         <do_if value="$move_sucess == false">
           <do_if value="not $already_tried_moving?">
-          <debug_text filter="error" text="'%1 %2 %3 Builder Ship couldnt be moved to intended Location - try again'.[player.age,this.name,this.container.name]"/>
-          <set_value name="$already_tried_moving"/>
-          <resume label="move to buildlocation"/>
+            <debug_text filter="error" text="'%1 %2 %3 Builder Ship couldnt be moved to intended Location - try again'.[player.age,this.name,this.container.name]"/>
+            <set_value name="$already_tried_moving"/>
+            <resume label="move to buildlocation"/>
           </do_if>
           <do_else>
-          <remove_build_location_claim buildlocation="$buildlocation"/>
-          <debug_text filter="error" text="'%1 %2 %3 Builder Ship couldnt be moved to intended Location - try again'.[player.age,this.name,this.container.name]"/>
+            <remove_build_location_claim buildlocation="$buildlocation"/>
+            <debug_text filter="error" text="'%1 %2 %3 Builder Ship couldnt be moved to intended Location - abort'.[player.age,this.name,this.container.name]"/>
           <return/>
           </do_else>
         </do_if>
@@ -166,17 +167,11 @@
             </check_is_area_obstructed>
           </do_while>
           <remove_from_player_squad object="this.ship"/>
+          <set_value name="$params.$displayname" exact="'Constructing %1'.[$station.name]"/>
           <set_buildmodule_macro object="this.ship" macro="$station"/>
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
           <construct_station object="this.ship" macro="$station"  buildlocation="$buildlocation" buildplan="buildplan.['a',0]" updatebuild="true"/>
           <remove_build_location_claim buildlocation="$buildlocation"/>
-         <remove_blocked_area blocker="this" zone="this.zone"/>
-          <set_value name="$station" exact="this.ship.buildmodule.buildanchor" comment="re-define $station from station type to actual Station"/>
-          <!-- create buildplan from now physically present Station -->
-          <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
-          <do_all exact="$station.completebuildplan.sequences.count" counter="$i">
-            <append_to_list name="this.$ut_cac.$orderedbuildplanlist" exact="[ $station.completebuildplan.sequences.{$i} , 0 ]"/>
-          </do_all>
           <do_while value="$station.isconstruction">
             <wait min="1h" max="2h">
               <interrupt>
@@ -185,6 +180,13 @@
                 </conditions>
               </interrupt>
             </wait>
+         <remove_blocked_area blocker="this" zone="this.zone"/>
+          <set_value name="$station" exact="this.ship.buildmodule.buildanchor" comment="re-define $station from station type to actual Station"/>
+          <!-- create buildplan from now physically present Station -->
+          <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
+          <do_all exact="$station.completebuildplan.sequences.count" counter="$i">
+            <append_to_list name="this.$ut_cac.$orderedbuildplanlist" exact="[ $station.completebuildplan.sequences.{$i} , 0 ]"/>
+          </do_all>
           </do_while>
           <!-- Station Construction complete  - set commander, start ai -->
           <set_object_commander object="this.ship" commander="$station" type="entitytype.manager"/>
@@ -194,39 +196,32 @@
           <remove_from_player_squad object="this.ship"/>
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
           <restart_build object="$buildlocation.station" buildmodule="this.ship.buildmodule"/>
+          <!-- wait till construction is done -->
+          <do_while value="$station.isconstruction">
+            <wait min="1h" max="2h">
+              <interrupt>
+                <conditions>
+                  <event_build_finished object="this.ship"/>
+                </conditions>
+              </interrupt>
+            </wait>
+          </do_while>
         </do_elseif>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Neither an empty build Location nor a Station to continue - aborting'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_else>
-        <!-- Move all Station personal on board over to the Station (only if not already present)-->
-        <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager"/>
-        <do_if value="$manager.exists and not $station.tradenpc.exists">
-          <start_actor_transport actor="$manager" target="$station"/>
-        </do_if>
-        <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" controlentity="false"/>
-        <do_if value="$defensivenpc.exists and not $station.defencenpc.exists">
-          <start_actor_transport actor="$defensivenpc" target="$station"/>
-        </do_if>
-        <get_production_specialist_types name="$specialisttypes" object="$station" />
-        <do_all exact="$specialisttypes.count" counter="$i">
-          <!-- only ne specialist per type allowed -->
-          <find_object_component name="$specialist" object="$station" entitytype="$specialisttypes.{$i}" />
-          <do_if value="not $specialist.exists">
-            <find_object_component name="$specialist" object="this.ship" entitytype="$specialisttypes.{$i}" />
-            <do_if value="$specialist.exists">
-              <start_actor_transport actor="$specialist" target="$station"/>
-            </do_if>
-          </do_if>
-        </do_all>
-        
-        
-        <resume label="finish"/>
       </do_if>
       
-      <!-- in the latter case Upgrade Station -->
-      <do_else>
+      
+      <!-- Extend existing Station -->
+      <do_elseif value="$sequence != null">
         <!-- ToDo: Make sure we are still in building position!!! if not tell Pilot!!! -->
+        <!-- check if we are still connected to the buildlocation -->
+        <do_if value="not ( this.ship.buildmodule.buildanchor.buildingmodule == this.ship.buildmodule)">
+          <debug_text filter="error" text="'%1 %2 %3 Not connected to Build Location anymore'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_if>
         <add_blocked_area blocker="this" zone="this.zone">
           <position value="this.ship.buildanchor.buildlocation.offset" space="this.zone"/>
           <rotation value="this.ship.buildanchor.buildlocation.rotation"/>
@@ -245,9 +240,50 @@
             <boundingbox max="this.ship.buildanchor.macro.boundingbox.max" center="this.ship.buildanchor.macro.boundingbox.center" />
           </check_is_area_obstructed>
         </do_while>
-        <connect_to_build_location object="this.ship" buildlocation="this.ship.buildanchor.buildlocation"/>
-      </do_else>
+        <do_if value="$stage == null">
+          <!-- if $stage was not supplied use default (current + 1) -->
+          <set_value name="$stage" exact="this.ship.buildmodule.buildanchor.currentbuildplan.{$sequence}.stage + 1"/>
+        </do_if>
+        <do_if value="$stage le this.ship.buildmodule.buildanchor.completebuildplan.{$sequence}.stage">
+          <create_build_plan macro="this.ship.buildanchor.macro" buildplan="$Buildplan" buildplanlist="[]" upgradeplanlist="event.param2.{5}" />
+          <build_object_upgrades buildmodule="this.ship.buildmodule" sequence="$sequence" stage="$stage" buildplan="$Buildplan" buildlimit="$upgrade_buildlimit" updatebuild="true" />
+        </do_if>
+        <do_else>
+          <debug_text filter="error" text="'%1 %2 %3 Trying to Upgrade Station %4 Sequence %5 over buildplan'.[player.age,this.name,this.container.name,this.ship.buildmodule.buildanchor.name,$sequence]"/>
+          <return/>
+        </do_else>
+        <do_while value="$station.isconstruction">
+          <wait min="1h" max="2h">
+            <interrupt>
+              <conditions>
+                <event_build_finished object="this.ship"/>
+              </conditions>
+            </interrupt>
+          </wait>
+        </do_while>
+        <remove_blocked_area blocker="this" zone="this.zone"/>
+      </do_elseif>
       
+      <!-- Move all Station personal on board over to the Station after building, extending and redeploying (only if not already present)-->
+      <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager"/>
+      <do_if value="$manager.exists and not $station.tradenpc.exists">
+        <start_actor_transport actor="$manager" target="$station"/>
+      </do_if>
+      <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" controlentity="false"/>
+      <do_if value="$defensivenpc.exists and not $station.defencenpc.exists">
+        <start_actor_transport actor="$defensivenpc" target="$station"/>
+      </do_if>
+      <get_production_specialist_types name="$specialisttypes" object="$station" />
+      <do_all exact="$specialisttypes.count" counter="$i">
+        <!-- only ne specialist per type allowed -->
+        <find_object_component name="$specialist" object="$station" entitytype="$specialisttypes.{$i}" />
+        <do_if value="not $specialist.exists">
+          <find_object_component name="$specialist" object="this.ship" entitytype="$specialisttypes.{$i}" />
+          <do_if value="$specialist.exists">
+            <start_actor_transport actor="$specialist" target="$station"/>
+          </do_if>
+        </do_if>
+      </do_all>
       <label name="finish"/>
       
     </actions>

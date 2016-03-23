@@ -203,9 +203,9 @@ Rest is shared between all Actor types
                 <do_else>
                   <add_player_choice text="'Build Station'" position="1" section="comm_orders_build" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
                 </do_else>
-                <add_player_choice text="'Upgrade Station'" position="2" section="comm_orders_upgrade" selectable="$actor.ship.buildmodule.buildanchor.exists" />
-                <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" selectable="$actor.ship.buildmodule.buildanchor.exists" />
-                <add_player_choice text="'Detach from Station'" position="4" section="comm_orders_detach" selectable="$actor.ship.buildmodule.buildanchor.exists" />
+                <add_player_choice text="'Upgrade Station'" position="2" section="comm_orders_upgrade" selectable="false and $actor.ship.buildmodule.buildanchor.exists" tooltip="'Not implemented yet'" />
+                <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" selectable="false and $actor.ship.buildmodule.buildanchor.exists" tooltip="'Not implemented yet'" />
+                <add_player_choice text="'Detach from Station'" position="4" section="comm_orders_detach" selectable="false and $actor.ship.buildmodule.buildanchor.exists" tooltip="'Not implemented yet'" />
               </do_if>
               <do_else>
                 <add_player_choice text="'No Buildmodule'" tooltip="'This Ship cannot Build'" position="1" section="comm_orders_build_spaceselected" choiceparam="$actor.zone" selectable="false" />
@@ -286,7 +286,7 @@ Rest is shared between all Actor types
               <do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
                 <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2">
                   <set_value name="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
-                  <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend Sequence %1 to stage %2'.[event.param2,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}],$station=$actor.ship.buildmodule.buildanchor,$sequence=event.param2,$interruptable=false]"/>
+                  <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend Sequence %1 to stage %2'.[event.param2,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}],$sequence=event.param2,$interruptable=false]"/>
                 </do_if>
               </do_all>
             </do_elseif>
