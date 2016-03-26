@@ -7,7 +7,8 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="buildlocation" default="null" comment="can be a Vanilla Build Location (planned: or a List [ $zone/sector, $position, $rotation] ) - if a Station exists there the CV will be deployed to it"/>
     <param name="zone" default="null" comment="Zone where the Build Location is (info cannt be retrieved from buildcon itself)"/>
-    <param name="station" default="null" comment="a Station to Extend, or a Station Macro to build (if $buildlocation is supplied)" />
+    <param name="station" default="null" comment="a Station to deploy to" />
+    <param name="macro" default="null" comment="a Station Macro to build ($buildlocation must be supplied)" />
     <param name="sequence" default="null" comment="the Sequence which shall be Upgraded. supported for extending an existing Station only, not for buildlocations. (will upgrade to the next Stage, or abort if fully built)"/>
     <param name="stage" default="null" comment="optional; to which Stage the previous sequence should be upgraded - defaults to current + 1 (if possible)"/>
     <param name="buildplanlist" default="null" comment="a List of sequences and the Stage  which are currently built ////they should be upgraded to (takes priority over sequence and Stage) "/>
@@ -25,6 +26,9 @@
         </do_if>
         <do_if value="$params.$station?">
           <set_value name="$station" exact="$params.$station"/>
+        </do_if>
+        <do_if value="$params.$macro?">
+          <set_value name="$macro" exact="$params.$macro"/>
         </do_if>
         <do_if value="$params.$sequence?">
           <set_value name="$sequence" exact="$params.$sequence"/>
@@ -52,7 +56,7 @@
         <return/>
       </do_if>
       <!-- if a buildlocation is supplied it either needs an existing Station, or a Station type to be built -->
-      <do_elseif value="$buildlocation and ( typeof $station != datatype.macro or $buildlocation.child.exists )">
+      <do_elseif value="$buildlocation and ( $macro != null or $buildlocation.child.exists )">
         <debug_text filter="error" text="'%1 %2 %3 Architect doesnt know which Station to build or deploy to'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_elseif>
@@ -72,30 +76,32 @@
         <!-- Update Params of Captain Movement Script (or call it again in case it already finished) -->
         <do_if value="this.ship.pilot.exists">
           <do_if value="this.ship.pilot.$orderlist.{1}.$script == 'ut.cac.com.captain.move.to.buildlocation'">
-            <set_value name="this.ship.pilot.$orderlist.{1}.$macro" exact="$station"/>
-            <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Moving to Build Position for %1'.[$station.name]"/>
+            <set_value name="this.ship.pilot.$orderlist.{1}.$macro" exact="$macro"/>
+            <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Moving to Build Position for %1'.[$macro.name]"/>
             <set_value name="this.ship.pilot.$orderlist.{1}.$interruptable" exact="false"/>
             <debug_text filter="general" text="'%1 %2 %3 Signalling Captain about new Plans'.[player.age,this.name,this.container.name]"/>
             <signal_objects object="this.ship.pilot" param="'Set Build Macro'"/>
           </do_if>
           <do_elseif value="@this.ship.pilot.$orderlist.{2}.$script == 'ut.cac.com.captain.move.to.buildlocation'">
-            <set_value name="this.ship.pilot.$orderlist.{2}.$macro" exact="$station"/>
-            <set_value name="this.ship.pilot.$orderlist.{2}.$displayname" exact="'Moving to Build Position for %1'.[$station.name]"/>
+            <set_value name="this.ship.pilot.$orderlist.{2}.$macro" exact="$macro"/>
+            <set_value name="this.ship.pilot.$orderlist.{2}.$displayname" exact="'Moving to Build Position for %1'.[$macro.name]"/>
             <set_value name="this.ship.pilot.$orderlist.{2}.$interruptable" exact="false"/>
             <set_value name="this.ship.pilot.$ut_cac.$orders_locked"/>
             <debug_text filter="general" text="'%1 %2 %3 changing queued Order about new Plans'.[player.age,this.name,this.container.name]"/>
           </do_elseif>
           <do_elseif value="@this.ship.pilot.$orderlist.{3}.$script == 'ut.cac.com.captain.move.to.buildlocation'">
-            <set_value name="this.ship.pilot.$orderlist.{3}.$macro" exact="$station"/>
-            <set_value name="this.ship.pilot.$orderlist.{3}.$displayname" exact="'Moving to Build Position for %1'.[$station.name]"/>
+            <set_value name="this.ship.pilot.$orderlist.{3}.$macro" exact="$macro"/>
+            <set_value name="this.ship.pilot.$orderlist.{3}.$displayname" exact="'Moving to Build Position for %1'.[$macro.name]"/>
             <set_value name="this.ship.pilot.$orderlist.{3}.$interruptable" exact="false"/>
             <debug_text filter="general" text="'%1 %2 %3 changing queued Order about new Plans'.[player.age,this.name,this.container.name]"/>
           </do_elseif>
           <do_else>
-            <signal_objects object="this.ship.pilot" param="'new order'" param2="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Moving to Build Position for %1'.[$station.name],$buildlocation=$buildlocation,$zone=$zone,$interruptable=false]"/>
+            <signal_objects object="this.ship.pilot" param="'new order'" param2="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Moving to Build Position for %1'.[$macro.name],$buildlocation=$buildlocation,$zone=$zone,$interruptable=false]"/>
             <debug_text filter="general" text="'%1 %2 %3 Giving Moveto buildlocation Order with final Plans'.[player.age,this.name,this.container.name]"/>
           </do_else>
           <set_value name="this.ship.pilot.$ut_cac.$defaultorders.$script" exact="'ut.cac.orders.captain.buildership'"/>
+          <!-- save current and max BT here -->
+          <!-- ================================================================================================================================================ -->
         </do_if>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Builder Ship has no Pilot - aborting'.[player.age,this.name,this.container.name]"/>
@@ -151,28 +157,28 @@
           <add_blocked_area blocker="this" zone="this.zone">
             <position value="$buildlocation.offset" space="this.zone"/>
             <rotation value="$buildlocation.rotation"/>
-            <boundingbox max="$station.boundingbox.max" center="$station.boundingbox.center" />
+            <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
           </add_blocked_area>
-          <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$station">
+          <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$macro">
             <position value="$buildlocation.offset" space="this.zone"/>
             <rotation value="$buildlocation.rotation"/>
-            <boundingbox max="$station.boundingbox.max" center="$station.boundingbox.center" />
+            <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
           </check_is_area_obstructed>
           <do_while value="$obstructed" >
             <wait exact="10s"/>
-            <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$station">
+            <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$macro">
               <position value="$buildlocation.offset" space="this.zone"/>
               <rotation value="$buildlocation.rotation"/>
-              <boundingbox max="$station.boundingbox.max" center="$station.boundingbox.center" />
+              <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
             </check_is_area_obstructed>
           </do_while>
           <remove_from_player_squad object="this.ship"/>
-          <set_value name="$params.$displayname" exact="'Constructing %1'.[$station.name]"/>
-          <set_buildmodule_macro object="this.ship" macro="$station"/>
+          <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.name]"/>
+          <set_buildmodule_macro object="this.ship" macro="$macro"/>
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
-          <construct_station object="this.ship" macro="$station"  buildlocation="$buildlocation" buildplan="buildplan.['a',0]" updatebuild="true"/>
+          <construct_station object="this.ship" macro="$macro"  buildlocation="$buildlocation" buildplan="buildplan.['a',0]" updatebuild="true"/>
           <remove_build_location_claim buildlocation="$buildlocation"/>
-          <set_value name="$station" exact="this.ship.buildmodule.buildanchor" comment="re-define $station from station type to actual Station"/>
+          <set_value name="$station" exact="this.ship.buildmodule.buildanchor"/>
           <do_while value="$station.isconstruction">
             <wait min="1h" max="2h">
               <interrupt>
@@ -182,7 +188,7 @@
               </interrupt>
             </wait>
          <remove_blocked_area blocker="this" zone="this.zone"/>
-          <!-- create buildplan from now physically present Station -->
+          <!-- create buildplan from now physically present Station - Will be done earlier oon to plan upgrades in advance..-->
           <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
           <do_all exact="$station.completebuildplan.sequences.count" counter="$i">
             <append_to_list name="this.$ut_cac.$orderedbuildplanlist" exact="[ $station.completebuildplan.sequences.{$i} , 0 ]"/>
@@ -222,7 +228,7 @@
           <debug_text filter="error" text="'%1 %2 %3 Not connected to Build Location anymore'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
-        <set_value name="$station" exact="this.ship.buildmodule.buildanchor" comment="re-define $station from station type to actual Station"/>
+        <set_value name="$station" exact="this.ship.buildmodule.buildanchor"/>
         <add_blocked_area blocker="this" zone="this.zone">
           <position value="$station.buildlocation.offset" space="this.zone"/>
           <rotation value="$station.buildlocation.rotation"/>
