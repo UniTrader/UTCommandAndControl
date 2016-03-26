@@ -247,7 +247,7 @@
         </do_if>
         <do_if value="$stage le $station.completebuildplan.{$sequence}.stage">
           <create_build_plan macro="$station.macro" buildplan="$Buildplan" buildplanlist="[[$sequence,$stage]]" upgradeplanlist="$upgradeplan" />
-          <build_object_upgrades buildmodule="this.ship.buildmodule" sequence="$sequence" stage="$stage" buildplan="$Buildplan" buildlimit="1" updatebuild="true" />
+          <add_build_plan buildmodule="this.ship.buildmodule" buildplan="$Buildplan" updatebuild="true" />
         </do_if>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Trying to Upgrade Station %4 Sequence %5 over buildplan'.[player.age,this.name,this.container.name,$station.name,$sequence]"/>
