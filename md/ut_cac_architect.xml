@@ -148,7 +148,8 @@ Rest is shared between all Actor types
               <!-- Result from build cost menu -->
               <!-- param2 == { selected macro name, buildplanlist, upgradeplanlist } -->
               <set_trade_restrictions object="$actor.container" restricted="true" />
-              <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Build Station (moveto)',$buildlocation=$buildlocation,$zone=$zone,$station=macro.{event.param2.{1}},$upgradeplanlist=event.param2.{3},$interruptable=false]"/>
+              <set_value name="$stationmacro" exact="macro.{event.param2.{1}}"/>
+              <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Build Station (moveto)',$buildlocation=$buildlocation,$zone=$zone,$macro=$stationmacro,$upgradeplanlist=event.param2.{3},$interruptable=false]"/>
             </do_elseif>
             
             <!-- Station Upgrade via UI -->
@@ -286,7 +287,7 @@ Rest is shared between all Actor types
               <do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
                 <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2">
                   <set_value name="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
-                  <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend Sequence %1 to stage %2'.[event.param2,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}],$sequence=event.param2,$upgradeplan=[],$interruptable=false]"/>
+                  <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend: Build %1'.[$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}],$sequence=event.param2,$upgradeplan=[],$interruptable=false]"/>
                 </do_if>
               </do_all>
             </do_elseif>
