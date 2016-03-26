@@ -276,12 +276,12 @@ Rest is shared between all Actor types
                   <set_value name="$purposemacro" exact="$stationmacro.buildpurposemacro.{buildplan.[$sequence,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}+1]}"/>
                   <set_value name="$colorcode" exact="
                   if $purposemacro.isclass.production then '\033O'
-                  elseif $purposemacro.isclass.storage then '\033C'
-                  elseif $purposemacro.isclass.cargobay then '\033C'
-                  elseif $purposemacro.isclass.dronelaunchpad then '\033Y'
-                  elseif $purposemacro.isclass.radar then '\033M'
-                  elseif $purposemacro.isclass.defensible then '\033R'
-                  else '\033B' end"/>
+                  else if $purposemacro.isclass.storage then '\033C'
+                  else if $purposemacro.isclass.cargobay then '\033C'
+                  else if $purposemacro.isclass.dronelaunchpad then '\033Y'
+                  else if $purposemacro.isclass.radar then '\033M'
+                  else if $purposemacro.isclass.defensible then '\033R'
+                  else '\033B'"/>
                   <add_player_choice text="'%1Extend: Build %2\033X'.[$colorcode,$purposemacro.name]" position="$slot" section="comm_orders_extend_dia_selected" choiceparam="$sequence" />
                   <do_if value="$slot ge 6">
                     <break/>
