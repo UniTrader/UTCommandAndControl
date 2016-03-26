@@ -194,7 +194,6 @@ Rest is shared between all Actor types
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <set_value name="$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$interruptable=true]"/>
-              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_signals'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -209,11 +208,9 @@ Rest is shared between all Actor types
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_send_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='signalobject',$interruptable=true,$displayname='Send Signal to %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_wait_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='wait signal',$interruptable=true,$displayname='Wait for Signal on %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             
             <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
@@ -248,9 +245,10 @@ Rest is shared between all Actor types
                   </do_elseif>
                 </do_if>
               </do_else>
-              
+              <signal_objects object="$actor" param="'new order received'" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
               <remove_value name="$prev_order"/>
               <remove_value name="$new_order"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_if>
             
           </actions>
