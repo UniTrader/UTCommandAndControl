@@ -245,8 +245,8 @@ Rest is shared between all Actor types
                 <!-- couldnt find a suitable Build Location - Tell Player  and go back -->
                 <debug_text filter="general" text="'no fitting buildlocation'"/>
                 <add_npc_line speaker="$actor" line="[1014,1015,1020,1019].random" hidechoices="false" comment="reject order" />
-                <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
               </do_else>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_extend_ui'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -295,18 +295,21 @@ Rest is shared between all Actor types
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <!-- Add Upgrade Choices here -->
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_repair'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <!-- Add Repair Choices here -->
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_detach'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <!-- Stuff to do when preparing for Detachment -->
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
             <do_if value="$prev_order? and $new_order?">
@@ -343,6 +346,7 @@ Rest is shared between all Actor types
               
               <remove_value name="$prev_order"/>
               <remove_value name="$new_order"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_if>
             
           </actions>
