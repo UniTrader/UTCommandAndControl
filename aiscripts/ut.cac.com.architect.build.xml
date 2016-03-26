@@ -10,7 +10,7 @@
     <param name="station" default="null" comment="a Station to Extend, or a Station Macro to build (if $buildlocation is supplied)" />
     <param name="sequence" default="null" comment="the Sequence which shall be Upgraded. supported for extending an existing Station only, not for buildlocations. (will upgrade to the next Stage, or abort if fully built)"/>
     <param name="stage" default="null" comment="optional; to which Stage the previous sequence should be upgraded - defaults to current + 1 (if possible)"/>
-    <!--param name="buildplanlist" default="null" comment="optional, a List of sequences and the Stage they should be upgraded to (takes priority over sequence and Stage) - NOT IMPLEMENTED YET"/-->
+    <param name="buildplanlist" default="null" comment="a List of sequences and the Stage  which are currently built ////they should be upgraded to (takes priority over sequence and Stage) "/>
     <param name="upgradeplan" default="null" comment="Upgrade Plan for this Part. May be used to change the existing Plan if a Station but no Sequence to Upgrade is provided." />
     <param name="buildplan" default="null" comment="optional, the complete desired buildplan (takes priority over sequence, stage, buildplanlist and upgradeplanlist)"/>
   </params>
@@ -32,9 +32,9 @@
         <do_if value="$params.$stage?">
           <set_value name="$stage" exact="$params.$stage"/>
         </do_if>
-        <!--do_if value="$params.$buildplanlist?">
+        <do_if value="$params.$buildplanlist?">
           <set_value name="$buildplanlist" exact="$params.$buildplanlist"/>
-        </do_if-->
+        </do_if>
         <do_if value="$params.$upgradeplan?">
           <set_value name="$upgradeplan" exact="$params.$upgradeplan"/>
         </do_if>
