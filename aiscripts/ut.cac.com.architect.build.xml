@@ -222,34 +222,35 @@
           <debug_text filter="error" text="'%1 %2 %3 Not connected to Build Location anymore'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
+        <set_value name="$station" exact="this.ship.buildmodule.buildanchor" comment="re-define $station from station type to actual Station"/>
         <add_blocked_area blocker="this" zone="this.zone">
-          <position value="this.ship.buildanchor.buildlocation.offset" space="this.zone"/>
-          <rotation value="this.ship.buildanchor.buildlocation.rotation"/>
-          <boundingbox max="this.ship.buildanchor.macro.boundingbox.max" center="this.ship.buildanchor.macro.boundingbox.center" />
+          <position value="$station.buildlocation.offset" space="this.zone"/>
+          <rotation value="$station.buildlocation.rotation"/>
+          <boundingbox max="$station.macro.boundingbox.max" center="$station.macro.boundingbox.center" />
         </add_blocked_area>
-        <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="this.ship.buildanchor.macro">
-          <position value="this.ship.buildanchor.buildlocation.offset" space="this.zone"/>
-          <rotation value="this.ship.buildanchor.buildlocation.rotation"/>
-          <boundingbox max="this.ship.buildanchor.macro.boundingbox.max" center="this.ship.buildanchor.macro.boundingbox.center" />
+        <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$station.macro">
+          <position value="$station.buildlocation.offset" space="this.zone"/>
+          <rotation value="$station.buildlocation.rotation"/>
+          <boundingbox max="$station.macro.boundingbox.max" center="$station.macro.boundingbox.center" />
         </check_is_area_obstructed>
         <do_while value="$obstructed" >
           <wait exact="10s"/>
-          <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="this.ship.buildanchor.macro">
-            <position value="this.ship.buildanchor.buildlocation.offset" space="this.zone"/>
-            <rotation value="this.ship.buildanchor.buildlocation.rotation"/>
-            <boundingbox max="this.ship.buildanchor.macro.boundingbox.max" center="this.ship.buildanchor.macro.boundingbox.center" />
+          <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$station.macro">
+            <position value="$station.buildlocation.offset" space="this.zone"/>
+            <rotation value="$station.buildlocation.rotation"/>
+            <boundingbox max="$station.macro.boundingbox.max" center="$station.macro.boundingbox.center" />
           </check_is_area_obstructed>
         </do_while>
         <do_if value="$stage == null">
           <!-- if $stage was not supplied use default (current + 1) -->
-          <set_value name="$stage" exact="this.ship.buildmodule.buildanchor.currentbuildplan.{$sequence}.stage + 1"/>
+          <set_value name="$stage" exact="$station.currentbuildplan.{$sequence}.stage + 1"/>
         </do_if>
-        <do_if value="$stage le this.ship.buildmodule.buildanchor.completebuildplan.{$sequence}.stage">
-          <create_build_plan macro="this.ship.buildanchor.macro" buildplan="$Buildplan" buildplanlist="[]" upgradeplanlist="event.param2.{5}" />
-          <build_object_upgrades buildmodule="this.ship.buildmodule" sequence="$sequence" stage="$stage" buildplan="$Buildplan" buildlimit="$upgrade_buildlimit" updatebuild="true" />
+        <do_if value="$stage le $station.completebuildplan.{$sequence}.stage">
+          <create_build_plan macro="$station.macro" buildplan="$Buildplan" buildplanlist="[]" upgradeplanlist="$upgradeplan" />
+          <build_object_upgrades buildmodule="this.ship.buildmodule" sequence="$sequence" stage="$stage" buildplan="$Buildplan" buildlimit="1" updatebuild="true" />
         </do_if>
         <do_else>
-          <debug_text filter="error" text="'%1 %2 %3 Trying to Upgrade Station %4 Sequence %5 over buildplan'.[player.age,this.name,this.container.name,this.ship.buildmodule.buildanchor.name,$sequence]"/>
+          <debug_text filter="error" text="'%1 %2 %3 Trying to Upgrade Station %4 Sequence %5 over buildplan'.[player.age,this.name,this.container.name,$station.name,$sequence]"/>
           <return/>
         </do_else>
         <do_while value="$station.isconstruction">
