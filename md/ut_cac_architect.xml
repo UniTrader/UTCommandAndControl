@@ -275,12 +275,12 @@ Rest is shared between all Actor types
                 <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2} lt $actor.ship.buildmodule.buildanchor.completebuildplan.{$sequence}.stage">
                   <set_value name="$purposemacro" exact="$stationmacro.buildpurposemacro.{buildplan.[$sequence,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}+1]}"/>
                   <set_value name="$colorcode" exact="
-                  if $purposemacro.isclass.production then '\033O'
+                  if $purposemacro.isclass.production then '\033Y'
                   else if $purposemacro.isclass.storage then '\033C'
                   else if $purposemacro.isclass.cargobay then '\033C'
                   else if $purposemacro.isclass.dronelaunchpad then '\033Y'
                   else if $purposemacro.isclass.radar then '\033M'
-                  else if $purposemacro.isclass.defensible then '\033R'
+                  else if $purposemacro.isclass.destructible then '\033R'
                   else '\033B'"/>
                   <add_player_choice text="'%1Extend: Build %2\033X'.[$colorcode,$purposemacro.name]" position="$slot" section="comm_orders_extend_dia_selected" choiceparam="$sequence" />
                   <do_if value="$slot ge 6">
@@ -296,16 +296,7 @@ Rest is shared between all Actor types
               <do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
                 <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2">
                   <set_value name="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
-                  <set_value name="$purposemacro" exact="$stationmacro.buildpurposemacro.{buildplan.[$sequence,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}"/>
-                  <set_value name="$colorcode" exact="
-                  if $purposemacro.isclass.production then '\033O'
-                  elseif $purposemacro.isclass.storage then '\033C'
-                  elseif $purposemacro.isclass.cargobay then '\033C'
-                  elseif $purposemacro.isclass.dronelaunchpad then '\033Y'
-                  elseif $purposemacro.isclass.radar then '\033M'
-                  elseif $purposemacro.isclass.defensible then '\033R'
-                  else '\033B' end"/>
-                  <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='%1Extend: Build %2\033X'.[$colorcode,$purposemacro.name],$sequence=event.param2,$upgradeplan=[],$interruptable=false]"/>
+                  <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend: Build %1'.[$stationmacro.buildpurposemacro.{buildplan.[$sequence,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}.name],$sequence=event.param2,$upgradeplan=[],$interruptable=false]"/>
                 </do_if>
               </do_all>
             </do_elseif>
