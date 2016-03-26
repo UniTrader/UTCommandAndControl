@@ -10,18 +10,27 @@
           </units>
           <safepos x="0m" y="0m" z="-10km" radius="2km"/>
         </create_ship>
+        <add_to_player_squad object="$ship"/>
+        <!-- Create UT CAC NPCs --> 
         <find_dock_location name="$dock" container="$ship" multiple="false" />
-        <create_platform_actor name="$pilot" dockingbay="$dock.component" type="entitytype.pilot"><owner exact="faction.player"/></create_platform_actor>
+        <create_cue_actor name="$pilot" cue="this"><owner exact="faction.player"/></create_cue_actor>
+        <add_actor_to_platform actor="$pilot" dockingbay="$dock.component"/>
+        <remove_cue_actor actor="$pilot" cue="this"/>
+        <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$pilot"/>
         <assign_pilot actor="$pilot" object="$ship"/>
+        
+        <create_cue_actor name="$architect" cue="this"><owner exact="faction.player"/></create_cue_actor>
+        <add_actor_to_platform actor="$architect" dockingbay="$dock.component"/>
+        <remove_cue_actor actor="$architect" cue="this"/>
+        <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$architect"/>
+        <assign_architect actor="$architect" object="$ship"/>
+        <!-- create NPCs using Vanilla Dialogue -->
         <create_platform_actor name="$defencemanager" dockingbay="$dock.component" type="entitytype.defencecontrol"><owner exact="faction.player"/></create_platform_actor>
         <assign_defence_manager actor="$defencemanager" object="$ship" />
         <create_platform_actor name="$defencemanager" dockingbay="$dock.component" type="entitytype.defencecontrol"><owner exact="faction.player"/></create_platform_actor>
         <create_platform_actor name="$engineer" dockingbay="$dock.component" type="entitytype.engineer"><owner exact="faction.player"/></create_platform_actor>
         <assign_engineer actor="$engineer" object="$ship"/>
-        <create_platform_actor name="$architect" dockingbay="$dock.component" type="entitytype.architect"><owner exact="faction.player"/></create_platform_actor>
-        <assign_architect actor="$architect" object="$ship"/>
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.manager"><owner exact="faction.player"/></create_platform_actor>
-        <add_to_player_squad object="$ship"/>
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistagriculture"><owner exact="faction.player"/></create_platform_actor>
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistpowerstorage"><owner exact="faction.player"/></create_platform_actor>
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistfood"><owner exact="faction.player"/></create_platform_actor>
