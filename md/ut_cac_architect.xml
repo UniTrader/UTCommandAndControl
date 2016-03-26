@@ -273,7 +273,7 @@ Rest is shared between all Actor types
               <do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
                 <set_value name="$sequence" exact="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1}"/>
                 <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2} lt $actor.ship.buildmodule.buildanchor.completebuildplan.{$sequence}.stage">
-                  <add_player_choice text="'Extend Sequence %1 to stage %2'.[$sequence,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}+1]" position="$slot" section="comm_orders_extend_dia_selected" choiceparam="$sequence" />
+                  <add_player_choice text="'Extend: Build %1'.[$stationmacro.buildpurposemacro.{buildplan.[$sequence,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}+1]}]" position="$slot" section="comm_orders_extend_dia_selected" choiceparam="$sequence" />
                   <do_if value="$slot ge 6">
                     <break/>
                   </do_if>
@@ -287,7 +287,7 @@ Rest is shared between all Actor types
               <do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
                 <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2">
                   <set_value name="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
-                  <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend: Build %1'.[$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}],$sequence=event.param2,$upgradeplan=[],$interruptable=false]"/>
+                  <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend: Build %1'.[$stationmacro.buildpurposemacro.{buildplan.[event.param2,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}],$sequence=event.param2,$upgradeplan=[],$interruptable=false]"/>
                 </do_if>
               </do_all>
             </do_elseif>
