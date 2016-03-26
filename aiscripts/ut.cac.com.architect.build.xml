@@ -172,6 +172,7 @@
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
           <construct_station object="this.ship" macro="$station"  buildlocation="$buildlocation" buildplan="buildplan.['a',0]" updatebuild="true"/>
           <remove_build_location_claim buildlocation="$buildlocation"/>
+          <set_value name="$station" exact="this.ship.buildmodule.buildanchor" comment="re-define $station from station type to actual Station"/>
           <do_while value="$station.isconstruction">
             <wait min="1h" max="2h">
               <interrupt>
@@ -181,7 +182,6 @@
               </interrupt>
             </wait>
          <remove_blocked_area blocker="this" zone="this.zone"/>
-          <set_value name="$station" exact="this.ship.buildmodule.buildanchor" comment="re-define $station from station type to actual Station"/>
           <!-- create buildplan from now physically present Station -->
           <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
           <do_all exact="$station.completebuildplan.sequences.count" counter="$i">
