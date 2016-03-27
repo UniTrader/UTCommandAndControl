@@ -125,7 +125,7 @@ Rest is shared between all Actor types
               </do_if>
               <open_conversation_menu menu="BuilderMacrosMenu" param="[0, 0, $actor, $actor.ship, 1]" param2="event.param3"/>
             </do_if>
-            
+			
             <do_elseif value="event.param == 'cArch_selectUpgradesMenu'">
               <add_conversation_view view="closeupdetailmonitor" />
               <do_if value="not $showed_cArch_selectUpgradesMenu?">
@@ -198,7 +198,7 @@ Rest is shared between all Actor types
               </do_if>
               <do_if value="$actor.ship.buildmodule.exists" comment="only available on builder ship">
                 <do_if value="$actor.ship.buildmodule.buildanchor.exists" comment="OR THERE ARE ALREADY BUILD ORDERS GIVEN!!!! "><!-- ToDo: Check for already given Orders in queue !!!!!! -->
-                  <add_player_choice text="'Extend Station (UI)'" position="1" section="comm_orders_extend_ui" selectable="false and $actor.$ut_cac.$orderedbuildplanlist" tooltip="'Not implemented yet'" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
+                  <add_player_choice text="'Extend Station (UI)'" position="1" section="comm_orders_extend_ui" selectable="$actor.$ut_cac.$orderedbuildplanlist" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
                   <add_player_choice text="'Extend Station (Dialogue)'" position="4" section="comm_orders_extend_dia" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
                 </do_if>
                 <do_else>
@@ -258,7 +258,7 @@ Rest is shared between all Actor types
                   <add_npc_line line="1124" comment="This is a list of all available modules for the station." view="closeupdetailmonitor" />
                 </do_else>
               </do_if>
-              <open_conversation_menu menu="BuildTreeMenu" param="[0, 0, $actor, $actor.ship, (not $actor.ship.buildmodule.isbuilding) and (not @$obstructioncheck), 'building', $actor.ship.buildmodule.buildanchor]" param2="event.param3" />
+              <open_conversation_menu menu="UTBuildTreeMenu" param="[0, 0, $actor, $actor.ship, (not $actor.ship.buildmodule.isbuilding) and (not @$obstructioncheck), $actor.ship.buildmodule.buildanchor]" param2="event.param3" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_extend_dia'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -283,6 +283,15 @@ Rest is shared between all Actor types
               <add_player_choice_return text="{5554103,7}" position="6" />
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
+			<!-- UI: UT Buildcost select call -->
+            <do_elseif value="event.param == 'comm_orders_extend_ui_selected'">
+				<do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
+					<do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2.{1}">
+						<set_value name="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
+						<set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend: Build %1'.[$stationmacro.buildpurposemacro.{buildplan.[event.param2.{1},$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}.name],$sequence=event.param2.{1},$upgradeplan=[],$interruptable=false]"/>
+					</do_if>
+				</do_all>
+			</do_elseif>
             <do_elseif value="event.param == 'comm_orders_extend_dia_selected'">
               <do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
                 <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2">
