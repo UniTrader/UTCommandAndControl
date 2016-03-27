@@ -86,13 +86,11 @@ roughly based on move.buildership but with many changes
       <leave_formation object="this.ship"/>
       <!-- fly to given Position -->
       <get_safe_pos result="$safepos" value="$position" radius="this.ship.size" zone="$zone"/>
-      <set_value name="this.$debug" exact="true"/>
       <run_script name="'ut.cac.move.generic'">
         <param name="destination" value="$zone"/>
         <param name="position" value="$safepos"/>
         <param name="lookat" value="$buildlocation.offset"/>
       </run_script>
-      <set_value name="this.$debug" exact="false"/>
       <debug_text filter="general" text="'%1 %2 %3 Moving to build location end: \n position: %4 rotation: %5'.[player.age,this.name,this.container.name,this.container.position,this.container.rotation]"/>
       <do_if value="$buildlocation">
         <do_if value="$buildlocation.child">
