@@ -206,7 +206,7 @@ Rest is shared between all Actor types
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <do_if value="$actor.ship.buildmodule.exists" comment="only available on builder ship">
-                <do_if value="$station.exists" comment="OR THERE ARE ALREADY BUILD ORDERS GIVEN!!!! ">
+                <do_if value="$station? and $station.exists" comment="OR THERE ARE ALREADY BUILD ORDERS GIVEN!!!! ">
                   <add_player_choice text="'Extend Station (UI)'" position="1" section="comm_orders_extend_ui" selectable="$actor.$ut_cac.$orderedbuildplanlist" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
                   <add_player_choice text="'Extend Station (Dialogue)'" position="4" section="comm_orders_extend_dia" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
                 </do_if>
@@ -256,7 +256,6 @@ Rest is shared between all Actor types
                 <debug_text filter="general" text="'no fitting buildlocation'"/>
                 <add_npc_line speaker="$actor" line="[1014,1015,1020,1019].random" hidechoices="false" comment="reject order" />
               </do_else>
-              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_extend_ui'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
