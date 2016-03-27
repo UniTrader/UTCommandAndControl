@@ -154,11 +154,13 @@ Rest is shared between all Actor types
               <create_presentation_cluster name="$TempCluster"/>
               <find_zone name="$TempZone" space="$TempCluster" />
               <create_station name="$TempStation" macro="$stationmacro" owner="faction.neutral" zone="$TempZone"/>
-              <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
+              <set_value name="$actor.$ut_cac.$orderedbuildplanlist" exact="[]"/>
               <do_all exact="$TempStation.completebuildplan.sequences.count" counter="$i">
-                <append_to_list name="this.$ut_cac.$orderedbuildplanlist" exact="[ $TempStation.completebuildplan.sequences.{$i} , 0 ]"/>
+                <append_to_list name="$actor.$ut_cac.$orderedbuildplanlist" exact="[ $TempStation.completebuildplan.sequences.{$i} , 0 ]"/>
               </do_all>
               <set_value name="$station" exact="$TempStation" comment="use the Temp Station until the Station exists (build started)"/>
+              <!-- return to Orders Menu -->
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             
             <!-- Station Upgrade via UI - probably not needed anymore.. -->
