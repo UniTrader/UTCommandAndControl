@@ -65,3 +65,13 @@ You have to set all params from the Table first before doing anything else (or d
 if you need endless loops either just exit at regular intervals and before that add yourself to the end of the this.$orderlist (just add $params to its end to execute your current command with the same params as currently) or check regluary if this.$orderlist.{2}? has been added and terminateto allow the other script to run (and maybe add yourself to the this.$orderlist again; this method is not good because this way the default/fallback orders like refueling or rearming may never be reached, so try to avoid it.)
 or
 you can also modify this table if you want certain values to persist or want to change certain params for the next run.
+
+
+
+
+
+
+==================================================
+Credits:
+Thanks to:
+Itaros - for the Build Tree UI Menu
