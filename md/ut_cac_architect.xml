@@ -150,9 +150,18 @@ Rest is shared between all Actor types
               <set_trade_restrictions object="$actor.container" restricted="true" />
               <set_value name="$stationmacro" exact="macro.{event.param2.{1}}"/>
               <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Build Station (moveto)',$buildlocation=$buildlocation,$zone=$zone,$macro=$stationmacro,$upgradeplanlist=event.param2.{3},$interruptable=false]"/>
+              <!-- create buildplan var from temp station of planned type.. $TempCluster and everything within will be cleared once the first stage is complete-->
+              <create_presentation_cluster name="$TempCluster"/>
+              <find_zone name="$TempZone" space="$TempCluster" />
+              <create_station name="$TempStation" macro="$stationmacro" owner="faction.neutral"/>
+              <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
+              <do_all exact="$TempStation.completebuildplan.sequences.count" counter="$i">
+                <append_to_list name="this.$ut_cac.$orderedbuildplanlist" exact="[ $TempStation.completebuildplan.sequences.{$i} , 0 ]"/>
+              </do_all>
+              <set_value name="$station" exact="$TempStation" comment="use the Temp Station until the Station exists (build started)"/>
             </do_elseif>
             
-            <!-- Station Upgrade via UI -->
+            <!-- Station Upgrade via UI - probably not needed anymore.. -->
             <do_elseif value="event.param == 'cArch_buildtreeResult'">
               <!-- Selection made in build tree menu -->
               <!-- param2 == [ buildplanlist, upgradeplanlist ] -->
@@ -197,16 +206,16 @@ Rest is shared between all Actor types
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <do_if value="$actor.ship.buildmodule.exists" comment="only available on builder ship">
-                <do_if value="$actor.ship.buildmodule.buildanchor.exists" comment="OR THERE ARE ALREADY BUILD ORDERS GIVEN!!!! "><!-- ToDo: Check for already given Orders in queue !!!!!! -->
+                <do_if value="$station.exists" comment="OR THERE ARE ALREADY BUILD ORDERS GIVEN!!!! ">
                   <add_player_choice text="'Extend Station (UI)'" position="1" section="comm_orders_extend_ui" selectable="$actor.$ut_cac.$orderedbuildplanlist" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
                   <add_player_choice text="'Extend Station (Dialogue)'" position="4" section="comm_orders_extend_dia" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
                 </do_if>
                 <do_else>
                   <add_player_choice text="'Build Station'" position="1" section="comm_orders_build" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
                 </do_else>
-                <add_player_choice text="'Upgrade Station'" position="2" section="comm_orders_upgrade" selectable="false and $actor.ship.buildmodule.buildanchor.exists" tooltip="'Not implemented yet'" />
-                <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" selectable="false and $actor.ship.buildmodule.buildanchor.exists" tooltip="'Not implemented yet'" />
-                <add_player_choice text="'Detach from Station'" position="4" section="comm_orders_detach" selectable="false and $actor.ship.buildmodule.buildanchor.exists" tooltip="'Not implemented yet'" />
+                <add_player_choice text="'Upgrade Station'" position="2" section="comm_orders_upgrade" selectable="false and $station.exists" tooltip="'Not implemented yet'" />
+                <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" selectable="false and $station.exists" tooltip="'Not implemented yet'" />
+                <add_player_choice text="'Detach from Station'" position="4" section="comm_orders_detach" selectable="false and $station.exists" tooltip="'Not implemented yet'" />
               </do_if>
               <do_else>
                 <add_player_choice text="'No Buildmodule'" tooltip="'This Ship cannot Build'" position="1" section="comm_orders_build_spaceselected" choiceparam="$actor.zone" selectable="false" />
@@ -258,7 +267,7 @@ Rest is shared between all Actor types
                   <add_npc_line line="1124" comment="This is a list of all available modules for the station." view="closeupdetailmonitor" />
                 </do_else>
               </do_if>
-              <open_conversation_menu menu="UTBuildTreeMenu" param="[0, 0, $actor, $actor.ship, null , $actor.ship.buildmodule.buildanchor]" param2="event.param3" />
+              <open_conversation_menu menu="UTBuildTreeMenu" param="[0, 0, $actor, $actor.ship, null , $station]" param2="event.param3" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_extend_dia'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -272,7 +281,7 @@ Rest is shared between all Actor types
               <set_value name="$slot" exact="1"/>
               <do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
                 <set_value name="$sequence" exact="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1}"/>
-                <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2} lt $actor.ship.buildmodule.buildanchor.completebuildplan.{$sequence}.stage">
+                <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2} lt $station.completebuildplan.{$sequence}.stage">
                   <set_value name="$purposemacro" exact="$stationmacro.buildpurposemacro.{buildplan.[$sequence,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}+1]}"/>
                   <set_value name="$colorcode" exact="
                   if $purposemacro.isclass.production then '\033Y'
@@ -445,6 +454,18 @@ Rest is shared between all Actor types
           </actions>
         </cue>
         
+        <cue name="Build_Started">
+          <conditions>
+            <event_build_started buildmodule="$actor.ship.buildmodule"/>
+          </conditions>
+          <actions>
+            <!-- Clean up tem Stuff and refer with $Station to the correct Station -->
+            <set_value name="$station" exact="$actor.ship.buildmodule.buildanchor"/>
+            <destroy_object object="$TempStation"/>
+            <destroy_object object="$TempZone"/>
+            <destroy_object object="$TempTempCluster"/>
+          </actions>
+        </cue>
       </cues>
     </cue>
 
