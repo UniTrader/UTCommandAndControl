@@ -56,7 +56,7 @@
         <return/>
       </do_if>
       <!-- if a buildlocation is supplied it either needs an existing Station, or a Station type to be built -->
-      <do_elseif value="$buildlocation and $macro == null and not $buildlocation.child.exists )">
+      <do_elseif value="$buildlocation and ( $macro == null and not $buildlocation.child.exists )">
         <debug_text filter="error" text="'%1 %2 %3 Architect doesnt know which Station to build or deploy to'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_elseif>
@@ -100,8 +100,6 @@
             <debug_text filter="general" text="'%1 %2 %3 Giving Moveto buildlocation Order with final Plans'.[player.age,this.name,this.container.name]"/>
           </do_else>
           <set_value name="this.ship.pilot.$ut_cac.$defaultorders.$script" exact="'ut.cac.orders.captain.buildership'"/>
-          <!-- save current and max BT here -->
-          <!-- ================================================================================================================================================ -->
         </do_if>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Builder Ship has no Pilot - aborting'.[player.age,this.name,this.container.name]"/>
@@ -188,11 +186,6 @@
               </interrupt>
             </wait>
          <remove_blocked_area blocker="this" zone="this.zone"/>
-          <!-- create buildplan from now physically present Station - Will be done earlier oon to plan upgrades in advance..-->
-          <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
-          <do_all exact="$station.completebuildplan.sequences.count" counter="$i">
-            <append_to_list name="this.$ut_cac.$orderedbuildplanlist" exact="[ $station.completebuildplan.sequences.{$i} , 0 ]"/>
-          </do_all>
           </do_while>
           <!-- Station Construction complete  - set commander, start ai -->
           <set_object_commander object="this.ship" commander="$station" type="entitytype.manager"/>
