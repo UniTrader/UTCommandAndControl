@@ -206,7 +206,7 @@ Rest is shared between all Actor types
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <do_if value="$actor.ship.buildmodule.exists" comment="only available on builder ship">
-                <do_if value="$station? and $station.exists" comment="OR THERE ARE ALREADY BUILD ORDERS GIVEN!!!! ">
+                <do_if value="$station?">
                   <add_player_choice text="'Extend Station (UI)'" position="1" section="comm_orders_extend_ui" selectable="$actor.$ut_cac.$orderedbuildplanlist" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
                   <add_player_choice text="'Extend Station (Dialogue)'" position="4" section="comm_orders_extend_dia" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
                 </do_if>
@@ -455,7 +455,7 @@ Rest is shared between all Actor types
         
         <cue name="Build_Started">
           <conditions>
-            <event_build_started buildmodule="$actor.ship.buildmodule"/>
+            <event_build_finished buildmodule="$actor.ship.buildmodule"/>
           </conditions>
           <actions>
             <!-- Clean up tem Stuff and refer with $Station to the correct Station -->
