@@ -1,5 +1,5 @@
 
--- param == {0,0,architect, buildership, canbuild, station }
+-- param == {0,0,architect, buildership, null(not used andmore), station }
 
 local menu = {
 	name = "UTBuildTreeMenu",
