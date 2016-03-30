@@ -75,6 +75,8 @@
         </do_if>
         
         <claim_build_location object="this.ship" buildlocation="$buildlocation"/>
+        <set_command command="command.buildstation"/>
+        <set_command_action commandaction="commandaction.flyingto" param="$zone" />
         
         <!-- calculate our target Position and Rotation and send Captain there-->
         <!-- Update Params of Captain Movement Script (or call it again in case it already finished) -->
@@ -158,6 +160,7 @@
         <set_value name="$params.$displayname" exact="'Deploying Builder Ship'"/>
         <!-- deploy, if no Station exists start construction, if Station exists assign to it and resume construction -->
         <do_if value="not $buildlocation.child.exists">
+          <set_command_action commandaction="commandaction.standingby" />
           <add_blocked_area blocker="this" zone="this.zone">
             <position value="$buildlocation.offset" space="this.zone"/>
             <rotation value="$buildlocation.rotation"/>
@@ -177,18 +180,20 @@
             </check_is_area_obstructed>
           </do_while>
           <remove_from_player_squad object="this.ship"/>
-          <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.name]"/>
           <set_buildmodule_macro object="this.ship" macro="$macro"/>
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
           <construct_station object="this.ship" macro="$macro"  buildlocation="$buildlocation" buildplan="buildplan.['a',0]" updatebuild="true"/>
           <remove_build_location_claim buildlocation="$buildlocation"/>
           <set_value name="$station" exact="this.ship.buildmodule.buildanchor"/>
+          <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.name]"/>
+          <set_command_action commandaction="commandaction.repairingto" param="$station" />
           <remove_blocked_area blocker="this" zone="this.zone"/>
         </do_if>
         <do_elseif  value="$buildlocation.child.isclass.station">
           <remove_from_player_squad object="this.ship"/>
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
           <restart_build object="$buildlocation.station" buildmodule="this.ship.buildmodule"/>
+          <set_command_action commandaction="commandaction.repairingto" param="$station" />
         </do_elseif>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Neither an empty build Location nor a Station to continue - aborting'.[player.age,this.name,this.container.name]"/>
@@ -220,6 +225,7 @@
           <debug_text filter="error" text="'%1 %2 %3 Not connected to Build Location anymore'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
+        <set_command_action commandaction="commandaction.standingby" />
         <add_blocked_area blocker="this" zone="this.zone">
           <position value="$station.buildlocation.offset" space="this.zone"/>
           <rotation value="$station.buildlocation.rotation"/>
@@ -243,6 +249,8 @@
         <do_if value="$stage le $station.completebuildplan.{$sequence}.stage">
           <create_build_plan macro="$station.macro" buildplan="$Buildplan" buildplanlist="[[$sequence,$stage]]" upgradeplanlist="$upgradeplan" />
           <add_build_plan buildmodule="this.ship.buildmodule" buildplan="$Buildplan" updatebuild="true" />
+          <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.name]"/>
+          <set_command_action commandaction="commandaction.repairingto" param="$macro.buildpurposemacro.{buildplan.[$sequence,$stage]}" />
         </do_if>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Trying to Upgrade Station %4 Sequence %5 over buildplan'.[player.age,this.name,this.container.name,$station.name,$sequence]"/>
