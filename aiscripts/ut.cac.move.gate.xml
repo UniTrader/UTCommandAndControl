@@ -97,7 +97,8 @@
       
       <!-- wait until we are next going through the Gate and then move to entry approach pos -->
       <do_while value="global.$gate_queue.{$gate}.indexof.{this.ship} gt 1">
-        <wait min="1min" max="3min">
+        <wait>
+		  <interrupt_after_time time="2min"/>
           <interrupt>
             <conditions>
               <event_object_signalled object="this.ship" param="'travel gate next'"/>

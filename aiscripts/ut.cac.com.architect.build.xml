@@ -113,23 +113,23 @@
         
         <!-- wait for Arrival Signal or other claims for the buildlocation -->
         <!-- regulary check if Buildlocation is still free (to do: write own Script for the Pilot which moves this responsibiliy to him )-->
-        <!--do_while value="not $buildlocation.child.exists or not $buildlocation.child.buildingmodule.exists"-->
+        <do_while value="not $buildlocation.child.exists or not $buildlocation.child.buildingmodule.exists">
           <do_if value="this.$ut_cac?" comment="tell the payment script we are doing someting in this payment period.">
             <set_value name="this.$ut_cac.$isactive"/>
           </do_if>
           <wait>
-             <interrupt>
-               <conditions>
-                 <event_object_signalled object="this.ship" param="'move.buildership'"/>
-               </conditions>
-               <actions>
-                 <set_value name="$move_sucess" exact="event.param2"/>
-                 <!--break/-->
-                 <!--break/-->
-               </actions>
-             </interrupt>
+            <interrupt_after_time time="55min"/>
+            <interrupt>
+              <conditions>
+                <event_object_signalled object="this.ship" param="'move.buildership'"/>
+              </conditions>
+              <actions>
+                <set_value name="$move_sucess" exact="event.param2"/>
+                <break/>
+              </actions>
+            </interrupt>
           </wait>
-        <!--/do_while-->
+        </do_while>
         <do_if value="$buildlocation.child.exists and $buildlocation.child.buildingmodule.exists">
           <debug_text filter="error" text="'%1 %2 %3 Build Location already in use and CV assigned - aborting (move case)'.[player.age,this.name,this.container.name]"/>
           <return/>
@@ -207,7 +207,8 @@
           <do_if value="this.$ut_cac?" comment="tell the payment script we are doing someting in this payment period.">
             <set_value name="this.$ut_cac.$isactive"/>
           </do_if>
-          <wait min="40min" max="50min">
+          <wait>
+            <interrupt_after_time time="55min"/>
             <interrupt>
               <conditions>
                 <event_build_finished object="this.ship"/>
@@ -263,7 +264,8 @@
           <do_if value="this.$ut_cac?" comment="tell the payment script we are doing someting in this payment period.">
             <set_value name="this.$ut_cac.$isactive"/>
           </do_if>
-          <wait min="40min" max="50min">
+          <wait>
+            <interrupt_after_time time="55min"/>
             <interrupt>
               <conditions>
                 <event_build_finished object="this.ship"/>

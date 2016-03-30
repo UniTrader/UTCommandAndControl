@@ -26,8 +26,9 @@
       <do_elseif value="$params.$order == 'wait minmax'">
         <wait min="$params.$mintime" max="$params.$maxtime"/>
       </do_elseif>
-      <do_elseif value="$params.$order == 'wait exact signal'">
-        <wait exact="$params.$time">
+      <do_elseif value="$params.$order == 'wait exact signal' or $params.$order == 'wait time signal'">
+        <wait>
+		  <interrupt_after_time time="$params.$time"/>
           <interrupt>
             <conditions>
               <event_object_signalled object="$params.$signalobject" param="$params.$signalparam"/>
@@ -35,8 +36,9 @@
           </interrupt>
         </wait>
       </do_elseif>
-      <do_elseif value="$params.$order == 'wait minmax signal'">
-        <wait min="$params.$mintime" max="$params.$maxtime">
+      <do_elseif value="$params.$order == 'wait minmax signal'" comment="depracted - do not use anymore (doesnt work as advertised)">
+        <wait>
+		  <interrupt_after_time time="($params.$mintime + $params.$maxtime) /2"/>
           <interrupt>
             <conditions>
               <event_object_signalled object="$params.$signalobject" param="$params.$signalparam"/>
@@ -46,7 +48,8 @@
       </do_elseif>
       <do_elseif value="$params.$order == 'wait signal'">
         <do_while value="true">
-          <wait exact="10h">
+          <wait>
+		    <interrupt_after_time time="10h"/>
             <interrupt>
               <conditions>
               <event_object_signalled object="$params.$signalobject" param="$params.$signalparam"/>
@@ -67,7 +70,8 @@
           <do_if value="this.$orderlist.{2}? or this.$orderlist.{1} != $params">
             <return/>
           </do_if>
-          <wait exact="$waittime">
+          <wait>
+		    <interrupt_after_time time="$waittime"/>
             <interrupt>
               <conditions>
                 <event_object_signalled object="this" param="'new order received'"/>
