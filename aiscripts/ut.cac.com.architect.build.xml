@@ -98,10 +98,12 @@
             </do_if>
           </do_all>
           <do_if value="not $changed_order?">
-            <remove_value name="$changed_order"/>
             <signal_objects object="this.ship.pilot" param="'new order'" param2="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Moving to Build Position for %1'.[$macro.name],$buildlocation=$buildlocation,$zone=$zone,$interruptable=false]"/>
             <debug_text filter="general" text="'%1 %2 %3 Giving Moveto buildlocation Order with final Plans'.[player.age,this.name,this.container.name]"/>
           </do_if>
+          <do_else>
+            <remove_value name="$changed_order"/>
+          </do_else>
           <set_value name="this.ship.pilot.$ut_cac.$defaultorders.$script" exact="'ut.cac.orders.captain.buildership'"/>
         </do_if>
         <do_else>
