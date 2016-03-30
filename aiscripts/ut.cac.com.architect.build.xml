@@ -13,8 +13,8 @@
     <param name="station" default="null" comment="a Station to deploy to"/>
     <!-- needed for Extending a Station: -->
     <param name="sequence" default="null" comment="the Sequence which shall be Upgraded. supported for extending an existing Station only, not for buildlocations. (will upgrade to the next Stage, or abort if fully built)"/>
-    <!-- needed for Upgrading a Station and can be used by Extending a Station -->
-    <param name="upgradeplan" default="null" comment="Upgrade Plan List for this Part. May be used to change the existing Plan if a Station but no Sequence to Upgrade is provided." />
+    <!-- needed for Upgrading a Station and can be used by Extending a Station/Building a Station -->
+    <param name="upgradeplan" default="[]" comment="Upgrade Plan List for this Part. May be used to change the existing Plan if a Station but no Sequence to Upgrade is provided." />
   </params>
   <attention min="unknown">
     <actions>
@@ -25,29 +25,20 @@
         <do_if value="$params.$zone?">
           <set_value name="$zone" exact="$params.$zone"/>
         </do_if>
-        <do_if value="$params.$station?">
-          <set_value name="$station" exact="$params.$station"/>
-        </do_if>
         <do_if value="$params.$macro?">
           <set_value name="$macro" exact="$params.$macro"/>
+        </do_if>
+        <do_if value="$params.$station?">
+          <set_value name="$station" exact="$params.$station"/>
         </do_if>
         <do_if value="$params.$sequence?">
           <set_value name="$sequence" exact="$params.$sequence"/>
         </do_if>
-        <do_if value="$params.$stage?">
-          <set_value name="$stage" exact="$params.$stage"/>
-        </do_if>
-        <do_if value="$params.$buildplanlist?">
-          <set_value name="$buildplanlist" exact="$params.$buildplanlist"/>
-        </do_if>
         <do_if value="$params.$upgradeplan?">
           <set_value name="$upgradeplan" exact="$params.$upgradeplan"/>
         </do_if>
-        <do_if value="$params.$buildplan?">
-          <set_value name="$buildplan" exact="$params.$buildplan"/>
-        </do_if>
-      </do_if>
       <debug_text filter="general" text="'%1 %2 %3 Architect build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+      </do_if>
       
       
       <!-- sanity checks -->
@@ -67,7 +58,7 @@
       <do_elseif value="$sequence" comment="Extend existing Station (may also contain an $upgradeplan)">
         <set_value name="$station" exact="this.ship.buildmodule.buildanchor"/>
       </do_elseif>
-      <do_elseif value="$upgradeplan" comment="Opgrade Weapons of existing Station"/>
+      <do_elseif value="$upgradeplan.count" comment="Opgrade Weapons of existing Station"/>
       <do_else>
         <debug_text filter="error" text="'%1 %2 %3 Architect doesnt know which Station to build or deploy to or what to extend/Upgrade'.[player.age,this.name,this.container.name]"/>
         <return/>
@@ -118,7 +109,7 @@
         
         <!-- wait for Arrival Signal or other claims for the buildlocation -->
         <!-- regulary check if Buildlocation is still free (to do: write own Script for the Pilot which moves this responsibiliy to him )-->
-        <do_while value="$buildlocation.child.exists and not $buildlocation.child.buildingmodule.exists">
+        <do_while value="not $buildlocation.child.exists or not $buildlocation.child.buildingmodule.exists">
           <do_if value="this.$ut_cac?" comment="tell the payment script we are doing someting in this payment period.">
             <set_value name="this.$ut_cac.$isactive"/>
           </do_if>
@@ -142,12 +133,13 @@
           <do_if value="not $already_tried_moving?">
             <debug_text filter="error" text="'%1 %2 %3 Builder Ship couldnt be moved to intended Location - try again'.[player.age,this.name,this.container.name]"/>
             <set_value name="$already_tried_moving"/>
+            <remove_build_location_claim buildlocation="$buildlocation"/>
             <resume label="move to buildlocation"/>
           </do_if>
           <do_else>
             <remove_build_location_claim buildlocation="$buildlocation"/>
             <debug_text filter="error" text="'%1 %2 %3 Builder Ship couldnt be moved to intended Location - abort'.[player.age,this.name,this.container.name]"/>
-          <return/>
+            <return/>
           </do_else>
         </do_if>
         <do_elseif value="$move_sucess?"/>
@@ -269,6 +261,12 @@
           </wait>
         </do_while>
         <remove_blocked_area blocker="this" zone="this.zone"/>
+      </do_elseif>
+      
+      <!-- Upgrade existing Station only -->
+      <do_elseif value="$upgradeplan.count gt 0">
+      
+      
       </do_elseif>
       
       
