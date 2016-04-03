@@ -46,7 +46,9 @@
             <!-- Wage when Active and inactive are diffrent - $isactive is regulary set by Active Scripts so checking this var confirms that an active script has been running during the last payment period-->
             <do_if value="$actor.$ut_cac.$isactive?">
               <set_value name="$wage" exact="param.ut_cac.wage.{$actor.type}.{1} + ( param.ut_cac.wage.{$actor.type}.{2} * $actor.combinedskill / 100 )"/>
-              <remove_value name="$actor.$ut_cac.$isactive"/>
+              <do_if value="$actor.$ut_cac.$isactive gt 1" negate="true" comment="long lasting actions should set this var to 2 so it doesnt get removed when payment is due, and revert it to 1 for the final payment period.">
+                <remove_value name="$actor.$ut_cac.$isactive"/>
+              </do_if>
             </do_if>
             <do_else>
               <set_value name="$wage" exact="param.ut_cac.wage.{$actor.type}.{3} + ( param.ut_cac.wage.{$actor.type}.{4} * $actor.combinedskill / 100 )"/>

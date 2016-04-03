@@ -113,23 +113,18 @@
         
         <!-- wait for Arrival Signal or other claims for the buildlocation -->
         <!-- regulary check if Buildlocation is still free (to do: write own Script for the Pilot which moves this responsibiliy to him )-->
-        <do_while value="not $buildlocation.child.exists or not $buildlocation.child.buildingmodule.exists">
-          <do_if value="this.$ut_cac?" comment="tell the payment script we are doing someting in this payment period.">
-            <set_value name="this.$ut_cac.$isactive"/>
-          </do_if>
-          <wait>
-            <!--interrupt_after_time time="55min"/-->
-            <interrupt>
-              <conditions>
-                <event_object_signalled object="this.ship" param="'move.buildership'"/>
-              </conditions>
-              <actions>
-                <set_value name="$move_sucess" exact="event.param2"/>
-                <break/>
-              </actions>
-            </interrupt>
-          </wait>
-        </do_while>
+        <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="this.ship" param="'move.buildership'"/>
+            </conditions>
+            <actions>
+              <set_value name="$move_sucess" exact="event.param2"/>
+            </actions>
+          </interrupt>
+        </wait>
+         <set_value name="this.$ut_cac.$isactive" exact="1" comment="long-lasting action done - but still pay for the last period."/>
         <do_if value="$buildlocation.child.exists and $buildlocation.child.buildingmodule.exists">
           <debug_text filter="error" text="'%1 %2 %3 Build Location already in use and CV assigned - aborting (move case)'.[player.age,this.name,this.container.name]"/>
           <return/>
@@ -203,19 +198,15 @@
           <return/>
         </do_else>
         <!-- wait till construction is done -->
-        <do_while value="this.ship.buildmodule.isbuilding">
-          <do_if value="this.$ut_cac?" comment="tell the payment script we are doing someting in this payment period.">
-            <set_value name="this.$ut_cac.$isactive"/>
-          </do_if>
-          <wait>
-            <!--interrupt_after_time time="55min"/-->
-            <interrupt>
-              <conditions>
-                <event_build_finished object="this.ship"/>
-              </conditions>
-            </interrupt>
-          </wait>
-        </do_while>
+        <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_build_finished object="this.ship"/>
+            </conditions>
+          </interrupt>
+        </wait>
+        <set_value name="this.$ut_cac.$isactive" exact="1" comment="possibly long-lasting action is done - pay the last payment period too"/>
         <!-- Station Construction complete  - set commander, start ai -->
         <set_object_commander object="this.ship" commander="$station" type="entitytype.manager"/>
         <create_ai_unit object="$station"/>
@@ -260,19 +251,16 @@
           <debug_text filter="error" text="'%1 %2 %3 Trying to Upgrade Station %4 Sequence %5 over buildplan'.[player.age,this.name,this.container.name,$station.name,$sequence]"/>
           <return/>
         </do_else>
-        <do_while value="this.ship.buildmodule.isbuilding">
-          <do_if value="this.$ut_cac?" comment="tell the payment script we are doing someting in this payment period.">
-            <set_value name="this.$ut_cac.$isactive"/>
-          </do_if>
-          <wait>
-            <!--interrupt_after_time time="55min"/-->
-            <interrupt>
-              <conditions>
-                <event_build_finished object="this.ship"/>
-              </conditions>
-            </interrupt>
-          </wait>
-        </do_while>
+        <!-- wait till construction is done -->
+        <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_build_finished object="this.ship"/>
+            </conditions>
+          </interrupt>
+        </wait>
+        <set_value name="this.$ut_cac.$isactive" exact="1" comment="possibly long-lasting action is done - pay the last payment period too"/>
         <remove_blocked_area blocker="this" zone="this.zone"/>
       </do_elseif>
       
@@ -280,19 +268,16 @@
       <do_elseif value="$upgradeplan.count">
         <create_build_plan macro="$BuildModule.buildanchor.macro" buildplan="$Buildplan" buildplanlist="[]" upgradeplanlist="$upgradeplan"/>
         <build_object_upgrades buildmodule="$BuildModule" sequence="''" stage="0" buildplan="$Buildplan" updatebuild="true"/>
-        <do_while value="this.ship.buildmodule.isbuilding">
-          <do_if value="this.$ut_cac?" comment="tell the payment script we are doing someting in this payment period.">
-            <set_value name="this.$ut_cac.$isactive"/>
-          </do_if>
-          <wait>
-            <!--interrupt_after_time time="55min"/-->
-            <interrupt>
-              <conditions>
-                <event_build_finished object="this.ship"/>
-              </conditions>
-            </interrupt>
-          </wait>
-        </do_while>
+        <!-- wait till construction is done -->
+        <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_build_finished object="this.ship"/>
+            </conditions>
+          </interrupt>
+        </wait>
+        <set_value name="this.$ut_cac.$isactive" exact="1" comment="possibly long-lasting action is done - pay the last payment period too"/>
       </do_elseif>
       
       
