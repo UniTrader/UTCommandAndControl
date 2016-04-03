@@ -159,6 +159,7 @@ Rest is shared between all Actor types
                 <append_to_list name="$actor.$ut_cac.$orderedbuildplanlist" exact="[ $TempStation.completebuildplan.sequences.{$i} , 0 ]"/>
               </do_all>
               <set_value name="$station" exact="$TempStation" comment="use the Temp Station until the Station exists (build started)"/>
+              <signal_cue cue="SwitchToPermanentStationA" comment="this cue destroys the temp station when not needed anymore and updates the Station reference to the Station which is built"/>
             </do_elseif>
             
             <!-- Station Upgrade via UI - probably not needed anymore.. -->
@@ -484,10 +485,11 @@ Rest is shared between all Actor types
               <event_game_loaded/>
               <event_cue_signalled/>
               <event_build_finished object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
-              <event_build_startedd object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
+              <event_build_started object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
               <event_cue_completed cue="Comm_Architect_Start_Build"/>
             </check_any>
           </conditions>
+          <delay exact="1s"/>
           <actions>
             <debug_text filter="general" text="'event name: %2   ///  Station Var: %1'.[$station,event.name]"/>
           </actions>
