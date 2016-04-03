@@ -458,17 +458,24 @@ Rest is shared between all Actor types
           </actions>
         </cue>
         
-        <cue name="Build_Started">
+        <cue name="SwitchToPermanentStationA">
           <conditions>
-            <event_build_finished buildmodule="$actor.ship.buildmodule"/>
+            <event_cue_signalled/>
           </conditions>
-          <actions>
-            <!-- Clean up tem Stuff and refer with $Station to the correct Station -->
-            <set_value name="$station" exact="$actor.ship.buildmodule.buildanchor"/>
-            <destroy_object object="$TempStation"/>
-            <destroy_object object="$TempZone"/>
-            <destroy_object object="$TempTempCluster"/>
-          </actions>
+          <cues>
+            <cue name="SwitchToPermanentStationB">
+              <conditions>
+                <event_build_finished object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
+              </conditions>
+              <actions>
+                <!-- Clean up tem Stuff and refer with $Station to the correct Station -->
+                <set_value name="$station" exact="$actor.ship.buildmodule.buildanchor"/>
+                <destroy_object object="$TempStation"/>
+                <destroy_object object="$TempZone"/>
+                <destroy_object object="$TempTempCluster"/>
+              </actions>
+            </cue>
+          </cues>
         </cue>
         
         <cue name="Debug" instantiate="true">
@@ -476,8 +483,8 @@ Rest is shared between all Actor types
             <check_any>
               <event_game_loaded/>
               <event_cue_signalled/>
-              <event_build_finished buildmodule="$actor.ship.buildmodule"/>
-              <event_build_started buildmodule="$actor.ship.buildmodule"/>
+              <event_build_finished object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
+              <event_build_startedd object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
               <event_cue_completed cue="Comm_Architect_Start_Build"/>
             </check_any>
           </conditions>
