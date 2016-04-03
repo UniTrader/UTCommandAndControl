@@ -37,7 +37,7 @@
         <do_if value="$params.$upgradeplan?">
           <set_value name="$upgradeplan" exact="$params.$upgradeplan"/>
         </do_if>
-      <debug_text filter="general" text="'%1 %2 %3 Architect build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+        <debug_text filter="general" text="'%1 %2 %3 Architect build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
       </do_if>
       
       
@@ -118,7 +118,7 @@
             <set_value name="this.$ut_cac.$isactive"/>
           </do_if>
           <wait>
-            <interrupt_after_time time="55min"/>
+            <!--interrupt_after_time time="55min"/-->
             <interrupt>
               <conditions>
                 <event_object_signalled object="this.ship" param="'move.buildership'"/>
@@ -208,7 +208,7 @@
             <set_value name="this.$ut_cac.$isactive"/>
           </do_if>
           <wait>
-            <interrupt_after_time time="55min"/>
+            <!--interrupt_after_time time="55min"/-->
             <interrupt>
               <conditions>
                 <event_build_finished object="this.ship"/>
@@ -222,7 +222,7 @@
       </do_if>
       
       <!-- Extend existing Station -->
-      <do_elseif value="$sequence != null">
+      <do_elseif value="$sequence">
         <!-- ToDo: Make sure we are still in building position!!! if not tell Pilot!!! -->
         <!-- check if we are still connected to the buildlocation -->
         <do_if value="not ( this.ship.buildmodule.buildanchor.buildingmodule == this.ship.buildmodule)">
@@ -265,7 +265,7 @@
             <set_value name="this.$ut_cac.$isactive"/>
           </do_if>
           <wait>
-            <interrupt_after_time time="55min"/>
+            <!--interrupt_after_time time="55min"/-->
             <interrupt>
               <conditions>
                 <event_build_finished object="this.ship"/>
@@ -277,13 +277,26 @@
       </do_elseif>
       
       <!-- Upgrade existing Station only -->
-      <do_elseif value="$upgradeplan.count gt 0">
-      
-      
+      <do_elseif value="$upgradeplan.count">
+        <create_build_plan macro="$BuildModule.buildanchor.macro" buildplan="$Buildplan" buildplanlist="[]" upgradeplanlist="$upgradeplan"/>
+        <build_object_upgrades buildmodule="$BuildModule" sequence="''" stage="0" buildplan="$Buildplan" updatebuild="true"/>
+        <do_while value="this.ship.buildmodule.isbuilding">
+          <do_if value="this.$ut_cac?" comment="tell the payment script we are doing someting in this payment period.">
+            <set_value name="this.$ut_cac.$isactive"/>
+          </do_if>
+          <wait>
+            <!--interrupt_after_time time="55min"/-->
+            <interrupt>
+              <conditions>
+                <event_build_finished object="this.ship"/>
+              </conditions>
+            </interrupt>
+          </wait>
+        </do_while>
       </do_elseif>
       
       
-      <!-- after each building Step check if Personal for the Station is on board (primarily for now possibly needed Specialists) -->
+      <!-- after each building Step check if Personal for the Station is on board (primarily for now possibly needed Specialists) and transfer all subordinate Ships, too -->
       <!-- Move all Station personal on board over to the Station after building, extending and redeploying (only if not already present)-->
       <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager"/>
       <do_if value="$manager.exists and not $station.tradenpc.exists">
@@ -314,6 +327,8 @@
           </do_if>
         </do_if>
       </do_all>
+      <!-- Transfer subordinate Ships to the Station (CAC Manager will make sure to also deliver Building Materials) -->
+      <!-- WIP !!!! -->
       <label name="finish"/>
       
     </actions>
