@@ -142,23 +142,24 @@
       <label name="finish"/>
       <!-- This Script is finished - Check if it makes sense to Undock and Continue with next Order -->
       <!-- execute next Trade without undocking if the Trade partner is the same -->
-      <do_if value="$undock==2">
+      <do_if value="$undock==2 and (this.ship.isclass.ship_xl or this.ship.isclass.ship_l)">
         <get_trade_from_shoppinglist object="this.ship" result="$trade" />
         
+        <set_value name="$tradepartner" exact="null"/>
         <do_if value="this.ship.parkedat.exists">
           <set_value name="$tradepartner" exact="this.ship.parkedat"/>
         </do_if>
-        <do_elseif value="this.ship.dockedat.exists">
+        <do_elseif value="@this.ship.dockedat.exists">
           <set_value name="$tradepartner" exact="this.ship.dockedat"/>
         </do_elseif>
-        <do_if value="$tradepartner.exists and $trade.exists and ($trade.seller == $tradepartner or $trade.buyer == $tradepartner)">
+        <do_if value="$trade.exists and $tradepartner.exists and ($trade.seller == $tradepartner or $trade.buyer == $tradepartner)">
           <set_value name="$undock" exact="false"/>
         </do_if>
         <do_else>
           <set_value name="$undock" exact="true"/>
         </do_else>
       </do_if>
-      <do_if value="(this.ship.isclass.ship_xl or this.ship.isclass.ship_l) and $undock">
+      <do_if value="$undock">
         <run_script name="'move.undock'" />
       </do_if>
       <return/>
