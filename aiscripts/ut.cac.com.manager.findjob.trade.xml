@@ -130,10 +130,11 @@ $entity  = ' + $entity"/>
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
         <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.container.cargo.{$ware}.target )f )"/>
         <do_if value="this.container.resources.{$ware}.secondary">
-          <set_value name="$prio" exact="$prio * 0.75"/>
+          <set_value name="$prio" exact="$prio * param.ut_cac.waretypepriorities.$secondaryressource"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Secondary ressource is: ' + $prio"/>
         </do_if>
         <do_else>
+          <set_value name="$prio" exact="$prio * param.ut_cac.waretypepriorities.$ressource"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Primary Ressource is: ' + $prio"/>
         </do_else>
         <!-- no need to include the Wares where we have the desired amount -->
@@ -243,7 +244,12 @@ $entity  = ' + $entity"/>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
         <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount )f  / ( this.$ut_cac.$consumables.{$ware}.$target )f )"/>
-        <set_value name="$prio" exact="$prio * this.$ut_cac.$consumables.{$ware}.$prioritymulti"/>
+        <do_if value="this.$ut_cac.$consumables.{$ware}.$prioritymulti?">
+          <set_value name="$prio" exact="$prio * this.$ut_cac.$consumables.{$ware}.$prioritymulti"/>
+        </do_if>
+        <do_else>
+          <set_value name="$prio" exact="$prio * param.ut_cac.waretypepriorities.$consumable"/>
+        </do_else>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Consumeable is: ' + $prio + ' and has a priority multiplier of ' + this.$ut_cac.$consumables.{$ware}.$prioritymulti"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
@@ -315,6 +321,7 @@ $entity  = ' + $entity"/>
         <do_if value="this.container.products.{$ware}.intermediate">
           <set_value name="$prio" exact="[0.0,$prio-1.0].max"/>
         </do_if>
+        <set_value name="$prio" exact="$prio * param.ut_cac.waretypepriorities.$product"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Product is: ' + $prio"/>
         <!-- no need to include the Wares we dont have in cargo (prio results in 0.0) -->
         <do_if value="$prio gt 0.0">
@@ -387,7 +394,8 @@ $entity  = ' + $entity"/>
         
         <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount" type="sell"/>
         <!-- first calculate the Buy Prio (half prio of Ressources), and insert it ionto the List - then do the same for Sell Prio -->
-        <set_value name="$prio" exact="( 1.0 - ( ( this.container.cargo.{$ware}.count + $reservedamount )f  / ( this.container.cargo.{$ware}.target )f ) ) * 0.5"/>
+        <set_value name="$prio" exact="( 1.0 - ( ( this.container.cargo.{$ware}.count + $reservedamount )f  / ( this.container.cargo.{$ware}.target )f ) )"/>
+        <set_value name="$prio" exact="$prio * param.ut_cac.waretypepriorities.$tradeware"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Tradeware Buying is: ' + $prio"/>
         <!-- no need to include the Wares where we have the desired amount -->
         <do_if value="$prio gt 0.0">
@@ -420,7 +428,8 @@ $entity  = ' + $entity"/>
         </do_if>
         <!-- Sell Priority -->
         <get_ware_reservation ware="$ware" object="this.container" result="$reservedamount" type="buy"/>
-        <set_value name="$prio" exact="( this.container.cargo.{$ware}.count - $reservedamount )f / ( this.container.cargo.{$ware}.target )f * 0.5"/>
+        <set_value name="$prio" exact="( this.container.cargo.{$ware}.count - $reservedamount )f / ( this.container.cargo.{$ware}.target )f"/>
+          <set_value name="$prio" exact="$prio * param.ut_cac.waretypepriorities.$tradeware"/>
         <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Tradeware Selling is: ' + $prio"/>
         <!-- no need to include the Wares we dont have in cargo (prio results in 0.0)-->
         <do_if value="$prio gt 0.0">
