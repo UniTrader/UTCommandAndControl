@@ -211,7 +211,7 @@ Rest is shared between all Actor types
                   <add_player_choice text="'Extend Station (UI)'" position="1" section="comm_orders_extend_ui" selectable="$actor.$ut_cac.$orderedbuildplanlist" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
                   <add_player_choice text="'Extend Station (Dialogue)'" position="4" section="comm_orders_extend_dia" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
                   <add_player_choice text="'Upgrade Station'" position="2" section="comm_orders_upgrade" selectable="$actor.$ut_cac.$orderedbuildplanlist" />
-                  <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" selectable="false and $station.exists" tooltip="'Not implemented yet'" />
+                  <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
                   <add_player_choice text="'Detach from Station'" position="5" section="comm_orders_detach" selectable="false and $station.exists" tooltip="'Not implemented yet'" />
                 </do_if>
                 <do_else>
@@ -334,8 +334,35 @@ Rest is shared between all Actor types
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
-              <!-- Add Repair Choices here -->
-              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+              <!-- find anything which can be repaired ( ToDo: maybe some Filtering?? ) -->
+              <find_object_component name="$RepairableParts" object="$station" checkoperational="false" multiple="true">
+                <match_any>
+                  <match restorable="true" comment="wrecked"/>
+                  <match repairable="true" invulnerable="false">
+                    <match_hull min="99" negate="true" />
+                  </match>
+                </match_any>
+              </find_object_component>
+              <!-- Create Choice Lists here  -->
+              <set_value name="$TextList" exact="[]"/>
+              <set_value name="$SelectList" exact="[]"/>
+              <do_all exact="$RepairableParts.count" counter="$i">
+                <do_if value="not $RepailableParts.{$i}.parent.iswrecked">
+                  <append_to_list name="$TextList" exact="$RepailableParts.{$i}.name"/>
+                  <append_to_list name="$SelectList" exact="$RepailableParts.{$i}"/>
+                </do_if>
+              </do_all>
+              <!-- This part is planned to be replaced by a Menu which can display all choices instead of using the Dialogue -->
+              <!-- open_conversation_menu menu="UTRepairMenu" param="[0, 0, 'Select Part', 'Select the Station Part which should be repaired.', 'Back', null , null , null , null , 'Select' , 'comm_orders_repair_selected' , $TextList , $SelectList ]" /-->
+              <set_value name="$slot" exact="1"/>
+              <do_all exact="$TextList.count" counter="$i">
+                <add_player_choice text="$TextList.{$i}" position="$slot" section="comm_orders_repair_selected" choiceparam="$SelectList.{$i}"/>
+              </do_all>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_repair_selected'">
+              <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.repair',$displayname='Repair %1'.[event.param2.name],$object=event.param2,$interruptable=true]"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_detach'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
