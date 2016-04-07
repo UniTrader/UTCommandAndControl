@@ -1,0 +1,145 @@
+-- no need for special unlock-handling
+-- debug bar is kept closed until it's being used --- it closes automatically upon UI mode changes
+-- handling is done via calling ShowUI("debugbar") prior to issue "enterDebugBar"-event
+
+-- private member data
+local private = {
+	contract = nil,      -- UIContract element
+	textElement = nil,   -- Text element
+	active = false,      -- indicates whether the debug bar is active
+	text = "",           -- current text
+	cursorShown = false, -- indicates whether the cursor is shown in the current frame
+	debugBar = nil       -- debug bar element
+}
+
+-- local functions forward declarations
+local activateBar
+local deactivateBar
+local executeCommand
+local hideBar
+local hideCursor
+local onButtonDown
+local onClose
+local onEnter
+local onLeave
+local setText
+local showBar
+local showCursor
+local updateCursor
+
+---------------------------------
+-- Gameface lifetime functions --
+---------------------------------
+function self:onInitialize()
+	private.contract    = getElement("Scene.UIContract")
+	private.debugBar    = getElement("Scene.Layer.debugbar")
+	private.textElement = getElement("Text", private.debugBar)
+
+	hideBar()
+
+	registerForEvent("closeDebugBar", private.contract, onClose)
+	registerForEvent("enterDebugBar", private.contract, onEnter)
+	registerForEvent("leaveDebugBar", private.contract, onLeave)
+	registerForEvent("onButtonDown",  private.contract, onButtonDown)
+
+	LockPresentation()
+end
+
+
+function self:onUpdate()
+	if private.active then
+		updateCursor()
+	end
+end
+
+-------------------------------------
+-- Presentation specific callbacks --
+-------------------------------------
+function onButtonDown(_, button)
+	if private.active then
+		if button == "\8" then
+			-- backspace
+			setText(string.sub(private.text, 1, string.len(private.text)-1))
+		else
+			setText(private.text..button)
+		end
+	end
+end
+
+function onEnter()
+	activateBar()
+end
+
+function onLeave()
+	executeCommand()
+end
+
+function onClose()
+	deactivateBar()
+end
+
+-------------------------------------
+-- Presentation specific functions --
+-------------------------------------
+function activateBar()
+	private.active = true
+	showBar()
+end
+
+function deactivateBar()
+	private.active = false
+	hideBar()
+end
+
+function executeCommand()
+	if private.text ~= "" then
+		local pos = string.find(private.text, " ")
+		if pos == nil then
+			pos = 0
+		end
+		local command   = string.sub(private.text, 1, pos - 1)
+		local parameter = ""
+		if pos ~= 0 then
+			parameter = string.sub(private.text, pos + 1) -- skip " "
+		end
+		ExecuteDebugCommand(command, parameter)
+	end
+	deactivateBar()
+end
+
+function showBar()
+	-- reset text
+	setText("")
+	goToSlide(private.debugBar, "active")
+end
+
+function hideBar()
+	setText("")
+	hideCursor()
+	goToSlide(private.debugBar, "inactive")
+	HidePresentation()
+	LockPresentation()
+end
+
+function hideCursor()
+	private.cursorShown = false
+	setAttribute(private.textElement, "textstring", private.text)
+end
+
+function setText(text)
+	private.text = text
+	setAttribute(private.textElement, "textstring", text)
+end
+
+function showCursor()
+	private.cursorShown = true
+	setAttribute(private.textElement, "textstring", private.text.."_")
+end
+
+function updateCursor()
+	if private.cursorShown then
+		hideCursor()
+	else
+		showCursor()
+	end
+end
