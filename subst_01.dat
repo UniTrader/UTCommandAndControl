@@ -41,6 +41,7 @@ function self:onInitialize()
 	registerForEvent("enterDebugBar", private.contract, onEnter)
 	registerForEvent("leaveDebugBar", private.contract, onLeave)
 	registerForEvent("onButtonDown",  private.contract, onButtonDown)
+	registerForEvent("onButtonUp",  private.contract, onButtonUp)
 
 	LockPresentation()
 end
@@ -64,6 +65,14 @@ function onButtonDown(_, button)
 			setText(private.text..button)
 		end
 	end
+	DebugError("Event Key Down received, Burron: "..button.." pressed ")
+	SignalObject(GetPlayerPrimaryShipID() , "KeyDown" , button )
+end
+
+
+function onButtonUp(_, button)
+	DebugError("Event Key Up received, Burron: "..button.." released ")
+	SignalObject(GetPlayerPrimaryShipID() , "KeyUp" , button )
 end
 
 function onEnter()
