@@ -1,154 +1,351 @@
--- no need for special unlock-handling
--- debug bar is kept closed until it's being used --- it closes automatically upon UI mode changes
--- handling is done via calling ShowUI("debugbar") prior to issue "enterDebugBar"-event
+-- config settings
+local config = {
+	reloadBarColor = { -- color of the reload bar
+		r = 255,
+		g = 255,
+		b = 255
+	},
+	overheatBarColor = { -- color of the overheat bar
+		[0] = { -- when firing is possible
+			r = 255,
+			g = 255,
+			b = 255
+		},
+		[1] = { -- when getting close to overheating and cooling down again
+			r = 255,
+			g = 255,
+			b = 0
+		},
+		[2] = { -- when almost overheated (and cooling down shortly after being overheated)
+			r = 255,
+			g = 0,
+			b = 0
+		}
+	}
+}
 
 -- private member data
 local private = {
-	contract = nil,      -- UIContract element
-	textElement = nil,   -- Text element
-	active = false,      -- indicates whether the debug bar is active
-	text = "",           -- current text
-	cursorShown = false, -- indicates whether the cursor is shown in the current frame
-	debugBar = nil       -- debug bar element
+	bar = nil,               -- bar element
+	barMaterial = nil,       -- bar material element for coloring the bar
+	weaponTexture1 = nil,    -- the weapon texture element (no 1)
+	weaponTexture2 = nil,    -- the weapon texture element (no 2)
+	overheat = nil,          -- overheat element
+	damage = nil,            -- damage element
+	gun = nil,               -- gun element
+	ammoText = nil,          -- ammo text element
+	weaponNameText = nil,    -- weaponname text element
+	weaponMod = nil,         -- weaponmod element
+	needsUpdate = false,     -- indicates whether the weapon panel must be updated regularly (false for example for empty case)
+	ammoTextEnabled = false, -- indicates whether ammo text display is enabled
+	curAmmoText = nil,       -- the currently set ammo text
+	curDamageState = 0,      -- the current visible damage state
+	curBarValue = 0,         -- the current visible bar state
+	reloadEnabled = false,   -- indicates whether the reload-mode is enabled
+	overheatEnabled = false, -- indicates whether the overheat-mode is enabled
+	curBarColor = nil,       -- the currently set bar color
+	curOverheatState = 0,    -- the current visible overheat state
+	panelState = 0,          -- indicates the current panel state: 0 => inactive panel (no weapon), 1 => active panel (first weapon texture used), 2 => active panel (second weapon texture used)
+	canPlayReload = true,    -- indicates whether we can play the reload sound
+	canPlayOverheat = true   -- indicates whether we can play the overheat sound
 }
 
 -- local functions forward declarations
-local activateBar
-local deactivateBar
-local executeCommand
-local hideBar
-local hideCursor
-local onButtonDown
-local onClose
-local onEnter
-local onLeave
-local setText
-local showBar
-local showCursor
-local updateCursor
+local activateWeaponIcon
+local initEmptyPanel
+local initPanel
+local onUnlock
+local onWeaponCycled
+local playOverheatSound
+local playReloadSound
+local resetOverheatSound
+local resetReloadSound
+local setAmmoDisplay
+local setAmmoText
+local setBar
+local setDamageState
+local setOverheatState
+local setWeaponMode
+local setWeaponText
+local switchWeapon
+local switchWeaponIcon
+local updatePanel
 
 ---------------------------------
 -- Gameface lifetime functions --
 ---------------------------------
 function self:onInitialize()
-	private.contract    = getElement("Scene.UIContract")
-	private.debugBar    = getElement("Scene.Layer.debugbar")
-	private.textElement = getElement("Text", private.debugBar)
+	local sceneElement = getElement("Scene")
+	local layerElement = getElement("Layer", sceneElement)
+	local playership = GetPlayerPrimaryShipID() 
 
-	hideBar()
+	private.bar            = getElement("bar", layerElement)
+	private.barMaterial    = getElement("bar_foreground.Material166", private.bar)
+	private.gun            = getElement("gun", layerElement)
+	private.weaponTexture1 = getElement("chaingun1.material.pp_chaingun", private.gun)
+	private.weaponTexture2 = getElement("shotgun.material.pp_shotgun", private.gun)
+	private.damage         = getElement("damage", layerElement)
+	private.overheat       = getElement("overheat", layerElement)
+	private.weaponNameText = getElement("weaponname", layerElement)
+	private.ammoText       = getElement("ammo", layerElement)
+	private.weaponMod      = getElement("weapon_mod", layerElement)
 
-	registerForEvent("closeDebugBar", private.contract, onClose)
-	registerForEvent("enterDebugBar", private.contract, onEnter)
-	registerForEvent("leaveDebugBar", private.contract, onLeave)
-	registerForEvent("onButtonDown",  private.contract, onButtonDown)
-	registerForEvent("onButtonUp",  private.contract, onButtonUp)
+	local contract = getElement("UIContract", sceneElement)
+	NotifyOnCycleWeapon(contract)
+	registerForEvent("weaponCycled", contract, onWeaponCycled)
+	registerForEvent("onUnlock", contract, onUnlock)
+	registerForEvent("onButtonDown",  contract, onButtonDown)
+	registerForEvent("onButtonUp",  contract, onButtonUp)
 
-	LockPresentation()
+	initPanel()
 end
 
-
 function self:onUpdate()
-	if private.active then
-		updateCursor()
+	if not private.needsUpdate then
+		return -- if inactive -> nothing to update
 	end
+
+	local _, _, ammo, _, reloadTime, heatPercent, heatColor, overheatWarning, damageState = GetPrimaryShipWeapon()
+	updatePanel(ammo, damageState, reloadTime, heatPercent, heatColor, overheatWarning)
 end
 
 -------------------------------------
 -- Presentation specific callbacks --
 -------------------------------------
-function onButtonDown(_, button)
-	if private.active then
-		if button == "\8" then
-			-- backspace
-			setText(string.sub(private.text, 1, string.len(private.text)-1))
-		else
-			setText(private.text..button)
-		end
+function onUnlock()
+	-- unlock happens when undocking from a station, for instance, which can change the installed weapons
+	initPanel()
+end
+
+function onWeaponCycled(_, slot)
+	if slot == 0 then -- primary weapon cycled
+		switchWeapon()
 	end
-	DebugError("Event Key Down received, Burron: "..button.." pressed ")
-	SignalObject(GetPlayerPrimaryShipID() , "KeyDown" , button )
-end
-
-
-function onButtonUp(_, button)
-	DebugError("Event Key Up received, Burron: "..button.." released ")
-	SignalObject(GetPlayerPrimaryShipID() , "KeyUp" , button )
-end
-
-function onEnter()
-	activateBar()
-end
-
-function onLeave()
-	executeCommand()
-end
-
-function onClose()
-	deactivateBar()
 end
 
 -------------------------------------
 -- Presentation specific functions --
 -------------------------------------
-function activateBar()
-	private.active = true
-	showBar()
+function activateWeaponIcon(icon)
+	goToSlide(private.gun, "activate")
+	SetIcon(private.weaponTexture1, icon, nil, nil, nil, false)
+	private.panelState = 1 -- active
 end
 
-function deactivateBar()
-	private.active = false
-	hideBar()
+function initEmptyPanel()
+	-- note: states must be set before calling the setters to update the display so these functions use the correct states
+	private.reloadEnabled   = false
+	private.overheatEnabled = false
+	private.needsUpdate     = false -- not required before we get the weaponCycled-event
+	private.panelState      = 0     -- inactive
+
+	setWeaponText("")
+	setAmmoDisplay(false)
+	setBar(0, config.reloadBarColor) -- must be set, since the updatePanel-call only updates it when reload or overheat are enabled
+	setOverheatState(0) -- reset to 0, since it's not updated when overheatEnabled is false
+	setDamageState(0)
+	resetReloadSound()
+
+	updatePanel(nil, 0, 0, 0, 0, 0)
 end
 
-function executeCommand()
-	if private.text ~= "" then
-		local pos = string.find(private.text, " ")
-		if pos == nil then
-			pos = 0
-		end
-		local command   = string.sub(private.text, 1, pos - 1)
-		local parameter = ""
-		if pos ~= 0 then
-			parameter = string.sub(private.text, pos + 1) -- skip " "
-		end
-		ExecuteDebugCommand(command, parameter)
+function initPanel()
+	local weaponname, usesAmmo, ammo, useReloadMode, reloadTime, heatPercent, heatColor, overheatWarning, damageState, weaponIcon, weaponMod = GetPrimaryShipWeapon()
+	if not weaponname then
+		initEmptyPanel()
+		return
 	end
-	deactivateBar()
+
+	setWeaponMode(useReloadMode)
+	setWeaponText(weaponname)
+	setAmmoDisplay(usesAmmo)
+	activateWeaponIcon(weaponIcon)
+	setWeaponMod(weaponMod)
+	private.needsUpdate   = true -- needed for ammo and damage state updates
+
+	updatePanel(ammo, damageState, reloadTime, heatPercent, heatColor, overheatWarning)
 end
 
-function showBar()
-	-- reset text
-	setText("")
-	goToSlide(private.debugBar, "active")
+function playOverheatSound()
+	if not private.canPlayOverheat then
+		return -- cannot play atm
+	end
+
+	PlaySound("notification_weapon_overheat_core")
+
+	private.canPlayOverheat = false -- we just played the effect, do not play again, until reset
 end
 
-function hideBar()
-	setText("")
-	hideCursor()
-	goToSlide(private.debugBar, "inactive")
-	HidePresentation()
-	LockPresentation()
+function playReloadSound()
+	if not private.canPlayReload then
+		return -- cannot play atm
+	end
+
+	PlaySound("notification_weapon_reload_core")
+
+	private.canPlayReload = false -- we just played the effect, do not play again, until reset
 end
 
-function hideCursor()
-	private.cursorShown = false
-	setAttribute(private.textElement, "textstring", private.text)
+function resetOverheatSound()
+	private.canPlayOverheat = true
 end
 
-function setText(text)
-	private.text = text
-	setAttribute(private.textElement, "textstring", text)
+function resetReloadSound()
+	private.canPlayReload = true
 end
 
-function showCursor()
-	private.cursorShown = true
-	setAttribute(private.textElement, "textstring", private.text.."_")
+function setAmmoDisplay(usesAmmo)
+	private.ammoTextEnabled = usesAmmo
+	if not usesAmmo then
+		setAmmoText("")
+	end
 end
 
-function updateCursor()
-	if private.cursorShown then
-		hideCursor()
+function setAmmoText(ammo)
+	if private.curAmmoText == ammo then
+		return -- text already up-to-date
+	end
+
+	setAttribute(private.ammoText, "textstring", ammo)
+	private.curAmmoText = ammo
+end
+
+function setBar(value, color)
+	if private.curBarValue ~= value then
+		goToTime(private.bar, value)
+		if value > private.curBarValue then
+			resetReloadSound()
+		elseif value == 0 then
+			-- reload sound being played when the bar is at 0
+			-- it's ok that this is skipped, when the player fires fast enough
+			if private.reloadEnabled then
+				playReloadSound()
+			end
+		end
+		private.curBarValue = value
+	end
+
+	if private.curBarColor ~= color then
+		SetDiffuseColor(private.barMaterial, color.r, color.g, color.b)
+		private.curBarColor = color
+	end
+end
+
+function setDamageState(state)
+	if private.curDamageState == state then
+		return -- already at correct state
+	end
+
+	local slide
+	if state == 0 then
+		slide = "inactive"
+	elseif state == 1 then
+		slide = "damaged"
+	else -- state == 2
+		slide = "broken"
+	end
+
+	goToSlide(private.damage, slide)
+	private.curDamageState = state
+end
+
+function setOverheatState(state)
+	if private.curOverheatState == state then
+		return -- already at correct state
+	end
+
+	local slide
+	if state == 0 then
+		slide = "inactive"
+		resetOverheatSound() -- can play again
+	elseif state == 1 then
+		slide = "cooling"
+	else -- state == 2
+		slide = "overheat"
+		playOverheatSound()
+	end
+
+	goToSlide(private.overheat, slide)
+	private.curOverheatState = state
+end
+
+function setWeaponMod(mod)
+	if mod == 0 then
+		goToSlide(private.weaponMod, "inactive")
 	else
-		showCursor()
+		goToSlide(private.weaponMod, "mod" .. mod)
 	end
+end
+
+function setWeaponMode(useReload)
+	private.reloadEnabled   = useReload
+	private.overheatEnabled = not useReload
+
+	if not private.overheatEnabled then
+		setOverheatState(0) -- disable overheat warning
+	end
+end
+
+function setWeaponText(weaponname)
+	setAttribute(private.weaponNameText, "textstring", weaponname)
+end
+
+function switchWeapon()
+	local weaponname, usesAmmo, _, useReloadMode, _, _, _, _, _, weaponIcon, weaponMod = GetPrimaryShipWeapon()
+	if weaponname then
+		setWeaponText(weaponname)
+		setAmmoDisplay(usesAmmo)
+		setWeaponMode(useReloadMode)
+		if private.panelState == 0 then
+			-- getting first weapon --- case: getting/picking-up first missile
+			activateWeaponIcon(weaponIcon)
+		else
+			switchWeaponIcon(weaponIcon)
+		end
+		setWeaponMod(weaponMod)
+		private.needsUpdate = true
+		-- no need for an updatePanel call here --- panel will be updated during this frame via the onUpdate-call
+
+		resetOverheatSound()
+		resetReloadSound()
+	end
+end
+
+function switchWeaponIcon(weaponIcon)
+	if private.panelState == 1 then
+		goToSlide(private.gun, "switch")
+		SetIcon(private.weaponTexture2, weaponIcon, nil, nil, nil, false)
+		private.panelState = 2
+	else -- panelState is 2
+		goToSlide(private.gun, "switch2")
+		SetIcon(private.weaponTexture1, weaponIcon, nil, nil, nil, false)
+		private.panelState = 1
+	end
+end
+
+function updatePanel(ammo, damageState, reloadTime, heatPercent, heatColor, overheatWarning)
+	if private.ammoTextEnabled then
+		setAmmoText(ammo)
+	end
+	setDamageState(damageState)
+
+	if private.reloadEnabled then
+		-- reload mode --- only bar needs updating
+		setBar(reloadTime, config.reloadBarColor)
+	elseif private.overheatEnabled then
+		setBar(heatPercent/100, config.overheatBarColor[heatColor])
+		setOverheatState(overheatWarning)
+	end
+end
+
+
+function onButtonDown(_, button)
+	DebugError("Event Key Down received, Burron: "..button.." pressed ")
+	SignalObject( playership , "KeyDown" , button )
+end
+
+
+function onButtonUp(_, button)
+	DebugError("Event Key Up received, Burron: "..button.." released ")
+	SignalObject( playership , "KeyUp" , button )
 end
