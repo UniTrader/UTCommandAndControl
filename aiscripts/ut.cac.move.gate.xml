@@ -98,7 +98,7 @@
       <!-- wait until we are next going through the Gate and then move to entry approach pos -->
       <do_while value="global.$gate_queue.{$gate}.indexof.{this.ship} gt 1">
         <wait>
-		  <interrupt_after_time time="2min"/>
+		      <interrupt_after_time time="2min"/>
           <interrupt>
             <conditions>
               <event_object_signalled object="this.ship" param="'travel gate next'"/>
@@ -187,7 +187,9 @@
     <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
       <do_if value="global.$gate_queue.{$gate}.{1} == this.ship">
         <remove_value name="global.$gate_queue.{$gate}.{1}"/>
-        <signal_objects object="global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
+        <do_if value="global.$gate_queue.{$gate}.{1}?">
+          <signal_objects object="global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
+        </do_if>
       </do_if>
       <do_else>
         <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
