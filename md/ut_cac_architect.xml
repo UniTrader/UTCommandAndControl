@@ -211,7 +211,17 @@ Rest is shared between all Actor types
                   <add_player_choice text="'Extend Station (UI)'" position="1" section="comm_orders_extend_ui" selectable="$actor.$ut_cac.$orderedbuildplanlist" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
                   <add_player_choice text="'Extend Station (Dialogue)'" position="4" section="comm_orders_extend_dia" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
                   <add_player_choice text="'Upgrade Station'" position="2" section="comm_orders_upgrade" selectable="$actor.$ut_cac.$orderedbuildplanlist" />
-                  <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
+                  <!-- find anything which can be repaired ( ToDo: maybe some Filtering?? )-->
+                  <!-- this Value will also be used in the Section called by this choice!!! -->
+                  <find_object_component name="$RepairableParts" object="$station" checkoperational="false" multiple="true">
+                    <match_any>
+                      <match restorable="true" comment="wrecked"/>
+                      <match repairable="true" invulnerable="false">
+                        <match_hull min="99" negate="true" />
+                      </match>
+                    </match_any>
+                  </find_object_component>
+                  <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if not  $RepairableParts.count then 'nothing to repair'" selectable="$actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
                   <add_player_choice text="'Detach from Station'" position="5" section="comm_orders_detach" selectable="false and $station.exists" tooltip="'Not implemented yet'" />
                 </do_if>
                 <do_else>
@@ -334,15 +344,6 @@ Rest is shared between all Actor types
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
-              <!-- find anything which can be repaired ( ToDo: maybe some Filtering?? ) -->
-              <find_object_component name="$RepairableParts" object="$station" checkoperational="false" multiple="true">
-                <match_any>
-                  <match restorable="true" comment="wrecked"/>
-                  <match repairable="true" invulnerable="false">
-                    <match_hull min="99" negate="true" />
-                  </match>
-                </match_any>
-              </find_object_component>
               <!-- Create Choice Lists here  -->
               <set_value name="$TextList" exact="[]"/>
               <set_value name="$SelectList" exact="[]"/>
