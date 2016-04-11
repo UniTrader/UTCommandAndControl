@@ -358,7 +358,12 @@ Rest is shared between all Actor types
               <set_value name="$slot" exact="1"/>
               <do_all exact="$TextList.count" counter="$i">
                 <add_player_choice text="$TextList.{$i}" position="$slot" section="comm_orders_repair_selected" choiceparam="$SelectList.{$i}"/>
+                <set_value name="$slot" operation="add"/>
+                <do_if value="$slot" exact="7">
+                  <break/>
+                </do_if>
               </do_all>
+              <remove_value name="$slot"/>
               <add_player_choice_return text="{5554103,7}" position="6" />
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
