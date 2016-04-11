@@ -78,10 +78,10 @@
       <!-- check if we should repair the whole Station we are connected to or just a certain component of it -->
       <!-- ToDo: add functions to make Repairs of nearby Ships if CV is Deployed but not connected -->
       <do_if value="this.ship.buildmodule.buildanchor == $component">
-        <repair_object buildmodule="this.ship.buildmodule" sequence="$sequence" stage="$stage" hullfraction="$fraction" buildlimit="$buildlimit" updatebuild="true"/>
+        <repair_object buildmodule="this.ship.buildmodule" sequence="$sequence" stage="$stage" hullfraction="$targetcondition" updatebuild="true"/>
       </do_if>
       <do_else>
-        <repair_component buildmodule="this.ship.buildmodule" component="$component" hullfraction="$fraction"/>
+        <repair_component buildmodule="this.ship.buildmodule" component="$component" hullfraction="$targetcondition"/>
       </do_else>
       <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
       <wait>
