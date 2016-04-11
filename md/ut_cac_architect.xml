@@ -221,7 +221,7 @@ Rest is shared between all Actor types
                       </match>
                     </match_any>
                   </find_object_component>
-                  <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if not  $RepairableParts.count then 'nothing to repair'" selectable="$actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
+                  <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if $RepairableParts.count then '%1 Parts need repairs'.[$RepairableParts.count] else 'nothing to repair'" selectable="$actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
                   <add_player_choice text="'Detach from Station'" position="5" section="comm_orders_detach" selectable="false and $station.exists" tooltip="'Not implemented yet'" />
                 </do_if>
                 <do_else>
@@ -349,8 +349,8 @@ Rest is shared between all Actor types
               <set_value name="$SelectList" exact="[]"/>
               <do_all exact="$RepairableParts.count" counter="$i">
                 <do_if value="not $RepailableParts.{$i}.parent.iswrecked">
-                  <append_to_list name="$TextList" exact="$RepailableParts.{$i}.name"/>
-                  <append_to_list name="$SelectList" exact="$RepailableParts.{$i}"/>
+                  <append_to_list name="$TextList" exact="$RepairableParts.{$i}.name"/>
+                  <append_to_list name="$SelectList" exact="$RepairableParts.{$i}"/>
                 </do_if>
               </do_all>
               <!-- This part is planned to be replaced by a Menu which can display all choices instead of using the Dialogue                                                                          vvvvvvvvvvvvvvvvvv the nulls here are button 2 and 3 with their respective next section -->
