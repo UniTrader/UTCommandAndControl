@@ -130,7 +130,9 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
       
       <!-- remove ourselves from the Waiting List, signal the next to go -->
-      <remove_value name="global.$gate_queue.{$gate}.{1}"/>
+      <do_if value="global.$gate_queue.{$gate}.{1}? and global.$gate_queue.{$gate}.{1} == this.ship">
+        <remove_value name="global.$gate_queue.{$gate}.{1}"/>
+      </do_if>
       <do_if value="global.$gate_queue.{$gate}.{1}?">
         <signal_objects object="global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
       </do_if>
