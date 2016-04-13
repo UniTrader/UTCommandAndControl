@@ -339,6 +339,21 @@ Rest is shared between all Actor types
           </actions>
         </cue>
         
+        <cue name="ZonetradeCleanup" instantiate="true">
+          <!-- Adds a Cleanup Order to the Managers Orderlist because starting Zonetrade and Clearing it up are two seperate Actions -->
+          <conditions>
+            <check_any>
+              <event_trade_order_cancelled buyer="$actor.container"/>
+              <event_trade_order_completed buyer="$actor.container"/>
+            </check_any>
+          </conditions>
+          <actions>
+            <do_if value="event.param == $actor.$ut_cac.$currenttrade">
+              <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname='Zonetrade Cleanup',$cleanup=event.param,$interruptable=false]"/>
+            </do_if>
+          </actions>
+        </cue>
+        
         <cue name="NPC_Destroyed">
           <conditions>
             <event_object_destroyed object="$actor"/>

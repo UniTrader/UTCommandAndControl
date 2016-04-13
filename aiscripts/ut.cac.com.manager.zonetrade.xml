@@ -3,25 +3,11 @@
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
   </params>
-  <interrupts>
-    <handler comment="Print Script Vars">
-      <conditions>
-        <event_object_signalled object="this" param="'print script vars to logfile'"/>
-      </conditions>
-      <actions>
-        <debug_text filter="general" text="'\n
-        Manager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n
-        this.$legality = ' + this.$legality + '\n
-        $bug = ' + $bug + '\n
-        NOTE: ONLY VALUES I CREATED MYSELF INCLUDED - nothing from C+P Code Snippets
-        '"/>
-      </actions>
-    </handler>
-  </interrupts>
-  <init>
-  </init>
   <attention min="unknown">
     <actions>
+      <do_if value="$params.$cleanup">
+        <resume label="cleanup"/>
+      </do_if>
       <label name="start"/>
       <!-- Zone Trading with Cargo Drones - copied from Vanilla for now -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Doing a Zone Trade Run for now'.[player.age,this.name,this.container.name]"/>
@@ -105,27 +91,21 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Manager Zonetrade Executing Trade'.[player.age,this.name]"/>
         <show_notification caption="'Manager does Zonetrade!!!'" details="'Ware: %1\nAmount: %2\nTradepartner: %3'.[$finalselloffer.ware,$finalamount,$finalselloffer.owner.knownname]"/>
         <execute_trade tradeoffer="$finalselloffer" amount="$finalamount" tradepartner="this.container" result="$traderesult" unbundle="$unbundle?">
-          <interrupt_after_time time="1min"/>
+          <interrupt_after_time time="3s"/>
         </execute_trade>
         <set_value name="this.$ut_cac.$currenttrade" exact="$finalselloffer"/>
-        <!-- Cleanup Stuff is in Signal Handlers of ut.cac.base.manager, here a copy for reference: 
-    <handler comment="Zonetrade Cleanup">
-      <conditions>
-        <check_any>
-          <event_trade_order_cancelled buyer="this.container"/>
-          <event_trade_order_completed buyer="this.container"/>
-        </check_any>
-      </conditions>
-      <actions>
-        <do_if value="event.param == this.$ut_cac.$currenttrade">
-          <remove_ware_reservation object="this.container" entity="this" ware="event.param.ware"/>
-          <set_value name="entity.$ut_cac.$currenttrade" exact="null"/>
-        </do_if>
-      </actions>
-    </handler>
-        -->
-        <!-- no need to call detach_from_masstraffic since stations in the same zone are linked with a static network that persists anyway -->
       </do_if>
+      <resume label="finish"/>
+      <!-- Cleanup Order is added via MD when the Trade is completed, but actual cleanup is done vie AI because only here the reservation can be removed - this seperation is done to prevent a blocking of the Manager during a Zone Trade -->
+      <label name="cleanup"/>
+        <do_if value="$params.$trade == this.$ut_cac.$currenttrade">
+          <remove_ware_reservation object="this.container" entity="this" ware="$params.$trade.ware"/>
+          <remove_value name="this.$ut_cac.$currenttrade"/>
+          <wait exact="3s"/>
+          <!-- no need to call detach_from_masstraffic since stations in the same zone are linked with a static network that persists anyway -->
+        </do_if>
+      
+      <label name="finish"/>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Manager Zonetrade Script finished'.[player.age,this.name,this.container.name] + ( if this.$ut_cac.$currenttrade then ' - executing Trade %1'.[$finalselloffer] )"/>
       
