@@ -152,6 +152,7 @@ Rest is shared between all Actor types
               <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Build Station (moveto)',$buildlocation=$buildlocation,$zone=$zone,$macro=$stationmacro,$upgradeplanlist=event.param2.{3},$interruptable=false]"/>
               <!-- create buildplan var from temp station of planned type.. $TempCluster and everything within will be cleared once the first stage is complete-->
               <create_presentation_cluster name="$TempCluster"/>
+              <set_presentation_cluster_persistence cluster="$TempCluster" persistent="true"/>
               <find_zone name="$TempZone" space="$TempCluster" />
               <create_station name="$TempStation" macro="$stationmacro" owner="faction.neutral" zone="$TempZone"/>
               <set_value name="$actor.$ut_cac.$orderedbuildplanlist" exact="[]"/>
@@ -502,7 +503,7 @@ Rest is shared between all Actor types
                 <event_build_finished object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
               </conditions>
               <actions>
-                <!-- Clean up tem Stuff and refer with $Station to the correct Station -->
+                <!-- Clean up temp Stuff and refer with $Station to the correct Station -->
                 <set_value name="$station" exact="$actor.ship.buildmodule.buildanchor"/>
                 <destroy_object object="$TempStation"/>
                 <destroy_object object="$TempZone"/>
