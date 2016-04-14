@@ -160,6 +160,10 @@ Rest is shared between all Actor types
                 <append_to_list name="$actor.$ut_cac.$orderedbuildplanlist" exact="[ $TempStation.completebuildplan.sequences.{$i} , 0 ]"/>
               </do_all>
               <set_value name="$station" exact="$TempStation" comment="use the Temp Station until the Station exists (build started)"/>
+              <do_if value="UT_CAC_Architect.SwitchToPermanentStationB.state == cuestate.waiting" comment="waiting for a deployment which will never happen - reseting parent cue">
+                <reset_cue cue="SwitchToPermanentStationA"/>
+                <debug_text filter="error" text="'resetting Cue SwitchToPermanentStationA because SwitchToPermanentStationB is still in waiting state although it shouldnt be!"/>
+              </do_if>
               <signal_cue cue="SwitchToPermanentStationA" comment="this cue destroys the temp station when not needed anymore and updates the Station reference to the Station which is built"/>
             </do_elseif>
             
@@ -419,7 +423,7 @@ Rest is shared between all Actor types
             
           </actions>
         </cue>
-        <!-- Menu 2: Object Settings specific to Captain -->
+        <!-- Menu 2: Object Settings specific to Architect -->
         <cue name="Comm_Settings" instantiate="true">
           <conditions>
             <check_any>
@@ -500,7 +504,7 @@ Rest is shared between all Actor types
           <cues>
             <cue name="SwitchToPermanentStationB">
               <conditions>
-                <event_build_finished object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
+                <event_build_started object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
               </conditions>
               <actions>
                 <!-- Clean up temp Stuff and refer with $Station to the correct Station -->
@@ -508,6 +512,7 @@ Rest is shared between all Actor types
                 <destroy_object object="$TempStation"/>
                 <destroy_object object="$TempZone"/>
                 <destroy_object object="$TempCluster"/>
+                <reset_cue cue="SwitchToPermanentStationA"/>
               </actions>
             </cue>
           </cues>
