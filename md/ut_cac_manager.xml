@@ -298,24 +298,30 @@ Rest is shared between all Actor types
           <param name="actor" value="$actor"/>
         </cue>
         
-        <cue name="Assigned_to_station_or_ship">
+        <cue name="Actor_Transport_complete">
           <conditions>
-            <check_any>
+            <check_all>
+              <event_object_signalled object="$actor" param="'remote_passenger_arrived'" />
               <check_value value="($actor.container.isclass.station or actor.ship.buildmodule?) and not @$actor.container.controlentity.{$actor.type}"/>
-              <check_all>
-                <event_object_signalled object="$actor" param="'remote_passenger_arrived'" />
-                <check_value value="($actor.container.isclass.station or actor.ship.buildmodule?) and not @$actor.container.controlentity.{$actor.type}"/>
-              </check_all>
-            </check_any>
+            </check_all>
           </conditions>
           <delay exact="1ms"/>
+          <actions>
+            <assign_control_entity object="$actor.container" actor="$actor" />
+            <reset_cue cue="this"/>
+          </actions>
+        </cue>
+        <cue name="Assigned_as_control_entity">
+          <conditions>
+            <event_control_entity_added entity="$actor"/>
+          </conditions>
           <cues>
             <cue name="Removed_from_Assignment">
               <conditions>
                 <event_object_signalled object="$actor" param="'remote_transport_started'"/>
               </conditions>
               <actions>
-                <reset_cue cue="Assigned_to_station_or_ship"/>
+                <reset_cue cue="Assigned_as_control_entity"/>
               </actions>
             </cue>
             <cue name="Subordinate_Added" instantiate="true">
