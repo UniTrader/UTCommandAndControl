@@ -298,62 +298,83 @@ Rest is shared between all Actor types
           <param name="actor" value="$actor"/>
         </cue>
         
-        
-        <cue name="Subordinate_Added" instantiate="true">
+        <cue name="Assigned_to_station_or_ship">
           <conditions>
             <check_any>
-              <!--event_object_signalled object="this" param2="'register subordinate'"/-->
-              <event_object_subordinate_added object="$actor.container" commandertype="entitytype.manager"/>
-              <event_object_subordinate_removed object="$actor.container" />
+              <check_value value="($actor.container.isclass.station or actor.ship.buildmodule?) and not @$actor.container.controlentity.{$actor.type}"/>
+              <check_all>
+                <event_object_signalled object="$actor" param="'remote_passenger_arrived'" />
+                <check_value value="($actor.container.isclass.station or actor.ship.buildmodule?) and not @$actor.container.controlentity.{$actor.type}"/>
+              </check_all>
             </check_any>
           </conditions>
-          <actions>
-            <do_if value="not ( event.param.isclass.drone or  event.param.isclass.ship_xs or  event.param.isclass.ship_s )" comment="too much debug spam for all those mining drones!">
-              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-              
-              <!-- Re-Adjust Wanted Amount for Fuel Cells (consumable, but neither involved in the Production nor in Trading ) - keep a complete refill for everyone in storage -->
-              <!-- re-calculation only necesary for bigger Ships (also taking into account that there will be possibly M Ships with JD) -->
-              <set_value name="$fuelcells_targetamount" exact="0"/>
-              <do_all exact="$actor.container.subordinates.count" counter="$i">
-                <set_value name="$fuelcells_targetamount" exact="[$actor.container.subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
-              </do_all>
-              <set_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$target" exact="$fuelcells_targetamount"/>
-            </do_if>
-            <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
-              <do_if value="@event.param.pilot.$XRCLS and @event.param.pilot.$XRCLS.{1} == true" comment="MT Station Logistics Ship - Ignore as new Subordinate"/>
-              <do_elseif value="event.param.primarypurpose == objectpurpose.build" comment="Construction Vessel - ignore as new Subordinate"/>
-              <do_elseif value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
-                <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
-                <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
-              </do_elseif>
-              <do_else>
-                <!-- cannt use this Ship for anything - remove assignment (maybe add passing it to the right entity? ) -->
-                <!-- ToDo: Also add an obvious Error Message - currently this fails siltently for the player-->
-                <debug_text filter="error" text="'trying to add a non-trade Ship ( %1 ) to a Manager ( %2 , %3 in %4 ) - not supported yet!'.[event.param.name,$actor.name,$actor.station.name,$actor.zone.name]"/>
-                <remove_object_commander object="event.param"/>
-              </do_else>
-            </do_if>
-            <do_elseif value="event.name == 'event_object_subordinate_removed'">
-              <remove_actor_account actor="event.param.pilot"/>
-            </do_elseif>
-          </actions>
+          <delay exact="1ms"/>
+          <cues>
+            <cue name="Removed_from_Assignment">
+              <conditions>
+                <event_object_signalled object="$actor" param="'remote_transport_started'"/>
+              </conditions>
+              <actions>
+                <reset_cue cue="Assigned_to_station_or_ship"/>
+              </actions>
+            </cue>
+            <cue name="Subordinate_Added" instantiate="true">
+              <conditions>
+                <check_any>
+                  <!--event_object_signalled object="this" param2="'register subordinate'"/-->
+                  <event_object_subordinate_added object="$actor.container" commandertype="entitytype.manager"/>
+                  <event_object_subordinate_removed object="$actor.container" />
+                </check_any>
+              </conditions>
+              <actions>
+                <do_if value="not ( event.param.isclass.drone or  event.param.isclass.ship_xs or  event.param.isclass.ship_s )" comment="too much debug spam for all those mining drones!">
+                  <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+                  
+                  <!-- Re-Adjust Wanted Amount for Fuel Cells (consumable, but neither involved in the Production nor in Trading ) - keep a complete refill for everyone in storage -->
+                  <!-- re-calculation only necesary for bigger Ships (also taking into account that there will be possibly M Ships with JD) -->
+                  <set_value name="$fuelcells_targetamount" exact="0"/>
+                  <do_all exact="$actor.container.subordinates.count" counter="$i">
+                    <set_value name="$fuelcells_targetamount" exact="[$actor.container.subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
+                  </do_all>
+                  <set_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$target" exact="$fuelcells_targetamount"/>
+                </do_if>
+                <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
+                  <do_if value="@event.param.pilot.$XRCLS and @event.param.pilot.$XRCLS.{1} == true" comment="MT Station Logistics Ship - Ignore as new Subordinate"/>
+                  <do_elseif value="event.param.primarypurpose == objectpurpose.build" comment="Construction Vessel - ignore as new Subordinate"/>
+                  <do_elseif value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
+                    <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
+                    <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
+                  </do_elseif>
+                  <do_else>
+                    <!-- cannt use this Ship for anything - remove assignment (maybe add passing it to the right entity? ) -->
+                    <!-- ToDo: Also add an obvious Error Message - currently this fails siltently for the player-->
+                    <debug_text filter="error" text="'trying to add a non-trade Ship ( %1 ) to a Manager ( %2 , %3 in %4 ) - not supported yet!'.[event.param.name,$actor.name,$actor.station.name,$actor.zone.name]"/>
+                    <remove_object_commander object="event.param"/>
+                  </do_else>
+                </do_if>
+                <do_elseif value="event.name == 'event_object_subordinate_removed'">
+                  <remove_actor_account actor="event.param.pilot"/>
+                </do_elseif>
+              </actions>
+            </cue>
+           
+            <cue name="ZonetradeCleanup">
+              <!-- Adds a Cleanup Order to the Managers Orderlist because starting Zonetrade and Clearing it up are two seperate Actions -->
+              <conditions>
+                <check_any>
+                  <event_trade_order_cancelled buyer="$actor.container"/>
+                  <event_trade_order_completed buyer="$actor.container"/>
+                </check_any>
+              </conditions>
+              <actions>
+                <do_if value="event.param == $actor.$ut_cac.$currenttrade">
+                  <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname='Zonetrade Cleanup',$cleanup=event.param,$interruptable=false]"/>
+                </do_if>
+                <reset_cue cue="this"/>
+              </actions>
+            </cue>
+          </cues>
         </cue>
-        
-        <cue name="ZonetradeCleanup" instantiate="true">
-          <!-- Adds a Cleanup Order to the Managers Orderlist because starting Zonetrade and Clearing it up are two seperate Actions -->
-          <conditions>
-            <check_any>
-              <event_trade_order_cancelled buyer="$actor.container"/>
-              <event_trade_order_completed buyer="$actor.container"/>
-            </check_any>
-          </conditions>
-          <actions>
-            <do_if value="event.param == $actor.$ut_cac.$currenttrade">
-              <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname='Zonetrade Cleanup',$cleanup=event.param,$interruptable=false]"/>
-            </do_if>
-          </actions>
-        </cue>
-        
         <cue name="NPC_Destroyed">
           <conditions>
             <event_object_destroyed object="$actor"/>
