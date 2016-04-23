@@ -118,7 +118,7 @@
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
         <position x="0m" y="0m" z="0 - ( $gate.size + this.ship.size )"/>
       </transform_position>
-      <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="if 2 then global.$gate_queue.{$gate}.{1}" comment="ignore previous Ship since it is currently clearing that position (we should still be in a safe distance)"/>
+      <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="if global.$gate_queue.{$gate}.{1}? then global.$gate_queue.{$gate}.{1} else this.ship" comment="ignore previous Ship since it is currently clearing that position (we should still be in a safe distance)"/>
       <create_orientation name="$rotation" orientation="look_at" refobject="$gate">
         <position value="$safeposition"/>
       </create_orientation>
@@ -196,9 +196,15 @@
       <do_if value="global.$gate_queue.{$gate}.{1}? and global.$gate_queue.{$gate}.{1} == this.ship">
         <remove_value name="global.$gate_queue.{$gate}.{1}"/>
       </do_if>
+      <do_while value="global.$gate_queue.{$gate}.{1}? and not global.$gate_queue.{$gate}.{1}.exists" comment="experimental cleanup to resolve debug errors">
+        <remove_value name="global.$gate_queue.{$gate}.{1}"/>
+      </do_while>
       <do_if value="global.$gate_queue.{$gate}.{1}?">
-        <signal_objects object="if 5 then global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
+        <signal_objects object="then global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
       </do_if>
+      <do_while value="global.$gate_queue.{$gate}.{2}? and not global.$gate_queue.{$gate}.{2}.exists" comment="experimental cleanup to resolve debug errors">
+        <remove_value name="global.$gate_queue.{$gate}.{2}"/>
+      </do_while>
       <do_if value="global.$gate_queue.{$gate}.{2}?">
         <signal_objects object="global.$gate_queue.{$gate}.{2}" param="'travel gate next'"/>
       </do_if>
