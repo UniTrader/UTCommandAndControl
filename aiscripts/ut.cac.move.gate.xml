@@ -108,7 +108,7 @@
         <!-- remove Ships not in queue anymore (fallback cleanup in case something went wrong) -->
         <do_if value="not global.$gate_queue.{$gate}.{1}.exists or global.$gate_queue.{$gate}.{1}.zone != $gate.zone">
           <debug_text filter="error" text="'%1 %2 %3 Removing first Ship from queue because its not waiting for passage anymore: %4'.[player.age,this.name,this.container.name,global.$gate_queue.{$gate}.{1}]"/>
-          <remove_value name="if 1 then global.$gate_queue.{$gate}.{1}"/>
+          <remove_value name="global.$gate_queue.{$gate}.{1}"/>
         </do_if>
       </do_while>
       
@@ -151,7 +151,7 @@
         <!-- remove Ships not in queue anymore (fallback cleanup in case something went wrong) -->
         <do_if value="not global.$gate_queue.{$gate}.{1}.exists or global.$gate_queue.{$gate}.{1}.zone != $gate.zone">
           <debug_text filter="error" text="'%1 %2 %3 Removing first Ship from queue because its not waiting for passage anymore: %4'.[player.age,this.name,this.container.name,global.$gate_queue.{$gate}.{1}]"/>
-          <remove_value name="if 3 then global.$gate_queue.{$gate}.{1}"/>
+          <remove_value name="global.$gate_queue.{$gate}.{1}"/>
         </do_if>
       </do_while>
       
@@ -194,7 +194,7 @@
       <!-- unlock Gate (Vanilla) and remove ourselves from the Waiting List, signal the next to go/prepare (UT CAC) -->
       <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
       <do_if value="global.$gate_queue.{$gate}.{1}? and global.$gate_queue.{$gate}.{1} == this.ship">
-        <remove_value name="if 4 then global.$gate_queue.{$gate}.{1}"/>
+        <remove_value name="global.$gate_queue.{$gate}.{1}"/>
       </do_if>
       <do_if value="global.$gate_queue.{$gate}.{1}?">
         <signal_objects object="if 5 then global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
@@ -222,7 +222,7 @@
     <!-- remove ourselves from the waiting List if we are in it -->
     <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
       <do_if value="global.$gate_queue.{$gate}.{1} == this.ship">
-        <remove_value name="if 6 then global.$gate_queue.{$gate}.{1}"/>
+        <remove_value name="global.$gate_queue.{$gate}.{1}"/>
         <do_if value="global.$gate_queue.{$gate}.{1}?">
           <signal_objects object="if 7 then global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
         </do_if>
