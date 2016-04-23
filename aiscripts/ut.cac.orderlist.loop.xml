@@ -22,6 +22,7 @@
         <do_if value="event.param == 'new order' or event.param == 'interrupt order' or event.param == 'request orders'">
           <do_if value="event.param == 'request orders'">
             <!-- ToDo: make this more specific/handle more cases -->
+            <debug_text filter="general" text="'%1 %2 %3 Received request Orders Signal from %4 %5'.[player.age,this.name,this.container.name,event.param.name,event.param.container.name]"/>
             <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=event.param2,$interruptable=false] ]"/>
             <set_value name="$order_pos" exact="0"/>
           </do_if>
