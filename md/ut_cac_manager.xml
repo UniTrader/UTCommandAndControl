@@ -308,12 +308,13 @@ Rest is shared between all Actor types
           <delay exact="1ms"/>
           <actions>
             <assign_control_entity object="$actor.container" actor="$actor" />
+            <signal_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="this"/>
           </actions>
         </cue>
         <cue name="Assigned_as_control_entity">
           <conditions>
-            <event_control_entity_added entity="$actor"/>
+            <event_cue_signalled/>
           </conditions>
           <cues>
             <cue name="Removed_from_Assignment">
@@ -348,8 +349,10 @@ Rest is shared between all Actor types
                   <do_if value="@event.param.pilot.$XRCLS and @event.param.pilot.$XRCLS.{1} == true" comment="MT Station Logistics Ship - Ignore as new Subordinate"/>
                   <do_elseif value="event.param.primarypurpose == objectpurpose.build" comment="Construction Vessel - ignore as new Subordinate"/>
                   <do_elseif value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
-                    <!--  start my Queue Script to begin Trading (it defaults to Trade Commands if no Orders are given) -->
-                    <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
+                    <!-- convert new Subordinate to my command model if not already happened -->
+                    <do_if value="not event.param.pilot.$ut_cac?">
+                      <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
+                    </do_if>
                   </do_elseif>
                   <do_else>
                     <!-- cannt use this Ship for anything - remove assignment (maybe add passing it to the right entity? ) -->
