@@ -38,18 +38,18 @@
         <create_platform_actor name="$defencemanager" dockingbay="$dock.component" type="entitytype.defencecontrol"><owner exact="faction.player"/></create_platform_actor>
         <create_platform_actor name="$engineer" dockingbay="$dock.component" type="entitytype.engineer"><owner exact="faction.player"/></create_platform_actor>
         <assign_engineer actor="$engineer" object="$constructionship"/>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistagriculture"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistpowerstorage"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistfood"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistchemical"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistprecision"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistweapons"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistpharmaceuticals"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistmetals"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistgeophysics"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistsurfacesystems"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistpowersupply"><owner exact="faction.player"/></create_platform_actor>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistaquatics"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistagriculture"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistpowerstorage"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistfood"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistchemical"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistprecision"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistweapons"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistpharmaceuticals"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistmetals"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistgeophysics"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistsurfacesystems"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistpowersupply"><owner exact="faction.player"/></create_platform_actor>
+        <create_platform_actor name="$actor" dockingbay="$dock.component" type="entitytype.specialistaquatics"><owner exact="faction.player"/></create_platform_actor>
         
         <!-- create Trading Ship -->
         <create_ship name="$ship" macro="macro.units_size_xl_cs_omicron_ship_01_macro" zone="player.zone">
@@ -69,6 +69,13 @@
         <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$pilot"/>
       </actions>
       <cues>
+        <cue name="Set Debug Vars">
+          <delay exact="100ms"/>
+          <actions>
+            <set_value name="$manager.$debug" exact="true"/>
+            <set_value name="$pilot.$debug" exact="true"/>
+          </actions>
+        </cue>
         <cue name="Cheat_Build_mats" instantiate="true">
           <conditions>
             <event_build_started object="$ship"/>
