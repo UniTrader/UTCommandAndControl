@@ -308,11 +308,16 @@
           <find_object_component name="$specialist" object="this.ship" entitytype="$specialisttypes.{$i}" />
           <do_if value="$specialist.exists">
             <start_actor_transport actor="$specialist" target="$station"/>
-        <wait exact="10s" comment="to avoid simultaneous starts and arrivals"/>
+            <wait exact="10s" comment="to avoid simultaneous starts and arrivals"/>
           </do_if>
         </do_if>
       </do_all>
       <!-- Transfer subordinate Ships to the Station (CAC Manager will make sure to also deliver Building Materials) -->
+      <set_value name="$subordinates" exact="this.ship.subordinates.clone"/>
+      <do_all exact="$subordinates.count" counter="$i">
+        <set_object_commander object="$subordinates.{$i}" commander="$station" type="entitytype.manager"/>
+        <wait exact="10s"/>
+      </do_all>
       <!-- WIP !!!! -->
       <label name="finish"/>
       

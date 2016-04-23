@@ -3,7 +3,7 @@
   <cues>
     <cue name="Cheat_Ship_with_surplus_crew">
       <actions>
-        <create_ship name="$ship" macro="macro.units_size_xl_builder_ship_macro" zone="player.zone">
+        <create_ship name="$constructionship" macro="macro.units_size_xl_builder_ship_macro" zone="player.zone">
           <owner exact="faction.player"/>
           <units>
             <unit category="unitcategory.welder" mk="1" exact="100"/>
@@ -11,27 +11,32 @@
           <safepos x="0m" y="0m" z="-10km" radius="2km"/>
         </create_ship>
         <!-- Create UT CAC NPCs --> 
-        <find_dock_location name="$dock" container="$ship" multiple="false" />
+        <find_dock_location name="$dock" container="$constructionship" multiple="false" />
         <create_cue_actor name="$pilot" cue="this"><owner exact="faction.player"/></create_cue_actor>
         <add_actor_to_platform actor="$pilot" dockingbay="$dock.component"/>
         <remove_cue_actor actor="$pilot" cue="this"/>
-        <assign_pilot actor="$pilot" object="$ship"/>
-        <add_to_player_squad object="$ship"/>
+        <assign_pilot actor="$pilot" object="$constructionship"/>
+        <add_to_player_squad object="$constructionship"/>
         <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$pilot"/>
         
         <create_cue_actor name="$architect" cue="this"><owner exact="faction.player"/></create_cue_actor>
         <add_actor_to_platform actor="$architect" dockingbay="$dock.component"/>
         <remove_cue_actor actor="$architect" cue="this"/>
         <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="$architect"/>
-        <assign_architect actor="$architect" object="$ship"/>
+        <assign_architect actor="$architect" object="$constructionship"/>
+        
+        <create_cue_actor name="$manager" type="entitytype.manager"><owner exact="faction.player"/></create_cue_actor>
+        <add_actor_to_platform actor="$manager" dockingbay="$dock.component"/>
+        <remove_cue_actor actor="$manager" cue="this"/>
+        <signal_cue_instantly cue="md.UT_CAC_Manager.Main" param="$architect"/>
+        <assign_trade_manager actor="$architect" object="$constructionship"/>
         
         <!-- create NPCs using Vanilla Dialogue -->
         <create_platform_actor name="$defencemanager" dockingbay="$dock.component" type="entitytype.defencecontrol"><owner exact="faction.player"/></create_platform_actor>
-        <assign_defence_manager actor="$defencemanager" object="$ship" />
+        <assign_defence_manager actor="$defencemanager" object="$constructionship" />
         <create_platform_actor name="$defencemanager" dockingbay="$dock.component" type="entitytype.defencecontrol"><owner exact="faction.player"/></create_platform_actor>
         <create_platform_actor name="$engineer" dockingbay="$dock.component" type="entitytype.engineer"><owner exact="faction.player"/></create_platform_actor>
-        <assign_engineer actor="$engineer" object="$ship"/>
-        <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.manager"><owner exact="faction.player"/></create_platform_actor>
+        <assign_engineer actor="$engineer" object="$constructionship"/>
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistagriculture"><owner exact="faction.player"/></create_platform_actor>
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistpowerstorage"><owner exact="faction.player"/></create_platform_actor>
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistfood"><owner exact="faction.player"/></create_platform_actor>
@@ -44,6 +49,23 @@
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistsurfacesystems"><owner exact="faction.player"/></create_platform_actor>
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistpowersupply"><owner exact="faction.player"/></create_platform_actor>
         <create_platform_actor name="$manager" dockingbay="$dock.component" type="entitytype.specialistaquatics"><owner exact="faction.player"/></create_platform_actor>
+        
+        <!-- create Trading Ship -->
+        <create_ship name="$ship" macro="macro.units_size_xl_cs_omicron_ship_01_macro" zone="player.zone">
+          <owner exact="faction.player"/>
+          <units>
+            <unit category="unitcategory.transport" mk="1" exact="50"/>
+          </units>
+          <safepos x="0m" y="0m" z="-10km" radius="2km"/>
+        </create_ship>
+        <!-- Create UT CAC NPCs --> 
+        <find_dock_location name="$dock" container="$ship" multiple="false" />
+        <create_cue_actor name="$pilot" cue="this"><owner exact="faction.player"/></create_cue_actor>
+        <add_actor_to_platform actor="$pilot" dockingbay="$dock.component"/>
+        <remove_cue_actor actor="$pilot" cue="this"/>
+        <assign_pilot actor="$pilot" object="$ship"/>
+        <set_object_commander object="$ship" commander="$constructionship" type="entitytype.manager"/>
+        <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$pilot"/>
       </actions>
       <cues>
         <cue name="Cheat_Build_mats" instantiate="true">
