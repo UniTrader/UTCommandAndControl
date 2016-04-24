@@ -512,7 +512,11 @@ $entity  = ' + $entity"/>
           
           <get_ware_reservation ware="$ware" object="$ConstructionVessel" result="$incomingamount" type="sell"/>
           <get_ware_reservation ware="$ware" object="$ConstructionVessel" result="$outgoingamount" type="buy"/>
-        <!-- still needed Amount (not used since Construction Materials always have the same Importance imo): exact="$ConstructionVessel.buildmodule.neededslotresources.{$buildmaterials.{$i}}.count - $incomingamount + $outgoingamount" -->
+          <!-- check if we still need this Ware (taking reservations into account) and continue if not -->
+          <do_if value="( $ConstructionVessel.buildmodule.neededslotresources.{$buildmaterials.{$i}}.count - $incomingamount + $outgoingamount ) le 0">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'Skipping Ware beause delivery is already on the way'"/>
+            <continue/>
+          </do_if>
           <set_value name="$prio" exact="param.ut_cac.waretypepriorities.$buildingmaterial"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Building Material is: ' + $prio"/>
           <!-- no need to include the Wares where we have the desired amount -->
@@ -666,7 +670,6 @@ $entity  = ' + $entity"/>
                 $entity.ship.cargo.{$ware}.free, 
                 (this.money/$selloffer.unitprice)i 
             ].min"/>
-            
             </do_if>
             <do_else>
               <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
@@ -678,6 +681,10 @@ $entity  = ' + $entity"/>
                 (this.money/$selloffer.unitprice)i 
             ].min"/>
             </do_else>
+            <do_if value="$amount le 0">
+              <debug_text filter="general" chance="@this.$debug * 100" text="'Skipping Ware %1 beause $amount is 0 or less'.[$ware]"/>
+              <continue/>
+            </do_if>
             <!--set_value name="$created_buyoffer"/>
                 <debug_text filter="general" text="'Station %1 has no fitting buy offer - creating one to be able to sell the necesary ware ( %2x %3 ).'.[this.container.name,$amount,$ware]" />
                 </do_if>
