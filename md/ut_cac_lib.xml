@@ -1061,8 +1061,10 @@ Which Orders are available depends on entity Type
           <!-- Order is at same Position as when we entered the Menu - we can safely cancel it if its still interruptable -->
           <do_if value="$actor.$orderlist.{event.param2.{3}} == event.param2.{2}">
             <do_if value="$actor.$orderlist.{event.param2.{3}}.$interruptable">
-              <remove_value name="$actor.$orderlist.{event.param2.{3}}"/>
-              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Removed Order %4 from Orderlist'.[player.age,$actor.name,$actor.container.name,event.param2.{2}.$displayname]"/>
+              <!-- signalling orderlist loop instead of modifying the order list directly to enable canceling the current order -->
+              <signal_objects object="$actor" param="'cancel order'" param2="event.param2.{3}"/>
+              <!--remove_value name="$actor.$orderlist.{event.param2.{3}}"/>
+              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Removed Order %4 from Orderlist'.[player.age,$actor.name,$actor.container.name,event.param2.{2}.$displayname]"/-->
             </do_if>
             <do_else>
               <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Trying to remove Order %4 from Orderlist, but its not interruptable anymore'.[player.age,$actor.name,$actor.container.name,$actor.$orderlist.{event.param2.{3}}.$displayname]"/>
@@ -1071,8 +1073,9 @@ Which Orders are available depends on entity Type
           <!-- Order is at a lower Position as when we entered the Menu - We can probably remove it if its still interruptable -->
           <do_elseif value="$actor.$orderlist.indexof.{event.param2.{2}} lt event.param2.{3}">
             <do_if value="event.param2.{3}.$interruptable">
-              <remove_value name="$actor.$orderlist.{$actor.$orderlist.indexof.{event.param2.{2}}}"/>
-              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Removed Order %4 from Orderlist, although it is now at a lower Position'.[player.age,$actor.$orderlist.event.param2.{3}.$displayname]"/>
+              <signal_objects object="$actor" param="'cancel order'" param2="$actor.$orderlist.indexof.{event.param2.{2}}"/>
+              <!--remove_value name="$actor.$orderlist.{$actor.$orderlist.indexof.{event.param2.{2}}}"/>
+              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Removed Order %4 from Orderlist, although it is now at a lower Position'.[player.age,$actor.$orderlist.event.param2.{3}.$displayname]"/-->
             </do_if>
             <do_else>
               <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Trying to remove Order %4 from Orderlist, but its not interruptable anymore and on a lower position'.[player.age,$actor.name,$actor.$orderlist.event.param2.{3}.$displayname]"/>
@@ -1082,10 +1085,13 @@ Which Orders are available depends on entity Type
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_cancel_all'">
           <do_all exact="$actor.$orderlist.count" counter="$i" reverse="true">
-            <do_if value="@$actor.$orderlist.{$i}.$interruptable and ( not ( $i == 1 ) or event.param2 )" comment="event.param2 == true says that we shall also cancel the first order (see comm_orders_modify)">
+            <do_if value="@$actor.$orderlist.{$i}.$interruptable and not ( $i == 1 )">
               <remove_value name="$actor.$orderlist.{$i}"/>
             </do_if>
           </do_all>
+          <do_if value="event.param2" comment="event.param2 == true says that we shall also cancel the first order (see comm_orders_modify)">
+            <signal_objects object="$actor" param="'cancel order'" param2="1"/>
+          </do_if>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <!--re-useable Object Selection Stuff - maybe add this to an own Cue because it may be used anywhere? -->
