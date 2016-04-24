@@ -2,6 +2,7 @@
 <mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Testing_Cheats" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
   <cues>
     <cue name="Cheat_Ship_with_surplus_crew">
+      <delay exact="50ms"/>
       <actions>
         <create_ship name="$constructionship" macro="macro.units_size_xl_builder_ship_macro" zone="player.zone">
           <owner exact="faction.player"/>
@@ -30,6 +31,9 @@
         <add_actor_to_platform actor="$manager" dockingbay="$dock.component"/>
         <remove_cue_actor actor="$manager" cue="this"/>
         <signal_cue_instantly cue="md.UT_CAC_Manager.Main" param="$manager"/>
+        <set_actor_account actor="$manager"/>
+        <share_actor_account actor="$architect" otherobject="$manager"/>
+        <transfer_money from="player.entity" to="$manager" amount="10000000Cr"/>
         <signal_objects object="$manager" param="'remote_passenger_arrived'" delay="100ms"/>
         
         <!-- create NPCs using Vanilla Dialogue -->
