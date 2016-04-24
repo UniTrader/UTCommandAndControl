@@ -558,7 +558,7 @@ $entity  = ' + $entity"/>
         </do_all>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'Station: %1 // CV: %2'.[this.station.name,$ConstructionVessel.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'Station: %1 // CV: %2'.[@this.station.name,@$ConstructionVessel.name]"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Sorted Ware List to grab: \n%1\n%2\n%3'.[$wareslist,$wareslist_prio,$wareslist_buysell]"/>
       <!-- we dont need these Values anymore -->
       <remove_value name="$incomingamount"/>
@@ -657,14 +657,27 @@ $entity  = ' + $entity"/>
             <!--find_buy_offer buyer="this.container" wares="$ware" result="$buyoffer" />
                 <do_if value="not $buyoffer.available"-->
             <!-- create a temp buyoffer so we can add an Trade Order to the Ship -->
-            <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
-            <set_value name="$amount" exact="[ 
+            <do_if value="$wareslist_buysell.{$i} == 'buy buildingmaterial'">
+              <get_ware_reservation ware="$ware" object="$ConstructionVessel" result="$incomingamount" type="sell"/>
+              <set_value name="$amount" exact="[ 
+                $selloffer.offeramount, 
+                $ConstructionVessel.buildmodule.neededslotresources.{$ware}.count - $ConstructionVessel.cargo.{$ware}.count - $incomingamount, 
+                $ConstructionVessel.cargo.{$ware}.free - $incomingamount, 
+                $entity.ship.cargo.{$ware}.free, 
+                (this.money/$selloffer.unitprice)i 
+            ].min"/>
+            
+            </do_if>
+            <do_else>
+              <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
+              <set_value name="$amount" exact="[ 
                 $selloffer.offeramount, 
                 ( if this.$ut_cac.$consumables.{$ware}? then (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count - $incomingamount, 
                 this.container.cargo.{$ware}.free - $incomingamount, 
                 $entity.ship.cargo.{$ware}.free, 
                 (this.money/$selloffer.unitprice)i 
             ].min"/>
+            </do_else>
             <!--set_value name="$created_buyoffer"/>
                 <debug_text filter="general" text="'Station %1 has no fitting buy offer - creating one to be able to sell the necesary ware ( %2x %3 ).'.[this.container.name,$amount,$ware]" />
                 </do_if>
