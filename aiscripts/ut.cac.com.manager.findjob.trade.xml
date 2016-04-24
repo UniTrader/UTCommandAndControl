@@ -96,7 +96,7 @@ $entity  = ' + $entity"/>
       <create_list name="$wareslist_buysell"/>
       
       <!-- Regular Trading is only done when on a Station - when on CV the Manager will only get Construction Materials -->
-      <do_if value="this.station?">
+      <do_if value="this.station.exists">
         <!-- first add the Ressources of the Station to the List of considered Wares -->
         <do_all exact="this.container.resources.list.count" counter="$i">
           <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
@@ -469,7 +469,7 @@ $entity  = ' + $entity"/>
       </do_if>
       
       <!-- Add Construction Materials to the Buy List (as seperate Category for Delivery to the CV) Note: Prior Completion the Manager may be aboard the CV instead of the Station -->
-      <do_if value="this.station? and this.station.buildingmodule.exists">
+      <do_if value="this.station.exists and this.station.buildingmodule.exists">
         <set_value name="$ConstructionVessel" exact="this.station.buildingmodule.ship"/>
       </do_if>
       <do_elseif value="this.ship and this.ship.buildmodule.exists">
@@ -477,7 +477,6 @@ $entity  = ' + $entity"/>
       </do_elseif>
       
       <do_if value="$ConstructionVessel.exists and $ConstructionVessel.buildmodule.isbuilding">
-              <add_cargo object="$ship" ware="$buildmaterials.{$i}" exact="$ConstructionVessel.buildmodule.neededslotresources.{$buildmaterials.{$i}}.count"/>
         <!-- first add the Ressources of the Station to the List of considered Wares -->
         <do_all exact="$ConstructionVessel.buildmodule.neededslotresources.list.count" counter="$i">
           <set_value name="$ware" exact="$ConstructionVessel.buildmodule.neededslotresources.list.{$i}"/>
@@ -511,8 +510,8 @@ $entity  = ' + $entity"/>
             <debug_text filter="general" chance="$debug_detailoutput" text="'Buying %1'.[$ware]"/>
           </do_else>
           
-          <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
-          <get_ware_reservation ware="$ware" object="this.container" result="$outgoingamount" type="buy"/>
+          <get_ware_reservation ware="$ware" object="$ConstructionVessel" result="$incomingamount" type="sell"/>
+          <get_ware_reservation ware="$ware" object="$ConstructionVessel" result="$outgoingamount" type="buy"/>
         <!-- still needed Amount (not used since Construction Materials always have the same Importance imo): exact="$ConstructionVessel.buildmodule.neededslotresources.{$buildmaterials.{$i}}.count - $incomingamount + $outgoingamount" -->
           <set_value name="$prio" exact="param.ut_cac.waretypepriorities.$buildingmaterial"/>
           <debug_text filter="general" chance="$debug_detailoutput" text="'Prio for Building Material is: ' + $prio"/>
@@ -559,6 +558,7 @@ $entity  = ' + $entity"/>
         </do_all>
       </do_if>
       
+      <debug_text filter="general" chance="@this.$debug * 100" text="'Station: %1 // CV: %2'.[this.station.name,$ConstructionVessel.name]"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Sorted Ware List to grab: \n%1\n%2\n%3'.[$wareslist,$wareslist_prio,$wareslist_buysell]"/>
       <!-- we dont need these Values anymore -->
       <remove_value name="$incomingamount"/>
