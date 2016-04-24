@@ -513,7 +513,7 @@ $entity  = ' + $entity"/>
           <get_ware_reservation ware="$ware" object="$ConstructionVessel" result="$incomingamount" type="sell"/>
           <get_ware_reservation ware="$ware" object="$ConstructionVessel" result="$outgoingamount" type="buy"/>
           <!-- check if we still need this Ware (taking reservations into account) and continue if not -->
-          <do_if value="( $ConstructionVessel.buildmodule.neededslotresources.{$buildmaterials.{$i}}.count - $incomingamount + $outgoingamount ) le 0">
+          <do_if value="( $ConstructionVessel.buildmodule.neededslotresources.{$ware}.count - $incomingamount + $outgoingamount ) le 0">
             <debug_text filter="general" chance="$debug_detailoutput" text="'Skipping Ware beause delivery is already on the way'"/>
             <continue/>
           </do_if>
