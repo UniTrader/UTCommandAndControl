@@ -41,7 +41,6 @@
         <signal_cue_instantly cue="md.UT_CAC_Manager.Main" param="$manager"/>
         <set_actor_account actor="$manager"/>
         <share_actor_account actor="$architect" otherobject="$manager"/>
-        <transfer_money from="player.entity" to="$manager" amount="10000000Cr"/>
         <signal_objects object="$manager" param="'remote_passenger_arrived'" delay="100ms"/>
         
         <!-- create NPCs using Vanilla Dialogue -->
@@ -97,10 +96,12 @@
             <event_build_started object="$ship"/>
           </conditions>
           <actions>
-            <set_value name="$buildmaterials" exact="$ship.buildmodule.neededslotresources.list.clone"/>
+            <!-- function changed: just transfers enough money to complete the build (for thesting the ressources aquirement) -->
+            <!--set_value name="$buildmaterials" exact="$ship.buildmodule.neededslotresources.list.clone"/>
             <do_all exact="$buildmaterials.count" counter="$i">
-              <add_cargo object="$ship" ware="$buildmaterials.{$i}" exact="$ship.buildmodule.neededslotresources.{$buildmaterials.{$i}}.count" chance="90"/>
-            </do_all>
+              <add_cargo object="$ship" ware="$buildmaterials.{$i}" exact="$ship.buildmodule.neededslotresources.{$buildmaterials.{$i}}.count"/>
+            </do_all-->
+            <transfer_money from="player.entity" to="$manager" amount="$manager.ship.wantedmoney"/>
           </actions>
         </cue>
       </cues>
