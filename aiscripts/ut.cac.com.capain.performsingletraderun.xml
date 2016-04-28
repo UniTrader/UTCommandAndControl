@@ -331,10 +331,16 @@
       B) One Order remaining in Orderlist - the current Order
       C) Two Orders remaining in Orderlist: current one on top, and refuel as second (because refuel may skip itself entirely)-->
       <do_if value="$params? and (this.$orderlist.count == 0 or ( this.$orderlist.count == 1 and $params == this.$orderlist.{1} ) or ( this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ) )">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance'.[player.age,this.name,this.container.name]"/>
-        <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="14">
-          <param name="params" value="this.$ut_cac.$defaultorders"/>
-        </run_script>
+        <do_if value="this.ship.commanderentity == entitytype.manager">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Manager Signal)'.[player.age,this.name,this.container.name]"/>
+          <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
+        </do_if>
+        <do_else>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Script Call)'.[player.age,this.name,this.container.name]"/>
+          <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="14">
+            <param name="params" value="this.$ut_cac.$defaultorders"/>
+          </run_script>
+        </do_else>
       </do_if>
       <do_else>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2  NOT Requesting new Orders: %3 and ( %4 or ( %5 and %6 ) or ( %7 and %8 and %9 ) )'.[this.name,this.container.name,$params? , this.$orderlist.count == 0 , this.$orderlist.count == 1 , $params == this.$orderlist.{1} , this.$orderlist.count == 2 , $params == this.$orderlist.{1} , this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ]"/>
