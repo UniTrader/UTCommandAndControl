@@ -186,11 +186,13 @@
           <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.name]"/>
           <set_command_action commandaction="commandaction.repairingto" param="$station" />
           <remove_blocked_area blocker="this" zone="this.zone"/>
+          <set_trade_restrictions object="this.ship" restricted="false"/>
         </do_if>
         <do_elseif  value="$buildlocation.child.isclass.station">
           <remove_from_player_squad object="this.ship"/>
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
           <restart_build object="$buildlocation.station" buildmodule="this.ship.buildmodule"/>
+          <set_trade_restrictions object="this.ship" restricted="false"/>
           <set_command_action commandaction="commandaction.repairingto" param="$station" />
         </do_elseif>
         <do_else>
