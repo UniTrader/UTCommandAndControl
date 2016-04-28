@@ -248,6 +248,7 @@
           <add_build_plan buildmodule="this.ship.buildmodule" buildplan="$Buildplan" updatebuild="true" />
           <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.name]"/>
           <set_command_action commandaction="commandaction.repairingto" param="$macro.buildpurposemacro.{buildplan.[$sequence,$stage]}" />
+          <remove_blocked_area blocker="this" zone="this.zone"/>
         </do_if>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Trying to Upgrade Station %4 Sequence %5 over buildplan'.[player.age,this.name,this.container.name,$station.name,$sequence]"/>
@@ -263,7 +264,6 @@
           </interrupt>
         </wait>
         <set_value name="this.$ut_cac.$isactive" exact="1" comment="possibly long-lasting action is done - pay the last payment period too"/>
-        <remove_blocked_area blocker="this" zone="this.zone"/>
       </do_elseif>
       
       <!-- Upgrade existing Station only -->
