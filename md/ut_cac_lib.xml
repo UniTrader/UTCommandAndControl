@@ -171,7 +171,7 @@
           <delay exact="1min"/>
           <actions>
             <do_if value="not $actor.hasownaccount or $actor.maxbudget == 0Cr" comment="actor Account not set up yet - dont do any money transfers"/>
-            <do_elseif value="not $actor.type == entitytype.manager" comment="currently only Managers can Transfer Money to the Player"/>
+            <do_elseif value="not ( $actor.type == entitytype.manager )" comment="currently only Managers can Transfer Money to the Player"/>
             <do_elseif value="not $actor.container.isclass.station or not ( $actor.container.isclass.ship and $actor.container.buildmodule.exists and $actor.container.buildmodule.isbuilding)" comment="$actor must be on a Station or building CV for money transfers to happen"/>
             <do_elseif value="$actor.minbudget lt $actor.money lt $actor.maxbudget and $actor.maxbudget != 0Cr and $actor.minbudget != 0Cr" comment="do-nothing-case (most common) - skip other checks"/>
             <!-- Actor has less Money than he is set up - just grab some from the Player 
