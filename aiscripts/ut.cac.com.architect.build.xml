@@ -319,13 +319,13 @@
       <!-- Transfer Drones which can be used by the Station (but keep enough in CV to be able to continue regular operations) -->
       <do_if value="this.ship.units.{unitcategory.transport}.count gt 20 and this.ship.availableunits.{unitcategory.transport}.count ge 1">
         <set_value name="$transfercount" exact="[ (this.ship.units.{unitcategory.transport}.count - 20) , this.ship.availableunits.{unitcategory.transport}.count ].min"/>
-        <remove_units object="this.ship" category="transport" exact="$transferamount"/>
-        <add_units object="$station" category="transport" exact="$transferamount"/>
+        <remove_units object="this.ship" category="transport" mk="1" exact="$transferamount"/>
+        <add_units object="$station" category="transport" mk="1" exact="$transferamount"/>
       </do_if>
       <do_if value="this.ship.availableunits.{unitcategory.gascollector}.count ge 1">
         <set_value name="$transfercount" exact="this.ship.availableunits.{unitcategory.gascollector}.count"/>
-        <remove_units object="this.ship" category="gascollector" exact="$transferamount"/>
-        <add_units object="$station" category="gascollector" exact="$transferamount"/>
+        <remove_units object="this.ship" category="gascollector" mk="1" exact="$transferamount"/>
+        <add_units object="$station" category="gascollector" mk="1" exact="$transferamount"/>
       </do_if>
       
       <!-- Transfer subordinate Ships to the Station (CAC Manager will make sure to also deliver Building Materials) -->
