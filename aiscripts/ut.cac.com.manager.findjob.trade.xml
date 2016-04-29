@@ -245,6 +245,12 @@ $entity  = ' + $entity"/>
             <debug_text filter="general" chance="$debug_detailoutput" text="'Buying %1'.[$ware]"/>
           </do_else>
           
+          <!-- prevent Buying Fuel with Ships not specializing in it -->
+          <do_if value="$ware == ware.fuelcells and $entity.ship.cargo.{ware.fuelcells}.free lt 2500">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'not buying fuelcells because Ship can carry only enough for own demand.'"/>
+            <continue/>
+          </do_if>
+          
           <get_ware_reservation ware="$ware" object="this.container" result="$incomingamount" type="sell"/>
           <get_ware_reservation ware="$ware" object="this.container" result="$outgoingamount" type="buy"/>
           <set_value name="$prio" exact="1.0 - ( ( this.container.cargo.{$ware}.count + $incomingamount - $outgoingamount )f  / ( this.$ut_cac.$consumables.{$ware}.$target )f )"/>
