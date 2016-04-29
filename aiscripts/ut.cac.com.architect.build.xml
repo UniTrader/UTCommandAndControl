@@ -317,13 +317,14 @@
       </do_all>
       
       <!-- Transfer Drones which can be used by the Station (but keep enough in CV to be able to continue regular operations) -->
+      <!-- ToDo: Move the Drones by launching them and Docking them at the Station instead of simply adding and removing -->
       <do_if value="this.ship.units.{unitcategory.transport}.count gt 20 and this.ship.availableunits.{unitcategory.transport}.count ge 1">
-        <set_value name="$transfercount" exact="[ (this.ship.units.{unitcategory.transport}.count - 20) , this.ship.availableunits.{unitcategory.transport}.count ].min"/>
+        <set_value name="$transferamount" exact="[ (this.ship.units.{unitcategory.transport}.count - 20) , this.ship.availableunits.{unitcategory.transport}.count ].min"/>
         <remove_units object="this.ship" category="transport" mk="1" exact="$transferamount"/>
         <add_units object="$station" category="transport" mk="1" exact="$transferamount"/>
       </do_if>
       <do_if value="this.ship.availableunits.{unitcategory.gascollector}.count ge 1">
-        <set_value name="$transfercount" exact="this.ship.availableunits.{unitcategory.gascollector}.count"/>
+        <set_value name="$transferamount" exact="this.ship.availableunits.{unitcategory.gascollector}.count"/>
         <remove_units object="this.ship" category="gascollector" mk="1" exact="$transferamount"/>
         <add_units object="$station" category="gascollector" mk="1" exact="$transferamount"/>
       </do_if>
