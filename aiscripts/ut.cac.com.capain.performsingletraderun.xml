@@ -263,9 +263,41 @@
           <!-- check if we have valid results and make them "valid" if needed -->
           <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
             <!-- no fitting Trade found -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - setting our sheduled Trade as $tradeoffer to force using our reserved price (buy case)'.[player.age,this.name,this.container.name]"/>
-            <set_value name="$tradeoffer" exact="$trade"/>
-            <!--resume label="abort trade"/-->
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - use Trade Offer with highest amount instead and lower amount accordingly (buy case)'.[player.age,this.name,this.container.name]"/>
+            <find_sell_offer result="$tradeoffers" seller="$trade.seller" wares="$trade.ware" tradepartner="this.ship" multiple="true" >
+              <price max="$trade.unitprice"/>
+            </find_sell_offer>
+            <do_if value="$tradeoffers.count == 1">
+              <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
+              <set_value name="$amount" exact="$tradeoffer.amount"/>
+            </do_if>
+            <do_elseif value="$tradeoffers.count gt 1">
+              <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
+              <do_all exact="$tradeoffers.count" counter="$i">
+                <do_if value="$tradeoffers.{$i}.offeramount.{this} gt $tradeoffer.amount">
+                  <set_value name="$tradeoffer" exact="$tradeoffers.{$i}" />
+                </do_if>
+              </do_all>
+              <set_value name="$amount" exact="$tradeoffer.amount"/>
+            </do_elseif>
+          </do_if>
+          <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
+            <!-- no fitting Trade found -->
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offerstill  unavailable - use Trade Offer with highest amount regardless of price and adjust amount to our budget (buy case)'.[player.age,this.name,this.container.name]"/>
+            <find_sell_offer result="$tradeoffers" seller="$trade.seller" wares="$trade.ware" tradepartner="this.ship" multiple="true" />
+            <do_if value="$tradeoffers.count == 1">
+              <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
+              <set_value name="$amount" exact="[$tradeoffer.amount,this.money/tradeoffer.unitprice].min"/>
+            </do_if>
+            <do_elseif value="$tradeoffers.count gt 1">
+              <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
+              <do_all exact="$tradeoffers.count" counter="$i">
+                <do_if value="$tradeoffers.{$i}.offeramount.{this} gt $tradeoffer.amount">
+                  <set_value name="$tradeoffer" exact="$tradeoffers.{$i}" />
+                </do_if>
+              </do_all>
+              <set_value name="$amount" exact="[$tradeoffer.amount,this.money/tradeoffer.unitprice].min"/>
+            </do_elseif>
           </do_if>
           <do_elseif value="not ($trade.owner == this.ship.commander) and $tradeoffer.offeramount.{this} lt $amount">
             <!-- no Offer with enough Wares found -->
