@@ -186,7 +186,6 @@
           <set_value name="$station" exact="this.ship.buildmodule.buildanchor"/>
           <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.name]"/>
           <set_command_action commandaction="commandaction.repairingto" param="$station" />
-          <remove_blocked_area blocker="this" zone="this.zone"/>
           <set_trade_restrictions object="this.ship" restricted="false"/>
         </do_if>
         <do_elseif  value="$buildlocation.child.isclass.station">
@@ -195,6 +194,11 @@
           <restart_build object="$buildlocation.station" buildmodule="this.ship.buildmodule"/>
           <set_trade_restrictions object="this.ship" restricted="false"/>
           <set_command_action commandaction="commandaction.repairingto" param="$station" />
+          <add_blocked_area blocker="this" zone="this.zone">
+            <position value="$buildlocation.offset" space="this.zone"/>
+            <rotation value="$buildlocation.rotation"/>
+            <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
+          </add_blocked_area>
         </do_elseif>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Neither an empty build Location nor a Station to continue - aborting'.[player.age,this.name,this.container.name]"/>
@@ -210,7 +214,8 @@
           </interrupt>
         </wait>
         <set_value name="this.$ut_cac.$isactive" exact="1" comment="possibly long-lasting action is done - pay the last payment period too"/>
-        <!-- Station Construction complete  - set commander, start ai -->
+        <!-- Station Construction complete  - remove blocked area, set commander, start ai -->
+        <remove_blocked_area blocker="this" zone="this.zone"/>
         <set_object_commander object="this.ship" commander="$station" type="entitytype.manager"/>
         <create_ai_unit object="$station"/>
       </do_if>
