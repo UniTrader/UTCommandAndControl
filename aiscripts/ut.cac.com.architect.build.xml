@@ -294,18 +294,18 @@
       <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager"/>
       <do_if value="$manager.exists and not $station.tradenpc.exists">
         <start_actor_transport actor="$manager" target="$station"/>
-        <wait exact="10s" comment="to avoid simultaneous starts and arrivals"/>
+        <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
       </do_if>
       <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" controlentity="false"/>
       <do_if value="$defensivenpc.exists and not $station.defencenpc.exists">
         <start_actor_transport actor="$defensivenpc" target="$station"/>
-        <wait exact="10s" comment="to avoid simultaneous starts and arrivals"/>
+        <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
       </do_if>
       <do_if value="false" comment="add check for Station Engineer Mod (or add limited repair functionality to Engineers)">
         <find_object_component name="$engineer" object="this.ship" entitytype="entitytype.engineer" controlentity="false"/>
         <do_if value="$engineer.exists and not $station.engineer.exists">
           <start_actor_transport actor="$engineer" target="$station"/>
-          <wait exact="10s" comment="to avoid simultaneous starts and arrivals"/>
+          <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
         </do_if>
       </do_if>
       <get_production_specialist_types name="$specialisttypes" object="$station" />
@@ -316,9 +316,16 @@
           <find_object_component name="$specialist" object="this.ship" entitytype="$specialisttypes.{$i}" />
           <do_if value="$specialist.exists">
             <start_actor_transport actor="$specialist" target="$station"/>
-            <wait exact="10s" comment="to avoid simultaneous starts and arrivals"/>
+            <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
           </do_if>
         </do_if>
+      </do_all>
+      
+      <!-- Transfer subordinate Ships to the Station (CAC Manager will make sure to also deliver Building Materials) -->
+      <set_value name="$subordinates" exact="this.ship.subordinates.clone"/>
+      <do_all exact="$subordinates.count" counter="$i">
+        <set_object_commander object="$subordinates.{$i}" commander="$station" type="entitytype.manager"/>
+        <!--wait exact="1s"/-->
       </do_all>
       
       <!-- Transfer Drones which can be used by the Station (but keep enough in CV to be able to continue regular operations) -->
@@ -326,26 +333,32 @@
       <do_if value="this.container.attention ge attention.visible">
         <debug_text filter="general" chance="@this.$debug * 100" text="'launching Drones for Transfer'"/>
         <find_object_component groupname="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true"/>
-        <create_group groupname="$drones"/>
         <do_if value="this.ship.units.{unitcategory.transport}.count gt 20 and this.ship.availableunits.{unitcategory.transport}.count ge 1">
           <set_value name="$transferamount" exact="[ (this.ship.units.{unitcategory.transport}.count - 20) , this.ship.availableunits.{unitcategory.transport}.count ].min"/>
           <do_all exact="$transferamount">
-            <launch_drone groupname="$drones" object="$dronelaunchbays.random" group="unitcategory.transport" exact="1"/>
+            <launch_drone name="$drone" object="$dronelaunchbays.random" group="unitcategory.transport" exact="1"/>
+            <wait exact="1s"/>
+            <do_if value="$drone.isoperational">
+              <start_script name="'ut.cac.com.drone.transfer'" object="$drones.{$i}.pilot">
+                <param name="to" value="$station"/>
+              </start_script>
+            </do_if>
           </do_all>
         </do_if>
       <do_if value="this.ship.availableunits.{unitcategory.gascollector}.count ge 1">
         <set_value name="$transferamount" exact="this.ship.availableunits.{unitcategory.gascollector}.count"/>
           <do_all exact="$transferamount">
-            <launch_drone groupname="$drones" object="$dronelaunchbays.random" group="unitcategory.gascollector" exact="1"/>
+            <launch_drone name="$drone" object="$dronelaunchbays.random" group="unitcategory.gascollector" exact="1"/>
+            <wait exact="1s"/>
+            <do_if value="$drone.isoperational">
+              <start_script name="'ut.cac.com.drone.transfer'" object="$drones.{$i}.pilot">
+                <param name="to" value="$station"/>
+              </start_script>
+            </do_if>
           </do_all>
         </do_if>
         <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
         <do_all exact="$drones.count" counter="$i">
-          <do_if value="$drones.{$i}.isoperational">
-            <start_script name="'ut.cac.com.drone.transfer'" object="$drones.{$i}.pilot">
-              <param name="to" value="$station"/>
-            </start_script>
-          </do_if>
         </do_all>
         <!-- Unit Transfer is done by the Move Script on the Drone-->
       </do_if>
@@ -366,12 +379,6 @@
         <add_units object="$station" category="unitcategory.gascollector" mk="2" exact="$transferamount"/>
       </do_if>
       
-      <!-- Transfer subordinate Ships to the Station (CAC Manager will make sure to also deliver Building Materials) -->
-      <set_value name="$subordinates" exact="this.ship.subordinates.clone"/>
-      <do_all exact="$subordinates.count" counter="$i">
-        <set_object_commander object="$subordinates.{$i}" commander="$station" type="entitytype.manager"/>
-        <wait exact="10s"/>
-      </do_all>
       <!-- WIP !!!! -->
       <label name="finish"/>
       
