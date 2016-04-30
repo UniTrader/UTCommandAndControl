@@ -85,6 +85,28 @@
         <assign_pilot actor="$pilot" object="$ship"/>
         <set_object_commander object="$ship" commander="$constructionship" type="entitytype.manager"/>
         <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$pilot"/>
+        
+        <!-- create second Trading Ship -->
+        <create_ship name="$ship" macro="macro.units_size_l_kit_energy_01_macro" zone="player.zone">
+          <owner exact="faction.player"/>
+          <defence actor="null"/>
+          <engineer actor="null"/>
+          <units>
+            <unit category="unitcategory.transport" mk="1" exact="50"/>
+          </units>
+          <cargo>
+            <wares list="[ware.fuelcells]"><fillpercent exact="100"></fillpercent></wares>
+          </cargo>
+          <safepos x="0m" y="0m" z="-10km" radius="2km"/>
+        </create_ship>
+        <!-- Create UT CAC NPCs --> 
+        <find_dock_location name="$dock" container="$ship" multiple="false" />
+        <create_cue_actor name="$pilot" cue="this"><owner exact="faction.player"/></create_cue_actor>
+        <add_actor_to_platform actor="$pilot" dockingbay="$dock.component"/>
+        <remove_cue_actor actor="$pilot" cue="this"/>
+        <assign_pilot actor="$pilot" object="$ship"/>
+        <set_object_commander object="$ship" commander="$constructionship" type="entitytype.manager"/>
+        <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$pilot"/>
       </actions>
       <cues>
         <cue name="SetDebugVars">
