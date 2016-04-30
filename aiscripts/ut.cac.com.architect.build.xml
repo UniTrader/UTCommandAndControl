@@ -200,6 +200,10 @@
             <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
           </add_blocked_area>
         </do_elseif>
+        <!-- signalling Manager in charge to find Trade Orders for Subordinates -->
+        <do_all exact="this.ship.subordinates.{entitytype.manager}.count" counter="$i">
+          <signal_objects object="this.ship.controlentity.{$entitytype.manager}" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}"/>
+        </do_all>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Neither an empty build Location nor a Station to continue - aborting'.[player.age,this.name,this.container.name]"/>
           <return/>
