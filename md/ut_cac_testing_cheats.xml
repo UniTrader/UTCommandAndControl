@@ -87,7 +87,7 @@
         <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$pilot"/>
         
         <!-- create second Trading Ship -->
-        <create_ship name="$ship" macro="macro.units_size_l_kit_energy_01_macro" zone="player.zone">
+        <create_ship name="$ship2" macro="macro.units_size_l_kit_energy_01_macro" zone="player.zone">
           <owner exact="faction.player"/>
           <defence actor="null"/>
           <engineer actor="null"/>
@@ -100,13 +100,13 @@
           <safepos x="0m" y="0m" z="-10km" radius="2km"/>
         </create_ship>
         <!-- Create UT CAC NPCs --> 
-        <find_dock_location name="$dock" container="$ship" multiple="false" />
-        <create_cue_actor name="$pilot" cue="this"><owner exact="faction.player"/></create_cue_actor>
-        <add_actor_to_platform actor="$pilot" dockingbay="$dock.component"/>
-        <remove_cue_actor actor="$pilot" cue="this"/>
-        <assign_pilot actor="$pilot" object="$ship"/>
-        <set_object_commander object="$ship" commander="$constructionship" type="entitytype.manager"/>
-        <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$pilot"/>
+        <find_dock_location name="$dock2" container="$ship2" multiple="false" />
+        <create_cue_actor name="$pilot2" cue="this"><owner exact="faction.player"/></create_cue_actor>
+        <add_actor_to_platform actor="$pilot2" dockingbay="$dock2.component"/>
+        <remove_cue_actor actor="$pilot2" cue="this"/>
+        <assign_pilot actor="$pilot2" object="$ship2"/>
+        <set_object_commander object="$ship2" commander="$constructionship" type="entitytype.manager"/>
+        <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$pilot2"/>
       </actions>
       <cues>
         <cue name="SetDebugVars">
@@ -115,6 +115,8 @@
             <set_value name="$manager.$debug" exact="true"/>
             <set_value name="$pilot.$debug" exact="true"/>
             <set_value name="$pilot.$ut_cac.$commanderentity" exact="$manager"/>
+            <set_value name="$pilot2.$debug" exact="true"/>
+            <set_value name="$pilot2.$ut_cac.$commanderentity" exact="$manager"/>
           </actions>
         </cue>
         <!-- not needed anymore.
