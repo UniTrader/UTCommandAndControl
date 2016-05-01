@@ -1,25 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.refuel" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
-  <interrupts>
-    <handler comment="Print Script Vars">
-      <conditions>
-        <event_object_signalled object="this" param="'print script vars to logfile'"/>
-      </conditions>
-      <actions>
-        <debug_text filter="general" text="'\n
-        Captain Name ' + this.knownname + ' at Time ' + player.age + '\n
-        ut.cac.com.captain.refuel Script Values:\n
-        $minamount = ' + @$minamount + '\n
-        $refuelamount = ' + @$refuelamount + '\n
-        $undock = ' + @$undock + '\n
-        $repeat = ' + @$repeat + '\n
-        $buyamount = ' + @$buyamount + '\n
-        $selloffer = ' + @$selloffer + '\n
-        NOTE: ONLY VALUES I CREATED MYSELF INCLUDED - nothing from C+P Code Snippets
-        '"/>
-      </actions>
-    </handler>
-  </interrupts>
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="minamount" default="1000" comment="below this Amount the Ship will go refuel, otherwise the Script just exits. Possible Input: Float between 0.0 and 1.0 -> Percentage of Fuel Capacity; bigger Number, either int or float -> total Amount; 0 as int -> always refuel"/>
@@ -129,12 +109,12 @@
       </do_if>
       
       <!-- get the Money from the Manager and go buy the Fuel - if he doesnt have the Money just continue -->
-      <do_if value="this.ship.commanderentity.money lt $selloffer.unitprice * $buyamount">
+      <do_if value="( if this.ship.commanderentity.exists then this.ship.commanderentity.money else ( if this.$ut_cac.$commanderentity? then this.$ut_cac.$commanderentity.money else 0Cr ) ) lt $selloffer.unitprice * $buyamount">
         <debug_text filter="general" chance="@this.$debug * 100" text="'Found! but too bad! we cannt get the money for it!'"/>
         <resume label="finish"/>
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Found! Going to get it!'"/>
-      <transfer_money from="this.ship.commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
+      <transfer_money from="if this.ship.commanderentity.exists then  this.ship.commanderentity else  this.$ut_cac.$commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Transferred %1 ( %2 * %3 )Credits from Commander (%5) to pay, current account: %4'.[$buyamount * $selloffer.unitprice , $buyamount , $selloffer.unitprice , this.money,this.ship.commanderentity.name]"/>
       <add_buy_order object="this.ship" trade="$selloffer" amount="$buyamount" price="$selloffer.unitprice"/>
       <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Refuel (Buy from Offer)',$undock=2,$interruptable=true]"/>
