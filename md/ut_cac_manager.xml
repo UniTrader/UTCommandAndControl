@@ -329,12 +329,14 @@ Rest is shared between all Actor types
             </cue>
             <cue name="Subordinate_Added" instantiate="true">
               <conditions>
-                <check_any>
-                  <!--event_object_signalled object="this" param2="'register subordinate'"/-->
-                  <event_object_subordinate_added object="$actor.container" commandertype="entitytype.manager"/>
-                  <event_object_subordinate_removed object="$actor.container" />
+                <check_all>
+                  <check_any>
+                    <!--event_object_signalled object="this" param2="'register subordinate'"/-->
+                    <event_object_subordinate_added object="$actor.container" commandertype="entitytype.manager"/>
+                    <event_object_subordinate_removed object="$actor.container"/>
+                  </check_any>
                   <check_value value="event.param.isclass.drone or event.param.isclass.ship_xs" negate="true"/>
-                </check_any>
+                </check_all>
               </conditions>
               <actions>
                 <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
@@ -355,6 +357,7 @@ Rest is shared between all Actor types
                       <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
                     </do_if>
                     <do_else>
+                      <set_value name="event.param.pilot.$ut_cac.$commanderentity" exact="$actor"/>
                       <!-- request new Orders directly after Transfer to speed things up -->
                       <signal_objects object="$actor" param="'request orders'" param2="event.param.pilot"/>
                     </do_else>

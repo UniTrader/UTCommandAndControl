@@ -206,7 +206,12 @@
         </do_else>
         <!-- signalling Manager in charge to find Trade Orders for Subordinates -->
         <do_all exact="this.ship.subordinates.{entitytype.manager}.count" counter="$i">
-          <signal_objects object="if this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity.exists then this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity else this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}.pilot"/>
+          <do_if value=" this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity.exists">
+            <signal_objects object="this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}.pilot"/>
+          </do_if>
+          <do_elseif value="this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity? and this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity.exists">
+            <signal_objects object="this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}.pilot"/>
+          </do_elseif>
         </do_all>
         <!-- wait till construction is done -->
         <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
@@ -351,9 +356,10 @@
               </start_script>
             </do_if>
           </do_all>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$transferamount,$dronelaunchbays.count]"/>
         </do_if>
-      <do_if value="this.ship.availableunits.{unitcategory.gascollector}.count ge 1">
-        <set_value name="$transferamount" exact="this.ship.availableunits.{unitcategory.gascollector}.count"/>
+        <do_if value="this.ship.availableunits.{unitcategory.gascollector}.count ge 1">
+          <set_value name="$transferamount" exact="this.ship.availableunits.{unitcategory.gascollector}.count"/>
           <do_all exact="$transferamount">
             <launch_drone name="$drone" object="$dronelaunchbays.random" group="unitcategory.gascollector" exact="1"/>
             <wait min="1.5s" max="2.5s"/>
@@ -366,10 +372,8 @@
               </start_script>
             </do_if>
           </do_all>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$transferamount,$dronelaunchbays.count]"/>
         </do_if>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
-        <do_all exact="$drones.count" counter="$i">
-        </do_all>
       </do_if>
       <!-- OOS Case: just move them over -->
       <do_if value="this.ship.units.{unitcategory.transport}.count gt 20 and this.ship.availableunits.{unitcategory.transport}.count ge 1">
