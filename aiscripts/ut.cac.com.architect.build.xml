@@ -329,7 +329,7 @@
       <set_value name="$subordinates" exact="this.ship.subordinates.clone"/>
       <do_all exact="$subordinates.count" counter="$i">
         <set_object_commander object="$subordinates.{$i}" commander="$station" type="entitytype.manager"/>
-        <!--wait exact="1s"/-->
+        <wait exact="1s"/>
       </do_all>
       
       <!-- Transfer Drones which can be used by the Station (but keep enough in CV to be able to continue regular operations) -->
@@ -341,11 +341,14 @@
           <set_value name="$transferamount" exact="[ (this.ship.units.{unitcategory.transport}.count - 20) , this.ship.availableunits.{unitcategory.transport}.count ].min"/>
           <do_all exact="$transferamount">
             <launch_drone name="$drone" object="$dronelaunchbays.random" group="unitcategory.transport" exact="1"/>
-            <wait exact="1s"/>
+            <wait min="1.5s" max="2.5s"/>
             <do_if value="$drone.isoperational">
-              <start_script name="'ut.cac.com.drone.transfer'" object="$drone.pilot">
-                <param name="to" value="$station"/>
-              </start_script>
+              <remove_units object="this.ship" macro="$drone.macro" exact="1" unavailable="true"/>
+              <add_units object="$station" macro="$drone.macro" exact="1" unavailable="true"/>
+              <set_object_commander object="$drone" commander="$station"/>
+              <run_script name="'move.dockat.drone'">
+                <param name="destination" value="$station"/>
+              </run_script>
             </do_if>
           </do_all>
         </do_if>
@@ -353,18 +356,20 @@
         <set_value name="$transferamount" exact="this.ship.availableunits.{unitcategory.gascollector}.count"/>
           <do_all exact="$transferamount">
             <launch_drone name="$drone" object="$dronelaunchbays.random" group="unitcategory.gascollector" exact="1"/>
-            <wait exact="1s"/>
+            <wait min="1.5s" max="2.5s"/>
             <do_if value="$drone.isoperational">
-              <start_script name="'ut.cac.com.drone.transfer'" object="$drone.pilot">
-                <param name="to" value="$station"/>
-              </start_script>
+              <remove_units object="this.ship" macro="$drone.macro" exact="1" unavailable="true"/>
+              <add_units object="$station" macro="$drone.macro" exact="1" unavailable="true"/>
+              <set_object_commander object="$drone" commander="$station"/>
+              <run_script name="'move.dockat.drone'">
+                <param name="destination" value="$station"/>
+              </run_script>
             </do_if>
           </do_all>
         </do_if>
         <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
         <do_all exact="$drones.count" counter="$i">
         </do_all>
-        <!-- Unit Transfer is done by the Move Script on the Drone-->
       </do_if>
       <!-- OOS Case: just move them over -->
       <do_if value="this.ship.units.{unitcategory.transport}.count gt 20 and this.ship.availableunits.{unitcategory.transport}.count ge 1">
