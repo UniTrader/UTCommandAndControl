@@ -200,14 +200,14 @@
             <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
           </add_blocked_area>
         </do_elseif>
-        <!-- signalling Manager in charge to find Trade Orders for Subordinates -->
-        <do_all exact="this.ship.subordinates.{entitytype.manager}.count" counter="$i">
-          <signal_objects object="if this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity.exists then this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity else this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}.pilot"/>
-        </do_all>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Neither an empty build Location nor a Station to continue - aborting'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_else>
+        <!-- signalling Manager in charge to find Trade Orders for Subordinates -->
+        <do_all exact="this.ship.subordinates.{entitytype.manager}.count" counter="$i">
+          <signal_objects object="if this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity.exists then this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity else this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}.pilot"/>
+        </do_all>
         <!-- wait till construction is done -->
         <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
         <wait>
@@ -346,9 +346,9 @@
               <remove_units object="this.ship" macro="$drone.macro" exact="1" unavailable="true"/>
               <add_units object="$station" macro="$drone.macro" exact="1" unavailable="true"/>
               <set_object_commander object="$drone" commander="$station"/>
-              <run_script name="'move.dockat.drone'">
+              <start_script object="$drone.pilot" name="'move.dockat.drone'">
                 <param name="destination" value="$station"/>
-              </run_script>
+              </start_script>
             </do_if>
           </do_all>
         </do_if>
@@ -361,9 +361,9 @@
               <remove_units object="this.ship" macro="$drone.macro" exact="1" unavailable="true"/>
               <add_units object="$station" macro="$drone.macro" exact="1" unavailable="true"/>
               <set_object_commander object="$drone" commander="$station"/>
-              <run_script name="'move.dockat.drone'">
+              <start_script object="$drone.pilot" name="'move.dockat.drone'">
                 <param name="destination" value="$station"/>
-              </run_script>
+              </start_script>
             </do_if>
           </do_all>
         </do_if>
