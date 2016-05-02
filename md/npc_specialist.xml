@@ -5,7 +5,7 @@
               <add_player_choice text="'Standby here." section="cSpecialist_cac_standbyhere" position="top_right" comment="Standby here"/>
             </do_elseif>
   </add>
-  <add sel="//cue[@name='OnBoardComm']/actions/do_elseif[@value='not player.platform']" pos="after">
+  <add sel="//cue[@name='OnBoardComm']/actions/do_elseif[@value='not player.platform']">
                <find_ship name="$CV" space="player.zone" primarypurpose="objectpurpose.build"><match_distance object="player.primaryship" max="10km"/></find_ship>
                <do_if value="$CV.exists">
                  <add_player_choice text="'Stand by on %1'.[$CV.name]" section="cSpecialist_cac_standbyoncv" position="right" choiceparam="$CV" comment="Stand by on nearby CV"/>
@@ -29,9 +29,11 @@
                 <param name="npcref" object="$actor" />
               </play_cutscene>
               <start_actor_transport actor="$actor" target="event.param2" />
+              <set_value name="$ut_cac_actorstandby"/>
             </do_elseif>
   </add>
   <!-- prevent assigning as control entity when moved to a CV without changing the expression itself-->
   <!-- NOTE: COMPATIBILITY HERE WILL EASILY BREAK -->
-  <add sel="//cue[@name='OnDroneArrival']/actions/do_if[2]" type="@chance">( not @this.ship.exists ) * 100</add>
+  <add sel="//cue[@name='OnDroneArrival']/actions/do_if[2]" type="@chance">( not $ut_cac_actorstandby? ) * 100</add>
+  <add sel="//cue[@name='OnDroneArrival']/actions" ><remove_value name="$ut_cac_actorstandby"/></add>
 </diff>

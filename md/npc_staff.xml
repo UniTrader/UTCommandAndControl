@@ -10,4 +10,43 @@
           </actions>
         </cue>
   </add>
+  
+  <add sel="//cue[@name='OnBoardComm']/actions/remove_value[1]" pos="before">
+            <do_if value="@player.platform.ship.buildmodule and @player.platform.ship.owner == faction.player and ( $actor.type == entitytype.manager or $actor.type == entitytype.defencecontrol)">
+              <add_player_choice text="'Standby here." section="cStaff_cac_standbyhere" position="top_right" comment="Standby here"/>
+            </do_if>
+  </add>
+  <add sel="//cue[@name='OnBoardComm']/actions/do_elseif[@value='not player.platform']">
+                <do_if value="$actor.type == entitytype.manager or $actor.type == entitytype.defencecontrol">
+                  <find_ship name="$CV" space="player.zone" primarypurpose="objectpurpose.build"><match_distance object="player.primaryship" max="10km"/></find_ship>
+                  <do_if value="$CV.exists">
+                    <add_player_choice text="'Stand by on %1'.[$CV.name]" section="cStaff_cac_standbyoncv" position="right" choiceparam="$CV" comment="Stand by on nearby CV"/>
+                  </do_if>
+                  <remove_value name="$CV"/>
+                </do_if>
+</add>
+  <add sel="//cue[@name='SectionHandler']/actions/do_else" pos="before">
+            <do_elseif value="event.param == 'cStaff_cac_standbyhere'">
+              <add_npc_line line="3167" view="facenormal" comment="OK, sir. I'll move into my new quarters now." />
+              <set_value name="$container" exact="player.platform.container" />
+              <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$actor, $container]" />
+              <add_actor_to_platform actor="$actor" dockingbay="player.platform" />
+              <play_cutscene key="'LeavePlayerShip'">
+                <param name="npcref" object="$actor" />
+              </play_cutscene>
+              <remove_value name="$container" />
+            </do_elseif>
+            <do_elseif value="event.param == 'cStaff_cac_standbyoncv'">
+              <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$actor, event.param2]" />
+              <play_cutscene key="'LeavePlayerShipWithDrone'">
+                <param name="npcref" object="$actor" />
+              </play_cutscene>
+              <start_actor_transport actor="$actor" target="event.param2" />
+              <set_value name="$ut_cac_actorstandby"/>
+            </do_elseif>
+  </add>
+  <!-- prevent assigning as control entity when moved to a CV without changing the expression itself-->
+  <!-- NOTE: COMPATIBILITY HERE WILL EASILY BREAK -->
+  <add sel="//cue[@name='OnDroneArrival']/actions/do_if[2]" type="@chance">( not $ut_cac_actorstandby? ) * 100</add>
+  <add sel="//cue[@name='OnDroneArrival']/actions" ><remove_value name="$ut_cac_actorstandby"/></add>
 </diff>
