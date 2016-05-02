@@ -614,8 +614,21 @@ $entity  = ' + $entity"/>
               <set_value name="$price" exact="$ware.averageprice"/>
             </do_else>
           </do_if>
+          <do_elseif value="$wareslist_buysell.{$i} == 'buy consumable'">
+            <set_value name="$price" exact="@$ConstructionVessel.buyprice.{$ware}"/>
+            <do_if value="not $price">
+              <find_buy_offer result="$buyoffer" buyer="$ConstructionVessel" wares="$ware"/>
+              <do_if value="$buyoffer.available">
+                <set_value name="$price" exact="$buyoffer.unitprice"/>
+              </do_if>
+              <do_else>
+                <set_value name="$price" exact="$ware.maxprice"/>
+              </do_else>
+              <remove_value name="$buyoffer"/>
+            </do_if>
+          </do_elseif>
           <do_else>
-          <set_value name="$price" exact="@this.container.buyprice.{$ware}"/>
+            <set_value name="$price" exact="@this.container.buyprice.{$ware}"/>
             <do_if value="not $price">
               <find_buy_offer result="$buyoffer" buyer="this.container" wares="$ware"/>
               <do_if value="$buyoffer.available">
