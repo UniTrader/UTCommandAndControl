@@ -34,7 +34,7 @@
                 <do_if value="$actor.type == entitytype.manager or $actor.type == entitytype.defencecontrol">
                   <find_ship name="$CV" space="player.zone" primarypurpose="objectpurpose.build"><match_distance object="player.primaryship" max="10km"/></find_ship>
                   <do_if value="$CV.exists">
-                    <do_if value="$actor.type == entitytype.manager">
+                    <do_if value="$actor.type == entitytype.manager and $CV.architect">
                       <add_player_choice text="'Work on %1 and convert to UT CAC'.[$CV.name]" section="cStaff_cac_standbyoncv" position="right" choiceparam="$CV" comment="Stand by on nearby CV"/>
                     </do_if>
                     <do_else>
@@ -54,8 +54,8 @@
                 <param name="npcref" object="$actor" />
               </play_cutscene>
               <do_if value="$actor.type == entitytype.manager">
-                <signal_objects object="$architect" param="'cancel Vanilla dialogue tree'"/>
-                <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="$architect"/>
+                <signal_objects object="player.platform.container.architect" param="'cancel Vanilla dialogue tree'"/>
+                <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="player.platform.container.architect"/>
                 <cancel_cue cue="OnPlatformPopulation_Staff"/>
                 <signal_cue_instantly cue="md.UT_CAC_Manager.Main" param="$actor"/>
               </do_if>
@@ -68,8 +68,8 @@
               </play_cutscene>
               <start_actor_transport actor="$actor" target="event.param2" />
               <do_if value="$actor.type == entitytype.manager">
-                <signal_objects object="$architect" param="'cancel Vanilla dialogue tree'"/>
-                <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="$architect"/>
+                <signal_objects object="$event.param2.architect" param="'cancel Vanilla dialogue tree'"/>
+                <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="$event.param2.architect"/>
                 <cancel_cue cue="OnPlatformPopulation_Staff"/>
                 <signal_cue_instantly cue="md.UT_CAC_Manager.Main" param="$actor"/>
               </do_if>
