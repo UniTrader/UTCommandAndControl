@@ -23,7 +23,11 @@
         <set_comm_handler actor="$actor" customhandler="true" />
         <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
         <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
-        <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
+        <!-- instead of starting the Orderlist now wait till Drone has arrived or, if already on a Station/Ship simulate Drone Arrival to unify the managment of both events -->
+        <!--start_script object="$actor" name="'ut.cac.orderlist.loop'"/-->
+        <do_if value="($actor.container.isclass.station or ( actor.ship.buildmodule? and actor.ship.architect? ) ) and not @$actor.container.controlentity.{$actor.type}">
+          <signal_objects object="$actor" param="'remote_transport_arrived'" delay="100ms"/>
+        </do_if>
       </actions>
       <!-- making a break in Version 10 because of overhaul for default settings: these are now taken from the libraries.xml instead of being defined in the Script - old settings should be retained though -->
       <patch sinceversion="4" state="complete">
@@ -302,7 +306,7 @@ Rest is shared between all Actor types
           <conditions>
             <check_all>
               <event_object_signalled object="$actor" param="'remote_passenger_arrived'" />
-              <check_value value="($actor.container.isclass.station or actor.ship.buildmodule?) and not @$actor.container.controlentity.{$actor.type}"/>
+              <check_value value="($actor.container.isclass.station or ( actor.ship.buildmodule? and actor.ship.architect? ) ) and not @$actor.container.controlentity.{$actor.type}"/>
             </check_all>
           </conditions>
           <delay exact="1ms"/>

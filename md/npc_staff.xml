@@ -34,8 +34,10 @@
                 <do_if value="$actor.type == entitytype.manager or $actor.type == entitytype.defencecontrol">
                   <find_ship name="$CV" space="player.zone" primarypurpose="objectpurpose.build"><match_distance object="player.primaryship" max="10km"/></find_ship>
                   <do_if value="$CV.exists">
-                    <do_if value="$actor.type == entitytype.manager and $CV.architect.exists">
-                      <add_player_choice text="'Work on %1 and convert to UT CAC'.[$CV.name]" section="cStaff_cac_standbyoncv" position="right" choiceparam="$CV" comment="Stand by on nearby CV"/>
+                    <do_if value="$actor.type == entitytype.manager">
+                      <do_if value=" $CV.architect.exists">
+                        <add_player_choice text="'Work on %1 and convert to UT CAC'.[$CV.name]" section="cStaff_cac_standbyoncv" position="right" choiceparam="$CV" comment="Stand by on nearby CV"/>
+                      </do_if>
                     </do_if>
                     <do_else>
                      <add_player_choice text="'Stand by on %1'.[$CV.name]" section="cStaff_cac_standbyoncv" position="right" choiceparam="$CV" comment="Stand by on nearby CV"/>
@@ -62,21 +64,25 @@
               <remove_value name="$container" />
             </do_elseif>
             <do_elseif value="event.param == 'cStaff_cac_standbyoncv'">
-              <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$actor, event.param2]" />
-              <play_cutscene key="'LeavePlayerShipWithDrone'">
-                <param name="npcref" object="$actor" />
-              </play_cutscene>
-              <start_actor_transport actor="$actor" target="event.param2" />
-              <do_if value="$actor.type == entitytype.manager and event.param2.architect.exists">
-                <debug_text filter="general" text="'1: %1'.[event.param2.architect.name]"/>
-                <signal_objects object="event.param2.architect" param="'cancel Vanilla dialogue tree'"/>
-                <debug_text filter="general" text="'2: %1'.[event.param2.architect.name]"/>
-                <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="event.param2.architect"/>
-                <debug_text filter="general" text="'3: %1'.[event.param2.architect.name]"/>
-                <cancel_cue cue="OnPlatformPopulation_Staff"/>
-                <signal_cue_instantly cue="md.UT_CAC_Manager.Main" param="$actor"/>
+              <do_if value="$actor.type == entitytype.manager">
+                <do_if value="event.param2.architect.exists">
+                  <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$actor, event.param2]" />
+                  <play_cutscene key="'LeavePlayerShipWithDrone'">
+                    <param name="npcref" object="$actor" />
+                  </play_cutscene>
+                  <start_actor_transport actor="$actor" target="event.param2" />
+                  <signal_objects object="event.param2.architect" param="'cancel Vanilla dialogue tree'"/>
+                  <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="event.param2.architect"/>
+                  <cancel_cue cue="OnPlatformPopulation_Staff"/>
+                  <signal_cue_instantly cue="md.UT_CAC_Manager.Main" param="$actor"/>
+                </do_if>
               </do_if>
               <do_else>
+                <signal_cue_instantly cue="md.NPC_Staff.LogAssignedToObject" param="[$actor, event.param2]" />
+                <play_cutscene key="'LeavePlayerShipWithDrone'">
+                  <param name="npcref" object="$actor" />
+                </play_cutscene>
+                <start_actor_transport actor="$actor" target="event.param2" />
                 <set_value name="$ut_cac_actorstandby"/>
               </do_else>
             </do_elseif>
