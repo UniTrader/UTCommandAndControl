@@ -67,9 +67,12 @@
                 <param name="npcref" object="$actor" />
               </play_cutscene>
               <start_actor_transport actor="$actor" target="event.param2" />
-              <do_if value="$actor.type == entitytype.manager">
+              <do_if value="$actor.type == entitytype.manager and event.param2.architect.exists">
+                <debug_text filter="general" text="'1: %1'.[event.param2.architect.name]"/>
                 <signal_objects object="event.param2.architect" param="'cancel Vanilla dialogue tree'"/>
+                <debug_text filter="general" text="'2: %1'.[event.param2.architect.name]"/>
                 <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="event.param2.architect"/>
+                <debug_text filter="general" text="'3: %1'.[event.param2.architect.name]"/>
                 <cancel_cue cue="OnPlatformPopulation_Staff"/>
                 <signal_cue_instantly cue="md.UT_CAC_Manager.Main" param="$actor"/>
               </do_if>
