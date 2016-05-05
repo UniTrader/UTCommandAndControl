@@ -340,6 +340,18 @@ Rest is shared between all Actor types
           <param name="actor" value="$actor"/>
         </cue>
         
+        <cue name="Subordinate_Added" instantiate="true">
+          <conditions>
+            <check_all>
+              <event_object_subordinate_added object="$actor.container" commandertype="entitytype.commander"/>
+              <check_value value="$actor.ship.buildmodule? and $actor.ship.architect?"/>
+            </check_all>
+          </conditions>
+          <actions>
+            <!-- pass all assigned Subordinates to the Manager when on a CV -->
+            <set_object_commander object="event.param" commander="$actor.container" type="entitytype.manager"/>
+          </actions>
+        </cue>
         <cue name="NPC_Destroyed">
           <conditions>
             <event_object_destroyed object="$actor"/>

@@ -517,6 +517,15 @@ Rest is shared between all Actor types
             </cue>
           </cues>
         </cue>
+        <cue name="Subordinate_Added" instantiate="true">
+          <conditions>
+            <event_object_subordinate_added object="$actor.container" commandertype="entitytype.architect"/>
+          </conditions>
+          <actions>
+            <!-- pass all assigned Subordinates to the Manager -->
+            <set_object_commander object="event.param" commander="$actor.container" type="entitytype.manager"/>
+          </actions>
+        </cue>
       </cues>
     </cue>
   </cues>

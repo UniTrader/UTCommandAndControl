@@ -306,7 +306,7 @@ Rest is shared between all Actor types
           <conditions>
             <check_all>
               <event_object_signalled object="$actor" param="'remote_passenger_arrived'" />
-              <check_value value="($actor.container.isclass.station or ( actor.ship.buildmodule? and actor.ship.architect? ) ) and not @$actor.container.controlentity.{$actor.type}"/>
+              <check_value value="($actor.container.isclass.station or ( $actor.ship.buildmodule? and $actor.ship.architect? ) ) and not @$actor.container.controlentity.{$actor.type}"/>
             </check_all>
           </conditions>
           <delay exact="1ms"/>
@@ -329,6 +329,20 @@ Rest is shared between all Actor types
               </conditions>
               <actions>
                 <reset_cue cue="Assigned_as_control_entity"/>
+              </actions>
+            </cue>
+            <cue name="GatherCVSubordinates" onfail="cancel">
+              <conditions>
+                <check_value value="@$actor.ship.buildmodule and @$actor.ship.architect"/>
+              </conditions>
+              <delay exact="100ms"/>
+              <actions>
+                <set_value name="$subordinates" exact="$actor.ship.subordinates"/>
+                <do_all exact="$subordinates.count" counter="$i">
+                  <do_if value="not ( $subordinates.{$i}.commanderentity == $actor.ship.defencenpc )">
+                    <set_object_commander object="$subordinates.{$i}" commander="$actor.ship" type="entitytype.manager"/>
+                  </do_if>
+                </do_all>
               </actions>
             </cue>
             <cue name="Subordinate_Added" instantiate="true">
