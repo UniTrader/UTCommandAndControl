@@ -331,11 +331,15 @@
       </do_all>
       
       <!-- Transfer subordinate Ships to the Station (CAC Manager will make sure to also deliver Building Materials) -->
+      <!-- also re-calculate Manager Fuel Amount -->
+      <set_value name="$fuelcells_targetamount" exact="0"/>
       <set_value name="$subordinates" exact="this.ship.subordinates.clone"/>
       <do_all exact="$subordinates.count" counter="$i">
         <set_object_commander object="$subordinates.{$i}" commander="$station" type="entitytype.manager"/>
+        <set_value name="$fuelcells_targetamount" exact="[$subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
         <wait exact="1s"/>
       </do_all>
+      <set_value name="$manager.$ut_cac.$consumables.{ware.fuelcells}.$target" exact="$fuelcells_targetamount"/>
       
       <!-- Transfer Drones which can be used by the Station (but keep enough in CV to be able to continue regular operations) -->
       <!-- ToDo: Move the Drones by launching them and Docking them at the Station instead of simply adding and removing -->

@@ -367,6 +367,7 @@ Rest is shared between all Actor types
                 
                 <!-- Re-Adjust Wanted Amount for Fuel Cells (consumable, but neither involved in the Production nor in Trading ) - keep a complete refill for everyone in storage -->
                 <!-- re-calculation only necesary for bigger Ships (also taking into account that there will be possibly M Ships with JD) -->
+                <!-- This Snippet is also in ut.cac.com.architect.build because the part here doestn seem to trigger properly on CVs and after transferring Architect -->
                 <set_value name="$fuelcells_targetamount" exact="0"/>
                 <do_all exact="$actor.container.subordinates.count" counter="$i">
                   <set_value name="$fuelcells_targetamount" exact="[$actor.container.subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
