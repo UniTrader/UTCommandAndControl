@@ -699,9 +699,11 @@ $entity  = ' + $entity"/>
             </do_else>
             <do_if value="$amount le 0">
               <debug_text filter="general" chance="@this.$debug * 100" text="'Skipping Ware %1 beause $amount is 0 or less'.[$ware]"/>
-              <debug_text filter="general" text="'Amounts resolve to:\n%1 %2 %3 %4 %5'.[ 
+              <debug_text filter="general" text="'Amounts resolve to:\n%1 (( %2 or %3 ) %4 ) %5 %6 %7'.[ 
                 $selloffer.offeramount, 
-                ( if this.$ut_cac.$consumables.{$ware}? then (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count - $incomingamount, 
+                this.$ut_cac.$consumables.{$ware}.$target,
+                this.container.cargo.{$ware}.target,
+                 this.container.cargo.{$ware}.count - $incomingamount, 
                 this.container.cargo.{$ware}.free - $incomingamount, 
                 $entity.ship.cargo.{$ware}.free, 
                 (this.money/$selloffer.unitprice)i 
