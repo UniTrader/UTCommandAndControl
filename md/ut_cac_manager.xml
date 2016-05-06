@@ -28,6 +28,9 @@
         <do_if value="($actor.container.isclass.station or ( actor.ship.buildmodule? and actor.ship.architect? ) ) and not @$actor.container.controlentity.{$actor.type}">
           <signal_objects object="$actor" param="'remote_transport_arrived'" delay="100ms"/>
         </do_if>
+        <do_if value="not $actor.hasownaccount">
+          <set_actor_account actor="$actor"/>
+        </do_if>
       </actions>
       <!-- making a break in Version 10 because of overhaul for default settings: these are now taken from the libraries.xml instead of being defined in the Script - old settings should be retained though -->
       <patch sinceversion="4" state="complete">
@@ -343,6 +346,9 @@ Rest is shared between all Actor types
                     <set_object_commander object="$subordinates.{$i}" commander="$actor.ship" type="entitytype.manager"/>
                   </do_if>
                 </do_all>
+                <remove_value name="$subordinates"/>
+                <!-- Architect shall use Manager Account -->
+                <share_actor_account actor="$actor.ship.architect" otherobject="$actor" transferto="$actor"/>
               </actions>
             </cue>
             <cue name="Subordinate_Added" instantiate="true">
