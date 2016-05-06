@@ -56,11 +56,22 @@
       </patch>
       <cues>
         <cue name="Delayed_scriptstart">
-          <delay exact="100ms"/>
+          <delay exact="10ms"/>
           <actions>
             <!-- ToDo: check if the Scripts are already executing the right Command and give them commands for a smooth takeover -->
             <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
             <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
+          </actions>
+        </cue>
+        <cue name="Set_Commanderentity">
+          <conditions>
+            <event_object_signalled object="$actor" param="'set commanderentity'"/>
+          </conditions>
+          <actions>
+            <set_value name="$actor.$ut_cac.$commanderentity" exact="event.param2"/>
+            <!-- request new Orders directly after Transfer to speed things up -->
+            <signal_objects object="event.param2" param="'request orders'" param2="$actor"/>
+            <reset_cue cue="this"/>
           </actions>
         </cue>
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">

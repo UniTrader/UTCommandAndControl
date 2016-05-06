@@ -374,11 +374,7 @@ Rest is shared between all Actor types
                     <do_if value="not event.param.pilot.$ut_cac?">
                       <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
                     </do_if>
-                    <do_else>
-                      <set_value name="event.param.pilot.$ut_cac.$commanderentity" exact="$actor"/>
-                      <!-- request new Orders directly after Transfer to speed things up -->
-                      <signal_objects object="$actor" param="'request orders'" param2="event.param.pilot"/>
-                    </do_else>
+                    <signal_objects object="event.param.pilot" param="'set commanderentity'" param2="$actor" delay="100ms"/>
                   </do_elseif>
                   <do_else>
                     <!-- cannt use this Ship for anything - remove assignment (maybe add passing it to the right entity? ) -->
