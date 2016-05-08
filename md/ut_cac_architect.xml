@@ -215,7 +215,7 @@ Rest is shared between all Actor types
                 <do_if value="$station? and $station.exists">
                   <add_player_choice text="'Extend Station (UI)'" position="1" section="comm_orders_extend_ui" selectable="$actor.$ut_cac.$orderedbuildplanlist" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
                   <add_player_choice text="'Extend Station (Dialogue)'" position="4" section="comm_orders_extend_dia" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
-                  <add_player_choice text="'Upgrade Station'" position="2" section="comm_orders_upgrade" selectable="$actor.$ut_cac.$orderedbuildplanlist" />
+                  <add_player_choice text="'Upgrade Station'" position="2" section="comm_orders_upgrade" selectable="false and $actor.$ut_cac.$orderedbuildplanlist" tooltip="'Work in Progress'" />
                   <!-- find anything which can be repaired ( ToDo: maybe some Filtering?? )-->
                   <!-- this Value will also be used in the Section called by this choice!!! -->
                   <find_object_component name="$RepairableParts" object="$station" checkoperational="false" multiple="true">
@@ -226,8 +226,8 @@ Rest is shared between all Actor types
                       </match>
                     </match_any>
                   </find_object_component>
-                  <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if $RepairableParts.count then '%1 Parts need repairs'.[$RepairableParts.count] else 'nothing to repair'" selectable="$actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
-                  <add_player_choice text="'Detach from Station'" position="5" section="comm_orders_detach" selectable="false and $station.exists" tooltip="'Not implemented yet'" />
+                  <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if $RepairableParts.count then '%1 Parts need repairs'.[$RepairableParts.count] else 'nothing to repair'" selectable="false and $actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
+                  <add_player_choice text="'Detach from Station'" position="5" section="comm_orders_detach" selectable="false and $station.exists" tooltip="'Work in Progress'" />
                 </do_if>
                 <do_else>
                   <add_player_choice text="'Build Station'" position="1" section="comm_orders_build" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
@@ -504,11 +504,12 @@ Rest is shared between all Actor types
           <cues>
             <cue name="SwitchToPermanentStationB">
               <conditions>
-                <event_build_started object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
+                <event_build_finished object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
               </conditions>
               <actions>
                 <!-- Clean up temp Stuff and refer with $Station to the correct Station -->
                 <set_value name="$station" exact="$actor.ship.buildmodule.buildanchor"/>
+                <!-- ToDo: Transfer all Settings on the Temp Station to the finished Station -->
                 <destroy_object object="$TempStation"/>
                 <destroy_object object="$TempZone"/>
                 <destroy_object object="$TempCluster"/>
