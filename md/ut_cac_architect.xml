@@ -109,7 +109,8 @@ Rest is shared between all Actor types
                 <start_conversation actor="$actor" conversation="OnBuildAction" type="unqueued" />
                 <set_value name="$zone" exact="player.zone"/>
               </do_if>
-              <signal_objects object="$actor.ship.pilot" param="'new order'" param2="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$interruptable=true]"/>
+              <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$interruptable=true]"/>
+              <signal_objects object="$actor.ship.pilot" param="'new order'" param2="$CaptainMoveOrder"/>
             </do_if>
             
             <!-- Conversation: Select station to Build -->
@@ -124,6 +125,7 @@ Rest is shared between all Actor types
                 </do_else>
               </do_if>
               <open_conversation_menu menu="BuilderMacrosMenu" param="[0, 0, $actor, $actor.ship, 1]" param2="event.param3"/>
+              <set_conversation_return_section section="cArch_BuildAbort"/>
             </do_if>
 			
             <do_elseif value="event.param == 'cArch_selectUpgradesMenu'">
@@ -165,6 +167,7 @@ Rest is shared between all Actor types
                 <debug_text filter="error" text="'resetting Cue SwitchToPermanentStationA because SwitchToPermanentStationB is still in waiting state although it shouldnt be!'"/>
               </do_if>
               <signal_cue cue="SwitchToPermanentStationA" comment="this cue destroys the temp station when not needed anymore and updates the Station reference to the Station which is built"/>
+              <remove_value name="$CaptainMoveOrder"/>
             </do_elseif>
             
             <!-- Station Upgrade via UI - probably not needed anymore.. -->
@@ -176,6 +179,13 @@ Rest is shared between all Actor types
               <do_if value="$actor.$orderlist.count ge 1 and $actor.$orderlist.{$actor.$orderlist.count}.$script=='ut.cac.com.architect.build'">
                 <set_value name="$actor.$orderlist.{$actor.$orderlist.count}.$interruptable" exact="false"/>
               </do_if>
+            </do_elseif>
+            <do_elseif value="event.param == 'cArch_BuildAbort'">
+              <!-- Selection made in build tree menu -->
+              <!-- param2 == [ buildplanlist, upgradeplanlist ] -->
+              <add_npc_line line="1109" comment="we will start construction" view="facenormal" />
+              <signal_objects object="$actor" param="'cancel order'" param2="$CaptainMoveOrder"/>
+              <remove_value name="$CaptainMoveOrder"/>
             </do_elseif>
           </actions>
         </cue>
