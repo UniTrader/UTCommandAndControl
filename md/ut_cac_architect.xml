@@ -255,23 +255,23 @@ Rest is shared between all Actor types
               </do_if>
               <!--- Add Build Choices here -->
               <!-- 1: Build in current Zone; 4: Build in Player Zone, 3: Select Zone -->
-              <add_player_choice text="'Build Station in your current Zone'" position="1" section="comm_orders_build_spaceselected" choiceparam="$actor.zone" />
-              <add_player_choice text="'Build Station in my current Zone'" position="4" section="comm_orders_build_spaceselected" choiceparam="player.zone" />
+              <add_player_choice text="'Build Station in your current Zone'" position="1" section="comm_orders_build_spaceselected" choiceparam="[0,0,$actor.zone]" />
+              <add_player_choice text="'Build Station in my current Zone'" position="4" section="comm_orders_build_spaceselected" choiceparam="[0,0,player.zone]" />
               <add_player_choice text="'Build Station in...'" position="3" section="comm_orders_select_space" choiceparam="'comm_orders_build_spaceselected'" comment="refering to re-useable Menu Call"/>
               <add_player_choice_return text="{5554103,7}" position="6" />
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_build_spaceselected'">
-              <do_if value="event.param2.isclass.sector or event.param2.isclass.cluster">
+              <do_if value="event.param2.{3}.isclass.sector or event.param2.{3}.isclass.cluster">
                 <do_all exact="10">
-                  <find_zone name="$zone" known="true" priorityzone="true" tempzone="false" space="event.param2" />
+                  <find_zone name="$zone" known="true" priorityzone="true" tempzone="false" space="event.param2.{3}" />
                   <do_if value="$zone.freebuildlocations.count ge 1">
                     <break/>
                   </do_if>
                 </do_all>
               </do_if>
               <do_else>
-                <set_value name="$zone" exact="event.param2"/>
+                <set_value name="$zone" exact="event.param2.{3}"/>
               </do_else>
               <do_if value="$zone.freebuildlocations.count ge 1">
                 <debug_text filter="general" text="'start building via Dialogue'"/>
