@@ -374,10 +374,14 @@
         <!-- checking Jump Range Path to be completely in the whitelist and removing all Ranges which divert from this -->
         <set_value name="$baserange" exact="$actor.$ut_cac.$range"/>
         <set_value name="$range" exact="$actor.$ut_cac.$range_j"/>
+        <set_value name="$range_w" exact="$actor.$ut_cac.$range_w"/>
         <do_all exact="$range.count" counter="$i">
           <do_if value="$range.{$i}.exists">
             <!-- if homebase is inside range condition is fulfilled - no further checks needed -->
             <do_if value="$actor.container.hascontext.{$range.{$i}}">
+              <do_if value="$range_w.{$i}">
+                <set_value name="$range_w.{$i}" exact="null" comment="when in context no waypoint needed"/>
+              </do_if>
               <continue/>
             </do_if>
             <!-- get a Sector which has context with the Range setting -->
@@ -390,8 +394,26 @@
             <do_else>
               <set_value name="$endsector" exact="$range.{$i}"/>
             </do_else>
-            <!-- for each range Setting get the Jump Path from the Actor/Station Zone to the Range-defining Space -->
-            <get_jump_path component="$waypoints" start="$actor.sector" end="$endsector" multiple="true"/>
+            <do_if value="$range_w.{$i}">
+              <!-- get a Sector which has context with the RangeWaypoint setting -->
+              <do_if value="$range_w.{$i}.isclass.zone">
+                <set_value name="$range_waypoint" exact="$range_w.{$i}.sector"/>
+              </do_if>
+              <do_elseif value="$range_w.{$i}.isclass.cluster">
+                <find_sector name="$range_waypoint" space="$range_w.{$i}"/>
+              </do_elseif>
+              <do_else>
+                <set_value name="$endsector" exact="$range_w.{$i}"/>
+              </do_else>
+              <get_jump_path component="$waypoints" start="$actor.sector" end="$range_waypoint" multiple="true"/>
+              <get_jump_path component="$waypoints_tmp" start="$range_waypoint" end="$endsector" multiple="true"/>
+              <append_to_list name="$waypoints" list="$waypoints_tmp"/>
+              <remove_value name="$waypoints_tmp"/>
+            </do_if>
+            <do_else>
+              <!-- for each range Setting get the Jump Path from the Actor/Station Zone to the Range-defining Space -->
+              <get_jump_path component="$waypoints" start="$actor.sector" end="$endsector" multiple="true"/>
+            </do_else>
             <do_all exact="@$waypoints.count" counter="$j">
               <!-- no need to check Gates on the Path -->
               <do_if value="$waypoints.{$j}.isclass.gate">
@@ -442,7 +464,21 @@
             <do_else>
               <find_zone name="$zone" space="$range.{$i}" tempzone="false" priorityzone="true"/>
             </do_else>
-            <get_global_path component="$waypoints" multiple="true"><start object="$zone"/><end object="$actor.zone"/></get_global_path>
+            <do_if value="$range_w.{$i}">
+              <do_if value="$range_w.{$i}.isclass.zone">
+                <set_value name="$range_waypoint" exact="$range_w.{$i}"/>
+              </do_if>
+              <do_else>
+                <find_zone name="$range_waypoint" space="$range_w.{$i}" tempzone="false" priorityzone="true"/>
+              </do_else>
+              <get_global_path component="$waypoints" multiple="true"><start object="$zone"/><end object="$range_waypoint"/></get_global_path>
+              <get_global_path component="$waypoints_tmp" multiple="true"><start object="$range_waypoint"/><end object="$actor.zone"/></get_global_path>
+              <append_to_list name="$waypoints" list="$waypoints_tmp"/>
+              <remove_value name="$waypoints_tmp"/>
+            </do_if>
+            <do_else>
+             <get_global_path component="$waypoints" multiple="true"><start object="$zone"/><end object="$actor.zone"/></get_global_path>
+            </do_else>
             <do_all exact="$waypoints.count"  counter="$j">
               <!-- if $waypoints.{$j} is a Highway or Gate skip check (irrelevant for continuty) -->
               <!-- no need to check highways or Gates on the path -->
@@ -472,8 +508,22 @@
               <set_value name="$range.{$i}" exact="null"/>
               <continue/>
             </do_if>
-            <!-- now the same for the other direction (swapped start and end) - code and comments see above-->
-            <get_global_path component="$waypoints" multiple="true"><start object="$actor.zone"/><end object="$zone"/></get_global_path>
+            <!-- now the same for the other direction (swapped start and end) - code and comments see above-->            
+            <do_if value="$range_w.{$i}">
+              <do_if value="$range_w.{$i}.isclass.zone">
+                <set_value name="$range_waypoint" exact="$range_w.{$i}"/>
+              </do_if>
+              <do_else>
+                <find_zone name="$range_waypoint" space="$range_w.{$i}" tempzone="false" priorityzone="true"/>
+              </do_else>
+              <get_global_path component="$waypoints" multiple="true"><start object="$actor.zone"/><end object="$range_waypoint"/></get_global_path>
+              <get_global_path component="$waypoints_tmp" multiple="true"><start object="$range_waypoint"/><end object="$zone"/></get_global_path>
+              <append_to_list name="$waypoints" list="$waypoints_tmp"/>
+              <remove_value name="$waypoints_tmp"/>
+            </do_if>
+            <do_else>
+              <get_global_path component="$waypoints" multiple="true"><start object="$actor.zone"/><end object="$zone"/></get_global_path>
+            </do_else>
             <do_all exact="$waypoints.count"  counter="$j">
               <do_if value="$waypoints.{$j}.isclass.highway">
                 <continue/>
@@ -506,6 +556,22 @@
           <show_notification caption="{5554203,211}" details="$removal_message"/>
         </do_if>
         <remove_value name="$removal_message"/>
+        <remove_value name="$baserange"/>
+        <remove_value name="$gatecount"/>
+        <remove_value name="$galaxycount"/>
+        <remove_value name="$clustercount"/>
+        <remove_value name="$sectorcount"/>
+        <remove_value name="$zonecount"/>
+        <remove_value name="$entrycount"/>
+        <remove_value name="$baserange"/>
+        <remove_value name="$range"/>
+        <remove_value name="$range_w"/>
+        <remove_value name="$endsector"/>
+        <remove_value name="$waypoints"/>
+        <remove_value name="$verified"/>
+        <remove_value name="$beacon"/>
+        <remove_value name="$zone"/>
+        <remove_value name="$range_waypoint"/>
       </actions>
     </library>
     

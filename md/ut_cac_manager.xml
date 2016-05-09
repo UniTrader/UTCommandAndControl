@@ -3,7 +3,7 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="14">
+    <cue name="Main" instantiate="true" namespace="this" version="20">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
@@ -13,6 +13,7 @@
         <set_value name="$actor.$ut_cac.$range" exact="[$actor.sector]"/>
         <set_value name="$actor.$ut_cac.$range_h" exact="[$actor.sector]"/>
         <set_value name="$actor.$ut_cac.$range_j" exact="[$actor.sector]"/>
+        <set_value name="$actor.$ut_cac.$range_w" exact="[null]"/>
         <!-- if the Manager has the required Skill add the current Cluster to the Range List to speed up Setup -->
         <do_if value="$actor.skill.navigation ge 2">
           <append_to_list name="$actor.$ut_cac.$range" exact="$actor.cluster"/>
@@ -55,10 +56,11 @@
         <!--set_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$unbundle" exact="param.ut_cac.setting_defaults.$consumables.{ware.fuelcells}.$unbundle"/-->
         <remove_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$type"/>
       </patch>
-      <patch sinceversion="14" state="complete">
+      <patch sinceversion="20" state="complete">
         <!-- Rename Variable Name -->
         <set_value name="$actor.$ut_cac" exact="$actor.$ut_cac_settings"/>
         <remove_value name="$actor.$ut_cac_settings"/>
+        <create_list name="$actor.$ut_cac.$range_w" exact="$actor.$ut_cac.$range.count"/>
       </patch>
       <cues>
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
@@ -165,20 +167,27 @@ Rest is shared between all Actor types
               <resize_list list="$actor.$ut_cac.$range" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
               <resize_list list="$actor.$ut_cac.$range_h" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
               <resize_list list="$actor.$ut_cac.$range_j" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
+              <resize_list list="$actor.$ut_cac.$range_w" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/>
               <do_all exact="$actor.$ut_cac.$range.count" counter="$i">
                 <!-- Text Block is for apporiate Coloring of Range Entry - see also deactivated doif/elseif version below (wanted to try stacked inline ifs :D )-->
-                <add_player_choice_sub position="$i" section="comm_settings_range_mod" choiceparam="$i" text="
-                if $actor.$ut_cac.$range.{$i} then
-                ( if $actor.$ut_cac.$range_h.{$i} then 
+                <do_if value="$actor.$ut_cac.$range.{$i}">
+                  <set_value name="$choicetext" exact="
+                  if $actor.$ut_cac.$range_h.{$i} then 
                   ( if $actor.$ut_cac.$range_j.{$i} then 
                     '\033G%1\033X'.[$actor.$ut_cac.$range.{$i}.name] else 
                     '\033Y%1\033X'.[$actor.$ut_cac.$range.{$i}.name] )
                   else 
                   ( if $actor.$ut_cac.$range_j.{$i} then 
                     '\033B%1\033X'.[$actor.$ut_cac.$range.{$i}.name] else 
-                    '\033A%1\033X'.[$actor.$ut_cac.$range.{$i}.name] )
-                )
-                else '&gt; &gt; unused &lt; &lt;\033X'" />
+                    '\033A%1\033X'.[$actor.$ut_cac.$range.{$i}.name] )"/>
+                  <do_if value="$actor.$ut_cac.$range_w.{$i}">
+                    <set_value name="$choicetext" exact="'%1 via %2'.[$choicetext,$actor.$ut_cac.$range_w.{$i}.name"/>
+                  </do_if>
+                </do_if>
+                <do_else>
+                  <set_value name="$choicetext" exact="'&gt; &gt; unused &lt; &lt;\033X'"/>
+                </do_else>
+                <add_player_choice_sub position="$i" section="comm_settings_range_mod" choiceparam="$i" text="$choicetext" />
                 <do_if value="false">
                   <do_if value="$actor.$ut_cac.$range.{$i}" >
                     <!-- jump and highway Range Slot -->
@@ -215,8 +224,8 @@ Rest is shared between all Actor types
               <do_if value="$actor.$ut_cac.$range.{$slot}">
                 <add_player_choice text="if $actor.$ut_cac.$range_j.{$slot} then {5554103,2411} else {5554103,2412}" position="1" section="comm_settings_range_toggle_jump"/>
                 <add_player_choice text="if $actor.$ut_cac.$range_h.{$slot} then {5554103,2413} else {5554103,2414}" position="2" section="comm_settings_range_toggle_highway"/>
-                <add_player_choice text="{5554103,2415}" position="3" section="null" selectable="false"/>
-                <add_player_choice text="{5554103,2416}" position="4" section="comm_settings_range_remove"/>
+                <add_player_choice text="if $actor.$ut_cac.$range_w.{$slot} then 'Change Waypoint: %1'.[$actor.$ut_cac.$range_w.{$slot}] else 'Set Waypoint'" position="3" section="comm_orders_select_space" choiceparam="'comm_settings_range_set_waypoint'" selectable="not $actor.container.hascontext.{$range.{$slot}}"/>
+                <add_player_choice text="if $actor.$ut_cac.$range_w.{$slot} then 'remove Waypoint' else {5554103,2416}" position="4" section="comm_settings_range_remove"/>
                 <add_player_choice text="{5554103,2417}" position="5" section="comm_orders_select_space" choiceparam="'comm_settings_range_set'" comment="refering to re-useable Menu Call"/>
                 <do_if value="$actor.hascontext.{$actor.$ut_cac.$range.{$slot}}">
                   <add_player_choice text="{5554103,2418}" position="6" section="null" selectable="false"/>
@@ -230,6 +239,11 @@ Rest is shared between all Actor types
                 <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_set']]"/>
                 <add_conversation_view view="closeupdetailmonitor" />
               </do_else>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_range_set_waypoint'">
+              <set_value name="$actor.$ut_cac.$range_w.{$slot}" exact="event.param2.{3}"/>
+              <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
               <!-- Toggle Jump range/Not Jump Range by removing/Adding the Space to the related List (same for highway Range) -->
             <do_elseif value="event.param == 'comm_settings_range_toggle_jump'">
@@ -251,9 +265,14 @@ Rest is shared between all Actor types
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_remove'">
-              <set_value name="$actor.$ut_cac.$range.{$slot}" exact="null"/>
-              <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="null"/>
-              <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="null"/>
+              <do_if value="$actor.$ut_cac.$range_w.{$slot}">
+                <set_value name="$actor.$ut_cac.$range_w.{$slot}" exact="null"/>
+              </do_if>
+              <do_else>
+                <set_value name="$actor.$ut_cac.$range.{$slot}" exact="null"/>
+                <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="null"/>
+                <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="null"/>
+              </do_else>
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
