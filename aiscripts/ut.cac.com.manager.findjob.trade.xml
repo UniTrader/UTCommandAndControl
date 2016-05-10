@@ -820,10 +820,22 @@ $entity  = ' + $entity"/>
             <remove_trade_offer object="this.container" tradeoffer="$selloffer"/>
             <!-- tell the Ship to get the Wares and sell them ( ^= 2 single trade runs ) -->
             <do_if value="$range_w.{$i}">
-              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] , table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , table[$script='ut.cac.move.generic',$displayname='Fly back to Homebase,$destination=this.station,$endintargetspace=true] ]"/>
+              <signal_objects object="$entity" param="'new order'" param2="[ 
+table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=true] , 
+table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] , 
+table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , 
+table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=2,$interruptable=true] , 
+table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , 
+table[$script='ut.cac.move.generic',$displayname='Fly back to Homebase',$destination=this.station,$endintargetspace=true] 
+]"/>
             </do_if>
             <do_else>
-              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.move.generic',$displayname='Fly back to Homebase,$destination=this.station,$endintargetspace=true] ]"/>
+              <signal_objects object="$entity" param="'new order'" param2="[ 
+table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=true] , 
+table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] , 
+table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=2,$interruptable=true] , 
+table[$script='ut.cac.move.generic',$displayname='Fly back to Homebase',$destination=this.station,$endintargetspace=true] 
+]"/>
              </do_else>
             <!--do_if value="$entity.$orderlist.{1}.$order == 'wait minmax'">
               <signal_objects object="$entity.ship" param="'next order'"/>
