@@ -70,7 +70,7 @@
       <label name="move to buildlocation"/>
       <do_if value="$buildlocation">
         <!-- check if the buildlocation is claimed by a CV and if not claim it -->
-        <do_if value="$buildlocation.child.exists and $buildlocation.child.buildingmodule.exists">
+        <do_if value="$buildlocation.child.exists and $buildlocation.child.buildingmodule != this.ship.buildmodule">
           <debug_text filter="error" text="'%1 %2 %3 Build Location already in use and CV assigned - aborting (initial check)'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
@@ -126,7 +126,7 @@
           </interrupt>
         </wait>
          <set_value name="this.$ut_cac.$isactive" exact="1" comment="long-lasting action done - but still pay for the last period."/>
-        <do_if value="$buildlocation.child.exists and $buildlocation.child.buildingmodule.exists">
+        <do_if value="$buildlocation.child.exists and $buildlocation.child.buildingmodule != this.ship.buildmodule">
           <debug_text filter="error" text="'%1 %2 %3 Build Location already in use and CV assigned - aborting (move case)'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
@@ -191,14 +191,20 @@
         <do_elseif  value="$buildlocation.child.isclass.station">
           <remove_from_player_squad object="this.ship"/>
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
-          <restart_build object="$buildlocation.station" buildmodule="this.ship.buildmodule"/>
           <set_trade_restrictions object="this.ship" restricted="false"/>
-          <set_command_action commandaction="commandaction.repairingto" param="$station" />
-          <add_blocked_area blocker="this" zone="this.zone">
-            <position value="$buildlocation.offset" space="this.zone"/>
-            <rotation value="$buildlocation.rotation"/>
-            <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
-          </add_blocked_area>
+          <do_if value="$station.isconstruction">
+            <restart_build object="$buildlocation.station" buildmodule="this.ship.buildmodule"/>
+            <set_command_action commandaction="commandaction.repairingto" param="$station" />
+            <add_blocked_area blocker="this" zone="this.zone">
+              <position value="$buildlocation.offset" space="this.zone"/>
+              <rotation value="$buildlocation.rotation"/>
+              <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
+            </add_blocked_area>
+          </do_if>
+          <do_else>
+            <!-- Station was not under Construction, just deploy and Exit gracefully (but still Transfer Contents of CV useful for Station) -->
+            <resume label="transfercontents"/>
+          </do_else>
         </do_elseif>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Neither an empty build Location nor a Station to continue - aborting'.[player.age,this.name,this.container.name]"/>
@@ -344,6 +350,8 @@
         <set_value name="$manager.$ut_cac.$consumables.{ware.fuelcells}.$target" exact="$fuelcells_targetamount"/>
       </do_if>
       
+      
+      <label name="transfercontents"/>
       <!-- Transfer Drones which can be used by the Station (but keep enough in CV to be able to continue regular operations) -->
       <!-- ToDo: Move the Drones by launching them and Docking them at the Station instead of simply adding and removing -->
       <do_if value="this.container.attention ge attention.visible">

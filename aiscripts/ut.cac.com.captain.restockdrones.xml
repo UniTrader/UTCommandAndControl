@@ -123,7 +123,7 @@
         </do_all>
         <!-- add nearest Offer in a diffrent Zone to the Trade List and set it as new origin Point -->
         <do_if value="$mindistindex">
-          <set_value name="$amount" exact="[(if this.container.commanderentity then this.container.commanderentity.money else this.$ut_cac.$commanderentity) / $selloffers.{$mindistindex}.unitprice , $selloffers.{$mindistindex}.amount , $droneamounts.{$selloffers.{$mindistindex}.ware} ].min" />
+          <set_value name="$amount" exact="[(if this.container.commanderentity then this.container.commanderentity.money else this.$ut_cac.$commanderentity.money) / $selloffers.{$mindistindex}.unitprice , $selloffers.{$mindistindex}.amount , $droneamounts.{$selloffers.{$mindistindex}.ware} ].min" />
           <do_if value="$amount gt 0">
             <transfer_money from="if this.container.commanderentity then this.container.commanderentity.money else this.$ut_cac.$commanderentity" to="this" amount="$amount * $selloffers.{$mindistindex}.unitprice"/>
           </do_if>
