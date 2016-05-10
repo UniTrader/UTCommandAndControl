@@ -237,7 +237,7 @@ Rest is shared between all Actor types
                     </match_any>
                   </find_object_component>
                   <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if $RepairableParts.count then '%1 Parts need repairs'.[$RepairableParts.count] else 'nothing to repair'" selectable="false and $actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
-                  <add_player_choice text="'Detach from Station'" position="5" section="comm_orders_detach" selectable="false and $station.exists" tooltip="'Work in Progress'" />
+                  <add_player_choice text="'Detach from Station'" position="5" section="comm_orders_detach" selectable="$station.exists"/>
                 </do_if>
                 <do_else>
                   <add_player_choice text="'Build Station'" position="1" section="comm_orders_build" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
@@ -389,7 +389,7 @@ Rest is shared between all Actor types
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
-              <!-- Stuff to do when preparing for Detachment -->
+              <set_value name="$new_order" exact="table[$script='ut.cac.com.architectcaptain.undeploy.constructionvessel',$displayname='Detach CV',$interruptable=true]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
@@ -527,6 +527,18 @@ Rest is shared between all Actor types
               </actions>
             </cue>
           </cues>
+        </cue>
+        <cue name="Undeploy_CV">
+          <conditions>
+            <event_object_signalled object="$actor" param="'CV undeployed'"/>
+          </conditions>
+          <actions>
+            <!-- clear all Vars related to Building -->
+            <remove_value name="$buildlocation"/>
+            <remove_value name="$stationmacro"/>
+            <remove_value name="$station"/>
+            <reset_cue cue="this"/>
+          </actions>
         </cue>
         <cue name="Subordinate_Added" instantiate="true">
           <conditions>
