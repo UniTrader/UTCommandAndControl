@@ -153,7 +153,7 @@
       <actions>
         <!-- say a few words about the received/sent money in case the player is nearby (interaction with someone else, not the player) -->
         <do_if value="$actor.room == player.room" >
-          <do_if value="event.param lt actor.money">
+          <do_if value="event.param lt $actor.money">
             <speak actor="$actor" line="[1165,4107,4770].random" comment="Deal closed. I'm sending you a report now.|All set and done.|Confirmed, beginning transfer."/>
           </do_if>
           <do_else>
@@ -407,7 +407,9 @@
               </do_else>
               <get_jump_path component="$waypoints" start="$actor.sector" end="$range_waypoint" multiple="true"/>
               <get_jump_path component="$waypoints_tmp" start="$range_waypoint" end="$endsector" multiple="true"/>
-              <append_to_list name="$waypoints" list="$waypoints_tmp"/>
+              <do_all exact="$waypoints_tmp.count" counter="$j">
+                <append_to_list name="$waypoints" exact="$waypoints_tmp.{$j}"/>
+              </do_all>
               <remove_value name="$waypoints_tmp"/>
             </do_if>
             <do_else>
@@ -473,7 +475,9 @@
               </do_else>
               <get_global_path component="$waypoints" multiple="true"><start object="$zone"/><end object="$range_waypoint"/></get_global_path>
               <get_global_path component="$waypoints_tmp" multiple="true"><start object="$range_waypoint"/><end object="$actor.zone"/></get_global_path>
-              <append_to_list name="$waypoints" list="$waypoints_tmp"/>
+              <do_all exact="$waypoints_tmp.count" counter="$j">
+                <append_to_list name="$waypoints" exact="$waypoints_tmp.{$j}"/>
+              </do_all>
               <remove_value name="$waypoints_tmp"/>
             </do_if>
             <do_else>
@@ -518,7 +522,9 @@
               </do_else>
               <get_global_path component="$waypoints" multiple="true"><start object="$actor.zone"/><end object="$range_waypoint"/></get_global_path>
               <get_global_path component="$waypoints_tmp" multiple="true"><start object="$range_waypoint"/><end object="$zone"/></get_global_path>
-              <append_to_list name="$waypoints" list="$waypoints_tmp"/>
+              <do_all exact="$waypoints_tmp.count" counter="$j">
+                <append_to_list name="$waypoints" exact="$waypoints_tmp.{$j}"/>
+              </do_all>
               <remove_value name="$waypoints_tmp"/>
             </do_if>
             <do_else>
@@ -698,7 +704,7 @@ Which Orders are available depends on entity Type
           <do_if value="$actor.station.exists">
             <add_player_choice_sub text="if ($actor.money == 0Cr ) then {5554103,556}.[($actor.container.wantedmoney)Cr*2,'%'] else {5554103,555}.[($actor.container.wantedmoney)Cr*1.25,'%']" position="5" section="comm_personal_money_wanted"/>
           </do_if>
-          <do_elseif value="$actor.ship.exists and $actor.ship.isbuilding">
+          <do_elseif value="$actor.ship.exists and $actor.ship.buildmodule.isbuilding">
             <add_player_choice_sub text="( {5554103,555} + '%3 %4').[($actor.container.wantedmoney + $actor.container.buildanchor.wantedmoney)Cr*1.25,'%',$actor.container.wantedmoney , $actor.container.buildanchor.wantedmoney]" position="5" section="comm_personal_money_wanted"/>
           </do_elseif>
           <do_else>
@@ -745,7 +751,7 @@ Which Orders are available depends on entity Type
               <transfer_money from="player.entity" to="$actor" amount="( $actor.container.wantedmoney * 1.25 ) - $actor.money"/>
             </do_else>
           </do_if>
-          <do_elseif value="$actor.ship.exists and $actor.ship.isbuilding">
+          <do_elseif value="$actor.ship.exists and $actor.ship.buildmodule.isbuilding">
             <!-- set budgets to a fitting range to avoid back-transfers -->
             <do_if value="$actor.container.wantedmoney + $actor.container.buildanchor.wantedmoney gt $actor.maxbudget">
               <set_actor_max_budget actor="$actor" amount="$actor.container.wantedmoney * 2"/>
