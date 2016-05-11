@@ -156,12 +156,12 @@ Rest is shared between all Actor types
               <create_presentation_cluster name="$TempCluster"/>
               <set_presentation_cluster_persistence cluster="$TempCluster" persistent="true"/>
               <find_zone name="$TempZone" space="$TempCluster" />
-              <create_station name="$TempStation" macro="$stationmacro" owner="faction.neutral" zone="$TempZone"/>
+              <create_station name="$actor.$ut_cac.$tempstation" macro="$stationmacro" owner="faction.neutral" zone="$TempZone"/>
               <set_value name="$actor.$ut_cac.$orderedbuildplanlist" exact="[]"/>
-              <do_all exact="$TempStation.completebuildplan.sequences.count" counter="$i">
-                <append_to_list name="$actor.$ut_cac.$orderedbuildplanlist" exact="[ $TempStation.completebuildplan.sequences.{$i} , 0 ]"/>
+              <do_all exact="$actor.$ut_cac.$tempstation.completebuildplan.sequences.count" counter="$i">
+                <append_to_list name="$actor.$ut_cac.$orderedbuildplanlist" exact="[ $actor.$ut_cac.$tempstation.completebuildplan.sequences.{$i} , 0 ]"/>
               </do_all>
-              <set_value name="$station" exact="$TempStation" comment="use the Temp Station until the Station exists (build started)"/>
+              <set_value name="$station" exact="$actor.$ut_cac.$tempstation" comment="use the Temp Station until the Station exists (build started)"/>
               <do_if value="SwitchToPermanentStationB.state == cuestate.waiting" comment="waiting for a deployment which will never happen - reseting parent cue">
                 <reset_cue cue="SwitchToPermanentStationA"/>
                 <debug_text filter="error" text="'resetting Cue SwitchToPermanentStationA because SwitchToPermanentStationB is still in waiting state although it shouldnt be!'"/>
@@ -523,7 +523,8 @@ Rest is shared between all Actor types
                 <!-- Clean up temp Stuff and refer with $Station to the correct Station -->
                 <set_value name="$station" exact="$actor.ship.buildmodule.buildanchor"/>
                 <!-- ToDo: Transfer all Settings on the Temp Station to the finished Station -->
-                <destroy_object object="$TempStation"/>
+                <destroy_object object="$actor.$ut_cac.$tempstation"/>
+                <remove_value name="$actor.$ut_cac.$tempstation"/>
                 <destroy_object object="$TempZone"/>
                 <destroy_object object="$TempCluster"/>
                 <reset_cue cue="SwitchToPermanentStationA"/>
