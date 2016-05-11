@@ -14,7 +14,7 @@ roughly based on move.buildership but with many changes
   </interrupts>
   <attention min="unknown">
     <actions>
-      <set_value name="$params.interruptable" exact="false"/>
+      <set_value name="$params.$interruptable" exact="false"/>
       <do_if value="this == this.ship.architect and this.ship.pilot.exists">
         <!-- pass our Order to the Pilot and wait until he is done -->
         <signal_objects object="this.ship.pilot" param="'new order'" param2="$params"/>
@@ -34,7 +34,7 @@ roughly based on move.buildership but with many changes
         </detach_from_masstraffic>
         <!-- destroy all Drones still flying, subtract them from unavailable units and set all units as available -->
         <set_value name="$subordinates" exact="this.ship.subordinates"/>
-        <do_all exact="$subordinates" counter="$i">
+        <do_all exact="$subordinates.count" counter="$i">
           <do_if value="$subordinates.{$i}.isclass.ship_xs">
             <do_if value="this.ship.units.{$subordinates.{$i}.macro}.count">
               <remove_units object="this.ship" macro="$subordinates.{$i}.macro" unavailable="true"/>
@@ -43,11 +43,15 @@ roughly based on move.buildership but with many changes
           </do_if>
         </do_all>
         <set_value name="$unitlist" exact="this.ship.units.{unitcategory.transport}.list"/>
-        <append_to_list name="$unitlist" exact="this.ship.units.{unitcategory.welder}.list"/>
+        <do_all exact="this.ship.units.{unitcategory.welder}.list.count" counter="$i">
+          <append_to_list name="$unitlist" exact="this.ship.units.{unitcategory.welder}.list.{$i}"/>
+        </do_all>
         <do_all exact="$unitlist" counter="$i">
           <return_units object="this.ship" macro="$unitlist.{$i}"/>
         </do_all>
         <disconnect_from_build_location object="this.ship"/>
+        <set_value name="this.ship.pilot.$ut_cac.$defaultorders.$script" exact="'ut.cac.orders.captain.default'"/>
+        <remove_value name="this.ship.pilot.$ut_cac.$ut_cac.$orders_locked"/>
         <signal_objects object="this" param="'CV undeployed'"/>
         <transform_position name="$targetpos" refposition="this.ship.position" refrotation="this.ship.rotation">
           <position x="0m" y="0m" z="-5km"/>

@@ -310,8 +310,10 @@
       <do_if value="$manager.exists and not $station.tradenpc.exists">
         <start_actor_transport actor="$manager" target="$station"/>
         <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
-        <set_value name="$manager" exact="'transferred'" comment="to indicate Subordinates should also be transferred in the next block"/>
       </do_if>
+      <do_else>
+        <remove_value name="$manager"/>
+      </do_else>
       <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" controlentity="false"/>
       <do_if value="$defensivenpc.exists and not $station.defencenpc.exists">
         <start_actor_transport actor="$defensivenpc" target="$station"/>
@@ -339,7 +341,7 @@
       
       <!-- Transfer subordinate Ships to the Station if Manager was transferrend from CV (CAC Manager will make sure to also deliver Building Materials) -->
       <!-- also re-calculate Manager Fuel Amount -->
-      <do_if value="$manager == 'transferred'">
+      <do_if value="$manager?">
         <set_value name="$fuelcells_targetamount" exact="0"/>
         <set_value name="$subordinates" exact="this.ship.subordinates.clone"/>
         <do_all exact="$subordinates.count" counter="$i">
