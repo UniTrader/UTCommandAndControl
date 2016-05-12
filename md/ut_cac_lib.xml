@@ -705,7 +705,7 @@ Which Orders are available depends on entity Type
             <add_player_choice_sub text="if ($actor.money == 0Cr ) then {5554103,556}.[($actor.container.wantedmoney)Cr*2,'%'] else {5554103,555}.[($actor.container.wantedmoney)Cr*1.25,'%']" position="5" section="comm_personal_money_wanted"/>
           </do_if>
           <do_elseif value="$actor.ship.exists and $actor.ship.buildmodule.isbuilding">
-            <add_player_choice_sub text="( {5554103,555} + '%3 %4').[($actor.container.wantedmoney + $actor.container.architect.$tempstation.wantedmoney)Cr*1.25,'%',$actor.container.wantedmoney , $actor.container.architect.$tempstation.wantedmoney]" position="5" section="comm_personal_money_wanted"/>
+            <add_player_choice_sub text="( {5554103,555} + '%3 %4').[($actor.container.wantedmoney + $actor.container.architect.$ut_cac.$tempstation.wantedmoney)Cr*1.25,'%',$actor.container.wantedmoney , $actor.container.architect.$ut_cac.$tempstation.wantedmoney]" position="5" section="comm_personal_money_wanted"/>
           </do_elseif>
           <do_else>
             <add_player_choice_sub text="'No Money needed'" position="5" section="comm_personal_money_wanted" selectable="false" tooltip="'Character is not on an Object where he has any need for Money, therefore cannt auto-determine needed amount'"/>
@@ -753,13 +753,13 @@ Which Orders are available depends on entity Type
           </do_if>
           <do_elseif value="$actor.ship.exists and $actor.ship.buildmodule.isbuilding">
             <!-- set budgets to a fitting range to avoid back-transfers -->
-            <do_if value="$actor.container.wantedmoney + $actor.container.architect.$tempstation.wantedmoney gt $actor.maxbudget">
-              <set_actor_max_budget actor="$actor" amount="$actor.container.wantedmoney + $actor.container.architect.$tempstation.wantedmoney *1.25"/>
+            <do_if value="$actor.container.wantedmoney + $actor.container.architect.$ut_cac.$tempstation.wantedmoney gt $actor.maxbudget">
+              <set_actor_max_budget actor="$actor" amount="$actor.container.wantedmoney + $actor.container.architect.$ut_cac.$tempstation.wantedmoney *1.25"/>
             </do_if>
             <do_if value="$actor.container.wantedmoney/3 lt $actor.minbudget">
               <set_actor_min_budget actor="$actor" amount="$actor.container.wantedmoney / 10"/>
             </do_if>
-            <transfer_money from="player.entity" to="$actor" amount="( ( $actor.container.wantedmoney + $actor.container.architect.$tempstation.wantedmoney ) * 1.25 ) - $actor.money"/>
+            <transfer_money from="player.entity" to="$actor" amount="( ( $actor.container.wantedmoney + $actor.container.architect.$ut_cac.$tempstation.wantedmoney ) * 1.25 ) - $actor.money"/>
           </do_elseif>
           <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <do_if value="$actor.container.wantedmoney lt $actor.money" comment="Player has not enough Money - modify dialogue to indicate this">
