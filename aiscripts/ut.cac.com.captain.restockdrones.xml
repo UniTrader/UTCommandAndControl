@@ -83,9 +83,9 @@
         <do_all exact="$selloffers.count" counter="$i" reverse="true">
           <!-- Offer is in current Zone - just add it to the Trade Orders -->
           <do_if value="$selloffers.{$i}.owner.zone == $currentzone">
-            <set_value name="$amount" exact="[this.container.commanderentity.money/$selloffers.{$i}.unitprice , $selloffers.{$i}.amount, $droneamounts.{$selloffers.{$i}.ware}].min"/>
+            <set_value name="$amount" exact="[(if this.container.commanderentity then this.container.commanderentity.money else this.$ut_cac.$commanderentity.money)/$selloffers.{$i}.unitprice , $selloffers.{$i}.amount, $droneamounts.{$selloffers.{$i}.ware}].min"/>
             <do_if value="$amount gt 0">
-              <transfer_money from="this.container.commanderentity" to="this" amount="$amount * $selloffers.{$i}.unitprice"/>
+              <transfer_money from="if this.container.commanderentity then this.container.commanderentity else this.$ut_cac.$commanderentity" to="this" amount="$amount * $selloffers.{$i}.unitprice"/>
             </do_if>
             <do_else>
               <!-- Cannt buy these Drones - try the next ones.. -->
@@ -125,7 +125,7 @@
         <do_if value="$mindistindex">
           <set_value name="$amount" exact="[(if this.container.commanderentity then this.container.commanderentity.money else this.$ut_cac.$commanderentity.money) / $selloffers.{$mindistindex}.unitprice , $selloffers.{$mindistindex}.amount , $droneamounts.{$selloffers.{$mindistindex}.ware} ].min" />
           <do_if value="$amount gt 0">
-            <transfer_money from="if this.container.commanderentity then this.container.commanderentity.money else this.$ut_cac.$commanderentity" to="this" amount="$amount * $selloffers.{$mindistindex}.unitprice"/>
+            <transfer_money from="if this.container.commanderentity then this.container.commanderentity else this.$ut_cac.$commanderentity" to="this" amount="$amount * $selloffers.{$mindistindex}.unitprice"/>
           </do_if>
           <!-- Cannt buy these Drones - try the next ones.. -->
           <do_else>
