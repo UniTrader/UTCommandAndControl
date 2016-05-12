@@ -553,7 +553,12 @@ Rest is shared between all Actor types
           </conditions>
           <actions>
             <!-- pass all assigned Subordinates to the Manager -->
-            <set_object_commander object="event.param" commander="$actor.container" type="entitytype.manager"/>
+            <do_if value="$actor.$ut_cac.$tempstation?">
+              <set_object_commander object="event.param" commander="$actor.container" type="entitytype.manager"/>
+            </do_if>
+            <do_elseif value="$actor.container.buildanchor.exists">
+              <set_object_commander object="event.param" commander="$actor.container.buildanchor" type="entitytype.manager"/>
+            </do_elseif>
           </actions>
         </cue>
       </cues>
