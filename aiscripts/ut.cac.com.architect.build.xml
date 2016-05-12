@@ -306,24 +306,40 @@
       
       <!-- after each building Step check if Personal for the Station is on board (primarily for now possibly needed Specialists) and transfer all subordinate Ships, too -->
       <!-- Move all Station personal on board over to the Station after building, extending and redeploying (only if not already present)-->
+      <find_dock_location name="$dock" container="$station" dockpopulationtype="dockpopulationtype.administrative" required="true" />
       <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager"/>
       <do_if value="$manager.exists and not $station.tradenpc.exists">
-        <start_actor_transport actor="$manager" target="$station"/>
-        <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
+        <do_if value="this.container.attention ge attention.visible">
+          <start_actor_transport actor="$manager" target="$station"/>
+          <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
+        </do_if>
+        <do_else>
+          <add_actor_to_platform actor="$manager" dockingbay="$dock"/>
+        </do_else>
       </do_if>
       <do_else>
         <remove_value name="$manager"/>
       </do_else>
       <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" controlentity="false"/>
       <do_if value="$defensivenpc.exists and not $station.defencenpc.exists">
-        <start_actor_transport actor="$defensivenpc" target="$station"/>
-        <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
+        <do_if value="this.container.attention ge attention.visible">
+          <start_actor_transport actor="$defensivenpc" target="$station"/>
+          <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
+        </do_if>
+        <do_else>
+          <add_actor_to_platform actor="$manager" dockingbay="$dock"/>
+        </do_else>
       </do_if>
       <do_if value="false" comment="add check for Station Engineer Mod (or add limited repair functionality to Engineers)">
         <find_object_component name="$engineer" object="this.ship" entitytype="entitytype.engineer" controlentity="false"/>
         <do_if value="$engineer.exists and not $station.engineer.exists">
-          <start_actor_transport actor="$engineer" target="$station"/>
-          <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
+          <do_if value="this.container.attention ge attention.visible">
+            <start_actor_transport actor="$engineer" target="$station"/>
+            <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
+          </do_if>
+          <do_else>
+            <add_actor_to_platform actor="$manager" dockingbay="$dock"/>
+          </do_else>
         </do_if>
       </do_if>
       <get_production_specialist_types name="$specialisttypes" object="$station" />
@@ -333,8 +349,13 @@
         <do_if value="not $specialist.exists">
           <find_object_component name="$specialist" object="this.ship" entitytype="$specialisttypes.{$i}" />
           <do_if value="$specialist.exists">
-            <start_actor_transport actor="$specialist" target="$station"/>
-            <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
+            <do_if value="this.container.attention ge attention.visible">
+              <start_actor_transport actor="$specialist" target="$station"/>
+              <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
+            </do_if>
+            <do_else>
+              <add_actor_to_platform actor="$manager" dockingbay="$dock"/>
+            </do_else>
           </do_if>
         </do_if>
       </do_all>
