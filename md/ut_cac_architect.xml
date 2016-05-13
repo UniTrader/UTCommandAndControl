@@ -153,9 +153,11 @@ Rest is shared between all Actor types
               <set_value name="$stationmacro" exact="macro.{event.param2.{1}}"/>
               <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Build Station (moveto)',$buildlocation=$buildlocation,$zone=$zone,$macro=$stationmacro,$upgradeplanlist=event.param2.{3},$interruptable=false]"/>
               <!-- create buildplan var from temp station of planned type.. $TempCluster and everything within will be cleared once the first stage is complete-->
-              <create_presentation_cluster name="$TempCluster"/>
-              <set_presentation_cluster_persistence cluster="$TempCluster" persistent="true"/>
-              <find_zone name="$TempZone" space="$TempCluster" />
+              <do_if value="not md.$ut_cac_tempcluster?">
+                <create_presentation_cluster name="$TempCluster"/>
+                <set_presentation_cluster_persistence cluster="md.$ut_cac_tempcluster" persistent="true"/>
+              </do_if>
+              <find_zone name="$TempZone" space="md.$ut_cac_tempcluster" />
               <create_station name="$actor.$ut_cac.$tempstation" macro="$stationmacro" owner="faction.player" zone="$TempZone"/>
               <!--create_ai_unit object="$actor.$ut_cac.$tempstation"/-->
               <remove_trade_subscription object="$actor.$ut_cac.$tempstation"/>
@@ -529,8 +531,12 @@ Rest is shared between all Actor types
                 <!-- ToDo: Transfer all Settings on the Temp Station to the finished Station -->
                 <destroy_object object="$actor.$ut_cac.$tempstation"/>
                 <remove_value name="$actor.$ut_cac.$tempstation"/>
-                <destroy_object object="$TempZone"/>
-                <destroy_object object="$TempCluster"/>
+                <find_station name="$tmp" space="$TempZone"/>
+                <do_if value="not $tmp.exists">
+                  <destroy_object object="md.$ut_cac_tempcluster"/>
+                  <remove_value name="md.$ut_cac_tempcluster"/>
+                </do_if>
+                <remove_value name="$TempZone"/>
                 <reset_cue cue="SwitchToPermanentStationA"/>
               </actions>
             </cue>
