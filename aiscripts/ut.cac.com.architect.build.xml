@@ -56,10 +56,21 @@
         <set_value name="$macro" exact="$station.macro"/>
       </do_elseif>
       <do_elseif value="$sequence" comment="Extend existing Station (may also contain an $upgradeplan)">
+        <do_if value="not this.ship.buildmodule.buildanchor">
+          <debug_text filter="error" text="'%1 %2 %3 Not Connected to a Build Location anymore - aborting (Extend Case)'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_if>
         <set_value name="$station" exact="this.ship.buildmodule.buildanchor"/>
         <set_value name="$macro" exact="$station.macro"/>
       </do_elseif>
-      <do_elseif value="$upgradeplan.count" comment="Opgrade Weapons of existing Station"/>
+      <do_elseif value="$upgradeplan.count" comment="Upgrade Weapons of existing Station">
+        <do_if value="not this.ship.buildmodule.buildanchor">
+          <debug_text filter="error" text="'%1 %2 %3 Not Connected to a Build Location anymore - aborting (Upgrade Case)'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_if>
+        <debug_text filter="error" text="'%1 %2 %3 Upgrading is still not implemented - abortin'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_elseif>
       <do_else>
         <debug_text filter="error" text="'%1 %2 %3 Architect doesnt know which Station to build or deploy to or what to extend/Upgrade'.[player.age,this.name,this.container.name]"/>
         <return/>
