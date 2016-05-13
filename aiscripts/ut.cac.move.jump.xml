@@ -204,15 +204,17 @@ ToDo:
         <do_else>
           <set_value name="$space" exact="$destination.sector"/>
         </do_else>
-        <set_value name="$minsize" min="1m" max="5km"/>
+        <set_value name="$minsize" min="1km" max="5km"/>
         <find_object name="$beacon" space="$space">
           <match_size min="$minsize"/>
+          <match_parent class="class.highway" negate="true"/>
         </find_object>
         <do_if value="not $beacon.exists">
           <do_all exact="4">
             <set_value name="$minsize" exact="$minsize / 2"/>
             <find_object name="$beacon" space="$space">
               <match_size min="$minsize"/>
+          <match_parent class="class.highway" negate="true"/>
             </find_object>
             <do_if value="$beacon.exists">
               <break/>
