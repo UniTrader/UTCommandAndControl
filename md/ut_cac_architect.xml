@@ -247,7 +247,7 @@ Rest is shared between all Actor types
                 </do_if>
                 <do_else>
                   <add_player_choice text="'Build Station'" position="1" section="comm_orders_build" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
-                  <add_player_choice text="'Attach to Station'" position="1" section="comm_orders_attach"/>
+                  <add_player_choice text="'Attach to Station'" position="2" section="comm_orders_attach"/>
                 </do_else>
               </do_if>
               <do_else>
@@ -276,16 +276,33 @@ Rest is shared between all Actor types
                 <do_all exact="10">
                   <find_zone name="$zone" known="true" priorityzone="true" tempzone="false" space="event.param2.{3}" />
                   <do_if value="$zone.freebuildlocations.count ge 1">
-                    <break/>
+                    <do_all exact="$zone.freebuildlocations.count" counter="$i">
+                      <do_if value="not $zone.freebuildlocations.{$i}.child.exists">
+                        <set_value name="$buildlocation" exact="$zone.freebuildlocations.{$i}"/>
+                        <break/>
+                      </do_if>
+                    </do_all>
+                    <do_if value="$buildlocation?">
+                      <break/>
+                    </do_if>
                   </do_if>
                 </do_all>
               </do_if>
               <do_else>
                 <set_value name="$zone" exact="event.param2.{3}"/>
+                <do_if value="$zone.freebuildlocations.count ge 1">
+                  <do_all exact="$zone.freebuildlocations.count" counter="$i">
+                    <do_if value="not $zone.freebuildlocations.{$i}.child.exists">
+                      <set_value name="$buildlocation" exact="$zone.freebuildlocations.{$i}"/>
+                      <break/>
+                    </do_if>
+                  </do_all>
+                </do_if>
               </do_else>
-              <do_if value="$zone.freebuildlocations.count ge 1">
+              <do_if value="$buildlocation?">
                 <debug_text filter="general" text="'start building via Dialogue'"/>
-                <signal_cue_instantly cue="Comm_Architect_Start_Build" param="$zone.freebuildlocations.random"/>
+                <signal_cue_instantly cue="Comm_Architect_Start_Build" param="$buildlocation"/>
+                <remove_value name="$buildlocation"/>
               </do_if>
               <do_else>
                 <!-- couldnt find a suitable Build Location - Tell Player  and go back -->
