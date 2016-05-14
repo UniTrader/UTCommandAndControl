@@ -523,7 +523,10 @@ Rest is shared between all Actor types
           <cues>
             <cue name="SwitchToPermanentStationB">
               <conditions>
-                <event_build_finished object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
+                <check_any>
+                  <event_build_finished object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
+                  <event_object_signalled object="$actor.ship" param="'CV undeployed'" comment="the temp station also needs cleanup if the CV aborts during/before construction"/>
+                </check_any>
               </conditions>
               <actions>
                 <!-- Clean up temp Stuff and refer with $Station to the correct Station -->
