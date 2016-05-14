@@ -14,6 +14,13 @@
     <actions>
       <set_value name="$params.$interruptable" exact="false"/>
       <do_if value="this == this.ship.architect and this.ship.pilot.exists">
+        <!-- remove actor account (is shared with Station Manager so still exists ) -->
+        <do_if value="this.money == this.ship.buildanchor.tradenpc.money">
+          <remove_actor_account actor="this"/>
+        </do_if>
+        <do_else>
+          <remove_actor_account actor="this" transfer="true"/>
+        </do_else>
         <!-- pass our Order to the Pilot and wait until he is done -->
         <signal_objects object="this.ship.pilot" param="'new order'" param2="$params"/>
         <wait>
@@ -62,6 +69,11 @@
         <get_safe_pos result="$targetpos" value="$targetpos" zone="this.zone" ignored="this.ship" radius="this.ship.size"/>
         <move_to object="this.ship" destination="this.zone" >
           <position value="$targetpos"/>
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="this" param="'new order received'"/>
+            </conditions>
+          </interrupt>
         </move_to>
       </do_elseif>
       <do_else>
