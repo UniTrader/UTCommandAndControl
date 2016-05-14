@@ -85,10 +85,18 @@
       </do_elseif>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Could not get Fuel from the current Station - looking around for it...'"/>
       <do_if value="not $selloffer.available ">
-        <find_sell_offer result="$selloffer" seller="this.ship.commander" wares="ware.fuelcells">
-          <offeramount min="$buyamount"/>
-        </find_sell_offer>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Commander...'"/>
+        <do_if value="this.ship.commander.exists">
+          <find_sell_offer result="$selloffer" seller="this.ship.commander" wares="ware.fuelcells">
+            <offeramount min="$buyamount"/>
+          </find_sell_offer>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'Commander...'"/>
+        </do_if>
+        <do_elseif value="this.$ut_cac.$comannderentity?">
+          <find_sell_offer result="$selloffer" seller="this.$ut_cac.$comannderentity.container" wares="ware.fuelcells">
+            <offeramount min="$buyamount"/>
+          </find_sell_offer>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'Commander (entity)...'"/>
+        </do_elseif>
       </do_if>
       <do_if value="not $selloffer.available ">
         <find_sell_offer result="$selloffer" tradepartner="this.ship" wares="ware.fuelcells" space="this.sector" knowntoplayer="this.owner == faction.player">
