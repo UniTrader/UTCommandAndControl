@@ -40,7 +40,10 @@
             </do_if>
           </do_if>
         </do_all>
-        <set_value name="$unitlist" exact="this.ship.units.{unitcategory.transport}.list.clone"/>
+        <create_list name="$unitlist" />
+        <do_all exact="this.ship.units.{unitcategory.transport}.list.count" counter="$i">
+          <append_to_list name="$unitlist" exact="this.ship.units.{unitcategory.transport}.list.{$i}"/>
+        </do_all>
         <do_all exact="this.ship.units.{unitcategory.welder}.list.count" counter="$i">
           <append_to_list name="$unitlist" exact="this.ship.units.{unitcategory.welder}.list.{$i}"/>
         </do_all>
