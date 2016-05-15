@@ -1,0 +1,594 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<mdscript name="UT_CAC_Architect" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
+
+  <cues>
+
+    <cue name="Main" instantiate="true" namespace="this" version="20">
+      <conditions>
+        <event_cue_signalled cue="this"/>
+      </conditions>
+      <actions>
+        <set_value name="$actor" exact="event.param" />
+        <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="setting neccesary Variables"/>
+        <!-- setting Object-Specific Drone Loadout in case the Object is already equipped properly (at least half the Space is used for Drones)-->
+        <!--do_if value="$actor.ship.units.count gt $actor.ship.units.maxcount * 0.5">
+          <set_value name="$actor.$ut_cac.$drone_loadout" exact="table[]"/>
+          <do_all exact="param.ut_cac.drone_loadout.$UnitcategoryList.count" counter="$i">
+            <do_if value="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count">
+              <set_value name="$actor.$ut_cac.$drone_loadout.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}" exact="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count"/>
+            </do_if>
+          </do_all>
+        </do_if-->
+        <!-- cancel Vanilla Dialogue -->
+        <signal_objects object="$actor" param="'cancel Vanilla dialogue tree'"/>
+        <set_comm_handler actor="$actor" customhandler="true" />
+        <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
+        <!-- start default Scripts -->
+        <debug_text filter="general" chance="$actor.$debug*100" text="'%1 now uses UT CAC Architect comm handlers'.[$actor.name]" />
+         <!--Compatibility with Vim Razz' Human Ressources -->
+        <set_value name="$actor.$InUse" exact="true"/>
+        <!-- Captain must use UT CAC too -->
+        <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="$actor.ship.pilot"/>
+      </actions>
+      <cues>
+        <cue name="Delayed_scriptstart">
+          <delay exact="100ms"/>
+          <actions>
+            <!-- ToDo: check if the Scripts are already executing the right Command and give them commands for a smooth takeover -->
+            <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.architect.default']"/>
+            <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
+          </actions>
+        </cue>
+        <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
+          <param name="actor" value="$actor"/>
+        </cue>
+<!--
+Dialogue Tree - Entity specific Parts:
+1. Direct Orders - Managment is in common Script, here the specific Orders available:
+ => Extend or Build Station Station 
+ => Upgrade Station
+ => Repair Station
+ => Detach from Station
+- - - - - -
+2. Settings Managment 
+ => Planned: automatically Repair Station
+- - - - - -
+Rest is shared between all Actor types
+-->
+
+        <cue name="Comm_MainMenu" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_started actor="$actor" conversation="default"/>
+              <event_conversation_returned_to_section actor="$actor" section="default"/>
+              <event_cue_signalled/>
+            </check_any>
+          </conditions>
+          <actions>
+            <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+            <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="event.name == 'event_conversation_started'">
+                <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
+                <do_if value="$actor.room == player.entity.room">
+                  <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
+                  <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
+                </do_if>
+                <do_else>
+                  <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi." />
+                  <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
+                </do_else>
+              </do_if>
+            </do_if>
+            <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main"/>
+            <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main"/>
+            <add_player_choice_sub text="{5554103,3}" position="3" section="comm_connect_main"/>
+            <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main" selectable="false"/>
+            <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
+            <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
+            <set_conversation_return_section section="comm_goodbye"/>
+            <add_player_choice_return text="{5554103,6}" position="close" />
+          </actions>
+        </cue>
+        
+        <!-- This cue uses Vanilla sections for compatibility (dont want to change lua scripts yet) - partially copied from Vanilla -->
+        <cue name="Comm_Architect_Start_Build" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_player_performed_build_action ship="$actor.ship"/>
+              <event_cue_signalled/>
+              <event_conversation_started actor="$actor" conversation="OnBuildAction"/>
+              <event_conversation_returned_to_section actor="$actor" section="OnBuildAction"/>
+              <event_conversation_next_section actor="$actor" sectionprefix="cArch_"/>
+              <event_conversation_returned_to_section actor="$actor" sectionprefix="cArch_"/>
+            </check_any>
+          </conditions>
+          <actions>
+            <do_if value="event.name == 'event_player_performed_build_action' or event.name == 'event_cue_signalled'">
+              <set_value name="$buildlocation" exact="event.param" />
+              <do_if value="event.name == 'event_player_performed_build_action'">
+                <start_conversation actor="$actor" conversation="OnBuildAction" type="unqueued" />
+                <set_value name="$zone" exact="player.zone"/>
+              </do_if>
+              <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$interruptable=true]"/>
+              <signal_objects object="$actor.ship.pilot" param="'new order'" param2="$CaptainMoveOrder"/>
+            </do_if>
+            
+            <!-- Conversation: Select station to Build -->
+            <!-- Maybe add a Skill and Architect Faction Filter -->
+            <do_if value="event.param ==  'OnBuildAction' or event.name == 'event_cue_signalled'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <do_if value="event.name == 'event_conversation_started'">
+                  <add_npc_line line="1111" comment="Here is a list of stations we can build." view="closeupdetailmonitor" />
+                </do_if>
+                <do_else>
+                  <add_npc_line line="4170" comment="Is there anything else I can offer you?" view="closeupdetailmonitor" />
+                </do_else>
+              </do_if>
+              <open_conversation_menu menu="BuilderMacrosMenu" param="[0, 0, $actor, $actor.ship, 1]" param2="event.param3"/>
+              <set_conversation_return_section section="cArch_BuildAbort"/>
+            </do_if>
+			
+            <do_elseif value="event.param == 'cArch_selectUpgradesMenu'">
+              <add_conversation_view view="closeupdetailmonitor" />
+              <do_if value="not $showed_cArch_selectUpgradesMenu?">
+                <set_value name="$showed_cArch_selectUpgradesMenu" />
+                <add_npc_line line="1122" comment="Please adjust the upgrade levels and then confirm the order." />
+              </do_if>
+              <!-- param2: [ 0 , 0 , actor , ship , null/object , station macro , sequence , stage , 1(build limit in demo) ]-->
+              <!-- param3: [ [ Upgrade 1 Tag , ratio ] , [ Upgrade 2 Tag , ratio ] ...] (optional) -->
+              <open_conversation_menu menu="SelectUpgradesMenu" param="event.param2" param2="event.param3" />
+            </do_elseif>
+            
+            <do_elseif value="event.param == 'cArch_buildcost'">
+              <add_conversation_view view="closeupdetailmonitor" />
+              <!-- param2: [ 0 , 0 , actor , ship , null/object , station macro , sequence , stage , [ [ Upgrade 1 Tag , ratio ] , [ Upgrade 2 Tag , ratio ] ...] , 1(build limit in demo) , null(targethullfraction) , 0(upgradesonly) { , droneplan , ammoplan } ]-->
+              <!-- param3: ???? -->
+              <open_conversation_menu menu="BuildCostMenu" param="event.param2" param2="event.param3" />
+            </do_elseif>
+            
+            <do_elseif value="event.param == 'cArch_buildermacrosResult'">
+              <!-- Result from build cost menu -->
+              <!-- param2 == { selected macro name, buildplanlist, upgradeplanlist } -->
+              <set_trade_restrictions object="$actor.container" restricted="true" />
+              <set_value name="$stationmacro" exact="macro.{event.param2.{1}}"/>
+              <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Build Station (moveto)',$buildlocation=$buildlocation,$zone=$zone,$macro=$stationmacro,$upgradeplanlist=event.param2.{3},$interruptable=false]"/>
+              <!-- create buildplan var from temp station of planned type.. $TempCluster and everything within will be cleared once the first stage is complete-->
+              <do_if value="not md.$ut_cac_tempcluster?">
+                <create_presentation_cluster name="md.$ut_cac_tempcluster"/>
+                <set_presentation_cluster_persistence cluster="md.$ut_cac_tempcluster" persistent="true"/>
+              </do_if>
+              <find_zone name="$TempZone" space="md.$ut_cac_tempcluster" />
+              <create_station name="$actor.$ut_cac.$tempstation" macro="$stationmacro" owner="faction.player" zone="$TempZone"/>
+              <!--create_ai_unit object="$actor.$ut_cac.$tempstation"/-->
+              <remove_trade_subscription object="$actor.$ut_cac.$tempstation"/>
+              <set_known object="$actor.$ut_cac.$tempstation" known="false"/>
+              <set_cover_owner object="$actor.$ut_cac.$tempstation" faction="faction.neutral"/>
+              <set_value name="$actor.$ut_cac.$orderedbuildplanlist" exact="[]"/>
+              <do_all exact="$actor.$ut_cac.$tempstation.completebuildplan.sequences.count" counter="$i">
+                <append_to_list name="$actor.$ut_cac.$orderedbuildplanlist" exact="[ $actor.$ut_cac.$tempstation.completebuildplan.sequences.{$i} , 0 ]"/>
+              </do_all>
+              <set_value name="$station" exact="$actor.$ut_cac.$tempstation" comment="use the Temp Station until the Station exists (build started)"/>
+              <do_if value="SwitchToPermanentStationB.state == cuestate.waiting" comment="waiting for a deployment which will never happen - reseting parent cue">
+                <reset_cue cue="SwitchToPermanentStationA"/>
+                <debug_text filter="error" text="'resetting Cue SwitchToPermanentStationA because SwitchToPermanentStationB is still in waiting state although it shouldnt be!'"/>
+              </do_if>
+              <signal_cue cue="SwitchToPermanentStationA" comment="this cue destroys the temp station when not needed anymore and updates the Station reference to the Station which is built"/>
+              <remove_value name="$CaptainMoveOrder"/>
+            </do_elseif>
+            
+            <!-- Station Upgrade via UI - probably not needed anymore.. -->
+            <do_elseif value="event.param == 'cArch_buildtreeResult'">
+              <!-- Selection made in build tree menu -->
+              <!-- param2 == [ buildplanlist, upgradeplanlist ] -->
+              <add_npc_line line="1109" comment="we will start construction" view="facenormal" />
+              <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Extend Station',$station=$actor.ship.buildmodule.buildanchor,$buildplanlist=event.param2.{1},$upgradeplanlist=event.param2.{2},$interruptable=false]"/>
+              <do_if value="$actor.$orderlist.count ge 1 and $actor.$orderlist.{$actor.$orderlist.count}.$script=='ut.cac.com.architect.build'">
+                <set_value name="$actor.$orderlist.{$actor.$orderlist.count}.$interruptable" exact="false"/>
+              </do_if>
+            </do_elseif>
+            <do_elseif value="event.param == 'cArch_BuildAbort'">
+              <!-- Selection made in build tree menu -->
+              <!-- param2 == [ buildplanlist, upgradeplanlist ] -->
+              <add_npc_line line="1109" comment="we will start construction" view="facenormal" />
+              <signal_objects object="$actor" param="'cancel order'" param2="$CaptainMoveOrder"/>
+              <remove_value name="$CaptainMoveOrder"/>
+            </do_elseif>
+          </actions>
+        </cue>
+        
+        <!-- Menu 1: Orders (Note: partially Entity-Specific, see cue Comm_Orders ) -->
+        <cue name="Comm_Common_Orders" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Orders">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <cue name="Comm_Orders" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_next_section sectionprefix="comm_orders_" actor="$actor"/>
+              <event_conversation_returned_to_section sectionprefix="comm_orders_" actor="$actor"/>
+              <event_cue_signalled/>
+            </check_any>
+          </conditions>
+          <actions>
+            <!-- Append a Note what shall happen to the Selected Order if there is one (Necesary for Orderlist Managment) -->
+            <do_if value="event.param == 'comm_orders_new'">
+              <set_value name="$prev_order" exact="null"/>
+            </do_if>
+            <do_elseif value="event.param == 'comm_orders_insert'">
+              <set_value name="$prev_order" exact="event.param2"/>
+              <append_to_list name="$prev_order" exact="'insert'"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_replace'">
+              <set_value name="$prev_order" exact="event.param2"/>
+              <append_to_list name="$prev_order" exact="'replace'"/>
+            </do_elseif>
+            
+            <!-- Select new Order -->
+            <do_if value="event.param == 'comm_orders_new' or event.param == 'comm_orders_insert' or event.param == 'comm_orders_replace'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
+              <do_if value="$actor.ship.buildmodule.exists" comment="only available on builder ship">
+                <do_if value="$station? and $station.exists">
+                  <add_player_choice text="'Extend Station (UI)'" position="1" section="comm_orders_extend_ui" selectable="$actor.$ut_cac.$orderedbuildplanlist" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
+                  <add_player_choice text="'Extend Station (Dialogue)'" position="4" section="comm_orders_extend_dia" selectable="$actor.$ut_cac.$orderedbuildplanlist"/>
+                  <add_player_choice text="'Upgrade Station'" position="2" section="comm_orders_upgrade" selectable="false and $actor.$ut_cac.$orderedbuildplanlist" tooltip="'Work in Progress'" />
+                  <!-- find anything which can be repaired ( ToDo: maybe some Filtering?? )-->
+                  <!-- this Value will also be used in the Section called by this choice!!! -->
+                  <find_object_component name="$RepairableParts" object="$station" checkoperational="false" multiple="true">
+                    <match_any>
+                      <match restorable="true" comment="wrecked"/>
+                      <match repairable="true" invulnerable="false">
+                        <match_hull min="99" negate="true" />
+                      </match>
+                    </match_any>
+                  </find_object_component>
+                  <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if $RepairableParts.count then '%1 Parts need repairs'.[$RepairableParts.count] else 'nothing to repair'" selectable="false and $actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
+                  <add_player_choice text="'Detach from Station'" position="5" section="comm_orders_detach" selectable="$station.exists"/>
+                </do_if>
+                <do_else>
+                  <add_player_choice text="'Build Station'" position="1" section="comm_orders_build" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
+                  <add_player_choice text="'Attach to Station'" position="2" section="comm_orders_attach"/>
+                </do_else>
+              </do_if>
+              <do_else>
+                <add_player_choice text="'No Buildmodule'" tooltip="'This Ship cannot Build'" position="1" section="comm_orders_build_spaceselected" choiceparam="$actor.zone" selectable="false" />
+              </do_else>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
+            </do_if>
+            <do_elseif value="event.param == 'comm_orders_build'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
+              <!--- Add Build Choices here -->
+              <!-- 1: Build in current Zone; 4: Build in Player Zone, 3: Select Zone -->
+              <add_player_choice text="'Build Station in your current Zone'" position="1" section="comm_orders_build_spaceselected" choiceparam="[0,0,$actor.zone]" />
+              <add_player_choice text="'Build Station in my current Zone'" position="4" section="comm_orders_build_spaceselected" choiceparam="[0,0,player.zone]" />
+              <add_player_choice text="'Build Station in...'" position="3" section="comm_orders_select_space" choiceparam="'comm_orders_build_spaceselected'" comment="refering to re-useable Menu Call"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_attach'">
+              *************
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_build_spaceselected'">
+              <do_if value="event.param2.{3}.isclass.sector or event.param2.{3}.isclass.cluster">
+                <do_all exact="10">
+                  <find_zone name="$zone" known="true" priorityzone="true" tempzone="false" space="event.param2.{3}" />
+                  <do_if value="$zone.freebuildlocations.count ge 1">
+                    <do_all exact="$zone.freebuildlocations.count" counter="$i">
+                      <do_if value="not $zone.freebuildlocations.{$i}.child.exists">
+                        <set_value name="$buildlocation" exact="$zone.freebuildlocations.{$i}"/>
+                        <break/>
+                      </do_if>
+                    </do_all>
+                    <do_if value="$buildlocation?">
+                      <break/>
+                    </do_if>
+                  </do_if>
+                </do_all>
+              </do_if>
+              <do_else>
+                <set_value name="$zone" exact="event.param2.{3}"/>
+                <do_if value="$zone.freebuildlocations.count ge 1">
+                  <do_all exact="$zone.freebuildlocations.count" counter="$i">
+                    <do_if value="not $zone.freebuildlocations.{$i}.child.exists">
+                      <set_value name="$buildlocation" exact="$zone.freebuildlocations.{$i}"/>
+                      <break/>
+                    </do_if>
+                  </do_all>
+                </do_if>
+              </do_else>
+              <do_if value="$buildlocation?">
+                <debug_text filter="general"  chance="$actor.$debug * 100" text="'start building via Dialogue'"/>
+                <signal_cue_instantly cue="Comm_Architect_Start_Build" param="$buildlocation"/>
+                <!--remove_value name="$buildlocation"/-->
+              </do_if>
+              <do_else>
+                <!-- couldnt find a suitable Build Location - Tell Player  and go back -->
+                <debug_text filter="general"  chance="$actor.$debug * 100" text="'no fitting buildlocation'"/>
+                <add_npc_line speaker="$actor" line="[1014,1015,1020,1019].random" hidechoices="false" comment="reject order" />
+              </do_else>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_extend_ui'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <do_if value="event.name == 'event_conversation_next_section'">
+                  <add_npc_line line="4170" comment="Is there anything else I can offer you?" view="closeupdetailmonitor" />
+                </do_if>
+                <do_else>
+                  <add_npc_line line="1124" comment="This is a list of all available modules for the station." view="closeupdetailmonitor" />
+                </do_else>
+              </do_if>
+              <open_conversation_menu menu="UTBuildTreeMenu" param="[0, 0, $actor, $actor.ship, null , $station]" param2="event.param3" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_extend_dia'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <do_if value="event.name == 'event_conversation_next_section'">
+                  <add_npc_line line="4170" comment="Is there anything else I can offer you?" view="closeupdetailmonitor" />
+                </do_if>
+                <do_else>
+                  <add_npc_line line="1124" comment="This is a list of all available modules for the station." view="closeupdetailmonitor" />
+                </do_else>
+              </do_if>
+              <set_value name="$slot" exact="1"/>
+              <do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
+                <set_value name="$sequence" exact="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1}"/>
+                <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2} lt $station.completebuildplan.{$sequence}.stage">
+                  <set_value name="$purposemacro" exact="$stationmacro.buildpurposemacro.{buildplan.[$sequence,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}+1]}"/>
+                  <set_value name="$colorcode" exact="
+                  if $purposemacro.isclass.production then '\033Y'
+                  else if $purposemacro.isclass.storage then '\033C'
+                  else if $purposemacro.isclass.cargobay then '\033C'
+                  else if $purposemacro.isclass.dronelaunchpad then '\033Y'
+                  else if $purposemacro.isclass.radar then '\033M'
+                  else if $purposemacro.isclass.destructible then '\033R'
+                  else '\033B'"/>
+                  <add_player_choice text="'%1Extend: Build %2\033X'.[$colorcode,$purposemacro.name]" position="$slot" section="comm_orders_extend_dia_selected" choiceparam="$sequence" />
+                  <do_if value="$slot ge 6">
+                    <break/>
+                  </do_if>
+                  <set_value name="$slot" operation="add"/>
+                </do_if>
+              </do_all>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
+            </do_elseif>
+			<!-- UI: UT Buildcost select call -->
+            <do_elseif value="event.param == 'comm_orders_extend_ui_selected'">
+	      			<do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
+				      	<do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2.{1}">
+		      				<set_value name="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
+	      					<set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend: Build %1'.[$stationmacro.buildpurposemacro.{buildplan.[event.param2.{1},$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}.name],$sequence=event.param2.{1},$upgradeplan=[],$interruptable=false]"/>
+			      		</do_if>
+		      		</do_all>
+		      	</do_elseif>
+            <do_elseif value="event.param == 'comm_orders_extend_dia_selected'">
+              <do_all exact="$actor.$ut_cac.$orderedbuildplanlist.count" counter="$i">
+                <do_if value="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2">
+                  <set_value name="$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
+                  <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend: Build %1'.[$stationmacro.buildpurposemacro.{buildplan.[event.param2,$actor.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}.name],$sequence=event.param2,$upgradeplan=[],$interruptable=false]"/>
+                </do_if>
+              </do_all>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_upgrade'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
+              <!-- Add Upgrade Choices here -->
+              <!-- $upgradeplan contains the current State of the Station or the preffered default Setting of the Player in the same format as the return Value: -->
+              <!-- ( [ [ **Upgrade1 Indentifier String/Tag ** , ** Upgrade 1 amount ** ] , [ ** Upgrade 2 Indentifier String/Tag ** , ** Upgrade 2 amount ** ] , ..... ] ) -->
+              <open_conversation_menu menu="UTUpgradeMenu" param="[0, 0, $actor, $actor.ship, $station, $upgradeplan]" comment="DANGER! WILL PROBABLY CRASH UI SINCE NOT EXISTENT YET! "/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_upgrade_selected'">
+              <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Upgrade %1'.[$station.name],$upgradeplan=event.param2,$interruptable=true]"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_repair'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
+              <!-- Create Choice Lists here  -->
+              <set_value name="$TextList" exact="[]"/>
+              <set_value name="$SelectList" exact="[]"/>
+              <do_all exact="$RepairableParts.count" counter="$i">
+                <do_if value="not $RepairableParts.{$i}.parent.iswreck">
+                  <append_to_list name="$TextList" exact="$RepairableParts.{$i}.name"/>
+                  <append_to_list name="$SelectList" exact="$RepairableParts.{$i}"/>
+                </do_if>
+              </do_all>
+              <!-- This part is planned to be replaced by a Menu which can display all choices instead of using the Dialogue                                                                          vvvvvvvvvvvvvvvvvv the nulls here are button 2 and 3 with their respective next section -->
+              <!-- open_conversation_menu menu="UTListMenu" param="[0, 0, 'Select Part', 'Select the Station Part which should be repaired.', 'Back', null , null , null , null , 'Select' , 'comm_orders_repair_selected' , $TextList , $SelectList ]" /-->
+              <set_value name="$slot" exact="1"/>
+              <do_all exact="$TextList.count" counter="$i">
+                <add_player_choice text="$TextList.{$i}" position="$slot" section="comm_orders_repair_selected" choiceparam="$SelectList.{$i}"/>
+                <set_value name="$slot" operation="add"/>
+                <do_if value="$slot" exact="7">
+                  <break/>
+                </do_if>
+              </do_all>
+              <remove_value name="$slot"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_repair_selected'">
+              <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.repair',$displayname='Repair %1'.[event.param2.name],$component=event.param2,$interruptable=false]"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_detach'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
+              <set_value name="$new_order" exact="table[$script='ut.cac.com.architectcaptain.undeploy.constructionvessel',$displayname='Detach CV',$interruptable=true]"/>
+            </do_elseif>
+            <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
+            <do_if value="$prev_order? and $new_order?">
+              <!-- Player selected no Previous Order so he wants to attach it at the End of the List -->
+              <do_if value="$prev_order == null">
+                <append_to_list name="$actor.$orderlist" exact="$new_order"/>
+              </do_if>
+              <do_else>
+              <!-- Player selected a Specific Order to replace or insert - if it hasnt Moved just get its index, otherwise use the first fit in the List -->
+                <do_if value="$actor.$orderlist.{$prev_order.{3}} == $prev_order.{2}">
+                  <set_value name="$index" exact="$prev_order.{3}"/>
+                </do_if>
+                <!-- Order to replace moved down - a common occurence probably -->
+                <do_elseif value="$actor.$orderlist.indexof.{$prev_order.{2}} lt $prev_order.{3}">
+                  <set_value name="$index" exact="$actor.$orderlist.indexof.{$prev_order.{2}}"/>
+                </do_elseif>
+                <!-- Order moved Up - Unusual, leave a Note in the Log -->
+                <do_elseif value="$actor.$orderlist.indexof.{$prev_order.{2}}">
+                  <set_value name="$index" exact="$actor.$orderlist.indexof.{$prev_order.{2}}"/>
+                </do_elseif>
+                <!-- Order not in Orderlist anymore - Dont change anything -->
+                <do_else>
+                  <set_value name="$index" exact="null"/>
+                </do_else>
+                <do_if value="$index">
+                  <do_if value="$prev_order.{4} == 'insert'">
+                    <set_value name="$actor.$orderlist.{$index}" exact="$new_order" operation="insert"/>
+                  </do_if>
+                  <do_elseif value="$prev_order.{4} == 'replace'">
+                    <set_value name="$actor.$orderlist.{$index}" exact="$new_order"/>
+                  </do_elseif>
+                </do_if>
+              </do_else>
+              
+              <remove_value name="$prev_order"/>
+              <remove_value name="$new_order"/>
+              <signal_objects object="$actor" param="'new order received'" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_if>
+            
+          </actions>
+        </cue>
+        <!-- Menu 2: Object Settings specific to Architect -->
+        <cue name="Comm_Settings" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_conversation_next_section sectionprefix="comm_settings_" actor="$actor"/>
+              <event_conversation_returned_to_section sectionprefix="comm_settings_" actor="$actor"/>
+            </check_any>
+          </conditions>
+          <actions>
+            <do_if value="event.param == 'comm_settings_main'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <do_if value="event.name == 'event_conversation_next_section'">
+                  <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+                  <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+                </do_if>
+                <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+                  <do_if value="event.param2 == 'no change'">
+                    <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+                  </do_if>
+                  <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+                </do_elseif>
+              </do_if>
+              <add_player_choice_sub text="'Automatic Repair'" position="1" section="comm_settings_repair" selectable="false"/>
+              <add_player_choice_return text="'(Back)'" position="6" />
+              <add_player_choice_return text="'(Back)'" position="close" />
+            </do_if>
+            <do_elseif value="event.param == 'comm_settings_repair'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+                <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+              </do_if>
+              <add_player_choice text="'repair every Scratch'" position="1" section="comm_settings_repair_set" choiceparam="'shiny'"/>
+              <add_player_choice text="'repair even minor Damage'" position="2" section="comm_settings_repair_set" choiceparam="'light'"/>
+              <add_player_choice text="'repair moderately damaged Station Parts'" position="3" section="comm_settings_repair_set" choiceparam="'moderate'"/>
+              <add_player_choice text="'repair heavyly damaged Station Parts'" position="4" section="comm_settings_repair_set" choiceparam="'heavy'"/>
+              <add_player_choice text="'dont make any Repairs yourself'" position="5" section="comm_settings_repair_set" choiceparam="'none'"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_repair_set'">
+              <!-- Set the Variable for the automatic Damage Repair (Repair Orders will be added from the default Commands) -->
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+          </actions>
+        </cue>
+        
+        <!-- Menu 3: Connect with other Actor-->
+        <cue name="Comm_Common_Connect" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Connect">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Menu 4: Subordinates Handling - not needed for architect-->
+        <!--cue name="Comm_Common_Subordinates" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Subordinates">
+          <param name="actor" value="$actor"/>
+        </cue-->
+        <!-- Menu 5: Personal Settings (as lib since its shared with other NPC Types) -->
+        <cue name="Comm_Common_Personal" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Personal">
+          <param name="actor" value="$actor"/>
+        </cue>
+        <!-- Misc Menu Items (Debug menu (6)) and Goodbye Section) -->
+        <cue name="Comm_Common_Misc" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Misc">
+          <param name="actor" value="$actor"/>
+        </cue>
+        
+        <cue name="NPC_Destroyed">
+          <conditions>
+            <event_object_destroyed object="$actor"/>
+          </conditions>
+          <!--delay exact="1s" comment="delay as the PlatformActor library may also take care of this"/ currently not included, so commented out -->
+          <actions>
+            <debug_text text="'NPC_Destroyed'"/>
+            <cancel_cue cue="Main"/>
+          </actions>
+        </cue>
+        
+        <cue name="SwitchToPermanentStationA">
+          <conditions>
+            <event_cue_signalled/>
+          </conditions>
+          <cues>
+            <cue name="SwitchToPermanentStationB">
+              <conditions>
+                <check_any>
+                  <event_build_finished object="$actor.ship" buildmodule="$actor.ship.buildmodule"/>
+                  <event_object_signalled object="$actor.ship" param="'CV undeployed'" comment="the temp station also needs cleanup if the CV aborts during/before construction"/>
+                </check_any>
+              </conditions>
+              <actions>
+                <!-- Clean up temp Stuff and refer with $Station to the correct Station -->
+                <set_value name="$station" exact="$actor.ship.buildmodule.buildanchor"/>
+                <!-- ToDo: Transfer all Settings on the Temp Station to the finished Station -->
+                <destroy_object object="$actor.$ut_cac.$tempstation"/>
+                <remove_value name="$actor.$ut_cac.$tempstation"/>
+                <find_station name="$tmp" space="$TempZone"/>
+                <do_if value="not $tmp.exists">
+                  <destroy_object object="md.$ut_cac_tempcluster"/>
+                  <remove_value name="md.$ut_cac_tempcluster"/>
+                </do_if>
+                <remove_value name="$TempZone"/>
+                <reset_cue cue="SwitchToPermanentStationA"/>
+              </actions>
+            </cue>
+          </cues>
+        </cue>
+        <cue name="Undeploy_CV">
+          <conditions>
+            <event_object_signalled object="$actor.ship" param="'CV undeployed'"/>
+          </conditions>
+          <actions>
+            <!-- clear all Vars related to Building -->
+            <remove_value name="$buildlocation"/>
+            <remove_value name="$stationmacro"/>
+            <remove_value name="$station"/>
+            <reset_cue cue="this"/>
+          </actions>
+        </cue>
+        <cue name="Subordinate_Added" instantiate="true">
+          <conditions>
+            <event_object_subordinate_added object="$actor.container" commandertype="entitytype.architect"/>
+          </conditions>
+          <actions>
+            <!-- pass all assigned Subordinates to the Manager -->
+            <do_if value="$actor.$ut_cac.$tempstation?">
+              <set_object_commander object="event.param" commander="$actor.container" type="entitytype.manager"/>
+            </do_if>
+            <do_elseif value="$actor.container.buildanchor.exists">
+              <set_object_commander object="event.param" commander="$actor.container.buildanchor" type="entitytype.manager"/>
+            </do_elseif>
+          </actions>
+        </cue>
+      </cues>
+    </cue>
+  </cues>
+</mdscript>

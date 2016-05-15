@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.architect.repair" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+   Script which controls External/Remote Object Repairs - not for the current Object or docked Objects 
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="component" default="null" comment="the Part or Object to be repaired/restored (if its the same as the currently via buildanchor connected Station sequence and stage are taken into account)"/>
+    <param name="targetcondition" default="'full'" comment="hull percent (0-100 int or float), hull points (100 - maxhull int or datatype hitpoints) or one of these: 'restore' 'functional' 'half' 'full'"/>
+    <param name="sequence" default="null" comment="if Repairtarget is a Station then repair only a specific sequence/Stage combination"/>
+    <param name="stage" default="null" comment="if Repairtarget is a Station then repair only a specific sequence/Stage combination"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      <do_if value="$params">
+        <do_if value="$params.$component?">
+          <set_value name="$component" exact="$params.$component"/>
+        </do_if>
+        <do_if value="$params.$targetcondition?">
+          <set_value name="$targetcondition" exact="$params.$targetcondition"/>
+        </do_if>
+        <do_if value="$params.$sequence?">
+          <set_value name="$sequence" exact="$params.$sequence"/>
+        </do_if>
+        <do_if value="$params.$stage?">
+          <set_value name="$stage" exact="$params.$stage"/>
+        </do_if>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Architect build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+      </do_if>
+      
+      
+      <!-- sanity checks -->
+      <!-- must be on a builder Ship -->
+      <do_if value="not this.ship.buildmodule.exists">
+        <debug_text filter="error" text="'%1 %2 %3 Architect is not on a builder Ship - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      
+      <!-- get the hullfraction value for the several target values possible (assuming component repair here ) -->
+      <do_if value="typeof $targetcondition == datatype.string">
+        <do_if value="$targetcondition == 'full'">
+          <set_value name="$targetcondition" exact="1.0"/>
+        </do_if>
+        <do_elseif value="$targetcondition == 'half'">
+          <set_value name="$targetcondition" exact="0.5"/>
+        </do_elseif>
+        <do_elseif value="$targetcondition == 'functional'">
+          <!-- ToDo: aquire functin thresold -->
+          <set_value name="$targetcondition" exact="0.25"/>
+        </do_elseif>
+        <do_elseif value="$targetcondition == 'resore'">
+          <!-- just not wrecked anymore ( 1 hp ) -->
+          <set_value name="$targetcondition" exact="1.0 / $component.maxhull"/>
+        </do_elseif>
+        <do_else>
+          <debug_text filter="error" text="'%1 %2 %3 No Valid $targetcondition string passed ( %4 ) - aborting'.[player.age,this.name,this.container.name,$targetcondition]"/>
+          <return/>
+        </do_else>
+      </do_if>
+      <do_elseif value="typeof $targetcondition == datatype.hitpoints or ( typeof $targetcondition == datatype.integer and $targetcondition gt 100)">
+        <do_if value="$component.hull lt $targetcondition">
+          <set_value name="$targetcondition" exact="1.0"/>
+        </do_if>
+        <do_else>
+          <set_value name="$targetcondition" exact="( $targetcondition )f / ( $component.hull )f"/>
+        </do_else>
+      </do_elseif>
+      <do_elseif value="$targetcondition gt 1.0 and $targetcondition le 100.0">
+        <set_value name="$targetcondition" exact="( $targetcondition )f / 100.0"/>
+      </do_elseif>
+      <do_elseif value="$targetcondition gt 0.0 and $targetcondition le 1.0" comment="Value already in expected Range - no need to change it"/>
+      <do_else>
+        <debug_text filter="error" text="'%1 %2 %3 No Valid $targetcondition passed - aborting'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_else>
+      
+      
+      <!-- check if we should repair the whole Station we are connected to or just a certain component of it -->
+      <!-- ToDo: add functions to make Repairs of nearby Ships if CV is Deployed but not connected -->
+      <do_if value="this.ship.buildmodule.buildanchor == $component">
+        <repair_object buildmodule="this.ship.buildmodule" sequence="$sequence" stage="$stage" hullfraction="$targetcondition" updatebuild="true"/>
+      </do_if>
+      <do_else>
+        <repair_component buildmodule="this.ship.buildmodule" component="$component" hullfraction="$targetcondition"/>
+      </do_else>
+      <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
+      <wait>
+        <interrupt>
+          <conditions>
+            <event_build_finished object="this.ship"/>
+          </conditions>
+        </interrupt>
+      </wait>
+      <set_value name="this.$ut_cac.$isactive" exact="1" comment="possibly long-lasting action is done - pay the last payment period too"/>
+      
+    </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>

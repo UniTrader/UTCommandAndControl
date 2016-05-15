@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.drone.transfer" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <!--
+  This Script is intended to Transfer Drones from Objects in the same Zone.
+  Call it on a started Drone and pass it the new Owner. the Drone will fly from one to the other and automatically transfer Ownership when arrived.
+  -->
+  <params>
+    <param name="from" default="this.ship.commander.commander" comment="the Object where the Unit is removed from"/>
+    <param name="to" comment="the Object where the Drone flies to and is added to."/>
+  </params>
+  <interrupts>
+    <handler ref="TargetInvalidHandler"/>
+  </interrupts>
+  <attention min="visible">
+    <actions>
+      <label name="start"/>
+      <!-- undock -->
+      <wait>
+        <interrupt_after_time time="2min"/>
+        <interrupt>
+          <conditions>
+            <check_any>
+              <!-- <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/> -->
+              <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+            </check_any>
+          </conditions>
+        </interrupt>
+      </wait>
+      <clear_collision_filter object="this.ship"/>
+      <!-- dock at new Home -->
+      <do_if value="$to.isoperational">
+        <run_script name="'move.dockat.drone'">
+          <param name="destination" value="$to"/>
+        </run_script>
+        <do_if value="$from.units.{this.ship.macro}.count">
+          <do_if value="$from.availableunits.{this.ship.macro.unitcategory}.count">
+            <remove_units macro="this.ship.macro" object="$from" exact="1"/>
+          </do_if>
+          <do_else>
+           <remove_units macro="this.ship.macro" object="$from" exact="1" unavailable="true"/>
+           <debug_text filter="error" text="'%1 Unit Transfer from: %2 to: %3 - no available units of given macro on original Object - removing unavailable ones'.[player.age,$from.name,$to.name] "/>
+          </do_else>
+        </do_if>
+        <do_else>
+          <debug_text filter="error" text="'%1 Unit Transfer from: %2 to: %3 - WTF? no units of given macro on original Object - Skipping removal'.[player.age,$from.name,$to.name] "/>
+        </do_else>
+        <add_units macro="this.ship.macro" object="$to" exact="1"/>
+      </do_if>
+      <do_elseif value="$to.isoperational">
+        <run_script name="'move.dockat.drone'">
+          <param name="destination" value="$from"/>
+        </run_script>
+      </do_elseif>
+    </actions>
+  </attention>
+  <attention min="unknown">
+    <actions>
+      <!-- cleanup -->
+      <label name="start"/>
+      <do_if value="$to.isoperational">
+        <run_script name="'move.dockat.drone'">
+          <param name="destination" value="$to"/>
+        </run_script>
+        <do_if value="$from.units.{this.ship.macro}.count">
+          <do_if value="$from.availableunits.{this.ship.macro.unitcategory}.count">
+            <remove_units macro="this.ship.macro" object="$from" exact="1"/>
+          </do_if>
+          <do_else>
+           <remove_units macro="this.ship.macro" object="$from" exact="1" unavailable="true"/>
+           <debug_text filter="error" text="'%1 Unit Transfer from: %2 to: %3 - no available units of given macro on original Object - removing unavailable ones (OOS Case)'.[player.age,$from.name,$to.name] "/>
+          </do_else>
+        </do_if>
+        <do_else>
+          <debug_text filter="error" text="'%1 Unit Transfer from: %2 to: %3 - WTF? no units of given macro on original Object - Skipping removal (OOS Case)'.[player.age,$from.name,$to.name] "/>
+        </do_else>
+        <add_units macro="this.ship.macro" object="$to" exact="1"/>
+      </do_if>
+      <do_else>
+        <destroy_object object="this.ship" explosion="false"/>
+      </do_else>
+      <!-- drone no longer exists if the drone docked successfully -->
+    </actions>
+  </attention>
+</aiscript>

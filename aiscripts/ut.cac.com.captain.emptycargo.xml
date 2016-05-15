@@ -73,7 +73,7 @@
       </do_all>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found %4 Buy Offers in sector'.[player.age,this.name,this.container.name,$buyoffers.count]"/>
       
-      <!-- add these Buy Orders to the Trading Queue sorted by shortest Distance to next Trade and add a Trade run order for each -->
+      <!-- add the Sell Orders to the Trading Queue sorted by shortest Distance to next Trade and add a Trade run order for each -->
       <set_value name="$currentzone" exact="this.zone"/>
       <!-- Path Length for small Ships, raw Distance for Big Ships -->
       <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
@@ -118,6 +118,8 @@
           <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$buyoffers.{$mindistindex}.ware}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Empty cargo)',$command=command.freetrade]"/>
           <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.owner.zone"/>
+          <remove_value name="$buyoffers.{$mindistindex}"/>
+          <set_value name="$mindistindex" exact="null"/>
         </do_if>
         <!-- Path Length for small Ships, raw Distance for Big Ships -->
         <do_if value="this.ship.isclass.ship_m or this.ship.isclass.ship_s or this.ship.isclass.ship_xs">
@@ -126,8 +128,6 @@
         <do_else>
           <set_value name="$mindistance" exact="1e12m"/>
         </do_else>
-        <remove_value name="$buyoffers.{$mindistindex}"/>
-        <set_value name="$mindistindex" exact="null"/>
       </do_while>
       
       <!-- Cluster-wide search for Offers - if one is found add it to the Trade list and continue in the Sector there with search for further Offers -->

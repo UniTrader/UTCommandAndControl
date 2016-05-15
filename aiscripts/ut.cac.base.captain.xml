@@ -1,122 +1,31 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.captain" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="2">
-  <!-- this is basically just a Script which executes previously given Orders in order and falls back to a logical default behavior depending on context (a very stupid script - the logic is to be implemented in other scripts) -->
-  <interrupts>
-    <!-- here are all Signals listed the planned Navigation Script(s) will send with a short description what they do - this is just a declaration of intention, nothing is actually used/implemented so far.-->
-    <!--handler>
-      <conditions>
-        <check_any>
-        <event_object_signalled object="this.ship" param="'travel jump prep'" param2="$destination" param3="$follower_list" comment="
-        Signals Followers that this Ship wants to Jump to $destination - small craft may now register in $follower_list that they want to dock here before the Ship charges (they shall take care of this themselves) and remove themselves from the List when docked.
-        Big Ships may add themselves to the List when they want to follow and they have Followers which have to dock first and remove themselves when their Followers are prepared"/>
-        <event_object_signalled object="this.ship" param="'travel jump start'" param2="$destination" comment="
-        Signals Followers that this Ship wants to Jump to $destination - Jumpdrive now actually Charges (the fast charge, not the 10 minute slow one - that one will signal in the last 10s when Jumpdrive really starts) and Followers should do the same"/>
-        <event_object_signalled object="this.ship" param="'emergency jump'" param2="$destination" comment="
-        Signals Followers that this Ship does an Emergency Jump immediately - other Big Ships may decide to follow or to continue Battle.
-        Small Craft try to Dock while JD charges and will re-assign to another mothership if not successful or try to get back to their Group"/>
-        <event_object_signalled object="this.ship" param="'travel boost prep'" param2="$destination" param3="$follower_list" comment="see above - just for boost"/>
-        <event_object_signalled object="this.ship" param="'travel boost start'" param2="$destination" comment="see above - just for boost"/>
-        <event_object_signalled object="this.ship" param="'emergency boost'" param2="$destination" comment="see above - just for boost"/>
-        </check_any>
-      </conditions>
-    </handler-->
-    <handler ref="OrderlistControl"/>
-  </interrupts>
-  <init comment="create Joblist">
-  </init>
+<!-- This file is only for Savegame Compatibility - no need to pay it any attention -->
   <attention min="unknown">
     <actions>
-      <wait min="0.1s" max="10s" comment="to avoid multiple order requests at the same moment" sinceversion="2"/>
-      
+      <!-- catch all previous blocking Actions and convert to the new Script -->
+      <wait sinceversion="2" chance="0"/>
       <label name="init"/>
-      <do_if value="not this.$orderlist?">
-        <create_list name="this.$orderlist"/>
-      </do_if>
-      
-      <!-- first get to free Space/Undock, leave formations etc. to have a safe initial state -->
-      <run_script name="'ut.cac.com.captain.move.free'"/>
-      
-      
+      <run_script name="'ut.cac.com.captain.move.free'" chance="0"/>
       <label name="start"/>
-      <wait exact="100ms" />
-      
-      <!-- fulfill all Orders in List in their order -->
-      <do_while value="this.$orderlist.count gt 0">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
-        <set_value name="$order" exact="this.$orderlist.{1}" />
-        <do_if value="typeof $order == datatype.table">
-          <set_value name="$order.$interruptable" exact="false"/>
-          <run_script name="$order.$script">
-            <param name="params" value="$order" />
-          </run_script>
-        </do_if>
-        <!-- If current first Order is still the same as before executing it - remove it from Orderlist so we can continue with the next one - after that wait a split-second to prevent Freezes should something go wrong -->
-        <!-- (if its a diffrent Order the first Order was moved or replaced, which should cause an abort of it and a the new first Order should be executed immediately) -->
-        <do_if value="this.$orderlist.{1} == $order">
-          <remove_value name="this.$orderlist.{1}" />
-        </do_if>
-        <wait exact="100ms"/>
-      </do_while>
-      
-      <!-- no outstanding direct Orders - append a default Order which makes the most sense in the current context and restart -->
-      
+      <wait chance="0" />
+      <run_script name="$order.$script" chance="0"/>
+      <wait chance="0"/>
       <label name="find job"/>
       
-      <!-- if there are outstanding Trade Orders: do trade. -->
-      <get_trade_from_shoppinglist object="this.ship" result="$trade"/>
-      <do_if value="$trade.exists">
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (default)',$repeat=0,$interruptable=true]"/>
-        <resume label="start"/>
+      <!-- save Values which we still need and set up Values which are needed after Conversion (do it for both, old and new Variable Name. just in case)-->
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+        <set_value name="this.$ut_cac.$defaultorders.$next_equipmentcheck" exact="$next_equipmentcheck"/>
+      </do_if>
+      <do_if value="this.$ut_cac_settings?">
+        <set_value name="this.$ut_cac_settings.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+        <set_value name="this.$ut_cac_settings.$defaultorders.$next_equipmentcheck" exact="$next_equipmentcheck"/>
       </do_if>
       
-      <!-- if Ship needs Repairs or re-arming: move to Shipyard - will be forced by Engineer/DO in urgent cases so wrecked checks should be unnecesary (not implemented yet) -->
-      <!--find_object_component name="$needsrepairs" object="this.ship" checkoperational="false" comment="just see if we can find something damaged">
-        <match_any>
-          <match restorable="true" comment="wrecked or"/>
-          <match_hull max="95" comment="damaged below 95%" />
-        </match_any>
-      </find_object_component-->
-      <!-- Check if we have enough Ammo here - currently no Ammo usage, so unnecesary, but here is the point to add it.-->
-      <!--do_if value="$needsrepairs? or this.ship.hullpercentage lt 95.0">
-        <signal_objects object="this" param="'new order'" param2="['visit shipyard' , 0 ]"/>
-        <resume label="start"/>
-      </do_if-->
+      <!-- start the new Script -->
+      <start_script object="this" name="'ut.cac.orderlist.loop'"/>
       
-      <!-- Cargobay (more than) half full without any other orders, so its dead weight - empty it. -->
-      <do_if value="this.ship.cargo.free lt this.ship.cargo.capacity/2">
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.emptycargo',$displayname='Empty Cargobay (default)',$onlysector=true,$interruptable=true]"/>
-        <resume label="start"/>
-      </do_if>
-      
-      <!-- Signal the Superior we are now Free and want something to do -->
-      <do_if value="this.ship.commanderentity == player.entity" comment="Subordinate of the Player - currently not in my Plan, so either wait where you are (Trade Ships) or Patrol the current Sector (Battleships) until further Notice" >
-        <do_if value="this.ship.primarypurpose == objectpurpose.fight">
-          <!-- Patrol for 1h in the Sector and then pester again -->
-          <signal_objects object="this" param="'new order'" param2="['patrol' , 0 , 'sector' , 1h ]"/>
-          <resume label="start"/>
-        </do_if>
-        <do_else comment="this.ship.primarypurpose == objectpurpose.trade">
-          <!-- wait at current Position until given a new Order, pester again after 1h -->
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait signal',$signalobject=this,$signalparam='new order',$repeat=0]"/>
-          <resume label="start"/>
-        </do_else>
-      </do_if>
-      <do_else>
-        <!-- nothing to do - wait and add to Order request Group of Commander -->
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=10min,$interruptable=true]"/>
-        <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
-      </do_else>
-      
-      
-      <resume label="start"/>
     </actions>
   </attention>
-  <on_abort>
-    <!-- remove all trade Orders and Reservations -->
-    <get_trade_from_shoppinglist result="$trades" object="this.ship" multiple="true" />
-    <do_all exact="@$trades.count" counter="$i">
-      <remove_ware_reservation object="$trades.{$i}.owner" entity="this" ware="$trades.{$i}.ware"/>
-      <remove_trade_order object="this.ship" trade="$trades.{$i}"/>
-    </do_all>
-  </on_abort>
 </aiscript>

@@ -56,8 +56,8 @@ ToDo:
       
       <!-- if Jump Type hat not been set - use Entity default Value or fall back to general defaults depending on Faction -->
       <do_if value="not $type">
-        <do_if value="this.$ut_cac_settings.$jumptype?">
-          <set_value name="$type" exact="this.$ut_cac_settings.$jumptype"/>
+        <do_if value="this.$ut_cac.$jumptype?">
+          <set_value name="$type" exact="this.$ut_cac.$jumptype"/>
         </do_if>
         <do_else>
           <!-- Criminal Factions prefer random Jumps to surprise (is a bit hacky because it doesnt take EXP into account)-->
@@ -79,8 +79,8 @@ ToDo:
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jump Script started with parameters:\n$destination: %4, $type: %5, $ignorefuel: %6, $leader: %7, $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
       
       <set_command_action commandaction="commandaction.jumping" />
-      <do_if value="this.$ut_cac_settings?">
-        <set_value name="this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       
       <!-- maybe use a light variant which only undocks and cancels boosters, not the other stuff with leaving formations etc. -->
@@ -110,7 +110,7 @@ ToDo:
       <find_object_component name="$jumpdrive" object="this.ship" class="class.jumpdrive" checkoperational="false"/>
       <do_if value="$jumpdrive == null">
         <debug_text filter="error" text="'%1 %2 %3 No Jumpdrive - aborting!'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <return value="false"/>
       </do_if>
       <do_if value="not $jumpdrive.isoperational">
         <debug_text filter="error" text="'%1 %2 %3 No operational Jumpdrive - wait till restored (will wait silently for now! )'.[player.age,this.name,this.container.name]"/>
@@ -204,15 +204,17 @@ ToDo:
         <do_else>
           <set_value name="$space" exact="$destination.sector"/>
         </do_else>
-        <set_value name="$minsize" min="1m" max="5km"/>
+        <set_value name="$minsize" min="1km" max="5km"/>
         <find_object name="$beacon" space="$space">
           <match_size min="$minsize"/>
+          <match_parent class="class.highway" negate="true"/>
         </find_object>
         <do_if value="not $beacon.exists">
           <do_all exact="4">
             <set_value name="$minsize" exact="$minsize / 2"/>
             <find_object name="$beacon" space="$space">
               <match_size min="$minsize"/>
+              <match_parent class="class.highway" negate="true"/>
             </find_object>
             <do_if value="$beacon.exists">
               <break/>
@@ -286,7 +288,8 @@ ToDo:
       <do_if value="$leader.exists">
         <do_while value="$leader.exists">
           <remove_from_group group="$leader_preparegroup" object="this.ship"/>
-          <wait min="1min" max="3min">
+          <wait>
+		    <interrupt_after_time time="2min"/>
             <interrupt>
               <conditions>
                 <event_object_signalled object="$leader" param="'travel jump start'" param2="$beacon"/>

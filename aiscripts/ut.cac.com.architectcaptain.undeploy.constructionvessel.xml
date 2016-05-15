@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.architectcaptain.undeploy.constructionvessel" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+  Routine for Undeploying a Consruction Vessel
+  Start it on the Architect, who will in turn instruct the Captain to do all needed Stepts by re-calling the Script on him.
+  To make sure both instances exit cleanly its not interruptabel once started.
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+  </params>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <set_value name="$params.$interruptable" exact="false"/>
+      <do_if value="this == this.ship.architect and this.ship.pilot.exists">
+        <!-- remove actor account (is shared with Station Manager so still exists ) -->
+        <do_if value="this.money == this.ship.buildanchor.tradenpc.money">
+          <remove_actor_account actor="this"/>
+        </do_if>
+        <do_else>
+          <remove_actor_account actor="this" transfer="true"/>
+        </do_else>
+        <!-- pass our Order to the Pilot and wait until he is done -->
+        <signal_objects object="this.ship.pilot" param="'new order'" param2="$params"/>
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="this.ship" param="'CV undeployed'"/>
+            </conditions>
+          </interrupt>
+        </wait>
+        <!-- Do all needed Cleanup Stuff possible in AI Scripts (also signal MD to clean up there) -->
+      </do_if>
+      <do_elseif value="this == this.ship.pilot and this.ship.architect.exists">
+        <clear_buildmodule buildmodule="this.ship.buildmodule"/>
+        <detach_from_masstraffic object="this.ship">
+          <interrupt_after_time time="20min"/>
+        </detach_from_masstraffic>
+        <!-- destroy all Drones still flying, subtract them from unavailable units and set all units as available -->
+        <set_value name="$subordinates" exact="this.ship.subordinates"/>
+        <do_all exact="$subordinates.count" counter="$i">
+          <do_if value="$subordinates.{$i}.isclass.ship_xs">
+            <do_if value="this.ship.units.{$subordinates.{$i}.macro}.count">
+              <remove_units object="this.ship" macro="$subordinates.{$i}.macro" unavailable="true"/>
+              <destroy_object object="$subordinates.{$i}"/>
+            </do_if>
+          </do_if>
+        </do_all>
+        <create_list name="$unitlist" />
+        <do_all exact="this.ship.units.{unitcategory.transport}.list.count" counter="$i">
+          <append_to_list name="$unitlist" exact="this.ship.units.{unitcategory.transport}.list.{$i}"/>
+        </do_all>
+        <do_all exact="this.ship.units.{unitcategory.welder}.list.count" counter="$i">
+          <append_to_list name="$unitlist" exact="this.ship.units.{unitcategory.welder}.list.{$i}"/>
+        </do_all>
+        <do_all exact="$unitlist" counter="$i">
+          <return_units object="this.ship" macro="$unitlist.{$i}"/>
+        </do_all>
+        <disconnect_from_build_location object="this.ship"/>
+        <set_value name="this.$ut_cac.$defaultorders.$script" exact="'ut.cac.orders.captain.default'"/>
+        <remove_value name="this.$ut_cac.$defaultorders.$position"/>
+        <remove_value name="this.$ut_cac.$orders_locked"/>
+        <remove_object_commander object="this.ship"/>
+        <signal_objects object="this.ship" param="'CV undeployed'"/>
+        <transform_position name="$targetpos" refposition="this.ship.position" refrotation="this.ship.rotation">
+          <position x="0m" y="0m" z="-5km"/>
+        </transform_position>
+        <get_safe_pos result="$targetpos" value="$targetpos" zone="this.zone" ignored="this.ship" radius="this.ship.size"/>
+        <move_to object="this.ship" destination="this.zone" >
+          <position value="$targetpos"/>
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="this" param="'new order received'"/>
+            </conditions>
+          </interrupt>
+        </move_to>
+      </do_elseif>
+      <do_else>
+        <debug_text filter="error" text="'Script called on Entity which is neither Architect nor Pilot on a CV (or one of them is not present)'"/>
+      </do_else>
+    </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>

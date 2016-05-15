@@ -3,13 +3,22 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="11">
+    <cue name="Main" instantiate="true" namespace="this" version="20">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
       <actions>
         <set_value name="$actor" exact="event.param" />
         <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="setting neccesary Variables"/>
+        <!-- setting Object-Specific Drone Loadout in case the Object is already equipped properly (at least half the Space is used for Drones)-->
+        <do_if value="$actor.ship.units.count gt $actor.ship.units.maxcount * 0.5">
+          <set_value name="$actor.$ut_cac.$drone_loadout" exact="table[]"/>
+          <do_all exact="param.ut_cac.drone_loadout.$UnitcategoryList.count" counter="$i">
+            <do_if value="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count">
+              <set_value name="$actor.$ut_cac.$drone_loadout.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}" exact="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count"/>
+            </do_if>
+          </do_all>
+        </do_if>
         <!-- cancel Vanilla Dialogue -->
         <signal_objects object="$actor" param="'cancel Vanilla dialogue tree'"/>
         <set_comm_handler actor="$actor" customhandler="true" />
@@ -29,12 +38,40 @@
          <!--Compatibility with Vim Razz' Human Ressources -->
         <set_value name="$actor.$InUse" exact="true"/>
       </patch>
+      <patch sinceversion="12">
+        <!-- setting Object-Specific Drone Loadout in case the Object is already equipped properly (at least half the Space is used for Drones)-->
+        <do_if value="$actor.ship.units.count gt $actor.ship.units.maxcount * 0.5">
+          <set_value name="$actor.$ut_cac.$drone_loadout" exact="table[]"/>
+          <do_all exact="param.ut_cac.drone_loadout.$UnitcategoryList.count" counter="$i">
+            <do_if value="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count">
+              <set_value name="$actor.$ut_cac.$drone_loadout.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}" exact="$actor.ship.units.{param.ut_cac.drone_loadout.$UnitcategoryList.{$i}}.count"/>
+            </do_if>
+          </do_all>
+        </do_if>
+      </patch>
+      <patch sinceversion="20" state="complete">
+        <!-- Rename Variable Name -->
+        <set_value name="$actor.$ut_cac" exact="$actor.$ut_cac_settings"/>
+        <remove_value name="$actor.$ut_cac_settings"/>
+      </patch>
       <cues>
         <cue name="Delayed_scriptstart">
-          <delay exact="100ms"/>
+          <delay exact="10ms"/>
           <actions>
             <!-- ToDo: check if the Scripts are already executing the right Command and give them commands for a smooth takeover -->
-            <start_script object="$actor" name="'ut.cac.base.captain'"/>
+            <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+            <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
+          </actions>
+        </cue>
+        <cue name="Set_Commanderentity">
+          <conditions>
+            <event_object_signalled object="$actor" param="'set commanderentity'"/>
+          </conditions>
+          <actions>
+            <set_value name="$actor.$ut_cac.$commanderentity" exact="event.param2"/>
+            <!-- request new Orders directly after Transfer to speed things up - doubles initia Orders - removed-->
+            <!--signal_objects object="event.param2" param="'request orders'" param2="$actor"/-->
+            <reset_cue cue="this"/>
           </actions>
         </cue>
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
@@ -90,7 +127,7 @@ Rest is shared between all Actor types
           </conditions>
           <actions>
             <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-            <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
               <do_if value="event.name == 'event_conversation_started'">
                 <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
                 <do_if value="$actor.room == player.entity.room">
@@ -103,7 +140,7 @@ Rest is shared between all Actor types
                 </do_else>
               </do_if>
             </do_if>
-            <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main"/>
+            <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main" selectable="not $actor.$ut_cac.$orders_locked?" tooltip="if $actor.$ut_cac.$orders_locked? then $actor.$ut_cac.$orders_locked else ''"/>
             <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main"/>
             <add_player_choice_sub text="{5554103,3}" position="3" section="comm_connect_main"/>
             <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main" selectable="false"/>
@@ -127,7 +164,7 @@ Rest is shared between all Actor types
             </check_any>
           </conditions>
           <actions>
-            <!-- Append a Note what shall happen to the Selected Order if there is one -->
+            <!-- Append a Note what shall happen to the Selected Order if there is one (Necesary for Orderlist Managment) -->
             <do_if value="event.param == 'comm_orders_new'">
               <set_value name="$prev_order" exact="null"/>
             </do_if>
@@ -142,7 +179,7 @@ Rest is shared between all Actor types
             
             <!-- Select new Order -->
             <do_if value="event.param == 'comm_orders_new' or event.param == 'comm_orders_insert' or event.param == 'comm_orders_replace'">
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <add_player_choice text="{5554103,131}" position="1" section="comm_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
@@ -152,21 +189,25 @@ Rest is shared between all Actor types
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_orders_combat'">
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
+              <add_player_choice text="'\033RH\033X Retreat'" position="1" section="comm_orders_retrat" comment="same Key as the Orders Menu, first Order and Combat for quick Access (Sequence 1 - 1 - 1 - 1 )" selectable="false" tooltip="'not implemented yet; would currently just wait 10s'"/>
               <add_player_choice_return text="{5554103,7}" position="6" />
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_retreat'">
+              <!-- ToDo: Write the related Order - i am currently just reserving the Slot here so i will not use it for something else -->
+              <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$displayname='\033RHN\033X Retreat',$order='wait exact',$time=10s,$interruptable=true]"/>
+            </do_elseif>
             <do_elseif value="event.param == 'comm_orders_flyto_selected'">
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <set_value name="$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$interruptable=true]"/>
-              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_signals'">
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <add_player_choice text="{5554103,1321}" position="1" section="comm_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
@@ -178,11 +219,9 @@ Rest is shared between all Actor types
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_send_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='signalobject',$interruptable=true,$displayname='Send Signal to %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_wait_signal_selected'">
               <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='wait signal',$interruptable=true,$displayname='Wait for Signal on %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
-              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             
             <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
@@ -217,9 +256,10 @@ Rest is shared between all Actor types
                   </do_elseif>
                 </do_if>
               </do_else>
-              
+              <signal_objects object="$actor" param="'new order received'" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
               <remove_value name="$prev_order"/>
               <remove_value name="$new_order"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_if>
             
           </actions>
@@ -234,7 +274,7 @@ Rest is shared between all Actor types
           </conditions>
           <actions>
             <do_if value="event.param == 'comm_settings_main'">
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <do_if value="event.name == 'event_conversation_next_section'">
                   <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
                   <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
@@ -246,30 +286,49 @@ Rest is shared between all Actor types
                   <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
                 </do_elseif>
               </do_if>
-              <add_player_choice_sub text="{5554103,231}" position="1" section="comm_settings_jump" selectable="$actor.skill.navigation gt 3"
-                confidence="( @$actor.$ut_cac_settings.$jumptype == 'random' ) * 1 + ( @$actor.$ut_cac_settings.$jumptype == 'auto' ) * 3 + ( @$actor.$ut_cac_settings.$jumptype == 'beacon' ) * 5" comment="confidence shows current Setting: 0 - not set, beacon: 5, Auto: 3, always Random: 1; Selection is only available when Nav Skill is greater than 3" />
+              <add_player_choice_sub text="{5554103,231}" position="1" section="comm_settings_jump" selectable="$actor.skill.navigation gt 3" confidence="( @$actor.$ut_cac.$jumptype == 'random' ) * 1 + ( @$actor.$ut_cac.$jumptype == 'auto' ) * 3 + ( @$actor.$ut_cac.$jumptype == 'beacon' ) * 5" comment="confidence shows current Setting: 0 - not set, beacon: 5, Auto: 3, always Random: 1; Selection is only available when Nav Skill is greater than 3" />
+              <add_player_choice_sub text="'Behavior: %1'" position="2" section="comm_settings_behavior" selectable="not $actor.$ut_cac.$orders_locked?" tooltip="if $actor.$ut_cac.$orders_locked? then $actor.$ut_cac.$orders_locked else ''" comment="Select the main Behavior of this Ship (quick access 2 -2)"/>
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_jump'">
-              <do_if value="$actor.$ut_cac_settings.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
                 <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
               </do_if>
-              <add_player_choice text="{5554103,2311}" position="1" section="comm_settings_jump_type_set" choiceparam="'beacon'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'beacon' or $actor.$ut_cac_settings.$jumptype? )"/>
-              <add_player_choice text="{5554103,2312}" position="2" section="comm_settings_jump_type_set" choiceparam="'auto'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'auto' )"/>
-              <add_player_choice text="{5554103,2313}" position="3" section="comm_settings_jump_type_set" choiceparam="'random'" selectable="not ( @$actor.$ut_cac_settings.$jumptype == 'random' )"/>
-              <add_player_choice text="{5554103,2314}" position="4" section="comm_settings_jump_insector_toggle" confidence="1" chance="(not $actor.$ut_cac_settings.$insectorjump) *100"/>
-              <add_player_choice text="{5554103,2315}" position="4" section="comm_settings_jump_insector_toggle" confidence="5" chance="$actor.$ut_cac_settings.$insectorjump *100"/>
+              <add_player_choice text="{5554103,2311}" position="1" section="comm_settings_jump_type_set" choiceparam="'beacon'" selectable="not ( @$actor.$ut_cac.$jumptype == 'beacon' or $actor.$ut_cac.$jumptype? )"/>
+              <add_player_choice text="{5554103,2312}" position="2" section="comm_settings_jump_type_set" choiceparam="'auto'" selectable="not ( @$actor.$ut_cac.$jumptype == 'auto' )"/>
+              <add_player_choice text="{5554103,2313}" position="3" section="comm_settings_jump_type_set" choiceparam="'random'" selectable="not ( @$actor.$ut_cac.$jumptype == 'random' )"/>
+              <add_player_choice text="{5554103,2314}" position="4" section="comm_settings_jump_insector_toggle" confidence="1" chance="(not $actor.$ut_cac.$insectorjump) *100"/>
+              <add_player_choice text="{5554103,2315}" position="4" section="comm_settings_jump_insector_toggle" confidence="5" chance="$actor.$ut_cac.$insectorjump *100"/>
               <add_player_choice_return text="{5554103,7}" position="6" />
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_jump_type_set'">
-              <set_value name="$actor.$ut_cac_settings.$jumptype" exact="event.param2"/>
+              <set_value name="$actor.$ut_cac.$jumptype" exact="event.param2"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_jump_insector_toggle'">
-              <set_value name="$actor.$ut_cac_settings.$insectorjump" exact="not $actor.$ut_cac_settings.$insectorjump"/>
+              <set_value name="$actor.$ut_cac.$insectorjump" exact="not $actor.$ut_cac.$insectorjump"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_behavior'">
+              <add_player_choice text="'Station Trader/Miner'" position="1" section="comm_settings_behavior_station_trader" comment="Assign this Ship as Trading/Mining Ship (default)" selectable="$actor.ship.commanderentity.type == entitytype.manager"/>
+              <add_player_choice text="'\033RUntested\033X Independent Trader'" position="2" section="comm_settings_behavior_independent_trader" comment="Assign this Ship as free Trader"/>
+              <add_player_choice text="'(Not yet Implemented) Independent Trader (YAT Trade Search)'" position="3" section="comm_settings_behavior_independent_trader_yat" comment="Assign this Ship as free Trader (YAT Trade Search)" selectable="false"/>
+              <add_player_choice_return text="'(Back)'" position="6" />
+              <add_player_choice_return text="'(Back)'" position="close" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_behavior_station_trader'">
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_behavior_independent_trader'">
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.independent_trader']"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_behavior_independent_trader_yat'">
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.independent_trader_yat']"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
           </actions>
@@ -292,6 +351,18 @@ Rest is shared between all Actor types
           <param name="actor" value="$actor"/>
         </cue>
         
+        <cue name="Subordinate_Added" instantiate="true">
+          <conditions>
+            <check_all>
+              <event_object_subordinate_added object="$actor.container" commandertype="entitytype.commander"/>
+              <check_value value="$actor.ship.buildmodule? and $actor.ship.architect?"/>
+            </check_all>
+          </conditions>
+          <actions>
+            <!-- pass all assigned Subordinates to the Manager when on a CV -->
+            <set_object_commander object="event.param" commander="$actor.container" type="entitytype.manager"/>
+          </actions>
+        </cue>
         <cue name="NPC_Destroyed">
           <conditions>
             <event_object_destroyed object="$actor"/>

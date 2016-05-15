@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.orders.captain.independent_trader" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <params>
+    <param name="params" comment="Persistent Params Table to keep track of what should be done and when"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      
+      <!-- Set up Persistent Vars needed by this Script -->
+      <!--immediately allow Equipment Check -->
+      <do_if value="not $params.$next_equipmentcheck?">
+        <set_value name="$params.$next_equipmentcheck" exact="0s" comment="immediately!"/>
+      </do_if>
+      
+      <!-- if there are outstanding Trade Orders: do trade. -->
+      <get_trade_from_shoppinglist object="this.ship" result="$trade"/>
+      <do_if value="$trade.exists">
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (default)',$repeat=0,$interruptable=true]"/>
+        <return/>
+      </do_if>
+      
+      <!-- if Ship needs Repairs or re-arming: move to Shipyard - will be forced by Engineer/DO in urgent cases so wrecked checks should be unnecesary (not implemented yet) -->
+      <!--find_object_component name="$needsrepairs" object="this.ship" checkoperational="false" comment="just see if we can find something damaged">
+        <match_any>
+          <match restorable="true" comment="wrecked or"/>
+          <match_hull max="95" comment="damaged below 95%" />
+        </match_any>
+      </find_object_component-->
+      <!-- Check if we have enough Ammo here - currently no Ammo usage, so unnecesary, but here is the point to add it.-->
+      <!--do_if value="$needsrepairs? or this.ship.hullpercentage lt 95.0">
+        <signal_objects object="this" param="'new order'" param2="['visit shipyard' , 0 ]"/>
+        <return/>
+      </do_if-->
+      
+      <do_if value="player.age gt $params.$next_equipmentcheck">
+        <set_value name="$params.$next_equipmentcheck" exact="player.age + 10min"/>
+        <!-- if we have no fuel for even one Jump - go refueling first -->
+        <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{this.sector}">
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (default)',$undock=2,$interruptable=true]"/>
+          <return/>
+        </do_if>
+        <!-- Check wheter we need some Drones (missing Cargo Drones for Trade & Mining Ships and missing mining Drones for Mining ships trigger re-droning Script every time, otherwise re-droning will be done if below 25% of capacity) -->
+        <do_if value="this.ship.primarypurpose == objectpurpose.trade or this.ship.primarypurpose == objectpurpose.mine">
+          <do_if value="this.ship.units.{unitcategory.transport}.count lt 5">
+            <run_script name="'ut.cac.com.captain.restockdrones'">
+              <param name="onlysector" value="true"/>
+            </run_script>
+          </do_if>
+        </do_if>
+        <do_if value="this.ship.units.count lt this.ship.units.maxcount * 0.5">
+          <run_script name="'ut.cac.com.captain.restockdrones'">
+            <param name="onlysector" value="true"/>
+          </run_script>
+        </do_if>
+      </do_if>
+      
+      <!-- Cargobay (more than) half full without any other orders, so its dead weight - empty it. -->
+      <do_if value="this.ship.cargo.free lt this.ship.cargo.capacity/2">
+        <run_script name="'ut.cac.com.captain.emptycargo'">
+          <param name="onlysector" value="true"/>
+        </run_script>
+      </do_if>
+      
+      <!-- received new Maintinence Orders from himself - execute them first -->
+      <!--wait exact="10ms" comment="wait for possible new Orders received by called Scripts"-->
+      <do_if value="this.$orderlist.count gt 0">
+        <return/>
+      </do_if>
+      
+      <!-- Maintinence Tasks are done - now try to do some regular Trading -->
+      
+      <!-- Get Ranges -->
+      <do_if value="this.ship.isclass.ship_l or this.ship.isclass.ship_xl">
+        <do_if value="this.$ut_cac.$range_j?">
+          <set_value name="$range" exact="this.$ut_cac.$range_j"/>
+        </do_if>
+        <do_elseif value="this.commanderentity.$ut_cac.$range_j?">
+          <set_value name="$range" exact="this.commanderentity.$ut_cac.$range_j"/>
+        </do_elseif>
+        <do_else>
+          <set_value name="$range" exact="[this.cluster]"/>
+        </do_else>
+      </do_if>
+      <do_else>
+        <do_if value="this.$ut_cac.$range_h?">
+          <set_value name="$range" exact="this.$ut_cac.$range_h"/>
+        </do_if>
+        <do_elseif value="this.commanderentity.$ut_cac.$range_h?">
+          <set_value name="$range" exact="this.commanderentity.$ut_cac.$range_h"/>
+        </do_elseif>
+        <do_else>
+          <set_value name="$range" exact="[this.sector]"/>
+        </do_else>
+      </do_else>
+      <!-- Set Ranges - even if they are already set to account for possible changes -->
+      <!-- a List of Spaces works here, too (not just a list of Clusters as the Name suggests) so we can slightly change the behavior of this Script to use UT CAC-Style List-Of-Spaces Ranges -->
+      <set_value name="this.$traderange_sellclusters" exact="$range"/>
+      <set_value name="this.$traderange_buyclusters" exact="$range"/>
+      <!-- prevent searching for Ranages again to prevent our list above to be overridden -->
+      <set_value name="this.$traderange_nexttime" exact="player.age + 1min"/>
+      
+      <!-- define the Wares we want to trade with -->
+      <do_if value="this.$ut_cac.$warebasket?">
+        <set_value name="$warelist" exact="this.$ut_cac.$warebasket"/>
+      </do_if>
+      <do_elseif value="this.ship.warebasket.count">
+        <set_value name="$warelist" exact="this.ship.warebasket.list"/>
+      </do_elseif>
+      <do_else>
+        <set_value name="$warelist" exact="warebasket.all.list"/>
+      </do_else>
+      
+      <run_script name="'trade.findfreetraderun'">
+        <param name="warelist" value="$warelist" />
+        <param name="range" value="this.cluster" comment="just some Valid Value - Abusing the Script in such a way that it wont matter anyway."/>
+        <param name="sellrange" value="[null,null]" comment="No Limit - just use the List provided above"/>
+        <param name="buyrange" value="[null,null]" comment="No Limit - just use the List provided above"/>
+        <param name="lasttrade" value="if $params.$lasttrade? then $params.$lasttrade else null" comment="list: [$buyoffer, $ware, $tradepartner]"/>
+        <save_retval name="buyoffer" variable="$buyoffer"/>
+        <save_retval name="selloffer" variable="$selloffer"/>
+      </run_script>
+      
+      <do_if value="$selloffer.available and $buyoffer.available">
+        <set_value name="$amount" exact="[$selloffer.amount , $buyoffer.amount , this.ship.cargo.{$selloffer.ware}.free , ( ( if this.commanderentity? then this.commanderentity.money else if this.owner == faction.player then player.money else 100000Cr ) + this.money ) / $selloffer.unitprice ].min"/>
+        <do_if value="this.commanderentity?">
+          <transfer_money from="this.commanderentity" to="this" amount="$selloffer.unitprice * $amount - this.money" comment="till the change to add/remove_buy/sell_order is in place"/>
+        </do_if>
+        <add_buy_order object="this.ship" trade="$selloffer" amount="$amount" price="$selloffer.unitprice"/>
+        <add_sell_order object="this.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
+        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=2,$interruptable=true]  ]"/>
+      </do_if>
+      <do_elseif value="$buyoffer.available">
+        <set_value name="$amount" exact="[$selloffer.amount , $buyoffer.amount , this.ship.cargo.{$selloffer.ware}.free , ( this.commanderentity.money + this.money ) / $selloffer.unitprice ].min"/>
+        <add_sell_order object="this.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
+        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=2,$interruptable=true] ]"/>
+      </do_elseif>
+      <do_else>
+        <!-- nothing to do - wait till better Offers are available -->
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for better Offers',$order='wait minmax',$mintime=1min,$maxtime=10min,$interruptable=true]"/>
+      </do_else>
+      
+      
+      <return/>
+    </actions>
+  </attention>
+</aiscript>

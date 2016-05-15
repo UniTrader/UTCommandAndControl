@@ -1,35 +1,14 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.performsingletraderun" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.performsingletraderun" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="20">
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
-    <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this (also does not refresh Reservations from Trade List, call once before with 'refreshreservations' = true to do this)"/>
+    <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this NOTE: BROKEN, NEEDS FIXING!!! (also does not refresh Reservations from Trade List, call once before with 'refreshreservations' = true to do this)"/>
     <param name="amount" default="null" comment="Specific Amount to Trade in case a specific Trade is ordered"/>
     <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list ONLY (does not execute any Trade)"/>
     <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
     <param name="command" default="command.trade" comment="command to display when executing this Script ( command.freetrade or command.trade would make sense, depending on context)"/>
   </params>
   <interrupts>
-    <handler comment="Print Script Vars">
-      <conditions>
-        <event_object_signalled object="this" param="'print script vars to logfile'"/>
-      </conditions>
-      <actions>
-        <debug_text filter="general" text="'\n
-        Captain Name ' + this.knownname + ' at Time ' + player.age + '\n
-        ut.cac.com.captain.performsingletraderun Script Values:\n
-        $trade = ' + @$trade + '\n
-        $amount = ' + @$amount + '\n
-        $refreshreservations = ' + @$refreshreservations + '\n
-        $undock = ' + @$undock + '\n
-        $repeat = ' + @$repeat + '\n
-        $tradepartner = ' + @$tradepartner + '\n
-        $offer = ' + @$offer + '\n
-        $tradeoffer = ' + @$tradeoffer + '\n
-        $price = ' + @$price + '\n
-        NOTE: ONLY VALUES I CREATED MYSELF INCLUDED - nothing from C+P Code Snippets
-        '"/>
-      </actions>
-    </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
@@ -51,7 +30,6 @@
           <set_value name="$command" exact="$params.$command"/>
         </do_if>
       </do_if>
-      <remove_value name="$params"/>
       
       <!-- first refresh the Reservations -->
       <get_trade_from_shoppinglist result="$trades" object="this.ship" multiple="true"/>
@@ -62,16 +40,16 @@
           <!-- Note: trade Orders for the same ware with the same Station are not supported - always just grab the amount you can get in one run. -->
           <do_if value="$trades.{$i}.seller.exists">
             <!-- is this really correct? its the same as in buyer, even the amount, so i wonder how the game differs between sell and buy? -->
-            <add_ware_reservation object="$trades.{$i}.seller" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission"/>
+            <add_ware_reservation object="$trades.{$i}.seller" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission" virtual="$trades.{$i}.unbundle" type="buy"/>
           </do_if>
           <do_elseif value="$trades.{$i}.buyer.exists">
             <do_if value="not $trades.{$i}.unbundle">
-              <add_ware_reservation object="$trades.{$i}.buyer" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission"/>
+              <add_ware_reservation object="$trades.{$i}.buyer" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission" type="sell"/>
             </do_if>
            </do_elseif>
           <do_else>
-            <debug_text filter="error" text="'%1 %2 %3 Ordered Trade %4 (ware: %5 amount: %6 unitprice: %7 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[player.age,this.name,this.container.name,$trades.{$i},$trades.{$i}.ware,$trades.{$i}.amount,$trades.{$i}.unitprice]"/>
-            <remove_trade_order object="this.ship" trade="$trades.i"/>
+            <debug_text filter="error" text="'%1 %2 %3 Ordered Queue Trade %4 (ware: %5 amount: %6 unitprice: %7 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[player.age,this.name,this.container.name,$trades.{$i},$trades.{$i}.ware,$trades.{$i}.amount,$trades.{$i}.unitprice]"/>
+            <remove_trade_order object="this.ship" trade="$trades.{$i}"/>
           </do_else>
         </do_all>
       </do_if>
@@ -87,7 +65,7 @@
       <do_if value="not $trade">
         <get_trade_from_shoppinglist result="$trade" object="this.ship"/>
         <do_if value="not $trade.exists">
-          <debug_text filter="error" text="'%1 %2 %3 No Trade to do given'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 %3 No Trade to do given - exit-ing'.[player.age,this.name,this.container.name]"/>
           <return/>
         </do_if>
         <do_if value="$amount == null">
@@ -95,13 +73,23 @@
         </do_if>
       </do_if>
       <do_else>
-        <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission"/>
+        <set_value name="$non_shoppinglist_trade"/>
+        <do_if value="$trade.seller.exists">
+          <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
+        </do_if>
+        <do_elseif value="$trade.buyer.exists">
+          <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission" type="sell"/>
+        </do_elseif>
+        <do_else>
+          <debug_text filter="error" text="'%1 %2 %3 Ordered Trade %4 (ware: %5 amount: %6 unitprice: %7 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[player.age,this.name,this.container.name,$trade,$trade.ware,$trade.amount,$trade.unitprice]"/>
+          <return/>
+        </do_else>
       </do_else>
       
       <set_command command="$command" param="$trade.owner"/>
       <set_command_action commandaction="commandaction.calculating"/>
-      <do_if value="this.$ut_cac_settings?">
-        <set_value name="this.$ut_cac_settings.$isactive"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       
       <!--in case something went wrong while docking - jumps back from line 207 or 218 -->
@@ -110,21 +98,13 @@
       <!-- now do checks and get all relevant parameters for the next or directly ordered trade -->
       <do_if value="not $trade.exists">
         <!-- trade invalid - remove and abort -->
-        <remove_trade_order object="this.ship" trade="$trade" />
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Order not valid: %4'.[player.age,this.name,this.container.name,$trade]"/>
-        <return/>
-      </do_if>
-      <do_if value="$trade.amount == 0">
-        <!-- trading 0 amount - remove and abort -->
-        <remove_trade_order object="this.ship" trade="$trade" />
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Order has Zero amount - aborting: %4'.[player.age,this.name,this.container.name,$trade]"/>
-        <return/>
+        <resume label="abort trade"/>
       </do_if>
       <do_if value="$trade.iswareexchange">
         <!-- Ware exchange not supported yet -->
-        <remove_trade_order object="this.ship" trade="$trade" />
         <debug_text filter="error" chance="@this.$debug * 100" text="'%1 %2 %3 Ware exchange not supported yet - aborting'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <resume label="abort trade"/>
         <set_value name="$tradepartner" exact="$trade.exchangepartner.{this.ship}" />
       </do_if>
       <do_elseif value="$trade.seller.isoperational">
@@ -132,21 +112,35 @@
       </do_elseif>
       <do_elseif value="$trade.buyer.isoperational">
         <set_value name="$tradepartner" exact="$trade.buyer" />
+        <!-- confirm that we have enough goods and lower Amount if needed -->
+        <do_if value="this.ship.cargo.{$trade.ware}.count lt $amount">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not enough Wares to Sell - Lowering Amount from %4 to %5'.[player.age,this.name,this.container.name,$amount,this.ship.cargo.{$trade.ware}.count]"/>
+          <set_value name="$amount" exact="this.ship.cargo.{$trade.ware}.count"/>
+          <do_if value="not $non_shoppinglist_trade?">
+            <update_trade trade="$trade" amount="$amount"/>
+          </do_if>
+        </do_if>
       </do_elseif>
       <do_else>
         <!-- no valid Trade Partner - remove shoppinglist item, and check list again -->
-        <remove_trade_order object="this.ship" trade="$trade" />
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No valid Trade Partner - aborting'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <debug_text filter="error" text="'%1 %2 %3 No valid Trade Partner - aborting'.[player.age,this.name,this.container.name]"/>
+        <resume label="abort trade"/>
       </do_else>
+      
+      <!-- trading 0 amount - remove and abort -->
+      <do_if value="$amount == 0">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Order has Zero amount - aborting: %4'.[player.age,this.name,this.container.name,$trade]"/>
+        <resume label="abort trade"/>
+      </do_if>
       
       <!-- Ware Exchange cases -->
       <!-- ToDo: implement these - will error to debuglog for now and abort -->
       <do_if value="$trade.iswareexchange and $tradepartner.isclass.ship">
-        <remove_trade_order object="this.ship" trade="$trade" />
         <debug_text filter="error" chance="@this.$debug * 100" text="'%1 %2 %3 Ware exchange not supported yet - aborting'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <resume label="abort trade"/>
       </do_if>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Parameters:\nthis.money: %4 trade.price: %5 $amount: %6 $trade.ware: %7'.[player.age,this.name,this.container.name,this.money,$trade.price,$amount,$trade.ware]"/>
       
       <do_if value="@this.ship.parkedat.container == $tradepartner">
         <!-- skip the movement step if we are already there -->
@@ -158,7 +152,9 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Move to correct Zone:\n$tradepartner.zone= %4'.[player.age,this.name,this.container.name,$tradepartner.zone.knownname]"/>
       <do_if value="this.zone != $tradepartner.zone">
         <set_command_action commandaction="commandaction.flyingto" param="$tradepartner.zone"/>
-        <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+        <do_if value="this.$ut_cac?">
+          <set_value name="this.$ut_cac.$isactive"/>
+        </do_if>
         <run_script name="'ut.cac.move.generic'">
           <param name="destination" value="$tradepartner" />
           <param name="endintargetspace" value="true" />
@@ -168,7 +164,9 @@
       <!-- dock/park at target -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Dock at Trade Station:\n$tradepartner.name=%4'.[player.age,this.name,this.container.name,$tradepartner.knownname]"/>
       <set_command_action commandaction="commandaction.docking"/>
-      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
+      </do_if>
       <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l">
         <set_value name="$offer" exact="null" />
         <!-- ToDo: Ware Exchange Case: Active Partner -->
@@ -184,21 +182,14 @@
           <find_buy_offer result="$offer" buyer="$tradepartner" wares="$trade.ware" tradepartner="this.ship" />
         </do_elseif>
         <do_else>
-          <remove_trade_order object="this.ship" trade="$trade" />
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Tradepartner destroyed - aborting'.[player.age,this.name,this.container.name]"/>
-          <return/>
+          <resume label="abort trade"/>
         </do_else>
         <do_if value="not $offer.available">
           <do_if value="$trade.ismission">
             <set_value name="$offer" exact="null" />
           </do_if>
           <do_else>
-            <!-- -<do_if value="not $offer.exists">
-          <remove_trade_order object="this.ship" trade="$trade" />
-          <resume label="check shoppinglist" />
-          </do_if>- -->
-            <!--wait min="30s" max="100s" />
-            <resume label="check shoppinglist" /-->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 no Tradeoffer to park to found - docking anywhwere'.[player.age,this.name,this.container.name]"/>
             <set_value name="$offer" exact="null" />
           </do_else>
@@ -206,6 +197,7 @@
         <run_script name="'move.park'" result="$parkresult">
           <param name="destination" value="$tradepartner" />
           <param name="tradeoffer" value="$offer" />
+          <param name="debugchance" value="100"/>
         </run_script>
         <do_if value="this.$reevaluate_parking?">
           <remove_value name="this.$reevaluate_parking" />
@@ -222,8 +214,8 @@
           <param name="destination" value="$tradepartner" />
         </run_script>
         <do_if value="not $dockresult">
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not docked? retrying after short delay (also removing ware reservation since i assume something is wrong!)'.[player.age,this.name,this.container.name]"/>
+          <!--remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission"/-->
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not docked? retrying after short delay'.[player.age,this.name,this.container.name]"/>
           <wait min="30s" max="100s" />
           <resume label="retry" comment="line 89" />
         </do_if>
@@ -233,25 +225,30 @@
         </do_if-->
       </do_else>
       
+      <do_if value="not $non_shoppinglist_trade?">
       <!-- we have arrived, check if there is currently a tradeoffer matching the criteria defined by our shopping list -->
       <get_trade_from_shoppinglist object="this.ship" result="$trade2" />
-      <do_if value="$trade == $trade2" negate="true">
-        <!-- the current trade is no longer at the top of the shopping list -->
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade no longer on top of Shopping List - aborting'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <do_if value="$trade == $trade2" negate="true">
+          <!-- the current trade is no longer at the top of the shopping list -->
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade no longer on top of Shopping List - aborting'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_if>
+        <remove_value name="$trade2"/>
       </do_if>
-      <remove_value name="$trade2"/>
       
       <!-- to skip the moving/docking in case we are already docked at the right station - jumps forward from line 75 -->
       <label name="execute trade"/>
       <set_command_action commandaction="commandaction.executingtrade"/>
-      <do_if value="this.$ut_cac_settings?"><set_value name="this.$ut_cac_settings.$isactive"/></do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Executing Trade, Details:\nWare:%4 Amount:%5 Price:%6 Tradepartner:%7 in %8'.[player.age,this.name,this.container.name,$trade.ware,$trade.amount,$trade.price,$tradepartner.knownname,$tradepartner.zone.knownname]"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
+      </do_if>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Executing Trade, Details:\nWare:%4 Amount:%5 Price:%6 Tradepartner:%7 in %8, this.money:%9'.[player.age,this.name,this.container.name,$trade.ware,$amount,$trade.price,$tradepartner.knownname,$tradepartner.zone.knownname,this.money]"/>
       <do_if value="$trade.seller.exists" comment="we want to buy something, look for sell offers">
         <do_if value="not $trade.ismission">
           <set_value name="$tradeoffer" exact="null"/>
           <find_sell_offer result="$tradeoffers" seller="$trade.seller" wares="$trade.ware" tradepartner="this.ship" multiple="true" >
-            <offeramount min="$trade.amount" entity="this" />
+            <offeramount min="$amount" entity="this" />
+            <price max="$trade.unitprice"/>
           </find_sell_offer>
           <do_if value="$tradeoffers.count == 1">
             <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
@@ -264,28 +261,58 @@
               </do_if>
             </do_all>
           </do_elseif>
-          <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to happen here, for now just remove Tradeorder and continue with next Order -->
-          <do_if value="not $tradeoffer.available and not $trade.owner == this.ship.commander">
+          <!-- check if we have valid results and make them "valid" if needed -->
+          <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
             <!-- no fitting Trade found -->
-            <remove_trade_order object="this.ship" trade="$trade" />
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting'.[player.age,this.name,this.container.name]"/>
-            <return/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - use Trade Offer with highest amount instead and lower amount accordingly (buy case)'.[player.age,this.name,this.container.name]"/>
+            <find_sell_offer result="$tradeoffers" seller="$trade.seller" wares="$trade.ware" tradepartner="this.ship" multiple="true" >
+              <price max="$trade.unitprice"/>
+            </find_sell_offer>
+            <do_if value="$tradeoffers.count == 1">
+              <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
+              <set_value name="$amount" exact="$tradeoffer.amount"/>
+            </do_if>
+            <do_elseif value="$tradeoffers.count gt 1">
+              <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
+              <do_all exact="$tradeoffers.count" counter="$i">
+                <do_if value="$tradeoffers.{$i}.offeramount.{this} gt $tradeoffer.amount">
+                  <set_value name="$tradeoffer" exact="$tradeoffers.{$i}" />
+                </do_if>
+              </do_all>
+              <set_value name="$amount" exact="$tradeoffer.amount"/>
+            </do_elseif>
           </do_if>
-          <do_elseif value=" not $trade.owner == this.ship.commander and $tradeoffer.offeramount.{this} lt $amount">
+          <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
+            <!-- no fitting Trade found -->
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offerstill  unavailable - use Trade Offer with highest amount regardless of price and adjust amount to our budget (buy case)'.[player.age,this.name,this.container.name]"/>
+            <find_sell_offer result="$tradeoffers" seller="$trade.seller" wares="$trade.ware" tradepartner="this.ship" multiple="true" />
+            <do_if value="$tradeoffers.count == 1">
+              <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
+              <set_value name="$amount" exact="[$tradeoffer.amount,this.money/$tradeoffer.unitprice].min"/>
+            </do_if>
+            <do_elseif value="$tradeoffers.count gt 1">
+              <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
+              <do_all exact="$tradeoffers.count" counter="$i">
+                <do_if value="$tradeoffers.{$i}.offeramount.{this} gt $tradeoffer.amount">
+                  <set_value name="$tradeoffer" exact="$tradeoffers.{$i}" />
+                </do_if>
+              </do_all>
+              <set_value name="$amount" exact="[$tradeoffer.amount,this.money/tradeoffer.unitprice].min"/>
+            </do_elseif>
+          </do_if>
+          <do_elseif value="not ($trade.owner == this.ship.commander) and $tradeoffer.offeramount.{this} lt $amount">
             <!-- no Offer with enough Wares found -->
             <!-- ToDo: Adjust Amounts for this Trade and the next Selling Trade -->
-            <remove_trade_order object="this.ship" trade="$trade" />
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer amount too low - aborting'.[player.age,this.name,this.container.name]"/>
-            <return/>
+            <resume label="abort trade"/>
           </do_elseif>
           <do_if value="not $trade.buyfree and (this.money / 1Cr) lt ($trade.price / 1Cr)">
             <!-- we no longer have enough money in our account to make this purchase -->
             <!-- just grab some extra Funds from the Manager and check again -->
             <transfer_money from="this.container.commanderentity" to="this" amount="$trade.price - this.money"/>
             <do_if value="not $trade.buyfree and (this.money / 1Cr) lt ($trade.price / 1Cr)">
-              <remove_trade_order object="this.ship" trade="$trade" />
               <debug_text filter="error" text="'%1 %2 %3 Not enough Money - aborting'.[player.age,this.name,this.container.name]"/>
-              <return/>
+              <resume label="abort trade"/>
             </do_if>
           </do_if>
         </do_if>
@@ -295,6 +322,7 @@
           <set_value name="$tradeoffer" exact="null"/>
           <find_buy_offer result="$tradeoffers" buyer="$trade.buyer" wares="$trade.ware" tradepartner="this.ship" multiple="true" >
             <offeramount min="$amount" entity="this" />
+            <price min="$trade.unitprice"/>
           </find_buy_offer>
           <do_if value="$tradeoffers.count == 1">
             <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
@@ -307,32 +335,55 @@
               </do_if>
             </do_all>
           </do_elseif>
-            <!-- Ex-player-interaction-stuff in case something is wrong - not supposed to happen here, for now just remove Tradeorder and continue with next Order -->
-          <do_if value="not $tradeoffer.available and not $trade.owner == this.ship.commander">
+          <!-- check if we have valid results and make them "valid" if needed -->
+          <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
             <!-- no fitting Trade found -->
-            <remove_trade_order object="this.ship" trade="$trade" />
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - aborting (2nd)'.[player.age,this.name,this.container.name]"/>
-            <return/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer unavailable - setting our sheduled Trade as $tradeoffer to force using our reserved price (sell case)'.[player.age,this.name,this.container.name]"/>
+            <set_value name="$tradeoffer" exact="$trade"/>
+            <!--resume label="abort trade"/-->
           </do_if>
-          <do_elseif value="not $trade.owner == this.ship.commander and $tradeoffer.offeramount.{this} lt $amount">
+          <do_elseif value="not ($trade.owner == this.ship.commander) and $tradeoffer.offeramount.{this} lt $amount">
             <!-- buyer no longer buys the amount we want to sell -->
-            <remove_trade_order object="this.ship" trade="$trade" />
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Offer amount too low - aborting (2nd)'.[player.age,this.name,this.container.name]"/>
-            <return/>
+            <resume label="abort trade"/>
           </do_elseif>
         </do_if>
       </do_else>
-
+      
       <!-- tradeoffer found, now transfer cargo -->
       <set_value name="$timeout" exact="player.age + 2h" />
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Commencing Ware Transfer \nWare: %4 Amount here: %5 Amount Partner: %6'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count]"/>
       
-      <do_if value="$tradeoffer.available">
+      <!-- Script shouldnt be Interrupted/aborted at this point anymore -->
+      <set_value name="$params.$interruptable" exact="false" chance="$params? * 100"/>
+      
+      <!-- since the Order is almost finished try to get some new Orders in advance if necesary - only if called with params
+      3 Possible Scenarios where this happens:
+      A) Orderlist is completely empty
+      B) One Order remaining in Orderlist - the current Order
+      C) Two Orders remaining in Orderlist: current one on top, and refuel as second (because refuel may skip itself entirely)-->
+      <do_if value="$params? and (this.$orderlist.count == 0 or ( this.$orderlist.count == 1 and $params == this.$orderlist.{1} ) or ( this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ) )">
+        <do_if value="this.ship.commanderentity.type == entitytype.manager">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Manager Signal)'.[player.age,this.name,this.container.name]"/>
+          <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
+        </do_if>
+        <do_else>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Script Call)'.[player.age,this.name,this.container.name]"/>
+          <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="20">
+            <param name="params" value="this.$ut_cac.$defaultorders"/>
+          </run_script>
+        </do_else>
+      </do_if>
+      <do_else>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2  NOT Requesting new Orders: %3 and ( %4 or ( %5 and %6 ) or ( %7 and %8 and %9 ) )'.[this.name,this.container.name,$params? , this.$orderlist.count == 0 , this.$orderlist.count == 1 , $params == this.$orderlist.{1} , this.$orderlist.count == 2 , $params == this.$orderlist.{1} , this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ]"/>
+      </do_else>
+      
+      <do_if value="$tradeoffer.available or $tradeoffer == $trade">
         <do_if value="$tradeoffer.seller.isoperational">
           <!-- BUY -->
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
-          <execute_trade tradeoffer="$tradeoffer" tradepartner="this.ship" amount="$amount" result="$traderesult">
+          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
+          <execute_trade tradeoffer="$tradeoffer" tradepartner="this.ship" amount="$amount" unbundle="$trade.unbundle" result="$traderesult">
             <interrupt_after_time time="121min" />
           </execute_trade>
         </do_if>
@@ -345,47 +396,49 @@
               <resume label="illegalcargo" chance="10" />
             </do_if>
           </do_if-->
-          <execute_trade tradeoffer="$tradeoffer" tradepartner="this.ship" amount="$amount" result="$traderesult">
+          <execute_trade tradeoffer="$tradeoffer" tradepartner="this.ship" amount="$amount" unbundle="$trade.unbundle" result="$traderesult">
             <interrupt_after_time time="121min" />
           </execute_trade>
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
+          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
         </do_elseif>
         <do_else>
           <!-- Trade Partner destroyed - continue with next Order -->
-          <remove_trade_order object="this.ship" trade="$trade" />
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Tradepartner destroyed - aborting'.[player.age,this.name,this.container.name]"/>
-          <return/>
+          <resume label="abort trade"/>
         </do_else>
       </do_if>
       <!-- just transfer the Wares if we didnt find an Offer and its for the Commander -->
       <do_elseif value="$trade.owner == this.ship.commander">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No offer found - Exchanging Wares'.[player.age,this.name,this.container.name]"/>
         <do_if value="$trade.seller.isoperational">
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
-          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$trade.amount" price="$trade.unitprice" result="$traderesult">
+          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
+          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
         </do_if>
         <do_if value="$trade.buyer.isoperational">
-          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$trade.amount" price="$trade.unitprice" result="$traderesult">
+          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
-          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" />
+          <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
         </do_if>
         <do_else>
           <!-- Trade Partner destroyed - continue with next Order -->
-          <remove_trade_order object="this.ship" trade="$trade" />
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Tradepartner destroyed - aborting (Custom Trade Case because no offer found)'.[player.age,this.name,this.container.name]"/>
-          <return/>
+          <resume label="abort trade"/>
         </do_else>
       </do_elseif>
+      <do_else>
+        <debug_text filter="error" text="'%1 %2 %3 Neither Trade Offer available nor Ware Transfer - aborting\nWare: %4 Amount here: %5 Amount Partner: %6\nware:%7 amount:%8'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count,$trade.ware,$amount]"/>
+        <resume label="abort trade"/>
+      </do_else>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade finished,\nWare: %4 Amount here: %5 Amount Partner: %6\n$traderesult: %7 ware:%8 amount:%9'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count,$traderesult,$trade.ware,$trade.amount]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade finished,\nWare: %4 Amount here: %5 Amount Partner: %6\n$traderesult: %7 ware:%8 amount:%9'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count,$traderesult,$trade.ware,$amount]"/>
       
       <!-- If after execute there is no trade order(e.g. cleared by player) finish - should not happen since player is not supposed to remove trade Orders from CAC Ships! -->
       <do_if value="not $trade.exists">
         <detach_from_masstraffic object="this.ship" wait="true"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade removed (sould not happen with UT CAC since Player is not supposed to clear shoppinglist)'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade removed (should not happen with UT CAC since Player is not supposed to clear shoppinglist)'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
 
@@ -396,11 +449,6 @@
         </do_if>
         <!-- Relation bonus for the player: Base bonus for the trade itself (max +1 UI value per 4 trades) and price-based bonus (max +1 UI value per 4M Credits) -->
         <add_faction_relation faction="$tradeoffer.buyer.owner" otherfaction="$tradeoffer.seller.owner" value="0.00016LF + (0.00064LF / (4000000Cr)LF * ($price)LF)" />
-        <!-- if we gained Money or there are leftovers send them back to the Commanding Entity -->
-        <!-- ToDo: check which command is really responsible for the unwanted Transfers to the Player - this one is just a workaround to avoid these transfers! -->
-        <do_if value="this.container.commanderentity.exists">
-          <transfer_money amount="this.money" from="this" to="this.container.commanderentity"/>
-        </do_if>
       </do_if>
 
       <do_if value="not $tradepartner.isplayerowned and not $tradepartner.hastradesubscription">
@@ -416,9 +464,8 @@
       <do_if value="player.age ge $timeout">
         <detach_from_masstraffic object="this.ship" wait="true" />
         <!-- remove shoppinglist item, and check list again -->
-        <remove_trade_order object="this.ship" trade="$trade" />
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Timeout - aborting'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <resume label="abort trade"/>
       </do_if>
       <detach_from_masstraffic object="this.ship" wait="true" />
       
@@ -428,14 +475,14 @@
           <start_conversation actor="this" conversation="Speak" type="unqueued" convparam="1163" comment="We are unable to perform the requested trade operation, please advise." />
         </do_if>
         <!-- remove shoppinglist item, and check list again -->
-        <remove_trade_order object="this.ship" trade="$trade" />
         <debug_text filter="error" text="'%1 %2 %3 Trade failed - aborting'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <resume label="abort trade"/>
       </do_if>
 
       <!-- wait a few seconds until current Trade is removed before continuing -->
       <do_if value="$trade.exists">
-        <wait max="15s">
+        <wait>
+          <interrupt_after_time time="15s"/>
           <interrupt>
             <conditions>
               <event_object_shoppinglist_trade_removed object="this.ship" />
@@ -443,8 +490,16 @@
           </interrupt>
         </wait>
       </do_if>
-      <do_if value="$trade.exists">
-        <remove_trade_order object="this.ship" trade="$trade" />
+      <do_if value="$trade.exists and not $non_shoppinglist_trade?">
+        <!--do_if value="this.container.commanderentity.exists" comment="teporarily transfer current Money to commander to avoid unneeeded Money Transfers to the Player">
+          <set_value name="$money" exact="this.money"/>
+          <transfer_money amount="$money" from="this" to="this.container.commanderentity"/>
+          <remove_trade_order object="this.ship" trade="$trade"/>
+          <transfer_money amount="$money" from="this.container.commanderentity" to="this"/>
+        </do_if>
+        <do_else-->
+          <remove_trade_order object="this.ship" trade="$trade"/>
+        <!--/do_else-->
       </do_if>
       
       <!-- execute next Trade without undocking if the Trade partner is the same -->
@@ -464,6 +519,15 @@
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade run succesful'.[player.age,this.name,this.container.name]"/>
       
+      <return/>
+      
+      <label name="abort trade"/>
+      <do_if value="this.container.commanderentity.exists" comment="teporarily transfer current Money to commander to avoid unneeeded Money Transfers to the Player">
+        <transfer_money amount="$trade.price" from="this" to="this.container.commanderentity"/>
+      </do_if>
+      <do_if value="$trade.exists and not $non_shoppinglist_trade?">
+        <remove_trade_order object="this.ship" trade="$trade"/>
+      </do_if>
       <return/>
       
     </actions>

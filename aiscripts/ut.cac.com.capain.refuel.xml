@@ -1,25 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.refuel" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
-  <interrupts>
-    <handler comment="Print Script Vars">
-      <conditions>
-        <event_object_signalled object="this" param="'print script vars to logfile'"/>
-      </conditions>
-      <actions>
-        <debug_text filter="general" text="'\n
-        Captain Name ' + this.knownname + ' at Time ' + player.age + '\n
-        ut.cac.com.captain.refuel Script Values:\n
-        $minamount = ' + @$minamount + '\n
-        $refuelamount = ' + @$refuelamount + '\n
-        $undock = ' + @$undock + '\n
-        $repeat = ' + @$repeat + '\n
-        $buyamount = ' + @$buyamount + '\n
-        $selloffer = ' + @$selloffer + '\n
-        NOTE: ONLY VALUES I CREATED MYSELF INCLUDED - nothing from C+P Code Snippets
-        '"/>
-      </actions>
-    </handler>
-  </interrupts>
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="minamount" default="1000" comment="below this Amount the Ship will go refuel, otherwise the Script just exits. Possible Input: Float between 0.0 and 1.0 -> Percentage of Fuel Capacity; bigger Number, either int or float -> total Amount; 0 as int -> always refuel"/>
@@ -77,7 +57,7 @@
       </do_if>
       
       <set_value name="$buyamount" exact="$refuelamount - this.ship.cargo.{ware.fuelcells}.count"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'Buying/Grabbing %1 Units of Fuel'.[player.age,this.name,this.container.name,$buyamount]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Buying/Grabbing %4 Units of Fuel'.[player.age,this.name,this.container.name,$buyamount]"/>
       
       <!-- find nearest Source for Fuel Cells (first check current Station and Home Station (Offers and Cargo), then Sector and as last the Cluster) ToDo: Respect Range -->
       <set_value name="$selloffer" exact="null"/>
@@ -105,10 +85,18 @@
       </do_elseif>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Could not get Fuel from the current Station - looking around for it...'"/>
       <do_if value="not $selloffer.available ">
-        <find_sell_offer result="$selloffer" seller="this.ship.commander" wares="ware.fuelcells">
-          <offeramount min="$buyamount"/>
-        </find_sell_offer>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Commander...'"/>
+        <do_if value="this.ship.commander.exists">
+          <find_sell_offer result="$selloffer" seller="this.ship.commander" wares="ware.fuelcells">
+            <offeramount min="$buyamount"/>
+          </find_sell_offer>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'Commander...'"/>
+        </do_if>
+        <do_elseif value="this.$ut_cac.$comannderentity?">
+          <find_sell_offer result="$selloffer" seller="this.$ut_cac.$comannderentity.container" wares="ware.fuelcells">
+            <offeramount min="$buyamount"/>
+          </find_sell_offer>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'Commander (entity)...'"/>
+        </do_elseif>
       </do_if>
       <do_if value="not $selloffer.available ">
         <find_sell_offer result="$selloffer" tradepartner="this.ship" wares="ware.fuelcells" space="this.sector" knowntoplayer="this.owner == faction.player">
@@ -129,31 +117,39 @@
       </do_if>
       
       <!-- get the Money from the Manager and go buy the Fuel - if he doesnt have the Money just continue -->
-      <do_if value="this.ship.commanderentity.money lt $selloffer.unitprice * $buyamount">
+      <do_if value="( if this.ship.commanderentity.exists then this.ship.commanderentity.money else ( if this.$ut_cac.$commanderentity? then this.$ut_cac.$commanderentity.money else 0Cr ) ) lt $selloffer.unitprice * $buyamount">
         <debug_text filter="general" chance="@this.$debug * 100" text="'Found! but too bad! we cannt get the money for it!'"/>
         <resume label="finish"/>
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Found! Going to get it!'"/>
-      <transfer_money from="this.ship.commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
+      <transfer_money from="if this.ship.commanderentity.exists then  this.ship.commanderentity else  this.$ut_cac.$commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'Transferred %1 ( %2 * %3 )Credits from Commander (%5) to pay, current account: %4'.[$buyamount * $selloffer.unitprice , $buyamount , $selloffer.unitprice , this.money,this.ship.commanderentity.name]"/>
       <add_buy_order object="this.ship" trade="$selloffer" amount="$buyamount" price="$selloffer.unitprice"/>
-      <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Refuel (Buy from Offer)',$undock=2,$interruptable=false]"/>
+      <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Refuel (Buy from Offer)',$undock=2,$interruptable=true]"/>
       
       <label name="finish"/>
       <!-- This Script is finished - Check if it makes sense to Undock and Continue with next Order -->
       <!-- execute next Trade without undocking if the Trade partner is the same -->
-      <do_if value="$undock==2">
+      <do_if value="$undock==2 and (this.ship.isclass.ship_xl or this.ship.isclass.ship_l)">
         <get_trade_from_shoppinglist object="this.ship" result="$trade" />
-        <do_if value="$trade.seller == $tradepartner or $trade.buyer == $tradepartner">
+        
+        <set_value name="$tradepartner" exact="null"/>
+        <do_if value="this.ship.parkedat.exists">
+          <set_value name="$tradepartner" exact="this.ship.parkedat"/>
+        </do_if>
+        <do_elseif value="@this.ship.dockedat.exists">
+          <set_value name="$tradepartner" exact="this.ship.dockedat"/>
+        </do_elseif>
+        <do_if value="$trade.exists and $tradepartner.exists and ($trade.seller == $tradepartner or $trade.buyer == $tradepartner)">
           <set_value name="$undock" exact="false"/>
         </do_if>
         <do_else>
           <set_value name="$undock" exact="true"/>
         </do_else>
       </do_if>
-      <do_if value="(this.ship.isclass.ship_xl or this.ship.isclass.ship_l) and $undock">
+      <do_if value="$undock">
         <run_script name="'move.undock'" />
       </do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'We have our Fuel, Exiting (S/M Case)'"/>
       <return/>
       
     </actions>

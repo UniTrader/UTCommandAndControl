@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.orders.architect.default" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <params>
+    <param name="params" comment="Persistent Params Table to keep track of what should be done and when"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      
+      <!-- Set up Persistent Vars needed by this Script -->
+      
+      
+      <!-- Look up what Orders makes sense and append to Orderlist -->
+      
+      
+      <!-- wait two Frames to give the Signals time to be executed (if any) in preperation for the Check if there are any Orders to be executed-->
+      <wait max="50ms"/>
+      <wait max="50ms"/>
+      
+      <do_if value="this.$orderlist.count == 0">
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=1h,$interruptable=true]"/>
+      </do_if>
+      
+      <return/>
+      
+    </actions>
+  </attention>
+</aiscript>

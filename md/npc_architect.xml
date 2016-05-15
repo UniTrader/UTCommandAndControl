@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<diff>
+  <!-- Old Convert Method - not needed anymore
+  <add sel="//cue[@name='DefaultComm']/actions/do_else/do_if[@value='$actor.isplayerowned and $actor.container.buildmodule?']/do_if[@value='not @$station']/do_else">
+      <add_player_choice text="{5554103,9}" section="cArch_UT_CAC" position="bottom_left"/>
+  </add>
+  <add sel="//cue[@name='SectionHandler']/actions/do_else" pos="before">
+    <do_elseif value="event.param == 'cArch_UT_CAC'">
+      <debug_text text="'Start CAC dialogue'" filter="general"/>
+      <signal_cue_instantly cue="md.UT_CAC_Architect.Main" param="$actor"/>
+      <cancel_cue cue="Base"/>
+    </do_elseif>
+  </add-->
+  <!-- Debug stuff - not needed anymore
+  <add sel="//cue[@name='SectionHandler']/actions" pos="prepend">
+    <debug_text filter="general" text="'Next Section:\nname: %1\nobject: %2\nparam: %3\nparam2: %4\nparam3: %5'.[@event.name,@event.object,@event.param,@event.param2,@event.param3]"/>
+  </add-->
+  
+  <add sel="//cue[@name='Base']/cues">
+        <cue name="NPC_Cancel_Dialogue_Tree">
+          <conditions>
+            <event_object_signalled object="$actor" param="'cancel Vanilla dialogue tree'"/>
+          </conditions>
+          <actions>
+            <cancel_cue cue="Base"/>
+          </actions>
+        </cue>
+  </add>
+</diff>

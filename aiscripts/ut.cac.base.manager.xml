@@ -1,117 +1,35 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.base.manager" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="11">
-  <params/>
-  <interrupts>
-    <handler ref="OrderlistControl"/>
-    <handler comment="Zonetrade Cleanup">
-      <conditions>
-        <check_any>
-          <event_trade_order_cancelled buyer="this.container"/>
-          <event_trade_order_completed buyer="this.container"/>
-        </check_any>
-      </conditions>
-      <actions>
-        <do_if value="event.param == this.$ut_cac_settings.$currenttrade">
-          <debug_text filter="error" text="'%1 %2 %3 Manager Zonetrade %4 finally finished!! IT WORKS! PLEASE TELL ME WHEN YOU SEE THIS!'.[player.age,this.name,this.container.name,$finalselloffer]"/>
-          <remove_ware_reservation object="this.container" entity="this" ware="event.param.ware"/>
-          <set_value name="entity.$ut_cac_settings.$currenttrade" exact="null"/>
-        </do_if>
-      </actions>
-    </handler>
-  </interrupts>
-  <init>
-  </init>
+<!-- This file is only for Savegame Compatibility - no need to pay it any attention -->
   <attention min="unknown">
     <actions>
+      <!-- catch all previous blocking Actions and convert to the new Script -->
       <label name="init"/>
-      
-      <!-- set up orderlist -->
-      <do_if value="not this.$orderlist?">
-        <create_list name="this.$orderlist"/>
-      </do_if>
-      
-      <!-- Set up mining Command (must re-use the same table since i am also using it to store persistent Values) - only $mininglist is updated with every iteration so the miningscript knows what is needed -->
-      <set_value name="$miningorder" exact="table[$script='ut.cac.com.manager.gatherressources',$displayname='Gather Ressources (default)',$interruptable=false]"/>
-      
-      <!--immediately allow Zone Trading and Mining -->
-      <set_value name="$next_zonetrade" exact="player.age"/>
-      <set_value name="$next_miningstep" exact="player.age"/>
-      
-      <!-- register Subordinates - see event Handlers for actual adding procedure -->
-      <do_all exact="this.container.subordinates.{this.type}.count" counter="$i">
-        <signal_objects object="this" param="this.container.subordinates.{this.type}.{$i}" param2="'register subordinate'" />
-        <wait exact="1ms"/>
-      </do_all>
-      
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 init finished\nSignalled %3 Subordinates'.[player.age,this.name,this.container.subordinates.{this.type}.count]"/>
-      
-      
       <label name="start"/>
-      <wait exact="100ms" sinceversion="11"/>
-      
-      <!-- fulfill all Orders in List in their order -->
-      <do_while value="this.$orderlist.count gt 0">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
-        <set_value name="$order" exact="this.$orderlist.{1}" />
-        <do_if value="typeof $order == datatype.table">
-          <set_value name="$order.$interruptable" exact="false"/>
-          <run_script name="$order.$script">
-            <param name="params" value="$order" />
-          </run_script>
-        </do_if>
-        <!-- If current first Order is still the same as before executing it - remove it from Orderlist so we can continue with the next one - after that wait a split-second to prevent Freezes should something go wrong -->
-        <!-- (if its a diffrent Order the first Order was moved or replaced, which should cause an abort of it and a the new first Order should be executed immediately) -->
-        <do_if value="this.$orderlist.{1} == $order">
-          <remove_value name="this.$orderlist.{1}" />
-        </do_if>
-        <wait exact="100ms"/>
-      </do_while>
-      
-      <!-- no outstanding direct orders - look up what makes sense and append it to Orderlist -->
-      
+      <wait sinceversion="11" chance="0"/>
+      <run_script name="$order.$script" chance="0"/>
+      <wait exact="100ms" chance="0"/>
       <label name="find job"/>
       
-      <!-- check if we have gasses as ressource and can mine them directly -->
-      <do_if value="player.age gt $next_miningstep">
-        <create_list name="$mineable_ressources"/>
-        <do_all exact="this.container.resources.list.count" counter="$i">
-          <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
-          <do_if value="$ware.tags.indexof.{tag.minable} and this.container.cargo.{$ware}.count lt this.container.cargo.{$ware}.target and this.zone.yield.indexof.{$ware}">
-            <get_resource_gatherrate name="$gatherrate" refobject="this.container" ware="$ware" zone="this.zone" />
-            <do_if value="$gatherrate">
-              <append_to_list name="$mineable_ressources" exact="$ware"/>
-            </do_if>
-          </do_if>
-        </do_all>
-        <do_if value="$mineable_ressources.count or ( $miningorder.gatherware? and $miningorder.$gatherstart? and $miningorder.$gatherrate? )">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
-          <set_value name="$miningorder.$wareslist" exact="$mineable_ressources"/>
-          <set_value name="$miningorder.$next_call" exact="1min"/>
-          <signal_objects object="this" param="'new order'" param2="$miningorder"/>
-          <set_value name="$next_miningstep" exact="player.age + 1min"/>
-        </do_if>
-        <do_else>
-          <set_value name="$next_miningstep" exact="player.age + 5min"/>
-        </do_else>
+      <!-- save Values which we still need and set up Values which are needed after Conversion (do it for both, old and new Variable Name. just in case)-->
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
+        <set_value name="this.$ut_cac.$defaultorders.$miningorder" exact="$miningorder"/>
+        <set_value name="this.$ut_cac.$defaultorders.$next_zonetrade" exact="$next_zonetrade"/>
+        <set_value name="this.$ut_cac.$defaultorders.$next_miningstep" exact="$next_miningstep"/>
+        <set_value name="this.$ut_cac.$defaultorders.$next_offerupdate" exact="$next_offerupdate"/>
+      </do_if>
+      <do_if value="this.$ut_cac_settings?">
+        <set_value name="this.$ut_cac_settings.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
+        <set_value name="this.$ut_cac_settings.$defaultorders.$miningorder" exact="$miningorder"/>
+        <set_value name="this.$ut_cac_settings.$defaultorders.$next_zonetrade" exact="$next_zonetrade"/>
+        <set_value name="this.$ut_cac_settings.$defaultorders.$next_miningstep" exact="$next_miningstep"/>
+        <set_value name="this.$ut_cac_settings.$defaultorders.$next_offerupdate" exact="$next_offerupdate"/>
       </do_if>
       
-      <!-- if there is not much else to do - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
-      <do_if value="this.$orderlist.count lt 1 and player.age gt $next_zonetrade and not this.$ut_cac_settings.$currenttrade">
-        <set_value name="$next_zonetrade" exact="player.age + 7min"/>
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname='Perform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
-      </do_if>
-      
-      <do_if value="this.$orderlist.count == 0">
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=5min,$interruptable=true]"/>
-      </do_if>
-      
-      <resume label="start"/>
+      <!-- start the new Script -->
+      <start_script object="this" name="'ut.cac.orderlist.loop'"/>
       
     </actions>
   </attention>
-  <on_abort>
-    <do_if value="this.container.tradewares.{ware.fuelcells}.exists">
-      <remove_tradeware object="this.container" ware="ware.fuelcells"/>
-    </do_if>
-  </on_abort>
 </aiscript>
