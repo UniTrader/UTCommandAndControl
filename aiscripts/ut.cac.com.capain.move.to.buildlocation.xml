@@ -16,6 +16,7 @@ roughly based on move.buildership but with many changes
   </params>
   <interrupts>
     <handler ref="TargetInvalidHandler"/>
+    <handler ref="ut_cac_lib_interrupt_attacked"/>
     <!-- Add the previously missing Station Macro so we can move exactly to the intended Position -->
     <handler>
       <conditions>
@@ -29,7 +30,6 @@ roughly based on move.buildership but with many changes
   </interrupts>
   <attention min="unknown">
     <actions>
-      <label name="start"/>
       <do_if value="$params">
         <do_if value="$params.$buildlocation?">
           <set_value name="$buildlocation" exact="$params.$buildlocation"/>
@@ -45,6 +45,7 @@ roughly based on move.buildership but with many changes
         </do_if>
       </do_if>
       <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Captain move to build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+      <label name="start"/>
       <!-- first aquire the Destination Zone and (rough) Position -->
       <do_if value="$station.exists">
         <do_if value="not $station.buildingmodule">

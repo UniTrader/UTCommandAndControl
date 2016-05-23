@@ -9,11 +9,15 @@
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (only mode for this Scripte since its supposed to be Command Queue only)"/>
   </params>
+  <interrupts>
+    <handler ref="ut_cac_lib_interrupt_attacked"/>
+  </interrupts>
   <attention min="unknown">
     <actions>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 doing microorder: %4'.[player.age,this.name,this.container.name,$params]"/>
       <set_command command="command.wait" />
       <set_command_action commandaction="commandaction.standingby"/>
+      <set_value name="$params.$attackreaction" exact="1" comment="Continue where we stopped if the need to flee arose"/>
       <do_if value="not ( typeof $params == datatype.table )">
         <debug_text filter="error" text="'%1 %2 %3 Microorder passed was not a table'.[player.age,$actor.name,$actor.container.name]"/>
         <return>

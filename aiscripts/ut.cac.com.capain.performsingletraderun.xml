@@ -9,6 +9,7 @@
     <param name="command" default="command.trade" comment="command to display when executing this Script ( command.freetrade or command.trade would make sense, depending on context)"/>
   </params>
   <interrupts>
+    <handler ref="ut_cac_lib_interrupt_attacked"/>
   </interrupts>
   <attention min="unknown">
     <actions>
@@ -60,6 +61,8 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Refreshed Reservations:\n%4'.[player.age,this.name,this.container.name,$trades]"/>
       <remove_value name="$refreshreservations"/>
       <remove_value name="$trades"/>
+      
+      <label name="start"/>
       
       <!-- Now get the Trade we want to do - either the first in the Shoppinglist or the one specifically given by the Caller - in the latter case reserve it, too -->
       <do_if value="not $trade">
@@ -194,6 +197,7 @@
             <set_value name="$offer" exact="null" />
           </do_else>
         </do_if>
+        <set_value name="$params.$attackreaction" exact="0" comment="deactivate flee reaction while parked/parking at Station"/>
         <run_script name="'move.park'" result="$parkresult">
           <param name="destination" value="$tradepartner" />
           <param name="tradeoffer" value="$offer" />
