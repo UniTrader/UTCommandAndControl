@@ -12,38 +12,37 @@
 
   -->
   <params>
-    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="params" default="table[]" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="destination" default="null" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
     <param name="position" default="null" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
     <param name="rotation" default="null" comment="rotation the ship should have - overridden by lookat"/>
     <param name="lookat" default="null" comment="position the ship should point to - overrides rotation"/>
     <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
   </params>
+  <init>
+    <!-- first turn params param into the real params -->
+    <do_if value="$params.$destination?">
+      <set_value name="$destination" exact="$params.$destination"/>
+    </do_if>
+    <do_if value="$params.$position?">
+      <set_value name="$position" exact="$params.$position"/>
+    </do_if>
+    <do_if value="$params.$rotation?">
+      <set_value name="$rotation" exact="$params.$rotation"/>
+    </do_if>
+    <do_if value="$params.$lookat?">
+      <set_value name="$lookat" exact="$params.$lookat"/>
+    </do_if>
+    <do_if value="$params.$endintargetspace?">
+      <set_value name="$endintargetspace" exact="$params.$endintargetspace"/>
+    </do_if>
+  </init>
   <interrupts>
     <handler ref="TargetInvalidHandler" />
     <handler ref="ut_cac_lib_interrupt_attacked"/>
   </interrupts>
   <attention min="unknown">
     <actions>
-      <!-- first turn params param into the real params -->
-      <do_if value="$params">
-        <do_if value="$params.$destination?">
-          <set_value name="$destination" exact="$params.$destination"/>
-        </do_if>
-        <do_if value="$params.$position?">
-          <set_value name="$position" exact="$params.$position"/>
-        </do_if>
-        <do_if value="$params.$rotation?">
-          <set_value name="$rotation" exact="$params.$rotation"/>
-        </do_if>
-        <do_if value="$params.$lookat?">
-          <set_value name="$lookat" exact="$params.$lookat"/>
-        </do_if>
-        <do_if value="$params.$endintargetspace?">
-          <set_value name="$endintargetspace" exact="$params.$endintargetspace"/>
-        </do_if>
-      </do_if>
-      
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7  , $endintargetspace: %8'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$endintargetspace]"/>
       
       <set_value name="$bigship" exact="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" />

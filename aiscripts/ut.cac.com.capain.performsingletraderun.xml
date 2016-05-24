@@ -8,29 +8,29 @@
     <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
     <param name="command" default="command.trade" comment="command to display when executing this Script ( command.freetrade or command.trade would make sense, depending on context)"/>
   </params>
+  <init>
+    <!-- first turn $params param into the real params -->
+    <do_if value="$params.$trade?">
+      <set_value name="$trade" exact="$params.$trade"/>
+    </do_if>
+    <do_if value="$params.$amount?">
+      <set_value name="$amount" exact="$params.$amount"/>
+    </do_if>
+    <do_if value="$params.$refreshreservations?">
+      <set_value name="$refreshreservations" exact="$params.$refreshreservations"/>
+    </do_if>
+    <do_if value="$params.$undock?">
+      <set_value name="$undock" exact="$params.$undock"/>
+    </do_if>
+    <do_if value="$params.$command?">
+      <set_value name="$command" exact="$params.$command"/>
+    </do_if>
+  </init>
   <interrupts>
     <handler ref="ut_cac_lib_interrupt_attacked"/>
   </interrupts>
   <attention min="unknown">
     <actions>
-      <!-- first turn $params param into the real params -->
-      <do_if value="$params">
-        <do_if value="$params.$trade?">
-          <set_value name="$trade" exact="$params.$trade"/>
-        </do_if>
-        <do_if value="$params.$amount?">
-          <set_value name="$amount" exact="$params.$amount"/>
-        </do_if>
-        <do_if value="$params.$refreshreservations?">
-          <set_value name="$refreshreservations" exact="$params.$refreshreservations"/>
-        </do_if>
-        <do_if value="$params.$undock?">
-          <set_value name="$undock" exact="$params.$undock"/>
-        </do_if>
-        <do_if value="$params.$command?">
-          <set_value name="$command" exact="$params.$command"/>
-        </do_if>
-      </do_if>
       
       <!-- first refresh the Reservations -->
       <get_trade_from_shoppinglist result="$trades" object="this.ship" multiple="true"/>
