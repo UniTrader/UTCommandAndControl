@@ -24,22 +24,22 @@
         <conditions>
           <check_all>
             <event_object_attacked object="this.container"/>
-            <check_value value="player.age gt $params.$nextattackinterrupt" comment="temporary disabled to prevent too many triggers"/>
+            <check_value value="this.$ut_cac.$nextattackinterrupt? and ( player.age gt this.$ut_cac.$nextattackinterrupt )" comment="temporary disabled to prevent too many triggers"/>
             <check_value value="not ($params.$attackreaction? and $params.$attackreaction == 0)" comment="do nothing if deactivated"/>
           </check_all>
         </conditions>
         <actions>
-          <set_value name="$params.$nextattackinterrupt" exact="player.age + 30s"/>
+          <set_value name="this.$ut_cac.$nextattackinterrupt" exact="player.age + 30s"/>
           <do_if value="not $interruptattacked?">
             <set_value name="$interruptattacked" comment="to keep the Vars of the interrupt Handler completely seperate from the Scripts where this is reffered" exact="table[
             $totaldps = 0
             ]"/>
           </do_if>
           <!-- set certain $params. values to default Values if not set -->
-          <do_if value="not $params.$holdouttime">
+          <do_if value="not $params.$holdouttime?">
             <set_value name="$params.$holdouttime" exact="60s"/>
           </do_if>
-          <do_if value="not $params.$attackreaction">
+          <do_if value="not $params.$attackreaction?">
             <set_value name="$params.$attackreaction" exact="2"/>
           </do_if>
           <!-- compare our Shield Strength to the dps of all nearby enemies -->
