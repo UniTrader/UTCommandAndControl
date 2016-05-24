@@ -24,7 +24,7 @@
         <conditions>
           <check_all>
             <event_object_attacked object="this.container"/>
-            <check_value value="player.age gt $params.nextattackinterrupt" comment="temporary disabled to prevent too many triggers"/>
+            <check_value value="player.age gt $params.$nextattackinterrupt" comment="temporary disabled to prevent too many triggers"/>
             <check_value value="not ($params.$attackreaction? and $params.$attackreaction == 0)" comment="do nothing if deactivated"/>
           </check_all>
         </conditions>
@@ -44,7 +44,7 @@
           </do_if>
           <!-- compare our Shield Strength to the dps of all nearby enemies -->
           <find_object groupname="$interruptattacked.$enemies" space="this.zone" multiple="true">
-            <match_distance max="5km"/>
+            <match_distance object="this.container" max="5km"/>
             <match_relation object="this.container" relation="enemy"/>
           </find_object>
           <do_all exact="$interruptattacked.$enemies.count" comment="$interruptattacked.$i">
@@ -85,7 +85,7 @@
   <actions>
     <!-- make sure there is no bigship in front of us and just boost straight forward ( using Steering FCM to avoid unnecesary delays because of path calculation) -->
     <find_object name="$enemies_fleedirection" space="this.zone" multiple="true">
-      <match_distance max="5km"/>
+      <match_distance object="this.container" max="5km"/>
       <match_relation object="this.container" relation="enemy"/>
       <match_size min="100m"/>
       <match_is_in_view_of object="this.container" horizontal="25deg" vertical="25deg"/>
@@ -110,7 +110,7 @@
           <position value="$fleedestination"/>
         </create_orientation>
         <find_object name="$enemies_fleedirection" space="this.zone" multiple="true">
-          <match_distance max="5km"/>
+          <match_distance object="this.container" max="5km"/>
           <match_relation object="this.container" relation="enemy"/>
          <match_size min="100m"/>
           <match_is_in_view_of object="this.container" yaw="$direction.yaw" pitch="$direction.pitch" roll="$direction.roll" horizontal="25deg" vertical="25deg"/>
