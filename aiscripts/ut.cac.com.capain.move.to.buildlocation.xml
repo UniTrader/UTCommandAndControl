@@ -14,6 +14,22 @@ roughly based on move.buildership but with many changes
     <param name="macro" default="null" comment="macro of object to be built"/>
     <param name="station" default="null" comment="station to move to (has priority over buildlocation + macro)"/>
   </params>
+  <init>
+    <do_if value="$params">
+      <do_if value="$params.$buildlocation?">
+        <set_value name="$buildlocation" exact="$params.$buildlocation"/>
+      </do_if>
+      <do_if value="$params.$zone?">
+        <set_value name="$zone" exact="$params.$zone"/>
+      </do_if>
+      <do_if value="$params.$macro?">
+        <set_value name="$macro" exact="$params.$macro"/>
+      </do_if>
+      <do_if value="$params.$station?">
+        <set_value name="$station" exact="$params.$station"/>
+      </do_if>
+    </do_if>
+  </init>
   <interrupts>
     <handler ref="TargetInvalidHandler"/>
     <handler ref="ut_cac_lib_interrupt_attacked"/>
@@ -24,13 +40,6 @@ roughly based on move.buildership but with many changes
       </conditions>
       <actions>
         <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Move Builder Ship - received Updated Orders - restarting.'.[player.age,this.name,this.container.name]"/>
-        <abort_called_scripts resume="start"/>
-      </actions>
-    </handler>
-  </interrupts>
-  <attention min="unknown">
-    <actions>
-      <do_if value="$params">
         <do_if value="$params.$buildlocation?">
           <set_value name="$buildlocation" exact="$params.$buildlocation"/>
         </do_if>
@@ -43,9 +52,14 @@ roughly based on move.buildership but with many changes
         <do_if value="$params.$station?">
           <set_value name="$station" exact="$params.$station"/>
         </do_if>
-      </do_if>
-      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Captain move to build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+        <abort_called_scripts resume="start"/>
+      </actions>
+    </handler>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
       <label name="start"/>
+      <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 %3 Captain move to build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
       <!-- first aquire the Destination Zone and (rough) Position -->
       <do_if value="$station.exists">
         <do_if value="not $station.buildingmodule">
