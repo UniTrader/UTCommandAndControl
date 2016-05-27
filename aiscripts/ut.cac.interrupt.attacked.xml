@@ -29,6 +29,8 @@
           </check_all>
         </conditions>
         <actions>
+          <debug_text filter="general" text="'%1 %2 %3'.[player.age,$actor.name,$actor.container.name]"/>
+          <debug_text filter="general" text="'%1 %2 %3 Flee check Interrupt triggered, parameters:\n$holdouttime: %4 ; $attackreaction: %5'.[player.age,$actor.name,$actor.container.name,@$params.$holdouttime,@$params.$attackreaction]"/>
           <set_value name="this.$ut_cac.$nextattackinterrupt" exact="player.age + 30s"/>
           <do_if value="not $interruptattacked?">
             <set_value name="$interruptattacked" comment="to keep the Vars of the interrupt Handler completely seperate from the Scripts where this is reffered" exact="table[
@@ -51,7 +53,8 @@
             <set_value name="$interruptattacked.$totaldps" operation="add" exact="$interruptattacked.$enemies.{$interrupt_i}.dps"/>
           </do_all>
           <!-- maybe include Formation or something here? (currently this is for single Ship use only) -->
-          <set_value name="$totalshield" exact="this.container.shield"/>
+          <set_value name="$interruptattacked.$totalshield" exact="this.container.shield"/>
+          <debug_text filter="general" text="'$holdouttime: %1 ; $attackreaction: %2 ; $totaldps: %3 ; $totalshield: %4 ; $dps/$shield: %5'.[$params.$holdouttime,$params.$attackreaction,$interruptattacked.$totaldps,$interruptattacked.$totalshield,$interruptattacked.$totalshield / $interruptattacked.$totaldps]"/>
           <do_if value="$interruptattacked.$totalshield / $interruptattacked.$totaldps lt $params.$holdouttime">
             <do_if value="0 lt $params.$attackreaction le 5" comment="attack reaction between 0 and 5">
               <!-- Interrupt Line for Interrupt and continue where interrupted -->
@@ -83,6 +86,7 @@
     </library>
   </interrupts>
   <actions>
+    <debug_text filter="general" text="'%1 %2 %3 Interrupt Started'.[player.age,$actor.name,$actor.container.name]"/>
     <!-- make sure there is no bigship in front of us and just boost straight forward ( using Steering FCM to avoid unnecesary delays because of path calculation) -->
     <find_object name="$enemies_fleedirection" space="this.zone" multiple="true">
       <match_distance object="this.container" max="5km"/>
