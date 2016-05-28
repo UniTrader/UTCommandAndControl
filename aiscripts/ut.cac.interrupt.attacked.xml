@@ -24,13 +24,13 @@
         <conditions>
           <check_all>
             <event_object_attacked object="this.container"/>
+            <check_value value="this.$ut_cac?" comment="only for Schips running my Scripts specifically"/>
             <check_value value="(not this.$ut_cac.$nextattackinterrupt? ) or ( player.age gt this.$ut_cac.$nextattackinterrupt )" comment="temporary disabled to prevent too many triggers"/>
             <check_value value="not ($params.$attackreaction? and $params.$attackreaction == 0)" comment="do nothing if deactivated"/>
           </check_all>
         </conditions>
         <actions>
-          <debug_text filter="general" text="'%1 %2 %3'.[player.age,$actor.name,$actor.container.name]"/>
-          <debug_text filter="general" text="'%1 %2 %3 Flee check Interrupt triggered, parameters:\n$holdouttime: %4 ; $attackreaction: %5'.[player.age,$actor.name,$actor.container.name,@$params.$holdouttime,@$params.$attackreaction]"/>
+          <debug_text filter="general" text="'%1 %2 %3 Flee check Interrupt triggered, evaluated values:'.[player.age,$actor.name,$actor.container.name]"/>
           <set_value name="this.$ut_cac.$nextattackinterrupt" exact="player.age + 30s"/>
           <do_if value="not $interruptattacked?">
             <set_value name="$interruptattacked" comment="to keep the Vars of the interrupt Handler completely seperate from the Scripts where this is reffered" exact="table[
