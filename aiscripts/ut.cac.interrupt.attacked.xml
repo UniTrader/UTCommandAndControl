@@ -30,7 +30,7 @@
           </check_all>
         </conditions>
         <actions>
-          <debug_text filter="general" text="'%1 %2 %3 Flee check Interrupt triggered, evaluated values:'.[player.age,$actor.name,$actor.container.name]"/>
+          <debug_text filter="general" text="'%1 %2 %3 Flee check Interrupt triggered, evaluated values:'.[player.age,this.name,this.container.name]"/>
           <set_value name="this.$ut_cac.$nextattackinterrupt" exact="player.age + 30s"/>
           <do_if value="not $interruptattacked?">
             <set_value name="$interruptattacked" comment="to keep the Vars of the interrupt Handler completely seperate from the Scripts where this is reffered" exact="table[
@@ -86,7 +86,7 @@
     </library>
   </interrupts>
   <actions>
-    <debug_text filter="general" text="'%1 %2 %3 Interrupt Started'.[player.age,$actor.name,$actor.container.name]"/>
+    <debug_text filter="general" text="'%1 %2 %3 Interrupt Started'.[player.age,this.name,this.container.name]"/>
     <!-- make sure there is no bigship in front of us and just boost straight forward ( using Steering FCM to avoid unnecesary delays because of path calculation) -->
     <find_object name="$enemies_fleedirection" space="this.zone" multiple="true">
       <match_distance object="this.container" max="5km"/>
