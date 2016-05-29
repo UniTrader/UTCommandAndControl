@@ -93,6 +93,12 @@
         <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size/2" >
           <position object="this.ship" />
         </get_zone_exit_pos>
+        <do_if value="$startrot.pitch gt 45deg">
+          <set_value name="$startrot.pitch" exact="45deg"/>
+        </do_if>
+        <do_if value="$startrot.pitch lt -45deg">
+          <set_value name="$startrot.pitch" exact="-45deg"/>
+        </do_if>
         <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately -->
         <check_object result="$result" object="$targetzone">
           <match_is_in_view_of object="this.ship" vertical="10deg" horizontal="10deg"/>
