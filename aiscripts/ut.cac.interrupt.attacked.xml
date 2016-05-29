@@ -46,7 +46,7 @@
           </do_if>
           <!-- compare our Shield Strength to the dps of all nearby enemies -->
           <find_object groupname="$interruptattacked.$enemies" space="this.zone" multiple="true">
-            <match_distance object="this.container" max="5km"/>
+            <match_distance object="this.container" max="10km"/>
             <match_relation object="this.container" relation="enemy"/>
           </find_object>
           <do_all exact="$interruptattacked.$enemies.count" counter="$interrupt_i">
@@ -54,7 +54,7 @@
           </do_all>
           <!-- maybe include Formation or something here? (currently this is for single Ship use only) -->
           <set_value name="$interruptattacked.$totalshield" exact="this.container.shield"/>
-          <debug_text filter="general" text="'$holdouttime: %1 ; $attackreaction: %2 ; $totaldps: %3 ; $totalshield: %4 ; $dps/$shield: %5'.[$params.$holdouttime,$params.$attackreaction,$interruptattacked.$totaldps,$interruptattacked.$totalshield,$interruptattacked.$totalshield / $interruptattacked.$totaldps]"/>
+          <debug_text filter="general" text="'$holdouttime: %1 ; $attackreaction: %2 ; $totaldps: %3 ; $totalshield: %4 ; $shield/$dps: %5'.[$params.$holdouttime,$params.$attackreaction,$interruptattacked.$totaldps,$interruptattacked.$totalshield,$interruptattacked.$totalshield / $interruptattacked.$totaldps]"/>
           <do_if value="$interruptattacked.$totalshield / $interruptattacked.$totaldps lt $params.$holdouttime">
             <do_if value="0 lt $params.$attackreaction le 5" comment="attack reaction between 0 and 5">
               <!-- Interrupt Line for Interrupt and continue where interrupted -->
@@ -89,7 +89,7 @@
     <debug_text filter="general" text="'%1 %2 %3 Interrupt Started'.[player.age,this.name,this.container.name]"/>
     <!-- make sure there is no bigship in front of us and just boost straight forward ( using Steering FCM to avoid unnecesary delays because of path calculation) -->
     <find_object name="$enemies_fleedirection" space="this.zone" multiple="true">
-      <match_distance object="this.container" max="5km"/>
+      <match_distance object="this.container" max="10km"/>
       <match_relation object="this.container" relation="enemy"/>
       <match_size min="100m"/>
       <match_is_in_view_of object="this.container" horizontal="25deg" vertical="25deg"/>
@@ -114,9 +114,9 @@
           <position value="$fleedestination"/>
         </create_orientation>
         <find_object name="$enemies_fleedirection" space="this.zone" multiple="true">
-          <match_distance object="this.container" max="5km"/>
+          <match_distance object="this.container" max="10km"/>
           <match_relation object="this.container" relation="enemy"/>
-         <match_size min="100m"/>
+          <match_size min="100m"/>
           <match_is_in_view_of object="this.container" yaw="$direction.yaw" pitch="$direction.pitch" roll="$direction.roll" horizontal="25deg" vertical="25deg"/>
         </find_object>
         <do_if value="$enemies_fleedirection le 1">
@@ -130,6 +130,7 @@
         <move_to object="this.ship" destination="this.zone" abortpath="true" boost="true" finishonapproach="true" forcesteering="true">
           <position value="$fleedestination"/>
         </move_to>
+        <set_to_default_flight_control_model object="this.ship"/>
       </do_if>
 <!--      <create_orientation name="$fleedirection" refobject="this.container" orientation="look_at"/>-->
         
