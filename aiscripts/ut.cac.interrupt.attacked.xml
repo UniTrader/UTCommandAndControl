@@ -45,7 +45,7 @@
             <set_value name="$params.$attackreaction" exact="2"/>
           </do_if>
           <!-- compare our Shield Strength to the dps of all nearby enemies -->
-          <find_object groupname="$interruptattacked.$enemies" space="this.zone" multiple="true">
+          <find_object groupname="$interruptattacked.$enemies" space="this.zone" multiple="true" functional="true">
             <match_distance object="this.container" max="10km"/>
             <match_relation object="this.container" relation="enemy"/>
           </find_object>
@@ -88,7 +88,7 @@
   <actions>
     <debug_text filter="general" text="'%1 %2 %3 Interrupt Started'.[player.age,this.name,this.container.name]"/>
     <!-- make sure there is no bigship in front of us and just boost straight forward ( using Steering FCM to avoid unnecesary delays because of path calculation) -->
-    <find_object name="$enemies_fleedirection" space="this.zone" multiple="true">
+    <find_object name="$enemies_fleedirection" space="this.zone" multiple="true" functional="true">
       <match_distance object="this.container" max="10km"/>
       <match_relation object="this.container" relation="enemy"/>
       <match_size min="100m"/>
@@ -113,7 +113,7 @@
         <create_orientation name="$direction" refobject="this.ship" orientation="look_at">
           <position value="$fleedestination"/>
         </create_orientation>
-        <find_object name="$enemies_fleedirection" space="this.zone" multiple="true">
+        <find_object name="$enemies_fleedirection" space="this.zone" multiple="true" functional="true">
           <match_distance object="this.container" max="10km"/>
           <match_relation object="this.container" relation="enemy"/>
           <match_size min="100m"/>
