@@ -32,7 +32,7 @@
         </conditions>
         <actions>
           <debug_text filter="general" text="'%1 %2 %3 Flee check Interrupt triggered, evaluated values:'.[player.age,this.name,this.container.name]"/>
-          <set_value name="this.$ut_cac.$nextattackinterrupt" exact="player.age + 30s"/>
+          <set_value name="this.$ut_cac.$nextattackinterrupt" exact="player.age + ( $params.$holdouttime / 3 )"/>
           <do_if value="not $interruptattacked?">
             <set_value name="$interruptattacked" comment="to keep the Vars of the interrupt Handler completely seperate from the Scripts where this is reffered" exact="table[
             $totaldps = 1hp
@@ -57,26 +57,31 @@
           <set_value name="$interruptattacked.$totalshield" exact="this.container.shield"/>
           <debug_text filter="general" text="'$holdouttime: %1 ; $attackreaction: %2 ; $totaldps: %3 ; $totalshield: %4 ; $shield/$dps: %5'.[$params.$holdouttime,$params.$attackreaction,$interruptattacked.$totaldps,$interruptattacked.$totalshield,$interruptattacked.$totalshield / $interruptattacked.$totaldps]"/>
           <do_if value="$interruptattacked.$totalshield / $interruptattacked.$totaldps lt $params.$holdouttime">
-            <do_if value="0 lt $params.$attackreaction le 5" comment="attack reaction between 0 and 5">
+            <debug_text filter="general" text="Starting Flee reaction"/>
+            <do_if value="$params.$attackreaction le 5" comment="attack reaction between 0 and 5">
               <!-- Interrupt Line for Interrupt and continue where interrupted -->
               <run_interrupt_script name="'ut.cac.interrupt.attacked'"/>
               <!-- behavior 1 (continue where you stopped) has no further actions to be done -->
               <do_if value="$params.$attackreaction == 2">
                 <!-- Attack Interupt behavior 2: restart Current Order -->
+                <debug_text filter="general" text="And resuming at start"/>
                 <resume label="start"/>
               </do_if>
               <!-- Attack Interrupt Behavior 3: abort current Order, continue with next -->
               <do_elseif value="$params.$attackreaction == 3">
+                <debug_text filter="general" text="And resuming at finish"/>
                 <resume label="finish"/>
               </do_elseif>
               <!-- Attack Interrupt Behavior 4: abort current Order and also remove certain Orders from Orderlist - NOT IMPLEMENTED YET-->
               <do_elseif value="$params.$attackreaction == 4">
                 <set_value name="this.$orderlist.{2}" operation="insert" exact="table[$script='ut.cac.microorder',$order='remove orders',$orders=$params.$dependentorders,$interruptable=false]"/>
+                <debug_text filter="general" text="And aborting list of Orders ( NYI!!!! )"/>
                 <resume label="finish"/>
               </do_elseif>
               <!-- Attack Interrupt Behavior 5: abort current Order and also remove all Orders from Orderlist - NOT IMPLEMENTED YET-->
               <do_elseif value="$params.$attackreaction == 5">
                 <set_value name="this.$orderlist.{2}" operation="insert" exact="table[$script='ut.cac.microorder',$order='remove orders',$orders=this.$orderlist.clone,$interruptable=false]"/>
+                <debug_text filter="general" text="And aborting all Orders ( NYI!!!! )"/>
                 <resume label="finish"/>
               </do_elseif>
             </do_if>
