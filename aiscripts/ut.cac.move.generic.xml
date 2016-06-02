@@ -199,10 +199,12 @@
           <do_elseif value="this.$waypoint.isclass.gate">
             
             <!-- Jump to Gate sector -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to nearest Jumpbeacon to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
-            <run_script name="'ut.cac.move.jump'" result="$result" >
-              <param name="destination" value="this.$waypoint.zone"/>
-            </run_script>
+            <do_if value="this.sector != this.$waypoint.sector">
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to nearest Jumpbeacon to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+              <run_script name="'ut.cac.move.jump'" result="$result" >
+                <param name="destination" value="this.$waypoint.zone"/>
+              </run_script>
+            </do_if>
             
             <!-- Boost to Gate Position -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boosting near to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
