@@ -99,14 +99,14 @@
         <do_if value="$startrot.pitch lt -45deg">
           <set_value name="$startrot" exact="rotation.[$startrot.yaw,-45deg,$startrot.roll]"/>
         </do_if>
-        <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately -->
-        <check_object result="$result" object="$targetzone">
+        <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately - commenting out, seems to make problems....  -->
+        <!--check_object result="$result" object="$targetzone">
           <match_is_in_view_of object="this.ship" vertical="10deg" horizontal="10deg"/>
         </check_object>
         <do_if value="$result and this.ship.distanceto.{$startpos} lt this.ship.size *2">
           <remove_value name="$startpos"/>
           <remove_value name="$startrot"/>
-        </do_if>
+        </do_if-->
         <!-- if Distance to Startpos is really close just rotate -->
         <do_elseif value="this.ship.distanceto.{$startpos} lt this.ship.size">
           <set_value name="$startpos" exact="this.ship.position" />
