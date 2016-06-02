@@ -47,10 +47,14 @@
             ]"/>
           </do_if>
           <!-- compare our Shield Strength to the dps of all nearby enemies -->
-          <find_object groupname="$interruptattacked.$enemies" space="this.zone" multiple="true" functional="true">
+          <find_ship groupname="$interruptattacked.$enemies" space="this.zone" multiple="true" functional="true">
             <match_distance object="this.container" max="10km"/>
             <match_relation object="this.container" relation="enemy"/>
-          </find_object>
+          </find_ship>
+          <find_station groupname="$interruptattacked.$enemies" space="this.zone" multiple="true" functional="true">
+            <match_distance object="this.container" max="10km"/>
+            <match_relation object="this.container" relation="enemy"/>
+          </find_station>
           <do_all exact="$interruptattacked.$enemies.count" counter="$interrupt_i">
             <set_value name="$interruptattacked.$totaldps" operation="add" exact="$interruptattacked.$enemies.{$interrupt_i}.dps.all"/>
           </do_all>
