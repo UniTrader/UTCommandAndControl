@@ -20,7 +20,27 @@
     <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
   </params>
   <interrupts>
-    <handler ref="TargetInvalidHandler" />
+    <handler>
+        <conditions>
+          <event_object_target_invalid object="this.ship" />
+        </conditions>
+        <actions>
+          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $destination: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+          <abort_called_scripts />
+          <resume label="start"/>
+      </actions>
+    </handler>
+    <handler>
+      <!--- destination destroyed - abort Movement and (for now) also print an Error -->
+      <conditions>
+        <event_object_destroyed object="$destination"/>
+      </conditions>
+      <actions>
+        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %5'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+        <abort_called_scripts/>
+        <return value="1"/>
+      </actions>
+    </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
@@ -57,7 +77,7 @@
       
       <do_if value="not $destination.exists">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination does not exist - aborting'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <return value="2"/>
       </do_if>
       
       <!-- if destination is a Space (galaxy, Cluster, Sector, Zone) use it as targetspace, otherwise get its Zone as first Destination and care about the fine movements only in the last step -->
