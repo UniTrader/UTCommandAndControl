@@ -78,19 +78,19 @@
         <append_to_list name="global.$gate_queue.{$gate}"/>
         <set_value name="$queue_position" exact="global.$gate_queue.{$gate}.count"/>
         <!-- signal everyone with our Position in the List -->
-        <signal_objects object="this.ship" param="'travel gate prep'" param2="$queue_position"/>
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$gate" param3="$queue_position"/>
         <wait exact="100ms"/>
       </do_if>
       <!-- we are a follower - add us to formationlist as apporiate position -->
       <do_elseif value="this.ship.primarypurpose == objectpurpose.fight">
         <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="this.ship" operation="insert"/>
         <!-- signal everyone with Position in the List to add fight ships to (for recursion) -->
-        <signal_objects object="this.ship" param="'travel gate prep'" param2="$queue_position"/>
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$gate" param3="$queue_position"/>
       </do_elseif>
       <do_else>
         <append_to_list name="global.$gate_queue.{$gate}" exact="this.ship"/>
         <!-- signal everyone with Position in the List to add fight ships to (for recursion) -->
-        <signal_objects object="this.ship" param="'travel gate prep'" param2="$queue_position"/>
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$gate" param3="$queue_position"/>
       </do_else>
       <wait exact="100ms"/>
       
