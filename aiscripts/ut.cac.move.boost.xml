@@ -175,11 +175,11 @@
           <rotation value="$startrot" />
         </move_to>
         <!-- HACK: decrease Ship Pitch to avoid sharp turn boosts -->
-        <do_if value="( this.ship.pitch gt 45deg or this.ship.pitch lt -45deg ) and this.zone != $targetzone">
+        <do_if value="( this.ship.rotation.pitch gt 45deg or this.ship.rotation.pitch lt -45deg ) and this.zone != $targetzone">
           <debug_text filter="error" text="'%1 %2 %3 Moving to Start Position failed to have pith below 45deg - forcing pitch'.[player.age,this.name,this.container.name]"/>
           <warp object="this.ship" zone="this.zone">
             <position value="this.ship.position"/>
-            <rotation yaw="this.ship.yaw" roll="this.ship.roll" pitch="if this.ship.pitch gt 45deg then 45deg else if this.ship.pitch lt -45deg then -45deg else 0deg"/>
+            <rotation yaw="this.ship.rotation.yaw" roll="this.ship.rotation.roll" pitch="if this.ship.rotation.pitch gt 45deg then 45deg else if this.ship.rotation.pitch lt -45deg then -45deg else 0deg"/>
           </warp>
         </do_if>
       </do_if>
