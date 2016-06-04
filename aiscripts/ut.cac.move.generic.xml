@@ -19,6 +19,11 @@
     <param name="lookat" default="null" comment="position the ship should point to - overrides rotation"/>
     <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
   </params>
+  <init>
+    <do_if value="not $destination.exists">
+      <debug_text filter="general" text="'%1 %2 %3 Destination not existent: %4 %5'.[player.age,this.name,this.container.name,event.param.knownname,$destination,$destination.knownname]"/>
+    </do_if>
+  </init>
   <interrupts>
     <handler>
         <conditions>
@@ -36,7 +41,7 @@
         <event_object_destroyed object="$destination"/>
       </conditions>
       <actions>
-        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %5'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
         <abort_called_scripts/>
         <return value="1"/>
       </actions>
