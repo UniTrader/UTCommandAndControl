@@ -339,6 +339,7 @@ Rest is shared between all Actor types
               <assign_trade_manager object="$actor.container" actor="$actor"/>
               <!--assign_control_entity object="$actor.container" actor="$actor"/-->
             </do_if>
+            <reset_cue cue="Assigned_as_control_entity"/>
             <signal_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="this"/>
             <!-- restart Order List progression on Arrival -->
@@ -353,15 +354,14 @@ Rest is shared between all Actor types
             <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
           </actions>
           <cues>
-            <cue name="Removed_from_Assignment">
+            <!--cue name="Removed_from_Assignment">
               <conditions>
                 <event_object_signalled object="$actor" param="'remote_transport_started'"/>
               </conditions>
               <actions>
                 <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Removed_from_Assignment triggered'.[player.age,$actor.name,event.name]"/>
-                <reset_cue cue="Assigned_as_control_entity"/>
               </actions>
-            </cue>
+            </cue-->
             <cue name="GatherCVSubordinates" onfail="cancel">
               <conditions>
                 <check_value value="@$actor.ship.buildmodule and @$actor.ship.architect"/>
