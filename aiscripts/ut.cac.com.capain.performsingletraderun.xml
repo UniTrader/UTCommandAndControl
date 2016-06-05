@@ -527,6 +527,22 @@
       <do_if value="$trade.exists and not $non_shoppinglist_trade?">
         <remove_trade_order object="this.ship" trade="$trade"/>
       </do_if>
+      
+      <!-- Undocking in Abort Case -->
+      <!-- execute next Trade without undocking if the Trade partner is the same -->
+      <do_if value="$undock==2">
+        <get_trade_from_shoppinglist object="this.ship" result="$trade" />
+        <do_if value="$trade.exists and $trade.owner == $tradepartner">
+          <set_value name="$undock" exact="false"/>
+        </do_if>
+        <do_else>
+          <set_value name="$undock" exact="true"/>
+        </do_else>
+      </do_if>
+      
+      <do_if value="(this.ship.isclass.ship_xl or this.ship.isclass.ship_l) and $undock">
+        <run_script name="'move.undock'" />
+      </do_if>
       <return/>
       
     </actions>
