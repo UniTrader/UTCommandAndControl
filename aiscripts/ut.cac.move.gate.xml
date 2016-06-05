@@ -42,6 +42,13 @@
       <do_if value="this.zone != $gate.zone">
         <debug_text filter="error" text="'%1 %2 %3 Not in Gate Zone - aborting!'.[player.age,this.name,this.container.name]"/>
       </do_if>
+      <!-- HACK for TO: Ignore the Big Asteroid when aquiring Safe Pos -->
+      <do_if value="macro.Cluster_T_Sector01_Zone001_macro.exists and $gate.zone.macro.ismacro.Cluster_T_Sector01_Zone001_macro">
+        <find_object name="$ignoredobject" space="$gate.zone" macro="macro.landmarks_unique_the_mace_macro"/>
+      </do_if>
+      <do_else>
+        <set_value name="$ignoredobject" exact="this.ship"/>
+      </do_else>
       
       <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
       <do_if value="this.$ut_cac?">
@@ -68,7 +75,8 @@
         </transform_position>
         <do_if value="this.ship.distanceto.{$position} gt 7km">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving behind the Gate in %4 to make formation ready for passage'.[player.age,this.name,this.container.name,$gate.zone.knownname]"/>
-          <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="5km" ignored="this.ship"/>
+
+          <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="5km" ignored="$ignoredobject"/>
           <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true">
             <position value="$safeposition" />
           </move_to>
@@ -118,7 +126,7 @@
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
         <position x="0m" y="0m" z="0 - ( $gate.size + this.ship.size )"/>
       </transform_position>
-      <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="if global.$gate_queue.{$gate}.{1}? and global.$gate_queue.{$gate}.{1}.exists then global.$gate_queue.{$gate}.{1} else this.ship" comment="ignore previous Ship since it is currently clearing that position (we should still be in a safe distance)"/>
+      <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="if $ignoredobject != this.ship then $ignoredobject else if global.$gate_queue.{$gate}.{1}? and global.$gate_queue.{$gate}.{1}.exists then global.$gate_queue.{$gate}.{1} else this.ship" comment="ignore previous Ship since it is currently clearing that position (we should still be in a safe distance)"/>
       <create_orientation name="$rotation" orientation="look_at" refobject="$gate">
         <position value="$safeposition"/>
       </create_orientation>
