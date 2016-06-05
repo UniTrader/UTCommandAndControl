@@ -170,10 +170,11 @@
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to Start Position'.[player.age,this.name,this.container.name]"/>
-        <move_to object="this.ship" destination="this.zone" forceposition="true" forcerotation="true" finishonapproach="false">
+        <move_to object="this.ship" destination="this.zone" forceposition="true" forcerotation="true" forcesteering="true" finishonapproach="false">
           <position value="$startpos" />
           <rotation value="$startrot" />
         </move_to>
+        <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
         <!-- HACK: decrease Ship Pitch to avoid sharp turn boosts -->
         <do_if value="( this.ship.rotation.pitch gt 45deg or this.ship.rotation.pitch lt -45deg ) and this.zone != $targetzone">
           <debug_text filter="error" text="'%1 %2 %3 Moving to Start Position failed to have pith below 45deg - forcing pitch'.[player.age,this.name,this.container.name]"/>
