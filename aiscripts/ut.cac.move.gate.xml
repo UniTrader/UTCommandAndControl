@@ -42,8 +42,9 @@
       <do_if value="this.zone != $gate.zone">
         <debug_text filter="error" text="'%1 %2 %3 Not in Gate Zone - aborting!'.[player.age,this.name,this.container.name]"/>
       </do_if>
+      
       <!-- HACK for TO: Ignore the Big Asteroid when aquiring Safe Pos -->
-      <do_if value="macro.Cluster_T_Sector01_Zone001_macro.exists and $gate.zone.macro.ismacro.Cluster_T_Sector01_Zone001_macro">
+      <do_if value="$gate.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'}">
         <find_object name="$ignoredobject" space="$gate.zone" macro="macro.landmarks_unique_the_mace_macro"/>
       </do_if>
       <do_else>
