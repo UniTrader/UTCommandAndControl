@@ -127,7 +127,7 @@
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
         <position x="0m" y="0m" z="0 - ( $gate.size + this.ship.size )"/>
       </transform_position>
-      <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="if $ignoredobject != this.ship then $ignoredobject else if global.$gate_queue.{$gate}.{1}? and global.$gate_queue.{$gate}.{1}.exists then global.$gate_queue.{$gate}.{1} else this.ship" comment="ignore previous Ship since it is currently clearing that position (we should still be in a safe distance)"/>
+      <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size*2" ignored="if $ignoredobject == this.ship then ( if global.$gate_queue.{$gate}.{1}? and global.$gate_queue.{$gate}.{1}.exists then global.$gate_queue.{$gate}.{1} else this.ship ) else $ignoredobject" comment="ignore previous Ship since it is currently clearing that position (we should still be in a safe distance)"/>
       <create_orientation name="$rotation" orientation="look_at" refobject="$gate">
         <position value="$safeposition"/>
       </create_orientation>
