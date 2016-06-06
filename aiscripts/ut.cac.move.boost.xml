@@ -99,17 +99,22 @@
         <do_if value="$startrot.pitch lt -45deg">
           <set_value name="$startrot" exact="rotation.[$startrot.yaw,-45deg,$startrot.roll]"/>
         </do_if>
-        <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately - commenting out, seems to make problems....  -->
-        <!--check_object result="$result" object="$targetzone">
+        <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately.  -->
+        <check_object result="$result" object="$targetzone">
           <match_is_in_view_of object="this.ship" vertical="10deg" horizontal="10deg"/>
         </check_object>
         <do_if value="$result and this.ship.distanceto.{$startpos} lt this.ship.size *2">
           <remove_value name="$startpos"/>
           <remove_value name="$startrot"/>
-        </do_if-->
+        </do_if>
         <!-- if Distance to Startpos is really close just rotate -->
         <do_elseif value="this.ship.distanceto.{$startpos} lt this.ship.size">
           <set_value name="$startpos" exact="this.ship.position" />
+        </do_elseif>
+        <!-- HACK for FoO - AL Gate (Exit) - just boost immediately -->
+        <do_elseif value="this.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and this.ship.distanceto.{$startpos} gt 10km">
+          <remove_value name="$startpos"/>
+          <remove_value name="$startrot"/>
         </do_elseif>
         
         <!-- figure out an arrival position in the target zone -->
@@ -147,6 +152,12 @@
           <create_orientation name="$startrot" orientation="look_at" refposition="$targetpos">
             <position value="$startpos" />
           </create_orientation>
+          
+          <!-- HACK for FoO - AL Gate (Exit) - just boost immediately -->
+          <do_if value="this.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and this.ship.distanceto.{$startpos} gt 10km">
+            <remove_value name="$startpos"/>
+            <remove_value name="$startrot"/>
+          </do_if>
         </do_if>
         
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calculated Params for IZ-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
