@@ -212,19 +212,10 @@
             </do_if>
             
             <!-- Boost to Gate Position -->
-            
-            <!-- HACK for FoO - Albion Gate -->
-            <do_if value="this.$waypoint.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'}">
-              <set_value name="$waypointposition" exact="position.[0m,0m,- 30km]"/>
-            </do_if>
-            <do_else>
-              <set_value name="$waypointposition" exact="position.[0m,0m,0-(this.ship.size + this.$waypoint.size)]"/>
-            </do_else>
-            
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boosting near to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
             <run_script name="'ut.cac.move.boost'">
               <param name="destination" value="this.$waypoint"/>
-              <param name="position" value="$waypointposition" comment="relative to destination! (including its rotation)"/>
+              <param name="position" value="position.[0m,0m,0-(this.ship.size + this.$waypoint.size)]" comment="relative to destination! (including its rotation)"/>
             </run_script>
             <remove_value name="$waypointposition"/>
             
