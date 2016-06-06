@@ -225,11 +225,14 @@
             </run_script>
           </do_elseif>
           <do_elseif value="this.$waypoint.isclass.zone">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
-            <!-- next is the Target Zone/Sector - First jump to the closest Beacon, then go to Fine Movement for the Destination (with Boosting) -->
-            <run_script name="'ut.cac.move.jump'" result="$result" >
-              <param name="destination" value="this.$waypoint"/>
-            </run_script>
+              <!-- next is the Target Zone/Sector - First jump to the closest Beacon (if necesary), then go to Fine Movement for the Destination (with Boosting) -->
+              <!-- ToDo: check ii we could save a bit time with IS-Jumping-->
+            <do_if value="this.$waypoint.sector != this.sector">
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+              <run_script name="'ut.cac.move.jump'" result="$result" >
+                <param name="destination" value="this.$waypoint"/>
+              </run_script>
+            </do_if>
             <resume label="fine movement"/>
             <return/>
           </do_elseif>
