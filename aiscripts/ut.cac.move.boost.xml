@@ -118,11 +118,18 @@
         </do_elseif>
         
         <!-- figure out an arrival position in the target zone -->
-        <get_zone_exit_pos zone="$targetzone" destination="this.ship" position="$targetpos" radius="this.ship.size" >
-          <position object="$targetzone" value="$position"/>
-        </get_zone_exit_pos>
+        <do_if value="$targetzone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and $destination.isclass.gate">
+          <!-- HACK for FoO - AL Gate -->
+          <find_object name="$ignoredobject" space="$targetzone" macro="macro.landmarks_unique_the_mace_macro"/>
+          <get_safe_pos result="$targetpos" allowyaxis="true" zone="$targetzone" value="$position" radius="5km" ignored="$ignoredobject"/>
+        </do_if>
+        <do_else>
+          <get_zone_exit_pos zone="$targetzone" destination="this.ship" position="$targetpos" radius="this.ship.size" >
+            <position object="$targetzone" value="$position"/>
+          </get_zone_exit_pos>
+        </do_else>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calculated Params for IS-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
-      </do_if>
+        </do_if>
       <do_else>
         <!-- InZone-Boost - move a bit in Direction of the Target to align (if not already) - and Boost to nearby it -->
         
