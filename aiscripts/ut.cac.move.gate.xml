@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.gate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.gate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="21">
   <!--
 
  rewritten from scratch by UniTrader
@@ -17,6 +17,15 @@
   </params>
   <interrupts>
   </interrupts>
+  <patch sinceversion="21">
+      <!-- HACK for FoO - Albion Gate: Ignore the Big Asteroid when aquiring Safe Pos - adding it to active instances -->
+      <do_if value="$gate.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'}">
+        <find_object name="$ignoredobject" space="$gate.zone" macro="macro.landmarks_unique_the_mace_macro"/>
+      </do_if>
+      <do_else>
+        <set_value name="$ignoredobject" exact="this.ship"/>
+      </do_else>
+  </patch>
   <attention min="unknown">
     <actions>
       <!-- first decode the $params to the Variables -->
