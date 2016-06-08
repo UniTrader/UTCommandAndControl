@@ -39,7 +39,7 @@
         <debug_text filter="error" text="'%1 %2 %3 Gate not existent or not a gate - aborting!'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
-      <do_if value="this.zone != $gate.zone">
+      <do_if value="this.container.zone != $gate.zone">
         <debug_text filter="error" text="'%1 %2 %3 Not in Gate Zone - aborting!'.[player.age,this.name,this.container.name]"/>
       </do_if>
       
@@ -214,8 +214,8 @@
         <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >
           <position x="0m" y="0m" z="(this.ship.size *3)"/>
         </transform_position>
-        <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
-        <move_to object="this.ship" destination="this.zone" boost="true" forcesteering="true" comment="boost=this.ship.pilot.skill.navigation ge 3">
+        <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.container.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
+        <move_to object="this.ship" destination="this.container.zone" boost="true" forcesteering="true" comment="boost=this.ship.pilot.skill.navigation ge 3">
           <position value="$safeposition"/>
           <interrupt_after_time time="3s"/>
         </move_to>
