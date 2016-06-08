@@ -46,7 +46,7 @@
         <debug_text filter="error" text="'%1 %2 %3 Destination does not exist. Aborting!'.[ player.age,this.name,this.container.name]" />
         <return/>
       </do_if>
-      <do_if value="$destination == this.container.zone">
+      <do_if value="$destination == this.zone">
         <!-- we are already here - so why boosting? -->
         <return/>
       </do_if>
@@ -58,7 +58,7 @@
       <find_object_component class="class.enginebooster" object="this.ship" name="$booster" />
       <do_if value="not $booster.exists">
       
-        <debug_text filter="error" text="'%1 %2 %3 Ship has no engine booster. Flight from %4(%5) to %6(%7) will take a looong time!'.[ player.age,this.name,this.container.name , this.container.zone.knownname, this.sector.knownname, $destination.zone.knownname, $destination.sector.knownname]" />
+        <debug_text filter="error" text="'%1 %2 %3 Ship has no engine booster. Flight from %4(%5) to %6(%7) will take a looong time!'.[ player.age,this.name,this.container.name , this.zone.knownname, this.sector.knownname, $destination.zone.knownname, $destination.sector.knownname]" />
       </do_if>
       
       <!-- =================== -->
@@ -68,7 +68,7 @@
       <!-- calculate Offset if we want to get to an Object and set the Destination Zone Var-->
       <do_if value="$destination.isclass.zone">
         <do_if value="not $position">
-          <get_safe_pos result="$position" allowyaxis="true" zone="$destination" value="position.[0,0,0]" radius="this.ship.size" ignored="this.ship" directionobject="this.container.zone" min="20km"/>
+          <get_safe_pos result="$position" allowyaxis="true" zone="$destination" value="position.[0,0,0]" radius="this.ship.size" ignored="this.ship" directionobject="this.zone" min="20km"/>
         </do_if>
         <set_value name="$targetzone" exact="$destination"/>
       </do_if>
@@ -83,14 +83,14 @@
         <set_value name="$targetzone" exact="$destination.zone"/>
       </do_else>
       <!-- Boost Start and End Positions (both InSector and InZone-Boost) -->
-      <do_if value="this.container.zone != $targetzone">
+      <do_if value="this.zone != $targetzone">
         <!-- In-Sector-Boost - Get Boost Destination Position -->
         <!-- figure out position to leave this zone at -->
         
         <set_command_action commandaction="commandaction.flyingto" param="$targetzone"/>
         <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
         
-        <get_zone_exit_pos zone="this.container.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size/2" >
+        <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size/2" >
           <position object="this.ship" />
         </get_zone_exit_pos>
         <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately -->
@@ -120,7 +120,7 @@
         
         <!-- create boost Target Pos -->
         <do_if value="$position">
-          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.container.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship" min="this.ship.size * 2"/>
+          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship" min="this.ship.size * 2"/>
         </do_if>
         <do_else>
           <create_position_outside_boundingbox name="$targetpos" component="$destination" distance="this.ship.size * 2">
@@ -137,7 +137,7 @@
           <!--create_position_outside_boundingbox name="$startpos" component="this.ship" distance="this.ship.size" >
             <position object="$destination"/>
           </create_position_outside_boundingbox-->
-          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.container.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
+          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
           <create_orientation name="$startrot" orientation="look_at" refposition="$targetpos">
             <position value="$startpos" />
           </create_orientation>
@@ -164,7 +164,7 @@
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to Start Position'.[player.age,this.name,this.container.name]"/>
-        <move_to object="this.ship" destination="this.container.zone" forceposition="false" forcerotation="true" finishonapproach="false">
+        <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="true" finishonapproach="false">
           <position value="$startpos" />
           <rotation value="$startrot" />
         </move_to>
@@ -204,7 +204,7 @@
       </do_if>
       <signal_objects object="this.ship" param="'travel boost start'" param2="$destination"/>
       
-      <do_while value="( this.container.zone != $targetzone ) or ( this.ship.distanceto.{$targetpos} gt 5000 )">
+      <do_while value="( this.zone != $targetzone ) or ( this.ship.distanceto.{$targetpos} gt 5000 )">
         <do_if value="this.ship.canboost or this.ship.isboostactive">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!'.[player.age,this.name,this.container.name]"/>
           <do_if value="this.ship == player.ship">

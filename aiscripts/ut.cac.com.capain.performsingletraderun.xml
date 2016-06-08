@@ -150,7 +150,7 @@
       
       <!-- move to correct zone -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Move to correct Zone:\n$tradepartner.zone= %4'.[player.age,this.name,this.container.name,$tradepartner.zone.knownname]"/>
-      <do_if value="this.container.zone != $tradepartner.zone">
+      <do_if value="this.zone != $tradepartner.zone">
         <set_command_action commandaction="commandaction.flyingto" param="$tradepartner.zone"/>
         <do_if value="this.$ut_cac?">
           <set_value name="this.$ut_cac.$isactive"/>
@@ -394,7 +394,7 @@
         <do_elseif value="$tradeoffer.buyer.isoperational">
           <!-- SELL -->
           <!-- ToDo: illegal ware check is for pussies - removed, will implement active search for illegal stuff at a later date. -->
-          <!--set_value name="$policefaction" exact="this.container.zone.policefaction" />
+          <!--set_value name="$policefaction" exact="this.zone.policefaction" />
           <do_if value="$policefaction">
             <do_if value="this.ship.cargo.illegalto.{$policefaction}">
               <resume label="illegalcargo" chance="10" />

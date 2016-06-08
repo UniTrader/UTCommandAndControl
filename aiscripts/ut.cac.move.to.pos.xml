@@ -49,11 +49,11 @@ with a given Rotation or Orientation
       => 
       -->
       <do_if value="not $destination.exists">
-        <set_value name="$destination" exact="this.container.zone"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination not given or non-existent - defaulting to current Zone %4'.[player.age,this.name,this.container.name,this.container.zone.knownname]"/>
+        <set_value name="$destination" exact="this.zone"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination not given or non-existent - defaulting to current Zone %4'.[player.age,this.name,this.container.name,this.zone.knownname]"/>
       </do_if>
       <do_elseif value="not $destination.isclass.zone">
-        <do_if value="$destination.zone != this.container.zone">
+        <do_if value="$destination.zone != this.zone">
           <debug_text filter="error" text="'%1 %2 %3 Destination Object not in this Zone. Aborting!'.[ player.age,this.name,this.container.name]" />
           <return/>
         </do_if>
@@ -73,13 +73,13 @@ with a given Rotation or Orientation
         <do_else>
           <set_value name="$position" exact="$destination.position"/>
         </do_else>
-        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.container.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
       </do_if>
       <do_elseif value="$position">
-        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.container.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
       </do_elseif>
       <do_else>
-        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.container.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
       </do_else>
       
       <do_if value="$lookat">
@@ -99,12 +99,12 @@ with a given Rotation or Orientation
         </do_if>
         <do_if value="$reverse or $forward">
           <do_if value="not $rotation">
-            <move_to object="this.ship" destination="this.container.zone" forceposition="$forceendpos" reverse="$reverse">
+            <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" reverse="$reverse">
               <position value="$safepos"/>
             </move_to>
           </do_if>
           <do_else>
-            <move_to object="this.ship" destination="this.container.zone" forceposition="$forceendpos" forcerotation="$forceendpos" reverse="$reverse">
+            <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" forcerotation="$forceendpos" reverse="$reverse">
               <position value="$safepos"/>
               <rotation value="$rotation"/>
             </move_to>
@@ -112,12 +112,12 @@ with a given Rotation or Orientation
         </do_if>
         <do_else>
           <do_if value="not $rotation">
-            <move_strafe object="this.ship" destination="this.container.zone" >
+            <move_strafe object="this.ship" destination="this.zone" >
               <position value="$safepos"/>
             </move_strafe>
           </do_if>
           <do_else>
-            <move_strafe object="this.ship" destination="this.container.zone" >
+            <move_strafe object="this.ship" destination="this.zone" >
               <position value="$safepos"/>
               <rotation value="$rotation"/>
             </move_strafe>
@@ -125,12 +125,12 @@ with a given Rotation or Orientation
         </do_else>
       </do_if-->
       <do_if value="not $rotation">
-        <move_to object="this.ship" destination="this.container.zone" forceposition="$forceendpos">
+        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos">
           <position value="$safepos"/>
         </move_to>
       </do_if>
       <do_else>
-        <move_to object="this.ship" destination="this.container.zone" forceposition="$forceendpos" forcerotation="$forceendpos">
+        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" forcerotation="$forceendpos">
           <position value="$safepos"/>
           <rotation value="$rotation"/>
         </move_to>

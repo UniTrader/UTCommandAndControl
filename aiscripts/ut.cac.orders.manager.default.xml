@@ -36,8 +36,8 @@
         <create_list name="$mineable_ressources"/>
         <do_all exact="this.container.resources.list.count" counter="$i">
           <set_value name="$ware" exact="this.container.resources.list.{$i}"/>
-          <do_if value="$ware.tags.indexof.{tag.minable} and this.container.cargo.{$ware}.count lt this.container.cargo.{$ware}.target and this.container.zone.yield.indexof.{$ware}">
-            <get_resource_gatherrate name="$gatherrate" refobject="this.container" ware="$ware" zone="this.container.zone" />
+          <do_if value="$ware.tags.indexof.{tag.minable} and this.container.cargo.{$ware}.count lt this.container.cargo.{$ware}.target and this.zone.yield.indexof.{$ware}">
+            <get_resource_gatherrate name="$gatherrate" refobject="this.container" ware="$ware" zone="this.zone" />
             <do_if value="$gatherrate">
               <append_to_list name="$mineable_ressources" exact="$ware"/>
             </do_if>

@@ -172,20 +172,20 @@
         <!-- deploy, if no Station exists start construction, if Station exists assign to it and resume construction -->
         <do_if value="not $buildlocation.child.exists">
           <set_command_action commandaction="commandaction.standingby" />
-          <add_blocked_area blocker="this" zone="this.container.zone">
-            <position value="$buildlocation.offset" space="this.container.zone"/>
+          <add_blocked_area blocker="this" zone="this.zone">
+            <position value="$buildlocation.offset" space="this.zone"/>
             <rotation value="$buildlocation.rotation"/>
             <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
           </add_blocked_area>
-          <check_is_area_obstructed name="$obstructed" zone="this.container.zone" excluded="this.ship" macro="$macro">
-            <position value="$buildlocation.offset" space="this.container.zone"/>
+          <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$macro">
+            <position value="$buildlocation.offset" space="this.zone"/>
             <rotation value="$buildlocation.rotation"/>
             <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
           </check_is_area_obstructed>
           <do_while value="$obstructed" >
             <wait exact="10s"/>
-            <check_is_area_obstructed name="$obstructed" zone="this.container.zone" excluded="this.ship" macro="$macro">
-              <position value="$buildlocation.offset" space="this.container.zone"/>
+            <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$macro">
+              <position value="$buildlocation.offset" space="this.zone"/>
               <rotation value="$buildlocation.rotation"/>
               <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
             </check_is_area_obstructed>
@@ -207,8 +207,8 @@
           <do_if value="$station.isconstruction">
             <restart_build object="$buildlocation.station" buildmodule="this.ship.buildmodule"/>
             <set_command_action commandaction="commandaction.repairingto" param="$station" />
-            <add_blocked_area blocker="this" zone="this.container.zone">
-              <position value="$buildlocation.offset" space="this.container.zone"/>
+            <add_blocked_area blocker="this" zone="this.zone">
+              <position value="$buildlocation.offset" space="this.zone"/>
               <rotation value="$buildlocation.rotation"/>
               <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
             </add_blocked_area>
@@ -242,7 +242,7 @@
         </wait>
         <set_value name="this.$ut_cac.$isactive" exact="1" comment="possibly long-lasting action is done - pay the last payment period too"/>
         <!-- Station Construction complete  - remove blocked area, set commander, start ai -->
-        <remove_blocked_area blocker="this" zone="this.container.zone"/>
+        <remove_blocked_area blocker="this" zone="this.zone"/>
         <set_object_commander object="this.ship" commander="$station" type="entitytype.manager"/>
         <create_ai_unit object="$station"/>
       </do_if>
@@ -256,20 +256,20 @@
           <return/>
         </do_if>
         <set_command_action commandaction="commandaction.standingby" />
-        <add_blocked_area blocker="this" zone="this.container.zone">
-          <position value="$station.buildlocation.offset" space="this.container.zone"/>
+        <add_blocked_area blocker="this" zone="this.zone">
+          <position value="$station.buildlocation.offset" space="this.zone"/>
           <rotation value="$station.buildlocation.rotation"/>
           <boundingbox max="$station.macro.boundingbox.max" center="$station.macro.boundingbox.center" />
         </add_blocked_area>
-        <check_is_area_obstructed name="$obstructed" zone="this.container.zone" excluded="this.ship" macro="$station.macro">
-          <position value="$station.buildlocation.offset" space="this.container.zone"/>
+        <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$station.macro">
+          <position value="$station.buildlocation.offset" space="this.zone"/>
           <rotation value="$station.buildlocation.rotation"/>
           <boundingbox max="$station.macro.boundingbox.max" center="$station.macro.boundingbox.center" />
         </check_is_area_obstructed>
         <do_while value="$obstructed" >
           <wait exact="10s"/>
-          <check_is_area_obstructed name="$obstructed" zone="this.container.zone" excluded="this.ship" macro="$station.macro">
-            <position value="$station.buildlocation.offset" space="this.container.zone"/>
+          <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$station.macro">
+            <position value="$station.buildlocation.offset" space="this.zone"/>
             <rotation value="$station.buildlocation.rotation"/>
             <boundingbox max="$station.macro.boundingbox.max" center="$station.macro.boundingbox.center" />
           </check_is_area_obstructed>
@@ -281,7 +281,7 @@
           <add_build_plan buildmodule="this.ship.buildmodule" buildplan="$Buildplan" updatebuild="true" />
           <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.buildpurposemacro.{$Buildplan}.name]"/>
           <set_command_action commandaction="commandaction.repairingto" param="$macro.buildpurposemacro.{buildplan.[$sequence,$stage]}" />
-          <remove_blocked_area blocker="this" zone="this.container.zone"/>
+          <remove_blocked_area blocker="this" zone="this.zone"/>
         </do_if>
         <do_else>
           <debug_text filter="error" text="'%1 %2 %3 Trying to Upgrade Station %4 Sequence %5 over buildplan'.[player.age,this.name,this.container.name,$station.name,$sequence]"/>
@@ -453,6 +453,6 @@
   </attention>
   <on_abort>
     <remove_build_location_claim buildlocation="$buildlocation"/>
-    <remove_blocked_area blocker="this" zone="this.container.zone"/>
+    <remove_blocked_area blocker="this" zone="this.zone"/>
   </on_abort>
 </aiscript>

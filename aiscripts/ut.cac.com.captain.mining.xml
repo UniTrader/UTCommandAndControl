@@ -124,7 +124,7 @@
         <!-- throw out Minerals we didnt want -->
         <do_if value="$amount and this.ship.cargo.{$ware}.count gt $amount">
           <!--set_value name="$removeamount" exact="$amount - this.ship.cargo.{$ware}.count"/>
-          <deplete_yield container="this.ship" ware="$ware" zone="this.container.zone" amount="$removeamount" /-->
+          <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$removeamount" /-->
           <remove_cargo object="this.ship" ware="$ware" exact="this.ship.cargo.{$ware}.count - $amount"/>
         </do_if>
       </do_if>
@@ -135,7 +135,7 @@
           <set_value name="$amount" exact="[this.container.commander.cargo.{$ware}.target - this.container.commander.cargo.{$ware}.count - $incomingamount , this.ship.cargo.{$ware}.count].min"/>
           <do_if value="this.ship.cargo.{$ware}.count gt $amount">
             <!--set_value name="$removeamount" exact="$amount - this.ship.cargo.{$ware}.count"/>
-            <deplete_yield container="this.ship" ware="$ware" zone="this.container.zone" amount="$removeamount" /-->
+            <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$removeamount" /-->
             <remove_cargo object="this.ship" ware="$ware" exact="this.ship.cargo.{$ware}.count - $amount"/>
           </do_if>
           
