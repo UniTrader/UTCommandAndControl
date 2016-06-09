@@ -339,19 +339,13 @@ Rest is shared between all Actor types
               <assign_trade_manager object="$actor.container" actor="$actor"/>
               <!--assign_control_entity object="$actor.container" actor="$actor"/-->
             </do_if>
+            <cancel_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="Assigned_as_control_entity"/>
+            <signal_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="this"/>
             <!-- restart Order List progression on Arrival -->
             <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
           </actions>
-          <cues>
-            <cue name="Actor_Transport_complete_delayed_signal">
-              <delay exact="100ms"/>
-              <actions>
-                <signal_cue cue="Assigned_as_control_entity"/>
-              </actions>
-            </cue>
-          </cues>
         </cue>
         <cue name="Assigned_as_control_entity">
           <conditions>
