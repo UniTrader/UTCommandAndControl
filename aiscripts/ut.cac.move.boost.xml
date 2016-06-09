@@ -101,7 +101,7 @@
         </do_if>
         <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately.  -->
         <check_object result="$result" object="$targetzone">
-          <match_is_in_view_of object="this.ship" vertical="10deg" horizontal="10deg"/>
+          <match_is_in_view_of object="this.ship" vertical="30deg" horizontal="30deg"/>
         </check_object>
         <do_if value="$result and this.ship.distanceto.{$startpos} lt this.ship.size *2">
           <remove_value name="$startpos"/>
@@ -244,6 +244,11 @@
             <!-- cache Assets of destination if player is on board to make transition smooth -->
             <precache_hint zone="$targetzone"/>
           </do_if>
+          
+          <do_if value="this.sector.macro.ismacro.{'Cluster_N_Sector01_macro'}">
+            <!-- HACK for Toride: use Steering FCM to avoid Pathing through Asteroid Fields -->
+            <set_flight_control_model flightcontrolmodel="flightcontrolmodel.steering" object="this.ship"/>
+          </do_if>
           <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false" boost="true">
             <position value="$targetpos" />
             <!--interrupt>
@@ -255,6 +260,8 @@
               </actions>
             </interrupt-->
           </move_to>
+          <!-- reset FCM for Toride Hack -->
+          <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
         </do_if>
         <do_else>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Cannt activate Booster - Snail movement'.[player.age,this.name,this.container.name]"/>
