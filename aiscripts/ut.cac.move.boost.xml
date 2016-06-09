@@ -245,10 +245,6 @@
             <precache_hint zone="$targetzone"/>
           </do_if>
           
-          <do_if value="this.sector.macro.ismacro.{'Cluster_N_Sector01_macro'}">
-            <!-- HACK for Toride: use Steering FCM to avoid Pathing through Asteroid Fields -->
-            <set_flight_control_model flightcontrolmodel="flightcontrolmodel.steering" object="this.ship"/>
-          </do_if>
           <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false" boost="true">
             <position value="$targetpos" />
             <!--interrupt>
@@ -260,8 +256,6 @@
               </actions>
             </interrupt-->
           </move_to>
-          <!-- reset FCM for Toride Hack -->
-          <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
         </do_if>
         <do_else>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Cannt activate Booster - Snail movement'.[player.age,this.name,this.container.name]"/>
