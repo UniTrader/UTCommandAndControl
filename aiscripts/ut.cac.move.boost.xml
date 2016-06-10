@@ -207,9 +207,11 @@
         <wait min="100ms" max="200ms"/>
       </do_else>
       
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost Preparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$followers_preparing,$followers_preparing.count]"/>
       <!-- Ready for Boost - wait till everyone following has also prepared to actually boost -->
       <do_if value="$followers_preparing?">
         <do_while value="$followers_preparing.count">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be ready\nPreparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$followers_preparing,$followers_preparing.count]"/>
           <wait min="5s" max="8s"/>
         </do_while>
       </do_if>
@@ -239,7 +241,7 @@
       
       <do_while value="( this.zone != $targetzone ) or ( this.ship.distanceto.{$targetpos} gt 5000 )">
         <do_if value="this.ship.canboost or this.ship.isboostactive">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!\nPreparegroup: %4'.[player.age,this.name,this.container.name,$followers_preparing]"/>
           <do_if value="this.ship == player.ship">
             <!-- cache Assets of destination if player is on board to make transition smooth -->
             <precache_hint zone="$targetzone"/>
