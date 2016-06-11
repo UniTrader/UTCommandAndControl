@@ -15,6 +15,7 @@
     <!-- Stuff necesary for coordinated Group Boosts -->
     <param name="leader" default="null" comment="the formation leader/object which coordinates the Boost"/>
     <param name="leader_preparegroup" default="null" comment="the group of Ships the Leader waits for (if you dont specify a leader this will be the Group the Ship waits for to prepare as if it were the leader)"/>
+    <param name="leader_startposition" default="null" comment="the Start Position of the Leader when boosting in groups (currently unused)"/>
     
   </params>
   <interrupts>
@@ -48,6 +49,14 @@
       </do_if>
       <do_if value="$destination == this.zone">
         <!-- we are already here - so why boosting? -->
+        <return/>
+      </do_if>
+      <do_if value="not $leader and $leader_preparegroup">
+        <debug_text filter="error" text="'%1 %2 %3 Preparegroup provided but no Boost Leader - Aborting'.[ player.age,this.name,this.container.name]" />
+        <return/>
+      </do_if>
+      <do_if value="$leader and not $leader_preparegroup">
+        <debug_text filter="error" text="'%1 %2 %3 Leader provided but Prepare Group - Aborting'.[ player.age,this.name,this.container.name]" />
         <return/>
       </do_if>
       
@@ -176,17 +185,13 @@
       
       
       <!-- Signal our Intention to Jump and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
-      <do_if value="not $leader and $leader_preparegroup">
-        <set_value name="$followers_preparing" exact="$leader_preparegroup"/>
-        <remove_value name="$leader_preparegroup"/>
-      </do_if>
-      <do_elseif value="$leader and $leader_preparegroup">
+      <do_if value="$leader and $leader_preparegroup">
         <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
-      </do_elseif>
+      </do_if>
       <do_else>
-        <create_group groupname="$followers_preparing"/>
+        <create_group groupname="$leader_preparegroup"/>
       </do_else>
-      <signal_objects object="this.ship" param="'travel boost prep'" param2="$destination" param3="$followers_preparing"/>
+      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ $destination , $targetpos , $startpos ]" param3="$leader_preparegroup"/>
       
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
@@ -210,41 +215,52 @@
         <wait min="100ms" max="200ms"/>
       </do_else>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost Preparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$followers_preparing,$followers_preparing.count]"/>
-      <!-- Ready for Boost - wait till everyone following has also prepared to actually boost -->
-      <do_if value="$followers_preparing?">
-        <do_while value="$followers_preparing.count">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be ready\nPreparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$followers_preparing,$followers_preparing.count]"/>
-          <wait min="5s" max="8s"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost Preparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+      <!-- We are in position - As Leader wait till all Followers are ready and give the Start Signal -->
+      <do_if value="not $leader.exists">
+        <do_while value="$leader_preparegroup.count">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be ready\nPreparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+          <wait min="5s" max="8s">
+            <interrupt>
+              <conditions>
+                <event_object_changed_zone group="$leader_preparegroup"/>
+              </conditions>
+              <actions>
+                <!-- what the hell? the leader has flown away or jumped without telling anyone - Kick him out of Group! -->
+                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Follower %4 switched Zones or Jumped without telling anyone! - Dont wait for that ******'.[player.age,this.name,this.container.name,event.object.knownname]"/>
+                <remove_from_group group="$leader_preparegroup" object="event_object"/>
+              </actions>
+            </interrupt>
+          </wait>
         </do_while>
       </do_if>
-      
-      <!-- if we are a follower in a Group Boost - remove ourselves from the Group to signal we are ready and wait for the Start Signal -->
-      <do_if value="$leader.exists">
+      <!-- if we are a follower in a Group Boost - remove ourselves from the prep group and wait for the Start Signal -->
+      <do_else>
         <remove_from_group group="$leader_preparegroup" object="this.ship"/>
         <wait>
           <interrupt>
             <conditions>
+              <check_any>
                 <event_object_signalled object="$leader" param="'travel boost start'" param2="$destination"/>
-            </conditions>
-          </interrupt>
-          <!--interrupt>
-            <conditions>
                 <event_object_changed_zone object="$leader"/>
+              </check_any>
             </conditions>
             <actions>
-              <!- - what the hell? the leader has flown away or jumped without telling anyone! - ->
-              <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone!'.[player.age,this.name,this.container.name,$leader.knownname]"/>
-              <return/>
+              <do_if value="event.name == 'event_object_changed_zone'">
+                <!-- what the hell? the leader has flown away or jumped without telling anyone - Abort! -->
+                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone! - Aborting'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+                <return/>
+              </do_if>
             </actions>
-          </interrupt-->
+          </interrupt>
         </wait>
-      </do_if>
+      </do_else>
+      <!-- Preperations Done - Tell everyone to start -->
       <signal_objects object="this.ship" param="'travel boost start'" param2="$destination"/>
       
       <do_while value="( this.zone != $targetzone ) or ( this.ship.distanceto.{$targetpos} gt 5000 )">
         <do_if value="this.ship.canboost or this.ship.isboostactive">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!\nPreparegroup: %4'.[player.age,this.name,this.container.name,$followers_preparing]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!\nPreparegroup: %4'.[player.age,this.name,this.container.name,$leader_preparegroup]"/>
           <do_if value="this.ship == player.ship">
             <!-- cache Assets of destination if player is on board to make transition smooth -->
             <precache_hint zone="$targetzone"/>
