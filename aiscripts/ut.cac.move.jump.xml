@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.jump" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.jump" priority="10" version="21" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
 
  rewritten from scratch by UniTrader
@@ -31,6 +31,12 @@ ToDo:
   </params>
   <interrupts>
   </interrupts>
+  <patch sinceversion="21">
+    <do_if value="$followers_preparing?">
+      <set_value name="$leader_preparegroup" exact="$followers_preparing"/>
+      <remove_value name="$followers_preparing"/>
+    </do_if>
+  </patch>
   <attention min="unknown">
     <actions>
       <!-- first decode the $params to the Variables -->
