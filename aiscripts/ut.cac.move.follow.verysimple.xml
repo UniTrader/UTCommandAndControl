@@ -55,6 +55,7 @@
           <event_object_signalled object="$object" param="'travel boost prep'"/>
           <event_object_signalled object="$object" param="'travel jump prep'"/>
           <event_object_signalled object="$object" param="'travel boost prep'"/>
+          <event_object_signalled object="$object" param="'travel aborted'"/>
         </check_any>
         <check_value value="not $fly_to_leader?"/>
       </conditions>
@@ -85,6 +86,9 @@
             <param name="queue_position" value="event.param3"/>
           </run_interrupt_script>
         </do_elseif>
+        <do_elseif value="event.param == 'travel aborted'">
+          <abort_called_scripts resume="start"/>
+        </do_elseif>
       </actions>
     </handler>
   </interrupts>
@@ -99,7 +103,7 @@
       </run_script>
       <remove_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
 
-      <!-- just some Dummy Code - this Script is primarily for testing the Signalling -->
+      <!-- just some Dummy Code - this Script is primarily for testing the Signalling and synching of the interrupting movement scripts-->
       <label name="start"/>
       
       <wait/>
