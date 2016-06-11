@@ -83,7 +83,7 @@
       <!-- calculate Offset if we want to get to an Object and set the Destination Zone Var-->
       <do_if value="$destination.isclass.zone">
         <do_if value="not $position">
-          <get_safe_pos result="$position" allowyaxis="true" zone="$destination" value="position.[0,0,0]" radius="this.ship.size" ignored="this.ship" directionobject="this.zone" min="20km"/>
+          <get_safe_pos result="$position" allowyaxis="true" zone="$destination" value="position.[0,0,0]" radius="this.ship.size * 2" ignored="this.ship" directionobject="this.zone" min="20km"/>
         </do_if>
         <set_value name="$targetzone" exact="$destination"/>
       </do_if>
@@ -105,7 +105,7 @@
         <set_command_action commandaction="commandaction.flyingto" param="$targetzone"/>
         <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
         
-        <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size/2" >
+        <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size * 2" >
           <position object="this.ship" />
         </get_zone_exit_pos>
         <do_if value="$startrot.pitch gt 45deg">
@@ -118,7 +118,7 @@
         <check_object result="$result" object="$targetzone">
           <match_is_in_view_of object="this.ship" vertical="30deg" horizontal="30deg"/>
         </check_object>
-        <do_if value="$result and this.ship.distanceto.{$startpos} lt this.ship.size *2">
+        <do_if value="$result and this.ship.distanceto.{$startpos} lt this.ship.size">
           <remove_value name="$startpos"/>
           <remove_value name="$startrot"/>
         </do_if>
@@ -136,10 +136,10 @@
         <do_if value="$targetzone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and $destination.isclass.gate">
           <!-- HACK for FoO - AL Gate -->
           <find_object name="$ignoredobject" space="$targetzone" macro="macro.landmarks_unique_the_mace_macro"/>
-          <get_safe_pos result="$targetpos" allowyaxis="true" zone="$targetzone" value="$position" radius="5km" ignored="$ignoredobject"/>
+          <get_safe_pos result="$targetpos" allowyaxis="true" zone="$targetzone" value="$position" radius="this.ship.size * 2" ignored="$ignoredobject"/>
         </do_if>
         <do_else>
-          <get_zone_exit_pos zone="$targetzone" destination="this.ship" position="$targetpos" radius="this.ship.size" >
+          <get_zone_exit_pos zone="$targetzone" destination="this.ship" position="$targetpos" radius="this.ship.size * 2" >
             <position object="$targetzone" value="$position"/>
           </get_zone_exit_pos>
         </do_else>
@@ -153,7 +153,7 @@
         
         <!-- create boost Target Pos -->
         <do_if value="$position">
-          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship" min="this.ship.size * 2"/>
+          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size * 2" ignored="this.ship" directionobject="this.ship" min="this.ship.size * 2"/>
         </do_if>
         <do_else>
           <create_position_outside_boundingbox name="$targetpos" component="$destination" distance="this.ship.size * 2">
@@ -170,7 +170,7 @@
           <!--create_position_outside_boundingbox name="$startpos" component="this.ship" distance="this.ship.size" >
             <position object="$destination"/>
           </create_position_outside_boundingbox-->
-          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
+          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size * 2" ignored="this.ship" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
           <create_orientation name="$startrot" orientation="look_at" refposition="$targetpos">
             <position value="$startpos" />
           </create_orientation>
