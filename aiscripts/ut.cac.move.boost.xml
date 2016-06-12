@@ -114,7 +114,7 @@
         <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
         
         <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size * 2" >
-          <position object="if $leader then $leader else this.ship" />
+          <position value="if $leader_startposition then $leader_startposition else this.ship.position" space="this.zone"/>
         </get_zone_exit_pos>
         <do_if value="$startrot.pitch gt 45deg">
           <set_value name="$startrot" exact="rotation.[$startrot.yaw,45deg,$startrot.roll]"/>
