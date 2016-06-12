@@ -102,7 +102,7 @@
       </transform_position>
       <!--get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/-->
       <!-- move to position in queue/prep pos -->
-      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="false" avoid="false">
+      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="$queue_position == 1">
         <position value="$position" />
         <rotation value="$gate.rotation" comment="no need to calculate this because we are behind the Gate"/>
         <interrupt>
@@ -111,8 +111,7 @@
           </conditions>
         </interrupt>
       </move_to>
-      <set_avoid_collisions object="this.ship" enabled="false"/>
-      <do_if value="global.$gate_queue.{$gate}.{1} == this.ship">
+      <do_if value="$queue_position == 1">
         <resume label="pass gate"/>
       </do_if>
       <do_else>
@@ -161,7 +160,7 @@
       </do_if>
       
       <set_value name="$moveintogate" exact="true" />
-      <move_gate object="this.ship" gate="$gate" abortpath="true" >
+      <move_gate object="this.ship" gate="$gate">
         <interrupt>
           <conditions>
             <event_object_changed_cluster object="this.ship" />
@@ -200,7 +199,7 @@
         <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
         <move_to object="this.ship" destination="this.zone" boost="true" forcesteering="true" comment="boost=this.ship.pilot.skill.navigation ge 3">
           <position value="$safeposition"/>
-          <interrupt_after_time time="10s"/>
+          <!--interrupt_after_time time="10s"/-->
         </move_to>
         <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
       </do_if>
