@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.gate2" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="21">
+<aiscript name="ut.cac.move.gate2" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
 
  rewritten from scratch by UniTrader
@@ -193,6 +193,7 @@
       
       <!-- a very short Boost forward to clear Entry Area (or if not possible right now clear in normal flight) -->
       <do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
+        <wait exact="100ms" comment="otherwise the player.ship skips movement for some reason"/>
         <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >
           <position x="0m" y="0m" z="(this.ship.size *3)"/>
         </transform_position>
