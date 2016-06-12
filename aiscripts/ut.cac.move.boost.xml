@@ -58,12 +58,12 @@
         <return/>
       </do_if>
       <do_if value="not $leader and $leader_preparegroup">
-        <debug_text filter="error" text="'%1 %2 %3 Preparegroup provided but no Boost Leader - Aborting'.[ player.age,this.name,this.container.name]" />
-        <return/>
+        <debug_text filter="error" text="'%1 %2 %3 Preparegroup provided but no Boost Leader - removing preparegroup'.[ player.age,this.name,this.container.name]" />
+        <set_value name="$leader_preparegroup" exact="null"/>
       </do_if>
       <do_if value="$leader and not $leader_preparegroup">
-        <debug_text filter="error" text="'%1 %2 %3 Leader provided but Prepare Group - Aborting'.[ player.age,this.name,this.container.name]" />
-        <return/>
+        <debug_text filter="error" text="'%1 %2 %3 Leader provided but Prepare Group - removing leader'.[ player.age,this.name,this.container.name]" />
+        <set_value name="$leader" exact="null"/>
       </do_if>
       
       <!-- check Context -->
@@ -79,6 +79,9 @@
       <!-- =================== -->
       <!-- Figure out final Params -->
       <!-- =================== -->
+      
+      <!-- save unmodified Target Pos to pass to Followers -->
+      <set_value name="$position_passed" exact="$position"/>
       
       <!-- calculate Offset if we want to get to an Object and set the Destination Zone Var-->
       <do_if value="$destination.isclass.zone">
@@ -106,7 +109,7 @@
         <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
         
         <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size * 2" >
-          <position object="this.ship" />
+          <position value="if $leader_startposition then $leader_startposition else this.ship.position" />
         </get_zone_exit_pos>
         <do_if value="$startrot.pitch gt 45deg">
           <set_value name="$startrot" exact="rotation.[$startrot.yaw,45deg,$startrot.roll]"/>
@@ -197,7 +200,7 @@
       <do_else>
         <create_group groupname="$leader_preparegroup"/>
       </do_else>
-      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ $destination , $targetpos , @$startpos ]" param3="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ $destination , $position_passed , @$startpos ]" param3="$leader_preparegroup"/>
       
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
