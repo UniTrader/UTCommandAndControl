@@ -93,9 +93,9 @@
         <resume label="start"/>
       </do_if>
       <!-- calculate Target Distance BEHIND the Gate (therefore subtract) -->
-      <set_value name="$queue_distance" exact="0m - $gate.size"/>
+      <set_value name="$queue_distance" exact="0m - $gate.size / 2"/>
       <do_all exact="$queue_position" counter="$i">
-        <set_value name="$queue_distance" operation="subtract" exact="global.$gate_queue.{$gate}.{$i}.size"/>
+        <set_value name="$queue_distance" operation="subtract" exact="global.$gate_queue.{$gate}.{$i}.size * 1.5"/>
       </do_all>
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
         <position x="0m" y="0m" z="$queue_distance"/>
