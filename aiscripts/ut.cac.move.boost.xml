@@ -65,6 +65,10 @@
         <debug_text filter="error" text="'%1 %2 %3 Leader provided but Prepare Group - removing leader'.[ player.age,this.name,this.container.name]" />
         <set_value name="$leader" exact="null"/>
       </do_if>
+      <do_if value="$leader.sector != this.sector">
+        <debug_text filter="error" text="'%1 %2 %3 Leader is in diffrent Sector than we are. Aborting! Leader sector: %4 Out Sector: %5'.[ player.age,this.name,this.container.name,$leader.sector.knownname,this.sector.kownname]" />
+        <return/>
+      </do_if>
       
       
       <!-- check Context -->
