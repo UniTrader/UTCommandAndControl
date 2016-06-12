@@ -66,6 +66,7 @@
         <set_value name="$leader" exact="null"/>
       </do_if>
       
+      
       <!-- check Context -->
       <!-- also consider adding a Sector-to-Sector-Boost here (with Context Switch) -->
       
@@ -108,9 +109,16 @@
         <set_command_action commandaction="commandaction.flyingto" param="$targetzone"/>
         <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
         
-        <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size * 2" >
-          <position value="if $leader_startposition then $leader_startposition else this.ship.position" />
-        </get_zone_exit_pos>
+        <do_if value="$leader_startposition">
+          <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size * 2" >
+            <position value="$leader_startposition" />
+          </get_zone_exit_pos>
+        </do_if>
+        <do_else>
+          <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size * 2" >
+            <position object="this.ship" />
+          </get_zone_exit_pos>
+        </do_else>
         <do_if value="$startrot.pitch gt 45deg">
           <set_value name="$startrot" exact="rotation.[$startrot.yaw,45deg,$startrot.roll]"/>
         </do_if>
