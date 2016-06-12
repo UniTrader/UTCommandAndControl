@@ -93,17 +93,17 @@
         <resume label="start"/>
       </do_if>
       <!-- calculate Target Distance BEHIND the Gate (therefore subtract) -->
-      <set_value name="$queue_distance" exact="0m - $gate.size / 2"/>
+      <set_value name="$queue_distance" exact="0m"/>
       <do_all exact="$queue_position" counter="$i">
-        <set_value name="$queue_distance" operation="subtract" exact="global.$gate_queue.{$gate}.{$i}.size * 1.5"/>
+        <set_value name="$queue_distance" operation="subtract" exact="global.$gate_queue.{$gate}.{$i}.size * 1.1"/>
       </do_all>
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
         <position x="0m" y="0m" z="$queue_distance"/>
       </transform_position>
-      <get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/>
+      <!--get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/-->
       <!-- move to position in queue/prep pos -->
-      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="false">
-        <position value="$safeposition" />
+      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="false" avoid="false">
+        <position value="$position" />
         <interrupt>
           <conditions>
             <event_object_signalled object="$gate" param="'travel gate next'"/>
