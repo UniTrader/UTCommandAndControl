@@ -104,12 +104,14 @@
       <!-- move to position in queue/prep pos -->
       <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="false" avoid="false">
         <position value="$position" />
+        <rotation value="$gate.rotation" comment="no need to calculate this because we are behind the Gate"/>
         <interrupt>
           <conditions>
             <event_object_signalled object="$gate" param="'travel gate next'"/>
           </conditions>
         </interrupt>
       </move_to>
+      <set_avoid_collisions object="this.ship" enabled="false"/>
       <do_if value="global.$gate_queue.{$gate}.{1} == this.ship">
         <resume label="pass gate"/>
       </do_if>
