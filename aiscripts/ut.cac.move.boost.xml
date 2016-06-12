@@ -164,7 +164,7 @@
           <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size * 2" ignored="this.ship" directionobject="this.ship" min="this.ship.size * 2"/>
         </do_if>
         <do_else>
-          <create_position_outside_boundingbox name="$targetpos" component="$destination" distance="this.ship.size * 2">
+          <create_position_outside_boundingbox name="$targetpos" component="$destination" distance="this.ship.size">
             <position object="this.ship"/>
           </create_position_outside_boundingbox>
         </do_else>
@@ -188,6 +188,15 @@
             <remove_value name="$startpos"/>
             <remove_value name="$startrot"/>
           </do_if>
+        </do_if>
+        
+        <do_if value="$startpos? and ( this.ship.distanceto.{$startpos} gt this.ship.distanceto.{$position} )">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Distance to Start Pos greater than Distance to Target - aborting'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_if>
+        <do_if value="$targetpos? and ( this.ship.distanceto.{$targetpos} gt this.ship.distanceto.{$position} )">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Distance to Target Pos greater than Distance to Target - aborting'.[player.age,this.name,this.container.name]"/>
+          <return/>
         </do_if>
         
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calculated Params for IZ-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
