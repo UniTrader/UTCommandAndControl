@@ -347,13 +347,18 @@ Rest is shared between all Actor types
             <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
           </actions>
         </cue>
-        <cue name="Assigned_as_control_entity">
+        <cue name="Assigned_as_control_entity" version="21">
           <conditions>
             <event_cue_signalled/>
           </conditions>
           <actions>
             <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
           </actions>
+          <patch sinceversion="21" state="complete" comment="Previous cue didnt execute the right commands before - doing it here since executing it too early/often is harmless">
+            <cancel_cue cue="this"/>
+            <reset_cue cue="this"/>
+            <signal_cue cue="this"/>
+          </patch>
           <cues>
             <!--cue name="Removed_from_Assignment">
               <conditions>
