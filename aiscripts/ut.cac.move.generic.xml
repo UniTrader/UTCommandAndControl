@@ -21,7 +21,7 @@
   </params>
   <init>
     <do_if value="not $destination.exists">
-      <debug_text filter="general" text="'%1 %2 %3 Destination not existent: %4 %5'.[player.age,this.name,this.container.name,$destination,$destination.knownname]"/>
+      <debug_text filter="general" text="'%1 %2 %3 Destination not existent: %4 %5'.[player.age,this.name,this.container.name,@$destination,@$destination.knownname]"/>
     </do_if>
   </init>
   <interrupts>
@@ -30,7 +30,7 @@
           <event_object_target_invalid object="this.ship" />
         </conditions>
         <actions>
-          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $destination: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $destination: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,@$destination.knownname]"/>
           <abort_called_scripts />
           <resume label="start"/>
       </actions>
@@ -41,7 +41,7 @@
         <event_object_destroyed object="$destination"/>
       </conditions>
       <actions>
-        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,@$destination.knownname]"/>
         <abort_called_scripts/>
         <return value="1"/>
       </actions>
@@ -221,7 +221,7 @@
             
             <!-- Move through Gate -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 moving through Gate in %4'.[player.age,this.name,this.container.name,this.$waypoint.zone.knownname]"/>
-            <run_script name="'ut.cac.move.gate2'">
+            <run_script name="'ut.cac.move.gate'">
               <param name="gate" value="this.$waypoint" />
             </run_script>
           </do_elseif>
