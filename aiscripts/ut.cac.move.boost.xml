@@ -113,9 +113,16 @@
         <set_command_action commandaction="commandaction.flyingto" param="$targetzone"/>
         <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
         
+        <do_if value="$leader_startposition">
+          <!-- ToDo: base Start Position on Position in Formation if applicable -->
+          <get_safe_pos result="$startpos" zone="$leader.zone" value="$leader_startposition" radius="this.ship.size * 2"/>
+          <set_value name="$startrot" exact="$leader_startrotation"/>
+        </do_if>
+        <do_else>
         <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size * 2" >
-          <position value="if $leader_startposition then $leader_startposition else this.ship.position" space="this.zone"/>
+          <position object="this.ship.position"/>
         </get_zone_exit_pos>
+        </do_else>
         <do_if value="$startrot.pitch gt 45deg">
           <set_value name="$startrot" exact="rotation.[$startrot.yaw,45deg,$startrot.roll]"/>
         </do_if>
@@ -214,7 +221,7 @@
       <do_else>
         <create_group groupname="$leader_preparegroup"/>
       </do_else>
-      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ $destination , $position_passed , @$startpos ]" param3="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ $destination , $position_passed , @$startpos , @startrot ]" param3="$leader_preparegroup"/>
       
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
