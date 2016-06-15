@@ -132,15 +132,17 @@
         <wait max="5min" comment="just in case the Signal doesnt trigger properly">
         <interrupt>
           <conditions>
-            <check_any>
+            <!--check_any-->
               <event_object_signalled object="$gate" param="'travel gate next'"/>
-              <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
-            </check_any>
+              <!--event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+            </check_any-->
           </conditions>
           <actions>
+            <!-- this has some odd side-effects - use at own risk
             <do_if value="event.name == 'event_object_arrived_at_waypoint'">
               <set_flight_control_model object="this.ship" flightcontrolmodel="flightcontrolmodel.linear"/>
             </do_if>
+            -->
             <resume label="fly to prep pos"/>
           </actions>
         </interrupt>
