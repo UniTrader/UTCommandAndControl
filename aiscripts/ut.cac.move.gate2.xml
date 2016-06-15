@@ -132,14 +132,20 @@
         <wait max="5min" comment="just in case the Signal doesnt trigger properly">
         <interrupt>
           <conditions>
-            <event_object_signalled object="$gate" param="'travel gate next'"/>
+            <check_any>
+              <event_object_signalled object="$gate" param="'travel gate next'"/>
+              <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+            </check_any>
           </conditions>
           <actions>
+            <do_if value="event.name == 'event_object_arrived_at_waypoint'">
+              <set_flight_control_model object="this.ship" flightcontrolmodel="flightcontrolmodel.linear"/>
+            </do_if>
             <resume label="fly to prep pos"/>
           </actions>
         </interrupt>
         </wait>
-        <!-- Validate if everyone in Gate Queue still exists ocassionally to prevent complete Lockups - low chance because everyone in queue may do this-->
+        <!-- Validate if everyone in Gate Queue still exists ocassionally to prevent complete Lockups - low chance because everyone in queue may do this -->
         <do_all exact="global.$gate_queue.{$gate}.count" counter="$i" reverse="true" chance="5">
           <do_if value="not global.$gate_queue.{$gate}.{$i}.exists or  global.$gate_queue.{$gate}.{$i}.zone != $gate.zone">
             <remove_value name="global.$gate_queue.{$gate}.{$i}"/>
@@ -220,8 +226,8 @@
           <position value="$safeposition"/>
           <interrupt_after_time time="10s"/>
         </move_to>
-        <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
       </do_if>
+      <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
       
     </actions>
   </attention>
@@ -233,5 +239,6 @@
     </do_if>
     <!-- also unblock the Vanilla mechanic -->
     <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
+    <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
   </on_abort>
 </aiscript>
