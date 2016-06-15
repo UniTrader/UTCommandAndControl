@@ -108,7 +108,7 @@
       </transform_position>
       <!--get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/-->
       <!-- move to position in queue/prep pos -->
-      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="$queue_position == 1">
+      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true">
         <position value="$position" />
         <rotation value="$gate.rotation" comment="no need to calculate this because we are behind the Gate"/>
         <interrupt>
@@ -123,6 +123,11 @@
       <do_if value="$queue_position == 1">
         <resume label="pass gate"/>
       </do_if>
+      <do_elseif value="this.ship.distanceto.{$gate} lt global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate}" comment="we are closer to the Gate than the Ship before us - swap positions to avoid delays">
+        <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="global.$gate_queue.{$gate}.{$queue_position - 1}"/>
+        <set_value name="global.$gate_queue.{$gate}.{$queue_position - 1}" exact="this.ship"/>
+        <resume label="fly to prep pos"/>
+      </do_elseif>
       <do_else>
         <wait max="1min">
         <interrupt>
