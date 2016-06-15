@@ -129,7 +129,7 @@
         <resume label="fly to prep pos"/>
       </do_elseif>
       <do_else>
-        <wait max="1min">
+        <wait max="5min" comment="just in case the Signal doesnt trigger properly">
         <interrupt>
           <conditions>
             <event_object_signalled object="$gate" param="'travel gate next'"/>
@@ -153,7 +153,7 @@
       <request_gate ship="this.ship" gate="$gate" result="$success" />
       <set_value name="$RequestingTimeout" min="player.age + 2min" max="player.age + 5min"/>
       <do_while value="global.$gate_queue.{$gate}.indexof.{this.ship} gt 1 and not $success">
-        <wait max="5min" comment="just in case the Signal doesnt trigger">
+        <wait min="3s" max="8s" comment="aggresive gate polling, but only one Ship at the same time.">
           <interrupt>
             <conditions>
               <event_object_signalled object="$gate" param="'travel gate next'"/>
