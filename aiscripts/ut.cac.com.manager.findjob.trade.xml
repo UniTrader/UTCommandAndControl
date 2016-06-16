@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.manager.findjob.trade" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
@@ -714,7 +714,7 @@
               <set_actor_account actor="$entity"/>
             </do_if>
             <debug_text filter="general" chance="@this.$debug * 100" text="'transfering %1 Credits from manager ( %2 Cr ) to trader ( %3 Cr ) for a total of %4 Cr'.[($amount * $selloffer.unitprice - $entity.money)/100,(this.money)/100,($entity.money)/100,($amount * $selloffer.unitprice)/100]"/>
-            <transfer_money from="this" to="$entity" amount="$amount * $selloffer.unitprice - $entity.money"/>
+            <transfer_money from="this" to="$entity" amount="$amount * $selloffer.unitprice" comment=" - $entity.money // commented out this part because it messes up Required Money if a Trade is still in progress - Money may end up on Captains account though"/>
             <add_buy_order object="$entity.ship" trade="$selloffer" amount="$amount" price="$selloffer.unitprice"/>
             <add_ware_reservation object="$selloffer.seller" result="$reserved" ware="$selloffer.ware" entity="$entity" amount="$amount" replace="true" duration="1h" type="buy"/>
             <add_sell_order object="$entity.ship" trade="$buyoffer" amount="$amount" price="0Cr"/>
@@ -724,7 +724,7 @@
               <add_sell_order object="$entity.ship" trade="$buyoffer2" amount="$amount" price="$selloffer.unitprice"/>
               <remove_trade_offer object="this.container" tradeoffer="$buyoffer2"/>
               <!-- tell the Ship to get the Wares and bring them back ( ^= 3 single trade runs, because back-delivery has 2 parts ) -->
-              <do_if value="$range_w.{$i}.exists">
+              <do_if value="$range_w.{$i}? and $range_w.{$i}.exists">
                 <signal_objects object="$entity" param="'new order'" param2="[ 
 table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , 
 table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=true] , 
@@ -743,7 +743,7 @@ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undoc
             </do_if>
             <do_else>
               <!-- tell the Ship to get the Wares and bring them back ( ^= 2 single trade runs ) -->
-              <do_if value="$range_w.{$i}.exists">
+              <do_if value="$range_w.{$i}? and $range_w.{$i}.exists">
                 <signal_objects object="$entity" param="'new order'" param2="[ 
 table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , 
 table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=1,$interruptable=true] , 
@@ -831,7 +831,7 @@ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undoc
             <add_ware_reservation object="$buyoffer.buyer" result="$reserved" ware="$buyoffer.ware" entity="$entity" amount="$amount" replace="true" duration="1h" type="sell"/>
             <remove_trade_offer object="this.container" tradeoffer="$selloffer"/>
             <!-- tell the Ship to get the Wares and sell them ( ^= 2 single trade runs ) -->
-            <do_if value="$range_w.{$i}.exists">
+            <do_if value="$range_w.{$i}? and $range_w.{$i}.exists">
               <signal_objects object="$entity" param="'new order'" param2="[ 
 table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=0,$interruptable=true] , 
 table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=1,$interruptable=true] , 
