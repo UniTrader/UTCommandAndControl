@@ -4,6 +4,7 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="entity" default="false" comment="Entity who needs (Mine)Orders (NOT as Ship)"/>
     <param name="range" default="false" comment="List of Spaces where the Ressource should be found inside (lower index, higher prio)"/>
+    <param name="range_w" default="false" comment="Aligned list of a intermediate waypoint for each Range Setting which has to be passed when flying to and returning from there"/>
     <param name="ware" default="false" comment="Ressource to look for"/>
     <param name="mininglist" default="false" comment="Other Ressources which may be mined if nearby"/>
   </params>
@@ -73,7 +74,7 @@
           <!-- found Ressource in Range - exit with success -->
           <do_if value="$zone.exists and ( $zone.hascontext.{$range.{$i}} or $zone == $range.{$i} )">
             <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Found wanted Ressource in Range:\nRange: %4 - Zone: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$zone]"/>
-            <do_if value="$range_w.{$i}">
+            <do_if value="$range_w and $range_w.{$i}">
               <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , table[$script='ut.cac.com.captain.mining',$displayname='Mining in %1 (Manager)'.[$zone.knownname],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=true] , table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] ]"/>
             </do_if>
             <do_else>

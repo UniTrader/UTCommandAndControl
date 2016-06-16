@@ -1,0 +1,246 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.move.gate2" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+ Routine for passing through Gates (was in move.jump and move.generic before)
+ 
+ based on the original ut.cac.move.gate but wanted to do some drastic changes, therefore using a new Script. Core Ideas will remain.
+ 
+ Script now Assumes we are nearby the Gate on Script Start - if not it may delay  the Passage of others
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="gate" default="false" comment="Gate to go through (Must be in the same Zone)"/>
+    <param name="cleargate" default="true" comment="Clear the Gate after Passage?"/>
+    
+    <param name="queue_position" default="false" comment="position in the Gate queue where Fight Ships add themselves to to pass the Gate before unarmed Ships (false will assume this is the leader and add to the End)"/>
+    
+  </params>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$gate?">
+          <set_value name="$gate" exact="$params.$gate"/>
+        </do_if>
+        <do_if value="$params.$cleargate?">
+          <set_value name="$cleargate" exact="$params.$cleargate"/>
+        </do_if>
+        <do_if value="$params.$formationlist?">
+          <set_value name="$formationlist" exact="$params.$formationlist"/>
+        </do_if>
+      </do_if>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$gate: %4 ; $cleargate: %5 $formationlist: %6'.[player.age,this.name,this.container.name,$gate,$cleargate,@$formationlist]"/>
+      
+      <label name="start"/>
+      
+      <!-- then check if the Input and Situation is Valid  -->
+      <do_if value="not $gate.exists or not $gate.isclass.gate">
+        <debug_text filter="error" text="'%1 %2 %3 Gate not existent or not a gate - aborting!'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      <do_if value="this.zone != $gate.zone">
+        <debug_text filter="error" text="'%1 %2 %3 Not in Gate Zone - aborting!'.[player.age,this.name,this.container.name]"/>
+      </do_if>
+      
+      <!-- HACK for FoO - Albion Gate: Ignore the Big Asteroid when aquiring Safe Pos -->
+      <do_if value="$gate.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'}">
+        <find_object name="$ignoredobject" space="$gate.zone" macro="macro.landmarks_unique_the_mace_macro"/>
+      </do_if>
+      <do_else>
+        <set_value name="$ignoredobject" exact="this.ship"/>
+      </do_else>
+      
+      <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
+      </do_if>
+      
+      <!-- check if global Var for Gate Passage exists and create if necesary -->
+      <!-- Note: the Table must always have a first entry which is reserved for the Ship currently flying into the Gate - set to null if currently no Ship is passing. -->
+      <do_if value="not global.$gate_queue?">
+        <set_value name="global.$gate_queue" exact="table[{$gate}=[]]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Creating Global Gate Passage Table: %4 current Gate: %5'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
+      </do_if>
+      <do_elseif value="not global.$gate_queue.{$gate}?">
+        <set_value name="global.$gate_queue.{$gate}" exact="[]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Gate to Global Gate Passage Table: %4 current Gate: %5'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
+      </do_elseif>
+      
+      <!-- Register in Gate Queue and tell Followers our Position so they can add themselves before us if required -->
+      <do_if value="not $queue_position">
+        <append_to_list name="global.$gate_queue.{$gate}" exact="this.ship"/>
+        <set_value name="$queue_position" exact="global.$gate_queue.{$gate}.count"/>
+      </do_if>
+      <do_else>
+        <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="this.ship" operation="insert"/>
+      </do_else>
+      <signal_objects object="this.ship" param="'travel gate prep'" param2="$gate" param3="$queue_position"/>
+      <wait exact="100ms"/>
+      
+      <!-- Calculate Position so we can sort into the Queue behind the Gate, and Move there (restarts with every Passage or Abort of others for fluid movement) -->
+      <label name="fly to prep pos"/>
+      <set_value name="$queue_position" exact="global.$gate_queue.{$gate}.indexof.{this.ship}"/>
+      
+      <do_if value="not $queue_position">
+        <debug_text filter="error" text="'%1 %2 %3 Not in Gate Queue - Restarting!'.[player.age,this.name,this.container.name]"/>
+        <resume label="start"/>
+      </do_if>
+      <!-- calculate Target Distance BEHIND the Gate (therefore subtract) -->
+      <set_value name="$queue_distance" exact="0m"/>
+      <do_all exact="$queue_position" counter="$i">
+        <set_value name="$queue_distance" operation="subtract" exact="global.$gate_queue.{$gate}.{$i}.size * 2.0"/>
+      </do_all>
+      <do_if value="global.$gate_queue.{$gate}.{1}.pilot.commandaction.param == $gate" comment="if the leading Ship is currently flying into the Gate it doesnt need a space behind the gate reserved for it">
+        <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{1}.size * 2.0"/>
+      </do_if>
+      <do_else>
+        <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{1}.size * 1.0"/>
+      </do_else>
+      <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
+        <position x="0m" y="0m" z="$queue_distance"/>
+      </transform_position>
+      <!--get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/-->
+      <!-- move to position in queue/prep pos -->
+      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true">
+        <position value="$position" />
+        <rotation value="$gate.rotation" comment="no need to calculate this because we are behind the Gate"/>
+        <interrupt>
+          <conditions>
+            <event_object_signalled object="$gate" param="'travel gate next'"/>
+          </conditions>
+          <actions>
+            <resume label="fly to prep pos"/>
+          </actions>
+        </interrupt>
+      </move_to>
+      <do_if value="$queue_position == 1">
+        <resume label="pass gate"/>
+      </do_if>
+      <do_elseif value="this.ship.distanceto.{$gate} lt global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate}" comment="we are closer to the Gate than the Ship before us - swap positions to avoid delays">
+        <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="global.$gate_queue.{$gate}.{$queue_position - 1}"/>
+        <set_value name="global.$gate_queue.{$gate}.{$queue_position - 1}" exact="this.ship"/>
+        <resume label="fly to prep pos"/>
+      </do_elseif>
+      <do_else>
+        <wait max="5min" comment="just in case the Signal doesnt trigger properly">
+        <interrupt>
+          <conditions>
+            <!--check_any-->
+              <event_object_signalled object="$gate" param="'travel gate next'"/>
+              <!--event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+            </check_any-->
+          </conditions>
+          <actions>
+            <!-- this has some odd side-effects - use at own risk
+            <do_if value="event.name == 'event_object_arrived_at_waypoint'">
+              <set_flight_control_model object="this.ship" flightcontrolmodel="flightcontrolmodel.linear"/>
+            </do_if>
+            -->
+            <resume label="fly to prep pos"/>
+          </actions>
+        </interrupt>
+        </wait>
+        <!-- Validate if everyone in Gate Queue still exists ocassionally to prevent complete Lockups - low chance because everyone in queue may do this -->
+        <do_all exact="global.$gate_queue.{$gate}.count" counter="$i" reverse="true" chance="5">
+          <do_if value="not global.$gate_queue.{$gate}.{$i}.exists or  global.$gate_queue.{$gate}.{$i}.zone != $gate.zone">
+            <remove_value name="global.$gate_queue.{$gate}.{$i}"/>
+          </do_if>
+        </do_all>
+        <resume label="fly to prep pos" comment="Queue got shorter - advance"/>
+      </do_else>
+      
+      <label name="pass gate"/>
+      <!-- check the Vanilla Gate Blocking Mechanism and (aggresively!) wait till its free -->
+      <request_gate ship="this.ship" gate="$gate" result="$success" />
+      <set_value name="$RequestingTimeout" min="player.age + 2min" max="player.age + 5min"/>
+      <do_while value="global.$gate_queue.{$gate}.indexof.{this.ship} gt 1 and not $success">
+        <wait min="3s" max="8s" comment="aggresive gate polling, but only one Ship at the same time.">
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="$gate" param="'travel gate next'"/>
+            </conditions>
+          </interrupt>
+        </wait>
+        <!-- try again locking the Gate if timeout not reached yet -->
+        <do_if value="player.age lt $RequestingTimeout">
+          <request_gate ship="this.ship" gate="$gate" result="$success" />
+        </do_if>
+        <do_else>
+          <set_value name="$success" exact="true"/>
+        </do_else>
+      </do_while>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
+      
+      <do_if value="this.ship == player.ship">
+        <!-- cache Assets of destination if player is on board to make transition smooth -->
+        <precache_hint zone="$gate.destination"/>
+      </do_if>
+      
+      <set_value name="$moveintogate" exact="true" />
+      <signal_objects object="$gate" param="'travel gate next'" delay="100ms" comment="speed up process by telling everyone to advance to the next wait pos"/>
+      <move_gate object="this.ship" gate="$gate">
+        <interrupt>
+          <conditions>
+            <event_object_changed_cluster object="this.ship" />
+          </conditions>
+          <actions>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (moved through gate)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+            <set_value name="$moveintogate" exact="false" />
+          </actions>
+        </interrupt>
+      </move_gate>
+      <do_if value="$moveintogate">
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_object_changed_cluster object="this.ship" />
+            </conditions>
+            <actions>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (wait)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+            </actions>
+          </interrupt>
+        </wait>
+      </do_if>
+      
+      <!-- unlock Gate (Vanilla) and remove ourselves from the Waiting List, signal the next to go/prepare (UT CAC) -->
+      <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
+      <do_if value="global.$gate_queue.{$gate}.{1}? and global.$gate_queue.{$gate}.{1} == this.ship">
+        <remove_value name="global.$gate_queue.{$gate}.{1}"/>
+      </do_if>
+      <signal_objects object="$gate" param="'travel gate next'"/>
+      
+      <!-- a very short Boost forward to clear Entry Area (or if not possible right now clear in normal flight) -->
+      <do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
+        <wait exact="100ms" comment="otherwise the player.ship skips movement for some reason"/>
+        <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >
+          <position x="0m" y="0m" z="(this.ship.size *3)"/>
+        </transform_position>
+        <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
+        <move_to object="this.ship" destination="this.zone" boost="true" forcesteering="true" finishonapproach="true" comment="boost=this.ship.pilot.skill.navigation ge 3">
+          <position value="$safeposition"/>
+          <interrupt_after_time time="10s"/>
+        </move_to>
+      </do_if>
+      <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
+      
+    </actions>
+  </attention>
+  <on_abort>
+    <!-- remove ourselves from the waiting List if we are in it and signal everyone the Queue has been changed-->
+    <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
+      <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
+      <signal_objects object="$gate" param="'travel gate next'"/>
+    </do_if>
+    <!-- also unblock the Vanilla mechanic -->
+    <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
+    <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
+  </on_abort>
+</aiscript>

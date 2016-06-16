@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.boost" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.boost" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="21">
   <!--
 
  rewritten from scratch by UniTrader
@@ -15,10 +15,17 @@
     <!-- Stuff necesary for coordinated Group Boosts -->
     <param name="leader" default="null" comment="the formation leader/object which coordinates the Boost"/>
     <param name="leader_preparegroup" default="null" comment="the group of Ships the Leader waits for (if you dont specify a leader this will be the Group the Ship waits for to prepare as if it were the leader)"/>
+    <param name="leader_startposition" default="null" comment="the Start Position of the Leader when boosting in groups (currently unused)"/>
     
   </params>
   <interrupts>
   </interrupts>
+  <patch sinceversion="21">
+    <do_if value="$followers_preparing?">
+      <set_value name="$leader_preparegroup" exact="$followers_preparing"/>
+      <remove_value name="$followers_preparing"/>
+    </do_if>
+  </patch>
   <attention min="unknown">
     <actions>
       <!-- first turn params param into the real params -->
@@ -50,6 +57,19 @@
         <!-- we are already here - so why boosting? -->
         <return/>
       </do_if>
+      <do_if value="not $leader and $leader_preparegroup">
+        <debug_text filter="error" text="'%1 %2 %3 Preparegroup provided but no Boost Leader - removing preparegroup %4'.[ player.age,this.name,this.container.name,$leader_preparegroup]" />
+        <set_value name="$leader_preparegroup" exact="null"/>
+      </do_if>
+      <do_if value="$leader and not $leader_preparegroup">
+        <debug_text filter="error" text="'%1 %2 %3 Leader provided but Prepare Group - removing leader %4'.[ player.age,this.name,this.container.name, $leader]" />
+        <set_value name="$leader" exact="null"/>
+      </do_if>
+      <do_if value="$leader.exists and $leader.sector != this.sector">
+        <debug_text filter="error" text="'%1 %2 %3 Leader is in diffrent Sector than we are. Aborting! Leader sector: %4 Our Sector: %5'.[ player.age,this.name,this.container.name,$leader.sector.knownname,this.sector.kownname]" />
+        <return/>
+      </do_if>
+      
       
       <!-- check Context -->
       <!-- also consider adding a Sector-to-Sector-Boost here (with Context Switch) -->
@@ -65,10 +85,13 @@
       <!-- Figure out final Params -->
       <!-- =================== -->
       
+      <!-- save unmodified Target Pos to pass to Followers -->
+      <set_value name="$position_passed" exact="$position"/>
+      
       <!-- calculate Offset if we want to get to an Object and set the Destination Zone Var-->
       <do_if value="$destination.isclass.zone">
         <do_if value="not $position">
-          <get_safe_pos result="$position" allowyaxis="true" zone="$destination" value="position.[0,0,0]" radius="this.ship.size" ignored="this.ship" directionobject="this.zone" min="20km"/>
+          <get_safe_pos result="$position" allowyaxis="true" zone="$destination" value="position.[0,0,0]" radius="this.ship.size * 2" ignored="this.ship" directionobject="this.zone" min="20km"/>
         </do_if>
         <set_value name="$targetzone" exact="$destination"/>
       </do_if>
@@ -90,14 +113,27 @@
         <set_command_action commandaction="commandaction.flyingto" param="$targetzone"/>
         <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
         
-        <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size/2" >
-          <position object="this.ship" />
-        </get_zone_exit_pos>
-        <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately -->
+        <do_if value="$leader_startposition">
+          <!-- ToDo: base Start Position on Position in Formation if applicable -->
+          <get_safe_pos result="$startpos" zone="$leader.zone" value="$leader_startposition" radius="this.ship.size * 2"/>
+          <set_value name="$startrot" exact="$leader_startrotation"/>
+        </do_if>
+        <do_else>
+          <get_zone_exit_pos zone="this.zone" destination="$targetzone" position="$startpos" rotation="$startrot" radius="this.ship.size * 2" >
+            <position object="this.ship"/>
+          </get_zone_exit_pos>
+        </do_else>
+        <do_if value="$startrot.pitch gt 45deg">
+          <set_value name="$startrot" exact="rotation.[$startrot.yaw,45deg,$startrot.roll]"/>
+        </do_if>
+        <do_if value="$startrot.pitch lt -45deg">
+          <set_value name="$startrot" exact="rotation.[$startrot.yaw,-45deg,$startrot.roll]"/>
+        </do_if>
+        <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately.  -->
         <check_object result="$result" object="$targetzone">
-          <match_is_in_view_of object="this.ship" vertical="10deg" horizontal="10deg"/>
+          <match_is_in_view_of object="this.ship" vertical="30deg" horizontal="30deg"/>
         </check_object>
-        <do_if value="$result and this.ship.distanceto.{$startpos} lt this.ship.size *2">
+        <do_if value="$result and this.ship.distanceto.{$startpos} lt this.ship.size">
           <remove_value name="$startpos"/>
           <remove_value name="$startrot"/>
         </do_if>
@@ -105,13 +141,25 @@
         <do_elseif value="this.ship.distanceto.{$startpos} lt this.ship.size">
           <set_value name="$startpos" exact="this.ship.position" />
         </do_elseif>
+        <!-- HACK for FoO - AL Gate (Exit) - just boost immediately -->
+        <do_elseif value="this.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and this.ship.distanceto.{$startpos} gt 10km">
+          <remove_value name="$startpos"/>
+          <remove_value name="$startrot"/>
+        </do_elseif>
         
         <!-- figure out an arrival position in the target zone -->
-        <get_zone_exit_pos zone="$targetzone" destination="this.ship" position="$targetpos" radius="this.ship.size" >
-          <position object="$targetzone" value="$position"/>
-        </get_zone_exit_pos>
+        <do_if value="$targetzone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and $destination.isclass.gate">
+          <!-- HACK for FoO - AL Gate -->
+          <find_object name="$ignoredobject" space="$targetzone" macro="macro.landmarks_unique_the_mace_macro"/>
+          <get_safe_pos result="$targetpos" allowyaxis="true" zone="$targetzone" value="$position" radius="this.ship.size * 2" ignored="$ignoredobject"/>
+        </do_if>
+        <do_else>
+          <get_zone_exit_pos zone="$targetzone" destination="this.ship" position="$targetpos" radius="this.ship.size * 2" >
+            <position object="$targetzone" value="$position"/>
+          </get_zone_exit_pos>
+        </do_else>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calculated Params for IS-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
-      </do_if>
+        </do_if>
       <do_else>
         <!-- InZone-Boost - move a bit in Direction of the Target to align (if not already) - and Boost to nearby it -->
         
@@ -120,10 +168,10 @@
         
         <!-- create boost Target Pos -->
         <do_if value="$position">
-          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship" min="this.ship.size * 2"/>
+          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size * 2" ignored="this.ship" directionobject="this.ship" min="this.ship.size * 2"/>
         </do_if>
         <do_else>
-          <create_position_outside_boundingbox name="$targetpos" component="$destination" distance="this.ship.size * 2">
+          <create_position_outside_boundingbox name="$targetpos" component="$destination" distance="this.ship.size">
             <position object="this.ship"/>
           </create_position_outside_boundingbox>
         </do_else>
@@ -137,10 +185,25 @@
           <!--create_position_outside_boundingbox name="$startpos" component="this.ship" distance="this.ship.size" >
             <position object="$destination"/>
           </create_position_outside_boundingbox-->
-          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
+          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size * 2" ignored="this.ship" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
           <create_orientation name="$startrot" orientation="look_at" refposition="$targetpos">
             <position value="$startpos" />
           </create_orientation>
+          
+          <!-- HACK for FoO - AL Gate (Exit) - just boost immediately -->
+          <do_if value="this.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and this.ship.distanceto.{$startpos} gt 10km">
+            <remove_value name="$startpos"/>
+            <remove_value name="$startrot"/>
+          </do_if>
+        </do_if>
+        
+        <do_if value="$startpos? and ( this.ship.distanceto.{$startpos} gt this.ship.distanceto.{$position} )">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Distance to Start Pos greater than Distance to Target - aborting'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_if>
+        <do_if value="$targetpos? and ( this.ship.distanceto.{$targetpos} gt this.ship.distanceto.{$position} )">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Distance to Target Pos greater than Distance to Target - aborting'.[player.age,this.name,this.container.name]"/>
+          <return/>
         </do_if>
         
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calculated Params for IZ-Boost:\nstartpos: %4 startrot: %5\ntargetzone:%6 targetpos: %7 position: %8'.[player.age,this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position]"/>
@@ -151,103 +214,133 @@
       <!-- ================= -->
       
       
-      <!-- Signal our Intention to Jump and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
-      <do_if value="not $leader and $leader_preparegroup">
-        <set_value name="$followers_preparing" exact="$leader_preparegroup"/>
-        <remove_value name="$leader_preparegroup"/>
+      <!-- Signal our Intention to Boost and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
+      <do_if value="$leader and $leader_preparegroup">
+        <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
       </do_if>
       <do_else>
-        <create_group groupname="$followers_preparing"/>
+        <create_group groupname="$leader_preparegroup"/>
       </do_else>
-      <signal_objects object="this.ship" param="'travel boost prep'" param2="$destination" param3="$followers_preparing"/>
+      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ $destination , $position_passed , @$startpos , @startrot ]" param3="$leader_preparegroup"/>
       
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to Start Position'.[player.age,this.name,this.container.name]"/>
-        <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="true" finishonapproach="false">
+        <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="true" forcesteering="this.ship.distanceto.{$startpos} lt 100m" finishonapproach="false">
           <position value="$startpos" />
           <rotation value="$startrot" />
         </move_to>
+        <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
+        <!-- HACK: decrease Ship Pitch to avoid sharp turn boosts -->
+        <do_if value="( this.ship.rotation.pitch gt 45deg or this.ship.rotation.pitch lt -45deg ) and this.zone != $targetzone">
+          <debug_text filter="error" text="'%1 %2 %3 Moving to Start Position failed to have pith below 45deg - forcing pitch'.[player.age,this.name,this.container.name]"/>
+          <warp object="this.ship" zone="this.zone">
+            <position value="this.ship.position"/>
+            <rotation yaw="this.ship.rotation.yaw" roll="this.ship.rotation.roll" pitch="if this.ship.rotation.pitch gt 45deg then 45deg else if this.ship.rotation.pitch lt -45deg then -45deg else 0deg"/>
+          </warp>
+        </do_if>
       </do_if>
       <!-- for coordinated boost - wait a split-second so everyone can add himself to the group if there is no movement first -->
       <do_else>
         <wait min="100ms" max="200ms"/>
       </do_else>
       
-      <!-- Ready for Boost - wait till everyone following has also prepared to actually boost -->
-      <do_if value="$followers_preparing?">
-        <do_while value="$followers_preparing.count">
-          <wait min="5s" max="8s"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost Preparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+      <!-- We are in position - As Leader wait till all Followers are ready and give the Start Signal -->
+      <do_if value="not $leader.exists">
+        <do_while value="$leader_preparegroup.count">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be ready\nPreparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+          <wait min="5s" max="8s">
+            <interrupt>
+              <conditions>
+                <event_object_changed_zone group="$leader_preparegroup"/>
+              </conditions>
+              <actions>
+                <!-- what the hell? the leader has flown away or jumped without telling anyone - Kick him out of Group! -->
+                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Follower %4 switched Zones or Jumped without telling anyone! - Dont wait for that ******'.[player.age,this.name,this.container.name,event.object.knownname]"/>
+                <remove_from_group group="$leader_preparegroup" object="event_object"/>
+              </actions>
+            </interrupt>
+          </wait>
         </do_while>
       </do_if>
-      
-      <!-- if we are a follower in a Group Boost - remove ourselves from the Group to signal we are ready and wait for the Start Signal -->
-      <do_if value="$leader.exists">
+      <!-- if we are a follower in a Group Boost - remove ourselves from the prep group and wait for the Start Signal -->
+      <do_else>
         <remove_from_group group="$leader_preparegroup" object="this.ship"/>
         <wait>
           <interrupt>
             <conditions>
-                <event_object_signalled object="$leader" param="'travel boost start'" param2="$destination"/>
-            </conditions>
-          </interrupt>
-          <!--interrupt>
-            <conditions>
+              <check_any>
+                <event_object_signalled object="$leader" param="'travel boost start'"/>
                 <event_object_changed_zone object="$leader"/>
+              </check_any>
             </conditions>
             <actions>
-              <!- - what the hell? the leader has flown away or jumped without telling anyone! - ->
-              <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone!'.[player.age,this.name,this.container.name,$leader.knownname]"/>
-              <return/>
+              <do_if value="event.name == 'event_object_changed_zone'">
+                <!-- what the hell? the leader has flown away or jumped without telling anyone - Abort! -->
+                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Boost Leader %4 switched Zones or Jumped without telling anyone! - Aborting'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+                <return/>
+              </do_if>
+              <do_if value="event.param2.{1} != $destination">
+                <!-- what the hell? the leader boosts to a diffrent place than announcee - Abort! -->
+                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Boost Leader %4 Boosts to a diffrent Place than initially announced! - Aborting'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+                <return/>
+              </do_if>
             </actions>
-          </interrupt-->
+          </interrupt>
         </wait>
-      </do_if>
-      <signal_objects object="this.ship" param="'travel boost start'" param2="$destination"/>
+      </do_else>
+      <!-- Preperations Done - Tell everyone to start and add ourselves to the blocking group to prevent too fast advancing on the leaders part -->
+      <signal_objects object="this.ship" param="'travel boost start'" param2="[ $destination , $targetpos , @$startpos ]" param3="$leader_preparegroup"/>
+      <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
       
-      <do_while value="( this.zone != $targetzone ) or ( this.ship.distanceto.{$targetpos} gt 5000 )">
-        <do_if value="this.ship.canboost or this.ship.isboostactive">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!'.[player.age,this.name,this.container.name]"/>
-          <do_if value="this.ship == player.ship">
-            <!-- cache Assets of destination if player is on board to make transition smooth -->
-            <precache_hint zone="$targetzone"/>
-          </do_if>
-          <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false" boost="true">
-            <position value="$targetpos" />
-            <!--interrupt>
-              <conditions>
-                <event_boost_stopped object="this.ship"/>
-              </conditions>
-              <actions>
-                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost interrupted'.[player.age,this.name,this.container.name]"/>
-              </actions>
-            </interrupt-->
-          </move_to>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!\nBlocking Group: %4'.[player.age,this.name,this.container.name,$leader_preparegroup]"/>
+      <do_if value="this.ship == player.ship">
+      <!-- cache Assets of destination if player is on board to make transition smooth -->
+        <precache_hint zone="$targetzone"/>
+       </do_if>
+        
+      <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false" boost="true">
+        <position value="$targetpos" />
+        <!--interrupt>
+          <conditions>
+            <event_boost_stopped object="this.ship"/>
+          </conditions>
+          <actions>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost interrupted'.[player.age,this.name,this.container.name]"/>
+          </actions>
+        </interrupt-->
+      </move_to>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost movement done, distance to boost target pos: %4, Blocking Group: %5'.[player.age,this.name,this.container.name,this.ship.distanceto.{$targetpos},$leader_preparegroup]"/>
+      <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+      <!-- We have Arrived - As Leader wait till all Followers are there, too before progressing -->
+      <do_if value="not $leader.exists">
+        <do_while value="$leader_preparegroup.count">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrivey\nGlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+          <wait min="5s" max="8s"/>
+        </do_while>
+      </do_if>
+      
+      <return/>
+      <!-- Switch Sector Context if its a Trans-Sector-Boost - NEEDS TESTING AND IMPROVEMENT -->
+      <do_if value="this.sector != $destination.sector">
+        <do_if value="this.ship.distanceto.{this.sector} gt this.ship.distanceto.{$destination.sector}">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Switching Sector Context\n from: %4 to: %5'.[player.age,this.name,this.container.name,this.sector.knownname,destination.sector.knownname]"/>
+          <!-- still need to get the correct Position and not sure if warp creates the needed temp Zone -->
+          <warp object="this.ship" zone="$destination.sector" >
+            <position object="this.ship" space="$destination.sector" />
+          </warp>
         </do_if>
-        <do_else>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Cannt activate Booster - Snail movement'.[player.age,this.name,this.container.name]"/>
-          <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false">
-            <position value="$targetpos" />
-            <interrupt_after_time time="1min"/>
-          </move_to>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Snail Movement end'.[player.age,this.name,this.container.name]"/>
-        </do_else>
-        <!-- Switch Sector Context if its a Trans-Sector-Boost - NEEDS TESTING AND IMPROVEMENT -->
-        <do_if value="this.sector != $destination.sector">
-          <do_if value="this.ship.distanceto.{this.sector} gt this.ship.distanceto.{$destination.sector}">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Switching Sector Context\n from: %4 to: %5'.[player.age,this.name,this.container.name,this.sector.knownname,destination.sector.knownname]"/>
-            <!-- still need to get the correct Position and not sure if warp creates the needed temp Zone -->
-            <warp object="this.ship" zone="$destination.sector" >
-              <position object="this.ship" space="$destination.sector" />
-            </warp>
-          </do_if>
-        </do_if>
-      </do_while>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost movement done, distance to boost target pos: %4'.[player.age,this.name,this.container.name,this.ship.distanceto.{$targetpos}]"/>
+      </do_if>
     </actions>
   </attention>
   <on_abort>
     <do_if value="this.ship.isboostactive">
       <stop_boost object="this.ship"/>
     </do_if>
+    <do_if value="$leader_preparegroup.indexof.{this.ship}">
+      <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+    </do_if>
+    <signal_objects object="this.ship" param="'travel aborted'"/>
   </on_abort>
 </aiscript>

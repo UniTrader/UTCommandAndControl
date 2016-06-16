@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.move.follow.verysimple" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+  Test Script for Movement Signalling - moves according to Signals from Leader Ship, but not more.
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="object" default="null" comment="the Object to follow"/>
+    <param name="timeout" default="null" comment="how long the other Object should be followed"/>
+    <param name="destination" default="null" comment="where the other Object followed to (as Space, since the context is checked)"/>
+  </params>
+  <init>
+    <!-- first turn params param into the real params -->
+    <do_if value="$params">
+      <do_if value="$params.$object?">
+        <set_value name="$object" exact="$params.$object"/>
+      </do_if>
+      <do_if value="$params.$timeout?">
+        <set_value name="$timeout" exact="$params.$timeout"/>
+      </do_if>
+      <do_if value="$params.$destination?">
+        <set_value name="$destination" exact="$params.$destination"/>
+      </do_if>
+    </do_if>
+  </init>
+  <interrupts>
+    <handler>
+        <conditions>
+          <event_object_target_invalid object="this.ship" />
+        </conditions>
+        <actions>
+          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $destination: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+          <abort_called_scripts />
+          <resume label="start"/>
+      </actions>
+    </handler>
+    <handler>
+      <!--- destination destroyed - abort Movement and (for now) also print an Error -->
+      <conditions>
+        <event_object_destroyed object="$object"/>
+      </conditions>
+      <actions>
+        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+        <abort_called_scripts/>
+        <return value="1"/>
+      </actions>
+    </handler>
+    <handler comment="Handler for Navigation Signals">
+      <conditions>
+        <check_any>
+          <event_object_signalled object="$object" param="'travel boost prep'"/>
+          <event_object_signalled object="$object" param="'travel jump prep'"/>
+          <event_object_signalled object="$object" param="'travel gate prep'"/>
+          <event_object_signalled object="$object" param="'travel aborted'"/>
+        </check_any>
+        <check_value value="not $fly_to_leader?"/>
+      </conditions>
+      <actions> 
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signal on Leader receiveds:\nparam: %4 , param2: %5 , param3: %6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+        <do_if value="event.param == 'travel boost prep'">
+          <!-- interrupt with boost script -->
+          <run_interrupt_script name="'ut.cac.move.boost'" resume="start">
+            <param name="destination" value="event.param2.{1}"/>
+            <param name="position" value="event.param2.{2}"/>
+            <param name="leader_startposition" value="event.param2.{3}"/>
+            <param name="leader_startrotation" value="event.param2.{4}"/>
+            <param name="leader" value="$object"/>
+            <param name="leader_preparegroup" value="event.param3"/>
+          </run_interrupt_script>
+        </do_if>
+        <do_elseif value="event.param == 'travel jump prep'">
+          <!-- interrupt with jump script -->
+          <run_interrupt_script name="'ut.cac.move.jump'" resume="start">
+            <param name="destination" value="event.param2"/>
+            <param name="leader" value="$object"/>
+            <param name="leader_preparegroup" value="event.param3"/>
+          </run_interrupt_script>
+        </do_elseif>
+        <do_elseif value="event.param == 'travel gate prep'">
+          <!-- interrupt with Gate Passage script -->
+          <run_interrupt_script name="'ut.cac.move.gate2'" resume="start">
+            <param name="gate" value="event.param2"/>
+            <param name="queue_position" value="event.param3"/>
+          </run_interrupt_script>
+        </do_elseif>
+        <do_elseif value="event.param == 'travel aborted'">
+          <abort_called_scripts resume="start"/>
+        </do_elseif>
+      </actions>
+    </handler>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7  , $endintargetspace: %8'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$endintargetspace]"/>
+      <set_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
+      <run_script name="'ut.cac.move.generic'">
+        <param name="destination" value="$object"/>
+        <param name="endintargetspace" value="true"/>
+      </run_script>
+      <remove_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
+
+      <!-- just some Dummy Code - this Script is primarily for testing the Signalling and synching of the interrupting movement scripts-->
+      <label name="start"/>
+      
+      <wait/>
+      
+      <resume label="start"/>
+    </actions>
+  </attention>
+</aiscript>

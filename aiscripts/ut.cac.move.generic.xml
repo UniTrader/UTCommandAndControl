@@ -19,8 +19,33 @@
     <param name="lookat" default="null" comment="position the ship should point to - overrides rotation"/>
     <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
   </params>
+  <init>
+    <do_if value="not $destination.exists">
+      <debug_text filter="general" text="'%1 %2 %3 Destination not existent: %4 %5'.[player.age,this.name,this.container.name,@$destination,@$destination.knownname]"/>
+    </do_if>
+  </init>
   <interrupts>
-    <handler ref="TargetInvalidHandler" />
+    <handler>
+        <conditions>
+          <event_object_target_invalid object="this.ship" />
+        </conditions>
+        <actions>
+          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $destination: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,@$destination.knownname]"/>
+          <abort_called_scripts />
+          <resume label="start"/>
+      </actions>
+    </handler>
+    <handler>
+      <!--- destination destroyed - abort Movement and (for now) also print an Error -->
+      <conditions>
+        <event_object_destroyed object="$destination"/>
+      </conditions>
+      <actions>
+        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,@$destination.knownname]"/>
+        <abort_called_scripts/>
+        <return value="1"/>
+      </actions>
+    </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
@@ -57,7 +82,7 @@
       
       <do_if value="not $destination.exists">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination does not exist - aborting'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <return value="2"/>
       </do_if>
       
       <!-- if destination is a Space (galaxy, Cluster, Sector, Zone) use it as targetspace, otherwise get its Zone as first Destination and care about the fine movements only in the last step -->
@@ -179,10 +204,12 @@
           <do_elseif value="this.$waypoint.isclass.gate">
             
             <!-- Jump to Gate sector -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to nearest Jumpbeacon to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
-            <run_script name="'ut.cac.move.jump'" result="$result" >
-              <param name="destination" value="this.$waypoint.zone"/>
-            </run_script>
+            <do_if value="this.sector != this.$waypoint.sector">
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to nearest Jumpbeacon to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+              <run_script name="'ut.cac.move.jump'" result="$result" >
+                <param name="destination" value="this.$waypoint.zone"/>
+              </run_script>
+            </do_if>
             
             <!-- Boost to Gate Position -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boosting near to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
@@ -190,19 +217,23 @@
               <param name="destination" value="this.$waypoint"/>
               <param name="position" value="position.[0m,0m,0-(this.ship.size + this.$waypoint.size)]" comment="relative to destination! (including its rotation)"/>
             </run_script>
+            <remove_value name="$waypointposition"/>
             
             <!-- Move through Gate -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 moving through Gate in %4'.[player.age,this.name,this.container.name,this.$waypoint.zone.knownname]"/>
-            <run_script name="'ut.cac.move.gate'">
+            <run_script name="'ut.cac.move.gate2'">
               <param name="gate" value="this.$waypoint" />
             </run_script>
           </do_elseif>
           <do_elseif value="this.$waypoint.isclass.zone">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
-            <!-- next is the Target Zone/Sector - First jump to the closest Beacon, then go to Fine Movement for the Destination (with Boosting) -->
-            <run_script name="'ut.cac.move.jump'" result="$result" >
-              <param name="destination" value="this.$waypoint"/>
-            </run_script>
+              <!-- next is the Target Zone/Sector - First jump to the closest Beacon (if necesary), then go to Fine Movement for the Destination (with Boosting) -->
+              <!-- ToDo: check ii we could save a bit time with IS-Jumping-->
+            <do_if value="this.$waypoint.sector != this.sector">
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+              <run_script name="'ut.cac.move.jump'" result="$result" >
+                <param name="destination" value="this.$waypoint"/>
+              </run_script>
+            </do_if>
             <resume label="fine movement"/>
             <return/>
           </do_elseif>
@@ -244,7 +275,7 @@
       
       <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 20 km away) and boost to a generous safe spot nearby the Target -->
       <!-- Final boost to nearby the Destination Object -->
-      <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 20km and $destination != $targetspace )">
+      <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 7km and $destination != $targetspace )">
         <run_script name="'ut.cac.move.boost'">
           <param name="destination" value="$destination"/>
           <param name="position" value="$position" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>

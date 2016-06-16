@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.performsingletraderun" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="20">
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.performsingletraderun" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="21">
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this NOTE: BROKEN, NEEDS FIXING!!! (also does not refresh Reservations from Trade List, call once before with 'refreshreservations' = true to do this)"/>
@@ -197,7 +197,6 @@
         <run_script name="'move.park'" result="$parkresult">
           <param name="destination" value="$tradepartner" />
           <param name="tradeoffer" value="$offer" />
-          <param name="debugchance" value="100"/>
         </run_script>
         <do_if value="this.$reevaluate_parking?">
           <remove_value name="this.$reevaluate_parking" />
@@ -416,12 +415,12 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No offer found - Exchanging Wares'.[player.age,this.name,this.container.name]"/>
         <do_if value="$trade.seller.isoperational">
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
-          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="0Cr" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
         </do_if>
         <do_if value="$trade.buyer.isoperational">
-          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="0Cr" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
@@ -531,6 +530,22 @@
       </do_if>
       <do_if value="$trade.exists and not $non_shoppinglist_trade?">
         <remove_trade_order object="this.ship" trade="$trade"/>
+      </do_if>
+      
+      <!-- Undocking in Abort Case -->
+      <!-- execute next Trade without undocking if the Trade partner is the same -->
+      <do_if value="$undock==2">
+        <get_trade_from_shoppinglist object="this.ship" result="$trade" />
+        <do_if value="$trade.exists and $trade.owner == $tradepartner">
+          <set_value name="$undock" exact="false"/>
+        </do_if>
+        <do_else>
+          <set_value name="$undock" exact="true"/>
+        </do_else>
+      </do_if>
+      
+      <do_if value="(this.ship.isclass.ship_xl or this.ship.isclass.ship_l) and $undock">
+        <run_script name="'move.undock'" sinceversion="21" />
       </do_if>
       <return/>
       

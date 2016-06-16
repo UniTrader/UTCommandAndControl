@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.jump" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.jump" priority="10" version="21" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
 
  rewritten from scratch by UniTrader
@@ -31,6 +31,12 @@ ToDo:
   </params>
   <interrupts>
   </interrupts>
+  <patch sinceversion="21">
+    <do_if value="$followers_preparing?">
+      <set_value name="$leader_preparegroup" exact="$followers_preparing"/>
+      <remove_value name="$followers_preparing"/>
+    </do_if>
+  </patch>
   <attention min="unknown">
     <actions>
       <!-- first decode the $params to the Variables -->
@@ -244,14 +250,13 @@ ToDo:
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination Beacon: %4 in %5 // %6'.[player.age,this.name,this.container.name,$beacon.knownname,$beacon.sector.knownname,$beacon.zone.knownname]"/>
       
       <!-- Signal our Intention to Jump and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
-      <do_if value="not $leader and $leader_preparegroup">
-        <set_value name="$followers_preparing" exact="$leader_preparegroup"/>
-        <remove_value name="$leader_preparegroup"/>
+      <do_if value="$leader and $leader_preparegroup">
+        <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
       </do_if>
       <do_else>
-        <create_group groupname="$followers_preparing"/>
+        <create_group groupname="$leader_preparegroup"/>
       </do_else>
-      <signal_objects object="this.ship" param="'travel jump prep'" param2="$beacon" param3="$followers_preparing"/>
+      <signal_objects object="this.ship" param="'travel jump prep'" param2="$beacon" param3="$leader_preparegroup"/>
       <wait min="100ms" max="200ms"/>
       
       <!-- Slow Jumpdrive Charge in case we dont have enough Fuel - fuel check and refueling are somewhere else -->
@@ -277,45 +282,54 @@ ToDo:
         <wait min="($jumpdrive.cooldowntimeleft + 2)s" max="($jumpdrive.cooldowntimeleft + 4)s"/>
       </do_while>
       
-      <!-- Jumpdrive ready - wait till everyone following has also prepared to actually jump -->
-      <do_if value="$followers_preparing?">
-        <do_while value="$followers_preparing.count">
-          <wait min="5s" max="8s"/>
-        </do_while>
-      </do_if>
-      
-      <!-- if we are a follower in a Group Jump - remove ourselves from the Group to signal we are ready and wait for the Start Signal -->
-      <do_if value="$leader.exists">
-        <do_while value="$leader.exists">
-          <remove_from_group group="$leader_preparegroup" object="this.ship"/>
-          <wait>
-		    <interrupt_after_time time="2min"/>
+      <!-- Leader of Group Jump - wait till everyone is ready and give the Start Signal -->
+      <do_if value="not $leader.exists">
+        <do_while value="$leader_preparegroup.count">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be ready\nPreparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+          <wait min="5s" max="8s">
             <interrupt>
               <conditions>
-                <event_object_signalled object="$leader" param="'travel jump start'" param2="$beacon"/>
+                <event_object_changed_zone group="$leader_preparegroup"/>
               </conditions>
               <actions>
-                <break/>
+                <!-- what the hell? the leader has flown away or jumped without telling anyone - Kick him out of Group! -->
+                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Follower %4 switched Zones or Jumped without telling anyone! - Dont wait for that ******'.[player.age,this.name,this.container.name,event.object.knownname]"/>
+                <remove_from_group group="$leader_preparegroup" object="event_object"/>
               </actions>
             </interrupt>
-            <!--interrupt>
-              <conditions>
-                  <event_object_changed_zone object="$leader"/>
-              </conditions>
-              <actions>
-                <!- - what the hell? the leader has flown away or jumped without telling anyone! - ->
-                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone!'.[player.age,this.name,this.container.name,$leader.knownname]"/>
-                <return/>
-              </actions>
-            </interrupt-->
           </wait>
         </do_while>
-        <do_if value="not $leader.exists">
-          <debug_text filter="error" text="'%1 %2 %3 Jump Leader destroyed - aborting'.[player.age,this.name,this.container.name]"/>
-          <return value="false"/>
-        </do_if>
       </do_if>
-      
+      <!-- if we are a follower in a Group Jump - remove ourselves from the prep group and wait for the Start Signal -->
+      <do_else>
+        <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+        <wait>
+          <interrupt>
+            <conditions>
+              <check_any>
+                <event_object_signalled object="$leader" param="'travel jump start'"/>
+                <event_object_changed_zone object="$leader"/>
+              </check_any>
+            </conditions>
+            <actions>
+              <do_if value="event.name == 'event_object_changed_zone'">
+                <!-- what the hell? the leader has flown away or jumped without telling anyone - Abort! -->
+                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone! - Aborting'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+                <return/>
+              </do_if>
+              <do_if value="event.param2 != $destination">
+                <!-- what the hell? the leader boosts to a diffrent place than announcee - Abort! -->
+                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 Jumps to a diffrent Place than initially announced! - Aborting'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+                <return/>
+              </do_if>
+            </actions>
+          </interrupt>
+        </wait>
+      </do_else>
+      <!-- Preperations Done - Tell everyone to start and add ourselves to the blocking group to prevent too fast advancing on the leaders part -->
+      <signal_objects object="this.ship" param="'travel jump start'" param2="$beacon" param3="$leader_preparegroup"/>
+      <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
+
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Charging Jump Drive! 10 Precent, 20, 30....'.[player.age,this.name,this.container.name]"/>
       <!-- actually JUMP!!! -->
       <do_if value="this.ship == player.ship">
@@ -341,17 +355,36 @@ ToDo:
         <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!!'.[player.age,this.name,this.container.name]"/>
       </do_else>
       
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jump done, Blocking Group: %4'.[player.age,this.name,this.container.name,$leader_preparegroup]"/>
+      <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+      <!-- Fly to a randomSafepos to not stay still while cooling for the next Jump -->
+      <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" object="this.ship" radius="this.ship.size" min="10km" max="20km"/>
+      <move_to object="this.ship" destination="this.zone" finishonapproach="true" sinceversion="21">
+        <position value="$safeposition"/>
+        <interrupt_after_time time="100ms"/>
+      </move_to>
+      <!-- We have Arrived - As Leader wait till all Followers are there, too before progressing -->
+      <do_if value="not $leader.exists">
+        <do_while value="$leader_preparegroup.count">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrive\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+          <wait min="5s" max="8s"/>
+        </do_while>
+      </do_if>
+      
       <return value="$result"/>
       
     </actions>
   </attention>
   <on_abort>
-    <signal_objects object="this.ship" param="'travel jump aborted'"/>
     <do_if value="event.name != 'event_object_destroyed'">
       <abort_jump object="this.ship" />
     </do_if>
     <do_if value="$slowcharge?">
       <remove_effect object="$jumpdrive" effect="$slowchargeeffect"/>
     </do_if>
+    <do_if value="$leader_preparegroup.indexof.{this.ship}">
+      <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+    </do_if>
+    <signal_objects object="this.ship" param="'travel aborted'"/>
   </on_abort>
 </aiscript>
