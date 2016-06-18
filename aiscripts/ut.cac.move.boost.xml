@@ -15,7 +15,8 @@
     <!-- Stuff necesary for coordinated Group Boosts -->
     <param name="leader" default="null" comment="the formation leader/object which coordinates the Boost"/>
     <param name="leader_preparegroup" default="null" comment="the group of Ships the Leader waits for (if you dont specify a leader this will be the Group the Ship waits for to prepare as if it were the leader)"/>
-    <param name="leader_startposition" default="null" comment="the Start Position of the Leader when boosting in groups (currently unused)"/>
+    <param name="leader_startposition" default="null" comment="the Start Position of the Leader when boosting in groups"/>
+    <param name="leader_startrotation" default="null" comment="the Start Rotation of the Leader when boosting in groups"/>
     
   </params>
   <interrupts>
@@ -41,6 +42,12 @@
         </do_if>
         <do_if value="$params.$leader_preparegroup?">
           <set_value name="$leader_preparegroup" exact="$params.$leader_preparegroup"/>
+        </do_if>
+        <do_if value="$params.$leader_startposition?">
+          <set_value name="$leader_startposition" exact="$params.$leader_startposition"/>
+        </do_if>
+        <do_if value="$params.$leader_startrotation?">
+          <set_value name="$leader_startrotation" exact="$params.$leader_startrotation"/>
         </do_if>
       </do_if>
       
