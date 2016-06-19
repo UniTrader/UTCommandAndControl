@@ -123,7 +123,7 @@
       <do_if value="$queue_position == 1">
         <resume label="pass gate"/>
       </do_if>
-      <do_elseif value="this.ship.distanceto.{$gate} lt global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate}" comment="we are closer to the Gate than the Ship before us - swap positions to avoid delays">
+      <do_elseif value="this.ship.distanceto.{$gate} *2 lt global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate}" comment="we are much closer to the Gate than the Ship before us - swap positions to avoid delays">
         <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="global.$gate_queue.{$gate}.{$queue_position - 1}"/>
         <set_value name="global.$gate_queue.{$gate}.{$queue_position - 1}" exact="this.ship"/>
         <resume label="fly to prep pos"/>
