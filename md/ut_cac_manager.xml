@@ -334,35 +334,47 @@ Rest is shared between all Actor types
           </conditions>
           <delay exact="1ms"/>
           <actions>
+          <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Actor_Transport_complete triggered'.[player.age,$actor.name,event.name]"/>
             <do_if value="$actor.container.isclass.station">
               <assign_trade_manager object="$actor.container" actor="$actor"/>
               <!--assign_control_entity object="$actor.container" actor="$actor"/-->
             </do_if>
+            <cancel_cue cue="Assigned_as_control_entity"/>
+            <reset_cue cue="Assigned_as_control_entity"/>
             <signal_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="this"/>
             <!-- restart Order List progression on Arrival -->
             <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
           </actions>
         </cue>
-        <cue name="Assigned_as_control_entity">
+        <cue name="Assigned_as_control_entity" version="21">
           <conditions>
             <event_cue_signalled/>
           </conditions>
+          <actions>
+            <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
+          </actions>
+          <patch sinceversion="21" state="complete" comment="Previous cue didnt execute the right commands before - doing it here since executing it too early/often is harmless">
+            <cancel_cue cue="this"/>
+            <reset_cue cue="this"/>
+            <signal_cue cue="this"/>
+          </patch>
           <cues>
-            <cue name="Removed_from_Assignment">
+            <!--cue name="Removed_from_Assignment">
               <conditions>
                 <event_object_signalled object="$actor" param="'remote_transport_started'"/>
               </conditions>
               <actions>
-                <reset_cue cue="Assigned_as_control_entity"/>
+                <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Removed_from_Assignment triggered'.[player.age,$actor.name,event.name]"/>
               </actions>
-            </cue>
+            </cue-->
             <cue name="GatherCVSubordinates" onfail="cancel">
               <conditions>
                 <check_value value="@$actor.ship.buildmodule and @$actor.ship.architect"/>
               </conditions>
               <delay exact="100ms"/>
-              <actions>
+              <actions> 
+                <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 GatherCVSubordinates triggered'.[player.age,$actor.name,event.name]"/>
                 <set_value name="$subordinates" exact="$actor.ship.subordinates"/>
                 <do_all exact="$subordinates.count" counter="$i">
                   <do_if value="not ( $subordinates.{$i}.commanderentity == $actor.ship.defencenpc )">
