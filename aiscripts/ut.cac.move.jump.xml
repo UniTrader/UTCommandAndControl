@@ -376,15 +376,19 @@ ToDo:
     </actions>
   </attention>
   <on_abort>
+    <!-- Abort Jump -->
     <do_if value="event.name != 'event_object_destroyed'">
       <abort_jump object="this.ship" />
     </do_if>
+    <!-- remove Effect -->
     <do_if value="$slowcharge?">
       <remove_effect object="$jumpdrive" effect="$slowchargeeffect"/>
     </do_if>
+    <!-- remove from preparegroup -->
     <do_if value="$leader_preparegroup.indexof.{this.ship}">
       <remove_from_group group="$leader_preparegroup" object="this.ship"/>
     </do_if>
+    <!-- signal followers to abort, too -->
     <signal_objects object="this.ship" param="'travel aborted'"/>
   </on_abort>
 </aiscript>

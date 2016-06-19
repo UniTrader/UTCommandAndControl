@@ -241,6 +241,9 @@
     </do_if>
     <!-- also unblock the Vanilla mechanic -->
     <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
+    <!-- reset FCM to default -->
     <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
+    <!-- signal our followers to stop -->
+    <signal_objects object="this.ship" param="'travel aborted'"/>
   </on_abort>
 </aiscript>
