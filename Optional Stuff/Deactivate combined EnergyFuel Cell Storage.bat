@@ -1,1 +1,0 @@
-del ..\assets\props\storagemodules\macros\*
