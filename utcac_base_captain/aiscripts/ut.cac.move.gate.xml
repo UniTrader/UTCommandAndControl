@@ -1,10 +1,14 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.gate" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.gate" version="22" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
 
  rewritten from scratch by UniTrader
   
  Routine for passing through Gates (was in move.jump and move.generic before)
+ New Version available as ut.cac.move.gate2 - Donte use this Version anymore please, its depracted and only kept for compatibility
+ 
+ 
+ NOTE: Signalling on Gate added for Legacy Compatibility of Script - May cause issues, but this should resolve itself quickly when everyone uses the new Version 
 
   -->
   <params>
@@ -19,6 +23,18 @@
   </interrupts>
   <attention min="unknown">
     <actions>
+      <!-- Script replaced with a functionally identical one (but much cleaner and better) - passing everything to it -->
+      <debug_text filter="error" text="'%1 %2 %3 Script depracted - please update to ut.cac.move.gate2 (Parameters are identical, but Blocking Actions and labels are notcompatible)'.[player.age,this.name,this.container.name]"/>
+      <run_script name="'ut.cac.move.gate2'" sinceversion="22">
+        <param name="params" value="$params"/>
+        <param name="gate" value="$gate"/>
+       <param name="cleargate" value="$cleargate"/>
+        <param name="queue_position" value="$queue_position"/>
+      </run_script>
+      <return/>
+      
+      <!-- Old Code - keeping it unmodified to let old instances finish properly -->
+      <!-- ############################################## --> 
       <!-- first decode the $params to the Variables -->
       <do_if value="$params">
         <do_if value="$params.$gate?">
@@ -78,19 +94,19 @@
         <append_to_list name="global.$gate_queue.{$gate}"/>
         <set_value name="$queue_position" exact="global.$gate_queue.{$gate}.count"/>
         <!-- signal everyone with our Position in the List -->
-        <signal_objects object="this.ship" param="'travel gate prep'" param2="$queue_position"/>
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$gate" param3="$queue_position"/>
         <wait exact="100ms"/>
       </do_if>
       <!-- we are a follower - add us to formationlist as apporiate position -->
       <do_elseif value="this.ship.primarypurpose == objectpurpose.fight">
         <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="this.ship" operation="insert"/>
         <!-- signal everyone with Position in the List to add fight ships to (for recursion) -->
-        <signal_objects object="this.ship" param="'travel gate prep'" param2="$queue_position"/>
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$gate" param3="$queue_position"/>
       </do_elseif>
       <do_else>
         <append_to_list name="global.$gate_queue.{$gate}" exact="this.ship"/>
         <!-- signal everyone with Position in the List to add fight ships to (for recursion) -->
-        <signal_objects object="this.ship" param="'travel gate prep'" param2="$queue_position"/>
+        <signal_objects object="this.ship" param="'travel gate prep'" param2="$gate" param3="$queue_position"/>
       </do_else>
       <wait exact="100ms"/>
       
@@ -101,7 +117,10 @@
 		      <interrupt_after_time time="2min"/>
           <interrupt>
             <conditions>
+              <check_any>
               <event_object_signalled object="this.ship" param="'travel gate next'"/>
+              <event_object_signalled object="$gate" param="'travel gate next'"/>
+              </check_any>
             </conditions>
           </interrupt>
         </wait>
@@ -137,7 +156,10 @@
           <interrupt_after_time time="20s"/>
           <interrupt>
             <conditions>
+              <check_any>
               <event_object_signalled object="this.ship" param="'travel gate next'"/>
+              <event_object_signalled object="$gate" param="'travel gate next'"/>
+              </check_any>
             </conditions>
           </interrupt>
         </wait>
@@ -201,12 +223,14 @@
       </do_while>
       <do_if value="global.$gate_queue.{$gate}.{1}?">
         <signal_objects object="global.$gate_queue.{$gate}.{1}" param="'travel gate next'"/>
+        <signal_objects object="$gate" param="'travel gate next'"/>
       </do_if>
       <do_while value="global.$gate_queue.{$gate}.{2}? and not global.$gate_queue.{$gate}.{2}.exists" comment="experimental cleanup to resolve debug errors">
         <remove_value name="global.$gate_queue.{$gate}.{2}"/>
       </do_while>
       <do_if value="global.$gate_queue.{$gate}.{2}?">
         <signal_objects object="global.$gate_queue.{$gate}.{2}" param="'travel gate next'"/>
+        <signal_objects object="$gate" param="'travel gate next'"/>
       </do_if>
       
       <!-- a very short Boost forward to clear Entry Area (or if not possible right now clear in normal flight) -->
@@ -217,9 +241,9 @@
         <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
         <move_to object="this.ship" destination="this.zone" boost="true" forcesteering="true" comment="boost=this.ship.pilot.skill.navigation ge 3">
           <position value="$safeposition"/>
-          <interrupt_after_time time="3s"/>
+          <interrupt_after_time time="10s"/>
         </move_to>
-        <!--set_to_default_flight_control_model object="this.ship"/-->
+        <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
       </do_if>
       
     </actions>
@@ -240,6 +264,7 @@
         <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
       </do_else>
     </do_if>
+    <signal_objects object="$gate" param="'travel gate next'"/>
     <!-- also unblock the Vanilla mechanic -->
     <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
   </on_abort>
