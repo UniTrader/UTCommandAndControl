@@ -20,11 +20,30 @@
     <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
   </params>
   <init>
+    <!-- first turn params param into the real params -->
+    <do_if value="$params.$destination?">
+      <set_value name="$destination" exact="$params.$destination"/>
+    </do_if>
+    <do_if value="$params.$position?">
+      <set_value name="$position" exact="$params.$position"/>
+    </do_if>
+    <do_if value="$params.$rotation?">
+      <set_value name="$rotation" exact="$params.$rotation"/>
+    </do_if>
+    <do_if value="$params.$lookat?">
+      <set_value name="$lookat" exact="$params.$lookat"/>
+    </do_if>
+    <do_if value="$params.$endintargetspace?">
+      <set_value name="$endintargetspace" exact="$params.$endintargetspace"/>
+    </do_if>
+    <!-- confirm that Destination is Valid - will be re-checked and exited in beginning of main Script -->
     <do_if value="not $destination.exists">
       <debug_text filter="general" text="'%1 %2 %3 Destination not existent: %4 %5'.[player.age,this.name,this.container.name,@$destination,@$destination.knownname]"/>
     </do_if>
   </init>
   <interrupts>
+    <handler ref="TargetInvalidHandler" />
+    <handler ref="ut_cac_lib_interrupt_attacked"/>
     <handler>
         <conditions>
           <event_object_target_invalid object="this.ship" />
@@ -49,25 +68,6 @@
   </interrupts>
   <attention min="unknown">
     <actions>
-      <!-- first turn params param into the real params -->
-      <do_if value="$params">
-        <do_if value="$params.$destination?">
-          <set_value name="$destination" exact="$params.$destination"/>
-        </do_if>
-        <do_if value="$params.$position?">
-          <set_value name="$position" exact="$params.$position"/>
-        </do_if>
-        <do_if value="$params.$rotation?">
-          <set_value name="$rotation" exact="$params.$rotation"/>
-        </do_if>
-        <do_if value="$params.$lookat?">
-          <set_value name="$lookat" exact="$params.$lookat"/>
-        </do_if>
-        <do_if value="$params.$endintargetspace?">
-          <set_value name="$endintargetspace" exact="$params.$endintargetspace"/>
-        </do_if>
-      </do_if>
-      
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7  , $endintargetspace: %8'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$endintargetspace]"/>
       
       <set_value name="$bigship" exact="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" />
@@ -226,8 +226,8 @@
             </run_script>
           </do_elseif>
           <do_elseif value="this.$waypoint.isclass.zone">
-              <!-- next is the Target Zone/Sector - First jump to the closest Beacon (if necesary), then go to Fine Movement for the Destination (with Boosting) -->
-              <!-- ToDo: check ii we could save a bit time with IS-Jumping-->
+            <!-- next is the Target Zone/Sector - First jump to the closest Beacon (if necesary), then go to Fine Movement for the Destination (with Boosting) -->
+            <!-- ToDo: check ii we could save a bit time with IS-Jumping-->
             <do_if value="this.$waypoint.sector != this.sector">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
               <run_script name="'ut.cac.move.jump'" result="$result" >

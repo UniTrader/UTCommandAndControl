@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript name="ut.cac.interrupt.attacked" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <params>
+    <param name="enemies" default="null" comment="Enemies to flee from (passed from the interrupt Handler lib to the Script to avoid search for enemies twice)"/>
+  </params>
+  <init>
+    <!-- -->
+  </init>
+  <interrupts>
+    <library>
+      <!-- All-purpose Signal Handler for all Kinds of Flee Behaviors
+      Since this is planned to be UT CAC Global i will evaluate the $params-table here for consistency and to avoid internal Var Name conflicts.
+      Planned kinds of reactions: => $params.$attackreaction
+      0. null-Action - do nothing (supress all reactions to incoming fire) => set this value if you want to temporarily disable the Interrupt actions
+      1. Flee temporarily and resume Work where interrupted
+      2. Flee temporarily and restart current Order => default for Ships (Captain) behavior if nothing is set
+      3. Flee and abort current Script, continue with next
+      4. Flee and abort a list of Scripts from the Order List ( $params.$dependentorders )
+      5. Flee, completely cancel Order List (and perhaps return home), impicitly get new Orders
+      If Flee Behavior is triggered is decided by combined DPS of Attackers/nearby Enemies vs. current Shield Strength
+      (Holdout Time till Shields are depleted can be adjusted, default is 60s if not set) => $params.$attackholdouttime
+      -->
+      <handler name="ut_cac_lib_interrupt_attacked" comment="referenced in all Scripts using this.">
+        <conditions>
+          <check_all>
+            <event_object_attacked object="this.container"/>
+            <check_value value="this.$ut_cac?" comment="only for Schips running my Scripts specifically"/>
+            <check_value value="this.type == entitytype.commander or this.type == entitytype.pilot" comment="currently for pilots/captains only"/>
+            <check_value value="(not this.$ut_cac.$nextattackinterrupt? ) or ( player.age gt this.$ut_cac.$nextattackinterrupt )" comment="temporary disabled to prevent too many triggers"/>
+            <check_value value="not ($params.$attackreaction? and $params.$attackreaction == 0)" comment="do nothing if deactivated"/>
+          </check_all>
+        </conditions>
+        <actions>
+          <debug_text filter="general" text="'%1 %2 %3 Flee check Interrupt triggered, evaluated values:'.[player.age,this.name,this.container.name]"/>
+          <!-- set certain $params. values to default Values if not set -->
+          <do_if value="not $params.$holdouttime?">
+            <set_value name="$params.$holdouttime" exact="60s"/>
+          </do_if>
+          <do_if value="not $params.$attackreaction?">
+            <set_value name="$params.$attackreaction" exact="2"/>
+          </do_if>
+          <!-- block the next Attack Interrupt for a third of the holdouttime to lessen load -->
+          <set_value name="this.$ut_cac.$nextattackinterrupt" exact="player.age + ( $params.$holdouttime / 3 )"/>
+          <do_if value="not $interruptattacked?">
+            <set_value name="$interruptattacked" comment="to keep the Vars of the interrupt Handler completely seperate from the Scripts where this is reffered" exact="table[
+            $totaldps = 1hp
+            ]"/>
+          </do_if>
+          <!-- compare our Shield Strength to the dps of all nearby enemies -->
+          <find_ship groupname="$interruptattacked.$enemies" space="this.zone" multiple="true" functional="true">
+            <match_distance object="this.container" max="10km"/>
+            <match_relation object="this.container" relation="enemy"/>
+          </find_ship>
+          <find_station groupname="$interruptattacked.$enemies" space="this.zone" multiple="true" functional="true">
+            <match_distance object="this.container" max="10km"/>
+            <match_relation object="this.container" relation="enemy"/>
+          </find_station>
+          <do_all exact="$interruptattacked.$enemies.count" counter="$interrupt_i">
+            <set_value name="$interruptattacked.$totaldps" operation="add" exact="$interruptattacked.$enemies.{$interrupt_i}.dps.all"/>
+          </do_all>
+          <!-- maybe include Formation or something here? (currently this is for single Ship use only) -->
+          <set_value name="$interruptattacked.$totalshield" exact="this.container.shield"/>
+          <debug_text filter="general" text="'$holdouttime: %1 ; $attackreaction: %2 ; $totaldps: %3 ; $totalshield: %4 ; $shield/$dps: %5'.[$params.$holdouttime,$params.$attackreaction,$interruptattacked.$totaldps,$interruptattacked.$totalshield,$interruptattacked.$totalshield / $interruptattacked.$totaldps]"/>
+          <do_if value="$interruptattacked.$totalshield / $interruptattacked.$totaldps lt $params.$holdouttime">
+            <debug_text filter="general" text="'Starting Flee reaction'"/>
+            <do_if value="$params.$attackreaction le 5" comment="attack reaction between 0 and 5">
+              <do_if value="$params.$attackreaction == 1">
+                <!-- behavior 1 (continue where you stopped) has no further actions to be done -->
+                <debug_text filter="general" text="'And resuming where interrupted (default)'"/>
+                <run_interrupt_script name="'ut.cac.interrupt.attacked'"/>
+              </do_if>
+              <do_elseif value="$params.$attackreaction == 2">
+                <!-- Attack Interupt behavior 2: restart Current Order -->
+                <debug_text filter="general" text="'And resuming at start'"/>
+                <run_interrupt_script name="'ut.cac.interrupt.attacked'" resume="start"/>
+              </do_elseif>
+              <!-- Attack Interrupt Behavior 3: abort current Order, continue with next -->
+              <do_elseif value="$params.$attackreaction == 3">
+                <debug_text filter="general" text="'And resuming at finish'"/>
+                <run_interrupt_script name="'ut.cac.interrupt.attacked'" resume="finish"/>
+              </do_elseif>
+              <!-- Attack Interrupt Behavior 4: abort current Order and also remove certain Orders from Orderlist - NOT IMPLEMENTED YET-->
+              <do_elseif value="$params.$attackreaction == 4">
+                <set_value name="this.$orderlist.{2}" operation="insert" exact="table[$script='ut.cac.microorder',$order='remove orders',$orders=$params.$dependentorders,$interruptable=false]"/>
+                <debug_text filter="general" text="'And aborting list of Orders ( NYI!!!! )'"/>
+                <run_interrupt_script name="'ut.cac.interrupt.attacked'" resume="finish"/>
+              </do_elseif>
+              <!-- Attack Interrupt Behavior 5: abort current Order and also remove all Orders from Orderlist - NOT IMPLEMENTED YET-->
+              <do_elseif value="$params.$attackreaction == 5">
+                <set_value name="this.$orderlist.{2}" operation="insert" exact="table[$script='ut.cac.microorder',$order='remove orders',$orders=this.$orderlist.clone,$interruptable=false]"/>
+                <debug_text filter="general" text="'And aborting all Orders ( NYI!!!! )'"/>
+                <run_interrupt_script name="'ut.cac.interrupt.attacked'" resume="finish"/>
+              </do_elseif>
+            </do_if>
+          </do_if>
+          <remove_value name="$interruptattacked"/>
+        </actions>
+      </handler>
+    </library>
+  </interrupts>
+  <actions>
+    <debug_text filter="general" text="'%1 %2 %3 Interrupt Started'.[player.age,this.name,this.container.name]"/>
+    <!-- make sure there is no bigship in front of us and just boost straight forward ( using Steering FCM to avoid unnecesary delays because of path calculation) -->
+    <find_object name="$enemies_fleedirection" space="this.zone" multiple="true" functional="true">
+      <match_distance object="this.container" max="10km"/>
+      <match_relation object="this.container" relation="enemy"/>
+      <match_size min="100m"/>
+      <match_is_in_view_of object="this.container" horizontal="25deg" vertical="25deg"/>
+    </find_object>
+    <do_if value="$enemies_fleedirection.count le 1">
+      <transform_position name="$fleedestination" refposition="this.container.position" refrotation="this.container.rotation">
+        <position x="0m" y="0m" z="25km"/>
+      </transform_position>
+    </do_if>
+    <do_else>
+      <set_value name="$directions" exact="[ position.[0m,18km,18km],position.[15km,15km,15km],position.[18km,0m,18km],position.[15km,-15km,15km],position.[0m,-18km,18km],position.[-15km,-15km,15km],position.[-18km,0m,18km],position.[-15km,15km,15km]]"/>
+      <do_all exact="$directions.count">
+        <set_value name="$index" min="1" max="$directions.count"/>
+        <set_value name="$direction" exact="$directions.{$index}"/>
+        <remove_value name="$directions.{$index}"/>
+        <!-- transform direction from a Position relative to the Ship into a Zone Offset -->
+        <transform_position name="$fleedestination" refposition="this.ship.position" refrotation="this.ship.rotation">
+          <position value="$direction"/>
+        </transform_position>
+        <!-- calculate rotation to look at this Zone Offset from the Ship (still re-using $direction) -->
+        <create_orientation name="$direction" refobject="this.ship" orientation="look_at">
+          <position value="$fleedestination"/>
+        </create_orientation>
+        <find_object name="$enemies_fleedirection" space="this.zone" multiple="true" functional="true">
+          <match_distance object="this.container" max="10km"/>
+          <match_relation object="this.container" relation="enemy"/>
+          <match_size min="100m"/>
+          <match_is_in_view_of object="this.container" yaw="$direction.yaw" pitch="$direction.pitch" roll="$direction.roll" horizontal="25deg" vertical="25deg"/>
+        </find_object>
+        <do_if value="$enemies_fleedirection le 1">
+          <break/>
+        </do_if>
+        <do_else>
+          <set_value name="$fleedestination" exact="null"/>
+        </do_else>
+      </do_all>
+      <do_if value="$fleedestination">
+        <move_to object="this.ship" destination="this.zone" abortpath="true" boost="true" finishonapproach="true" forcesteering="true">
+          <position value="$fleedestination"/>
+        </move_to>
+        <set_to_default_flight_control_model object="this.ship"/>
+      </do_if>
+<!--      <create_orientation name="$fleedirection" refobject="this.container" orientation="look_at"/>-->
+        
+    </do_else>
+  </actions>
+  <on_abort>
+    <!-- -->
+  </on_abort>
+</aiscript>

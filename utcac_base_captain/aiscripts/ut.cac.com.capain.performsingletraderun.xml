@@ -8,28 +8,29 @@
     <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
     <param name="command" default="command.trade" comment="command to display when executing this Script ( command.freetrade or command.trade would make sense, depending on context)"/>
   </params>
+  <init>
+    <!-- first turn $params param into the real params -->
+    <do_if value="$params.$trade?">
+      <set_value name="$trade" exact="$params.$trade"/>
+    </do_if>
+    <do_if value="$params.$amount?">
+      <set_value name="$amount" exact="$params.$amount"/>
+    </do_if>
+    <do_if value="$params.$refreshreservations?">
+      <set_value name="$refreshreservations" exact="$params.$refreshreservations"/>
+    </do_if>
+    <do_if value="$params.$undock?">
+      <set_value name="$undock" exact="$params.$undock"/>
+    </do_if>
+    <do_if value="$params.$command?">
+      <set_value name="$command" exact="$params.$command"/>
+    </do_if>
+  </init>
   <interrupts>
+    <handler ref="ut_cac_lib_interrupt_attacked"/>
   </interrupts>
   <attention min="unknown">
     <actions>
-      <!-- first turn $params param into the real params -->
-      <do_if value="$params">
-        <do_if value="$params.$trade?">
-          <set_value name="$trade" exact="$params.$trade"/>
-        </do_if>
-        <do_if value="$params.$amount?">
-          <set_value name="$amount" exact="$params.$amount"/>
-        </do_if>
-        <do_if value="$params.$refreshreservations?">
-          <set_value name="$refreshreservations" exact="$params.$refreshreservations"/>
-        </do_if>
-        <do_if value="$params.$undock?">
-          <set_value name="$undock" exact="$params.$undock"/>
-        </do_if>
-        <do_if value="$params.$command?">
-          <set_value name="$command" exact="$params.$command"/>
-        </do_if>
-      </do_if>
       
       <!-- first refresh the Reservations -->
       <get_trade_from_shoppinglist result="$trades" object="this.ship" multiple="true"/>
@@ -60,6 +61,8 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Refreshed Reservations:\n%4'.[player.age,this.name,this.container.name,$trades]"/>
       <remove_value name="$refreshreservations"/>
       <remove_value name="$trades"/>
+      
+      <label name="start"/>
       
       <!-- Now get the Trade we want to do - either the first in the Shoppinglist or the one specifically given by the Caller - in the latter case reserve it, too -->
       <do_if value="not $trade">
@@ -194,6 +197,7 @@
             <set_value name="$offer" exact="null" />
           </do_else>
         </do_if>
+        <set_value name="$params.$attackreaction" exact="0" comment="deactivate flee reaction while parked/parking at Station"/>
         <run_script name="'move.park'" result="$parkresult">
           <param name="destination" value="$tradepartner" />
           <param name="tradeoffer" value="$offer" />
@@ -368,7 +372,7 @@
           <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
         </do_if>
         <do_elseif value="this.$ut_cac.$commanderentity? and this.$ut_cac.$commanderentity.exists and this.$ut_cac.$commanderentity.type == entitytype.manager">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Manager Signal)'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Fallback Manager Signal)'.[player.age,this.name,this.container.name]"/>
           <signal_objects object="this.$ut_cac.$commanderentity" param="'request orders'" param2="this"/>
         </do_elseif>
         <do_else>
