@@ -70,7 +70,9 @@
         <event_object_changed_zone object="@$destination"/>
       </conditions>
       <actions>
-        <abort_called_scripts resume="start"/>
+        <do_if value="$targetspace != ( if $destination.pilot.$waypoint? then $destination.pilot.$waypoint else $destination.zone )">
+          <abort_called_scripts resume="start"/>
+        </do_if>
       </actions>
     </handler>
   </interrupts>
