@@ -91,7 +91,6 @@
             </cue>
           </cues>
         </cue>
-
         <cue name="ControlEntity" onfail="cancel">
           <conditions>
             <check_value value="$actor.iscontrolentity" />
@@ -185,6 +184,7 @@ Rest is shared between all Actor types
               <add_player_choice text="{5554103,131}" position="1" section="comm_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
               <add_player_choice text="{5554103,132}" position="3" section="comm_orders_signals" />
               <add_player_choice text="{5554103,133}" position="4" section="comm_orders_select_zone" choiceparam="'comm_orders_flyto_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+              <add_player_choice text="'Follow this CAC Ship \033RTesting Only!!!\033X'" position="5"  section="comm_orders_follow_selected" choiceparam="[0,0,player.ship]" selectable="player.ship.exists and player.ship.pilot.$ut_cac?" comment="Follow the current Player Ship (Menu to be added when this works)"/>
               <add_player_choice_return text="{5554103,7}" position="6" />
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_if>
@@ -205,6 +205,12 @@ Rest is shared between all Actor types
                 <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
               </do_if>
               <set_value name="$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$interruptable=true]"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_orders_follow_selected'">
+              <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              </do_if>
+              <set_value name="$new_order" exact="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[event.param2.{3}.knownname],$object=event.param2.{3},$interruptable=true]"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_orders_signals'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
