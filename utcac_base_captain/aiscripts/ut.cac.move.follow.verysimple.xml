@@ -33,7 +33,7 @@
           <event_object_target_invalid object="this.ship" />
         </conditions>
         <actions>
-          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $destination: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $object: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
           <abort_called_scripts />
           <resume label="enter formation"/>
       </actions>
@@ -96,7 +96,7 @@
   <attention min="unknown">
     <actions>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7  , $endintargetspace: %8'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$endintargetspace]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$object: %4'.[player.age,this.name,this.container.name,$$object.knownname]"/>
       
       <label name="fly to leader zone" />
       
@@ -108,9 +108,10 @@
       <remove_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
       
       <!-- just some Dummy Code - this Script is primarily for testing the Signalling and synching of the interrupting movement scripts-->
+      <label name="start" comment="InDev Save Compatibility - remove asap"/>
       <label name="enter formation"/>
       
-      <do_if value="$leader.zone != this.zone">
+      <do_if value="$object.zone != this.zone">
         <resume label="fly to leader zone"/>
       </do_if>
       
