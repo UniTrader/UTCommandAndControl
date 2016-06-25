@@ -35,7 +35,7 @@
         <actions>
           <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $object: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
           <abort_called_scripts />
-          <resume label="enter formation"/>
+          <resume label="start"/>
       </actions>
     </handler>
     <handler>
@@ -52,6 +52,7 @@
     <handler comment="Handler for Navigation Signals">
       <conditions>
         <check_any>
+          <event_object_signalled object="$object" param="'travel normal prep'"/>
           <event_object_signalled object="$object" param="'travel boost prep'"/>
           <event_object_signalled object="$object" param="'travel jump prep'"/>
           <event_object_signalled object="$object" param="'travel gate prep'"/>
@@ -62,8 +63,17 @@
       <actions> 
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signal on Leader receiveds:\nparam: %4 , param2: %5 , param3: %6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'travel boost prep'">
+          <!-- interrupt with regular Travel script -->
+          <run_interrupt_script name="'ut.cac.move.follow.capital.step'" resume="start">
+            <param name="leader" value="$object"/>
+            <param name="position" value="event.param2.{1}"/>
+            <param name="rotation" value="event.param2.{2}"/>
+            <param name="leader_preparegroup" value="event.param3"/>
+          </run_interrupt_script>
+        </do_if>
+        <do_if value="event.param == 'travel boost prep'">
           <!-- interrupt with boost script -->
-          <run_interrupt_script name="'ut.cac.move.boost'" resume="enter formation">
+          <run_interrupt_script name="'ut.cac.move.boost'" resume="start">
             <param name="destination" value="event.param2.{1}"/>
             <param name="position" value="event.param2.{2}"/>
             <param name="leader_startposition" value="event.param2.{3}"/>
@@ -74,7 +84,7 @@
         </do_if>
         <do_elseif value="event.param == 'travel jump prep'">
           <!-- interrupt with jump script -->
-          <run_interrupt_script name="'ut.cac.move.jump'" resume="enter formation">
+          <run_interrupt_script name="'ut.cac.move.jump'" resume="start">
             <param name="destination" value="event.param2"/>
             <param name="leader" value="$object"/>
             <param name="leader_preparegroup" value="event.param3"/>
@@ -82,13 +92,13 @@
         </do_elseif>
         <do_elseif value="event.param == 'travel gate prep'">
           <!-- interrupt with Gate Passage script -->
-          <run_interrupt_script name="'ut.cac.move.gate2'" resume="enter formation">
+          <run_interrupt_script name="'ut.cac.move.gate2'" resume="start">
             <param name="gate" value="event.param2"/>
             <param name="queue_position" value="event.param3"/>
           </run_interrupt_script>
         </do_elseif>
         <do_elseif value="event.param == 'travel aborted'">
-          <abort_called_scripts resume="enter formation"/>
+          <abort_called_scripts resume="start"/>
         </do_elseif>
       </actions>
     </handler>
@@ -109,7 +119,6 @@
       
       <!-- just some Dummy Code - this Script is primarily for testing the Signalling and synching of the interrupting movement scripts-->
       <label name="start" /><!-- InDev Save Compatibility - remove asap"-->
-      <label name="enter formation"/>
       
       <do_if value="$object.zone != this.zone">
         <resume label="fly to leader zone"/>
@@ -117,7 +126,7 @@
       
       <wait/>
       
-      <resume label="enter formation"/>
+      <resume label="start"/>
     </actions>
   </attention>
 </aiscript>

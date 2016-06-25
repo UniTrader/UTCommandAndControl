@@ -88,7 +88,26 @@ with a given Rotation or Orientation
         </create_orientation>
       </do_if>
       
+      <!-- Signal Followers where to move next, wait a few frames till everyone registered in Follower List, figure out new Safepos nearby the old one based on Size of whole Formation, signal everyone with update -->
+      <create_group groupname="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel normal prep'" param2="[$safepos,$rotation]" param3="$leader_preparegroup"/>
+      <wait max="100ms"/>
+      <wait max="100ms"/>
+      <do_if value="$leader_preparegroup.count">
+        <!-- figure out size of overall Formation -->
+        <!-- this Var holds the List of the Size for all possible Ships - the max value it contains in the end is the result -->
+        <set_value name="$formation_size" exact="[this.ship.size]"/>
+        <do_all exact="$leader_preparegroup.count" counter="$i">
+          <append_to_list name="$formation_size" exact="this.ship.distanceto.{$leader_preparegroup.{$i} + $leader_preparegroup.{$i}.size"/>
+        </do_all>
+        <set_value name="$formation_size" exact="$formation_size.max"/>
+        <!-- re-define safepos based on Formation Size -->
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="$safepos" radius="$formation_size" ignored="this.ship"/>
+      </do_if>
+      
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got final Pos and rotation, starting movement: %4 %5 %6'.[player.age,this.name,this.container.name,$safepos,@$rotation,this.ship.distanceto.{$safepos}]"/>
+      
+      <signal_objects object="this.ship" param="'travel normal start'" param2="[$safepos,$rotation]" param3="$leader_preparegroup"/>
       
       <!-- Do actual movement -->
       <!-- check if we are near destination safepos and if it makes sense to strafe or fly backwards -->
@@ -138,6 +157,11 @@ with a given Rotation or Orientation
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Movement done.'.[player.age,this.name,this.container.name]"/>
       
+      <!-- wait till everyone in Prep Group has arrive before continuing -->
+      <do_while value="$leader_preparegroup.count">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrivey\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+        <wait min="5s" max="8s"/>
+      </do_while>
       
     </actions>
   </attention>
