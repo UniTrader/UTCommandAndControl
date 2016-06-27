@@ -100,9 +100,18 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is a Space - Move until we have the right Context'.[player.age,this.name,this.container.name]"/>
         <set_value name="$targetspace" exact="$destination"/>
       </do_if>
-      <do_elseif value="$destination.isclass.ship and $destination.pilot.$waypoint?">
-        <set_value name="$targetspace" exact="$destination.pilot.$waypoint"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is a Ship which has announced its next movement Step - follow it to %4 to meet up'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
+      <do_elseif value="$destination.isclass.ship">
+        <do_if value="$destination.pilot.$waypoint?">
+          <set_value name="$targetspace" exact="$destination.pilot.$waypoint"/>
+          <do_if value="$targetspace.isclass.gate">
+            <set_value name="$targetspace" exact="$targetspace.destination"/>
+          </do_if>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is a Ship which has announced its next movement Step - follow it to %4 to meet up'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
+        </do_if>
+        <do_else>
+          <set_value name="$targetspace" exact="$destination.zone"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is a Ship which didnt announce its movement intention - Fly to its Zone %4'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
+        </do_else>
       </do_elseif>
       <do_else>
         <set_value name="$targetspace" exact="$destination.zone"/>
@@ -148,6 +157,10 @@
           <do_elseif value="$targetspace.isclass.cluster">
             <find_sector name="$pathend" space="$targetspace"/>
           </do_elseif>
+          <do_else>
+            <debug_text filter="error" text="'%1 %2 %3 Targetspace is not a Space! %4! trying to get its Sector...'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
+            <set_value name="$pathend" exact="$targetspace.sector"/>
+          </do_else>
           <get_jump_path component="$waypoints" multiple="true" start="this.sector" end="$pathend" />
           <remove_value name="$pathend"/>
           <!-- set last Entry with the Target Sector to the exact Target Space so we can determine the closest Beacon -->
