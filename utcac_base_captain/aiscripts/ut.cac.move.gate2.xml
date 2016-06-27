@@ -57,6 +57,9 @@
         <set_value name="$ignoredobject" exact="this.ship"/>
       </do_else>
       
+      <!-- Dont abort Path on first move_to, but for each one after that for fluid movement -->
+      <set_value name="$abortpath" exact="false"/>
+      
       <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
       <do_if value="this.$ut_cac?">
         <set_value name="this.$ut_cac.$isactive"/>
@@ -108,7 +111,7 @@
       </transform_position>
       <!--get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/-->
       <!-- move to position in queue/prep pos -->
-      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true">
+      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true" abortpath="$abortpath">
         <position value="$position" />
         <rotation value="$gate.rotation" comment="no need to calculate this because we are behind the Gate"/>
         <interrupt>
@@ -120,6 +123,7 @@
           </actions>
         </interrupt>
       </move_to>
+      <set_value name="$abortpath" exact="true" comment="from now on its position updates, so fly to the Queue Position directly, not via the previous position"/>
       <do_if value="$queue_position == 1">
         <resume label="pass gate"/>
       </do_if>
@@ -186,7 +190,7 @@
       
       <set_value name="$moveintogate" exact="true" />
       <signal_objects object="$gate" param="'travel gate next'" delay="100ms" comment="speed up process by telling everyone to advance to the next wait pos"/>
-      <move_gate object="this.ship" gate="$gate">
+      <move_gate object="this.ship" gate="$gate" abortpath="false">
         <interrupt>
           <conditions>
             <event_object_changed_cluster object="this.ship" />
