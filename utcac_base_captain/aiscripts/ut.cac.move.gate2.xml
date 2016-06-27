@@ -45,8 +45,13 @@
         <debug_text filter="error" text="'%1 %2 %3 Gate not existent or not a gate - aborting!'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
+      <do_if value="not $gate.isactive">
+        <debug_text filter="error" text="'%1 %2 %3 Trying to pass inactive Gate - aborting!'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
       <do_if value="this.zone != $gate.zone">
         <debug_text filter="error" text="'%1 %2 %3 Not in Gate Zone - aborting!'.[player.age,this.name,this.container.name]"/>
+        <return/>
       </do_if>
       
       <!-- HACK for FoO - Albion Gate: Ignore the Big Asteroid when aquiring Safe Pos -->
