@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.gate2" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.gate2" version="30" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
 
  rewritten from scratch by UniTrader
@@ -17,10 +17,14 @@
     <param name="cleargate" default="true" comment="Clear the Gate after Passage?"/>
     
     <param name="queue_position" default="false" comment="position in the Gate queue where Fight Ships add themselves to to pass the Gate before unarmed Ships (false will assume this is the leader and add to the End)"/>
+    <param name="isleader" default="not $queue_position" comment="set to true if this Ship should wait for the $passage_group before continuing - assumed to be true if a queue_position is passed and false if not"/>
     
   </params>
   <interrupts>
   </interrupts>
+  <patch sinceversion="30">
+    <create_group groupname="$passage_group"/>
+  </patch>
   <attention min="unknown">
     <actions>
       <!-- first decode the $params to the Variables -->
@@ -65,6 +69,7 @@
       <!-- Dont abort Path on first move_to, but for each one after that for fluid movement -->
       <set_value name="$abortpath" exact="false"/>
       
+      
       <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
       <do_if value="this.$ut_cac?">
         <set_value name="this.$ut_cac.$isactive"/>
@@ -81,7 +86,7 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Gate to Global Gate Passage Table: %4 current Gate: %5'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
       </do_elseif>
       
-      <!-- Register in Gate Queue and tell Followers our Position so they can add themselves before us if required -->
+      <!-- Register in Gate Queue, Create Passage Group to keep a Group of Ships together after Passage and tell Followers our Position so they can add themselves before us if required -->
       <do_if value="not $queue_position">
         <append_to_list name="global.$gate_queue.{$gate}" exact="this.ship"/>
         <set_value name="$queue_position" exact="global.$gate_queue.{$gate}.count"/>
@@ -89,7 +94,11 @@
       <do_else>
         <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="this.ship" operation="insert"/>
       </do_else>
-      <signal_objects object="this.ship" param="'travel gate prep'" param2="$gate" param3="$queue_position"/>
+      <do_if value="not $passage_group">
+        <create_group groupname="$passage_group"/>
+      </do_if>
+      <add_to_group groupname="$passage_group" object="this.ship"/>
+      <signal_objects object="this.ship" param="'travel gate prep'" param2="[$gate,$queue_position]" param3="$passage_group"/>
       <wait exact="100ms"/>
       
       <!-- Calculate Position so we can sort into the Queue behind the Gate, and Move there (restarts with every Passage or Abort of others for fluid movement) -->
@@ -230,7 +239,7 @@
       <do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
         <wait exact="100ms" comment="otherwise the player.ship skips movement for some reason"/>
         <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >
-          <position x="0m" y="0m" z="(this.ship.size *3)"/>
+          <position x="0m" y="0m" z="(this.ship.size *5)"/>
         </transform_position>
         <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
         <move_to object="this.ship" destination="this.zone" boost="true" forcesteering="true" finishonapproach="true" comment="boost=this.ship.pilot.skill.navigation ge 3">
@@ -240,6 +249,23 @@
       </do_if>
       <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
       
+      <!-- un-register from Passage Group to allow the Leader to continue -->
+    <remove_from_group group="$passage_group" object="this.ship"/>
+      
+      <!-- wait till everyone in Group has passed the Gate (unregistered from Group) -->
+      <do_if value="$isleader">
+        <do_while value="$passage_group.count">
+          <wait max="120s" comment="fallback: re-check regulary">
+            <interrupt>
+              <conditions>
+                <event_object_changed_cluster group="$passage_group"/>
+              </conditions>
+            </interrupt>
+          </wait>
+          <!-- make sure the Ship has removed itself from the Group and then check if there are still members in -->
+          <wait exact="12s"/>
+        </do_while>
+      </do_if>
     </actions>
   </attention>
   <on_abort>
@@ -254,5 +280,7 @@
     <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
     <!-- signal our followers to stop -->
     <signal_objects object="this.ship" param="'travel aborted'"/>
+    <!-- remove from Passage Group -->
+    <remove_from_group group="$passage_group" object="this.ship"/>
   </on_abort>
 </aiscript>
