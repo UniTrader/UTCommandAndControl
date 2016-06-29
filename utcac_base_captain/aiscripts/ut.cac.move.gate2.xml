@@ -135,8 +135,10 @@
         <rotation value="$gate.rotation" comment="no need to calculate this because we are behind the Gate"/>
         <interrupt>
           <conditions>
-            <event_object_signalled object="$gate" param="'travel gate update'"/>
-            <event_object_signalled object="this.ship" param="'travel gate update'"/>
+            <check_any>
+              <event_object_signalled object="$gate" param="'travel gate update'"/>
+              <event_object_signalled object="this.ship" param="'travel gate update'"/>
+            </check_any>
           </conditions>
           <actions>
             <do_if value="event_object == this.ship">
