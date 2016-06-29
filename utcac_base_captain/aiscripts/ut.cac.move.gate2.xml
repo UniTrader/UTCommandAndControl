@@ -17,7 +17,8 @@
     <param name="cleargate" default="true" comment="Clear the Gate after Passage?"/>
     
     <param name="queue_position" default="false" comment="position in the Gate queue where Fight Ships add themselves to to pass the Gate before unarmed Ships (false will assume this is the leader and add to the End)"/>
-    <param name="isleader" default="not $queue_position" comment="set to true if this Ship should wait for the $passage_group before continuing - assumed to be true if a queue_position is passed and false if not"/>
+    <param name="isleader" default="2" comment="set to true if this Ship should wait for the $passage_group before continuing and to false if not - (if set to 2 will default to be true if a queue_position is passed and false if not )"/>
+    <param name="passage_group" default="false" comment="Group of all Ships which pass the Gate as a Group"/>
     
   </params>
   <interrupts>
@@ -69,6 +70,10 @@
       <!-- Dont abort Path on first move_to, but for each one after that for fluid movement -->
       <set_value name="$abortpath" exact="false"/>
       
+      <!-- determine if we are leader - see comment of Parameter -->
+      <do_if value="$isleader == 2">
+        <set_value name="$isleader" exact="not $queue_position"/>
+      </do_if>
       
       <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
       <do_if value="this.$ut_cac?">
