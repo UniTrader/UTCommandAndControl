@@ -192,7 +192,9 @@
           <!--create_position_outside_boundingbox name="$startpos" component="this.ship" distance="this.ship.size" >
             <position object="$destination"/>
           </create_position_outside_boundingbox-->
-          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size * 2" ignored="this.ship" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
+          <get_zone_exit_pos zone="this.zone" destination="$destination" position="$startpos" rotation="$startrot" radius="this.ship.size * 2">
+            <position object="this.ship"/>
+          </get_zone_exit_pos>
           <create_orientation name="$startrot" orientation="look_at" refposition="$targetpos">
             <position value="$startpos" />
           </create_orientation>
