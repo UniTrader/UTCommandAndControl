@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.gate2" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.gate2" version="30" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
 
  rewritten from scratch by UniTrader
@@ -23,6 +23,9 @@
   </params>
   <interrupts>
   </interrupts>
+  <patch sinceversion="30">
+    <create_group groupname="$passage_group"/>
+  </patch>
   <attention min="unknown">
     <actions>
       <!-- first decode the $params to the Variables -->
@@ -214,7 +217,7 @@
         <precache_hint zone="$gate.destination"/>
       </do_if>
       
-      <!--set_value name="$moveintogate" exact="true" /-->
+      <set_value name="$moveintogate" exact="true" />
       <signal_objects object="$gate" param="'travel gate update'" delay="100ms" comment="speed up process by telling everyone to advance to the next wait pos"/>
       <move_gate object="this.ship" gate="$gate" abortpath="false">
         <interrupt>
@@ -227,7 +230,7 @@
           </actions>
         </interrupt>
       </move_gate>
-      <!--do_if value="$moveintogate">
+      <do_if value="$moveintogate">
         <wait>
           <interrupt>
             <conditions>
@@ -238,7 +241,7 @@
             </actions>
           </interrupt>
         </wait>
-      </do_if-->
+      </do_if>
       
       <!-- unlock Gate (Vanilla) and remove ourselves from the Waiting List, signal the next to go/prepare (UT CAC) -->
       <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
@@ -247,19 +250,8 @@
       </do_if>
       <signal_objects object="$gate" param="'travel gate update'"/>
       
-      <!-- wait till Ship moved to Vanilla Safepos (complete move_gate-Action) -->
-      <do_if value="this.ship.numwaypoints">
-        <wait>
-          <interrupt>
-            <conditions>
-              <event_object_approaching_waypoint lastwaypoint="true"/>
-            </conditions>
-          </interrupt>
-        </wait>
-      </do_if>
-      
       <!-- a very short Boost forward to clear Entry Area (or if not possible right now clear in normal flight) -->
-      <!--do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
+      <do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
         <wait exact="100ms" comment="otherwise the player.ship skips movement for some reason"/>
         <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >
           <position x="0m" y="0m" z="(this.ship.size *5)"/>
@@ -270,7 +262,7 @@
           <interrupt_after_time time="10s"/>
         </move_to>
       </do_if>
-      <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/-->
+      <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
       
       <!-- un-register from Passage Group to allow the Leader to continue -->
     <remove_from_group group="$passage_group" object="this.ship"/>
@@ -281,11 +273,12 @@
           <wait max="120s" comment="fallback: re-check regulary">
             <interrupt>
               <conditions>
-                <event_object_approaching_waypoint lastwaypoint="true"/>
+                <event_object_changed_cluster group="$passage_group"/>
               </conditions>
             </interrupt>
           </wait>
-          <wait exact="100ms" comment="to make sure the Ship has unregistered previously"/>
+          <!-- make sure the Ship has removed itself from the Group and then check if there are still members in -->
+          <wait exact="12s"/>
         </do_while>
       </do_if>
     </actions>
