@@ -68,7 +68,7 @@
       </do_else>
       
       <!-- Dont abort Path on first move_to, but for each one after that for fluid movement -->
-      <set_value name="$abortpath" exact="false"/>
+      <set_value name="$continuepath" exact="true"/>
       
       <!-- determine if we are leader - see comment of Parameter -->
       <do_if value="$isleader == 2">
@@ -130,27 +130,33 @@
       </transform_position>
       <!--get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/-->
       <!-- move to position in queue/prep pos -->
-      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true" abortpath="$abortpath">
+      <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true" abortpath="not $continuepath">
         <position value="$position" />
         <rotation value="$gate.rotation" comment="no need to calculate this because we are behind the Gate"/>
         <interrupt>
           <conditions>
-            <event_object_signalled object="$gate" param="'travel gate next'"/>
+            <event_object_signalled object="$gate" param="'travel gate update'"/>
+            <event_object_signalled object="this.ship" param="'travel gate update'"/>
           </conditions>
           <actions>
-            <set_value name="$abortpath" exact="true" comment="from now on its position updates, so fly to the Queue Position directly, not via the previous position"/>
+            <do_if value="event_object == this.ship">
+              <set_value name="$continuepath" exact="false" comment="disable soft-advancing queue because we just got kicked back"/>
+            </do_if>
+            <do_elseif value="$continuepath != 2">
+              <set_value name="$continuepath" exact="false" comment="disable soft-advancing queue because we didnt sort in in queue yet"/>
+            </do_elseif>
             <resume label="fly to prep pos"/>
           </actions>
         </interrupt>
       </move_to>
-      <set_value name="$abortpath" exact="true" comment="from now on its position updates, so fly to the Queue Position directly, not via the previous position"/>
+      <set_value name="$continuepath" exact="2" comment="re-enable soft-advancing queue and also set it persistent"/>
       <do_if value="$queue_position == 1">
         <resume label="pass gate"/>
       </do_if>
       <do_elseif value="this.ship.distanceto.{$gate} lt global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate}" comment="we are closer to the Gate than the Ship before us - swap positions to avoid delays">
         <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="global.$gate_queue.{$gate}.{$queue_position - 1}"/>
         <set_value name="global.$gate_queue.{$gate}.{$queue_position - 1}" exact="this.ship"/>
-        <signal_objects object="$gate" param="'travel gate next'" comment="queue changed - everyone should adjust if necesary"/>
+        <signal_objects object="global.$gate_queue.{$gate}.{$queue_position}" param="'travel gate update'" comment="queue changed - signal the Ship we just changed positions with specifically"/>
         <resume label="fly to prep pos"/>
       </do_elseif>
       <do_else>
@@ -158,7 +164,7 @@
         <interrupt>
           <conditions>
             <!--check_any-->
-              <event_object_signalled object="$gate" param="'travel gate next'"/>
+              <event_object_signalled object="$gate" param="'travel gate update'"/>
               <!--event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
             </check_any-->
           </conditions>
@@ -189,7 +195,7 @@
         <wait min="3s" max="8s" comment="aggresive gate polling, but only one Ship at the same time.">
           <interrupt>
             <conditions>
-              <event_object_signalled object="$gate" param="'travel gate next'"/>
+              <event_object_signalled object="$gate" param="'travel gate update'"/>
             </conditions>
           </interrupt>
         </wait>
@@ -210,7 +216,7 @@
       </do_if>
       
       <set_value name="$moveintogate" exact="true" />
-      <signal_objects object="$gate" param="'travel gate next'" delay="100ms" comment="speed up process by telling everyone to advance to the next wait pos"/>
+      <signal_objects object="$gate" param="'travel gate update'" delay="100ms" comment="speed up process by telling everyone to advance to the next wait pos"/>
       <move_gate object="this.ship" gate="$gate" abortpath="false">
         <interrupt>
           <conditions>
@@ -240,7 +246,7 @@
       <do_if value="global.$gate_queue.{$gate}.{1}? and global.$gate_queue.{$gate}.{1} == this.ship">
         <remove_value name="global.$gate_queue.{$gate}.{1}"/>
       </do_if>
-      <signal_objects object="$gate" param="'travel gate next'"/>
+      <signal_objects object="$gate" param="'travel gate update'"/>
       
       <!-- a very short Boost forward to clear Entry Area (or if not possible right now clear in normal flight) -->
       <do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
@@ -279,7 +285,7 @@
     <!-- remove ourselves from the waiting List if we are in it and signal everyone the Queue has been changed-->
     <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
       <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
-      <signal_objects object="$gate" param="'travel gate next'"/>
+      <signal_objects object="$gate" param="'travel gate update'"/>
     </do_if>
     <!-- also unblock the Vanilla mechanic -->
     <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
