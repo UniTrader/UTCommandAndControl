@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.to.pos" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.to.pos" version="30" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
 
  rewritten from scratch by UniTrader
@@ -19,8 +19,9 @@ with a given Rotation or Orientation
     <param name="lookat" default="null" comment="position the ship should point to - overrides rotation"/>
     <param name="forceendpos" default="false" comment="force moving until exact end position is reached"/>
   </params>
-  <interrupts>
-  </interrupts>
+  <patch sinceversion="30">
+    <create_group groupname="$leader_preparegroup"/>
+  </patch>
   <attention min="unknown">
     <actions>
       <!-- first decode the $params to the Variables -->
@@ -98,7 +99,7 @@ with a given Rotation or Orientation
         <!-- this Var holds the List of the Size for all possible Ships - the max value it contains in the end is the result -->
         <set_value name="$formation_size" exact="[this.ship.size]"/>
         <do_all exact="$leader_preparegroup.count" counter="$i">
-          <append_to_list name="$formation_size" exact="this.ship.distanceto.{$leader_preparegroup.{$i} + $leader_preparegroup.{$i}.size"/>
+          <append_to_list name="$formation_size" exact="this.ship.distanceto.{$leader_preparegroup.{$i} + $leader_preparegroup.{$i}.size}"/>
         </do_all>
         <set_value name="$formation_size" exact="$formation_size.max"/>
         <!-- re-define safepos based on Formation Size -->
