@@ -142,9 +142,8 @@ Script to Dock or Park an Object
         <!-- basically Approach pos + 2* vector park pos to approach pos -->
         <set_value name="$approachpos" exact="position.[$approachpos.x + ( $approachpos.x - $parkpos.x ) * 2 , $approachpos.y + ( $approachpos.y - $parkpos.y ) * 2 , $approachpos.z + ( $approachpos.z - $parkpos.z ) * 2 ]"/>
         
-        <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="true" abortpath="this.$mayabortpath?">
+        <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="false" abortpath="this.$mayabortpath?">
           <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
-          <!-- Using it anyway - UniTrader -->
           <position value="$approachpos" />
           <rotation value="$approachrot" /> 
         </move_to>
@@ -224,9 +223,8 @@ Script to Dock or Park an Object
       
       <do_if value="$move_to_approach_pos_first?">
         <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="true" position="$approachpos" rotation="$approachrot"/>
-        <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="true" abortpath="this.$mayabortpath?">
+        <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="false" abortpath="this.$mayabortpath?">
           <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
-          <!-- Using it anyway - UniTrader -->
           <position value="$approachpos" />
           <rotation value="$approachrot" />
         </move_to>
