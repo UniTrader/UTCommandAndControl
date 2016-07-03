@@ -233,14 +233,9 @@
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to Start Position'.[player.age,this.name,this.container.name]"/>
-        <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="true" forcesteering="this.ship.distanceto.{$startpos} lt 100m" finishonapproach="false" abortpath="this.$mayabortpath?">
+        <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="true" forcesteering="this.ship.distanceto.{$startpos} lt 100m" finishonapproach="true" abortpath="this.$mayabortpath?">
           <position value="$startpos" />
           <rotation value="$startrot" />
-          <interrupt>
-            <conditions>
-              <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/>
-            </conditions>
-          </interrupt>
         </move_to>
         <remove_value name="this.$mayabortpath"/>
         <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
@@ -313,13 +308,8 @@
         <precache_hint zone="$targetzone"/>
        </do_if>
         
-      <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="false" boost="true" abortpath="this.$mayabortpath?">
+      <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" finishonapproach="true" boost="true" abortpath="this.$mayabortpath?">
         <position value="$targetpos" />
-        <interrupt>
-          <conditions>
-            <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/>
-          </conditions>
-        </interrupt>
         <!--interrupt>
           <conditions>
             <event_boost_stopped object="this.ship"/>
