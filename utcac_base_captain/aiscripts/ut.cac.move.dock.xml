@@ -238,6 +238,8 @@ Script to Dock or Park an Object
         <resume label="wait for parking slot" />
       </do_if>
       
+      <!-- final Movement -->
+      <set_avoid_collisions object="this.ship" enabled="false"/>
       <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
         <move_strafe object="this.ship" destination="$destination" forcerotation="true" abortpath="false">
           <position value="$parkpos" />
@@ -255,7 +257,8 @@ Script to Dock or Park an Object
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_to>
-      </do_else>
+      </do_else>/>
+      <set_avoid_collisions object="this.ship" enabled="true" />
       
       <!-- check regulary if our parking Spot still works -->
       <do_if value="not $parkslot.component.isoperational">
@@ -274,7 +277,8 @@ Script to Dock or Park an Object
     <do_if value="$park_queue.$parkslot == this.ship">
       <remove_value name="$park_queue.$parkslot"/>
     </do_if>
-    <disconnect_from_trade_location ship="this.ship" />
+    <disconnect_from_trade_location ship="this.ship" />/>
+    <set_avoid_collisions object="this.ship" enabled="true" />
     <!-- ToDo: make parent Order Interruptable again -->
   </on_abort>
 </aiscript>
