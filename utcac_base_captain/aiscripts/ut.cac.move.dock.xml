@@ -162,7 +162,7 @@ Script to Dock or Park an Object
             <interrupt>
               <conditions>
                 <check_any>
-                  <event_object_signalled object="$parkslot" param="'parking queue update'"/>
+                  <event_object_signalled object="$parkslot.component" param="'parking queue update'"/>
                   <check_all>
                     <event_object_signalled object="$destination" param="'parking queue update'"/>
                     <check_value value="$park_queue.$destination.count == 0"/>
@@ -223,7 +223,7 @@ Script to Dock or Park an Object
       </do_if>
       
       <do_if value="$move_to_approach_pos_first?">
-        <get_trade_parking_pos ship="this.ship" tradedock="$ptradedock=arkslot" space="$destination" approach="true" position="$approachpos" rotation="$parkrot"/>
+        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="true" position="$approachpos" rotation="$approachrot"/>
         <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="true" abortpath="this.$mayabortpath?">
           <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
           <!-- Using it anyway - UniTrader -->
@@ -240,6 +240,7 @@ Script to Dock or Park an Object
       
       <!-- final Movement -->
       <set_avoid_collisions object="this.ship" enabled="false"/>
+      <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="false" position="$parkpos" rotation="$parkrot"/>
       <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
         <move_strafe object="this.ship" destination="$destination" forcerotation="true" abortpath="false">
           <position value="$parkpos" />

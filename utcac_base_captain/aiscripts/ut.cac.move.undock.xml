@@ -60,7 +60,7 @@ Script to Dock or Park an Object
           <set_value name="$undockfrom" exact="$parked.container" />
         </do_else>
         <find_tradeoffer_parking_slot name="$freeslot" object="$undockfrom" refobject="this.ship" includeoccupied="true" />
-        <get_trade_parking_pos ship="this.ship" tradedock="$freeslot.component" space="$undockfrom" approach="true" position="$approachpos" quadrant="$quadrant" />
+        <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom" approach="true" position="$approachpos" quadrant="$quadrant" />
         <!-- check if its really nearby - if not simply skip the move-part -->
         <transform_position name="$undockfrompos" refposition="$undockfrom.position" refrotation="$undockfrom.rotation">
           <position value="$freeslot.offset"/>
@@ -94,7 +94,7 @@ Script to Dock or Park an Object
         
         
         <disconnect_from_trade_location ship="this.ship" />
-        <signal_objects object="$freeslot" param="'parking queue update'"/>
+        <signal_objects object="$freeslot.component" param="'parking queue update'"/>
         <signal_objects object="$undockfrom" param="'parking queue update'" delay="1s"/>
         
         <do_if value="not $unparkquadrants?">
