@@ -90,7 +90,7 @@ Script to Dock or Park an Object
       <label name="wait for parking slot"/>
       <!-- first try to get a free  a Parking Spot for the correct Offer, or a busy Slot, and if found park there -->
       <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship" />
-      <do_if value="$parkslot.exists">
+      <do_if value="$parkslot">
         <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
         <do_if value="$success">
           <set_value name="$move_to_approach_pos_first"/>
@@ -136,11 +136,11 @@ Script to Dock or Park an Object
         </do_if>
         
         <!-- move to an approach pos near the Dock to minimize final Parking Time - basically its a more far out approach pos..  -->
-        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="true" position="$approachpos" />
+        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="true" position="$approachpos" rotation="$approachrot"/>
         <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="false" position="$parkpos" rotation="$parkrot"/>
         <!-- Calculate a more distant Approach Pos to allow the currently docked Ship to undock properly -->
         <!-- basically Approach pos + 2* vector park pos to approach pos -->
-        <set_value name="$approachpos" exact="position.[$approachpos.x + ( $approachpos.x - $parkpos.x * 2 ) , $approachpos.y + ( $approachpos.y - $parkpos.y * 2 ) , $approachpos.z + ( $approachpos.z - $parkpos.z * 2 ) ]"/>
+        <set_value name="$approachpos" exact="position.[$approachpos.x + ( $approachpos.x - $parkpos.x ) * 2 , $approachpos.y + ( $approachpos.y - $parkpos.y ) * 2 , $approachpos.z + ( $approachpos.z - $parkpos.z ) * 2 ]"/>
         
         <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="true" abortpath="this.$mayabortpath?">
           <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
@@ -223,7 +223,7 @@ Script to Dock or Park an Object
       </do_if>
       
       <do_if value="$move_to_approach_pos_first?">
-        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="true" position="$approachpos" rotation="$parkrot"/>
+        <get_trade_parking_pos ship="this.ship" tradedock="$ptradedock=arkslot" space="$destination" approach="true" position="$approachpos" rotation="$parkrot"/>
         <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="true" abortpath="this.$mayabortpath?">
           <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
           <!-- Using it anyway - UniTrader -->
