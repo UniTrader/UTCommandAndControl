@@ -103,8 +103,15 @@ Script to Dock or Park an Object
         
         <!-- just in case, move to a safepos -->
         <!--Don't ignore this ship. Use it to avoid finding a safepos in the parking position.-->
-        <get_safe_pos object="this.ship" radius="this.ship.size * 1.5" zone="this.zone" directionobject="this.ship" direction="$unparkquadrants.{1}" direction2="$unparkquadrants.{2}" angle="45deg" result="$safepos"/>
-        <set_value name="this.$mayabortpath" comment="tell other movement Scripts the current movement has no priority and they can start their Path immediately"/>
+        <do_if value="$undockfrom.exists">
+          <create_position_outside_boundingbox name="$safepos" component="$undockfrom" distance="this.ship.size">
+            <position object="this.ship"/>
+          </create_position_outside_boundingbox>
+          <get_safe_pos result="$safepos" allowyaxis="true"  radius="this.ship.size" zone="this.zone" x="$safepos.x" y="$safepos.y" z="$safepos.z"/>
+        </do_if>
+        <do_else>
+          <get_safe_pos object="this.ship" radius="this.ship.size * 1.5" zone="this.zone" directionobject="this.ship" direction="$unparkquadrants.{1}" direction2="$unparkquadrants.{2}" angle="45deg" result="$safepos"/>
+        </do_else>
         <move_to destination="this.zone" object="this.ship" usehighways="false" forceposition="false" abortpath="false" finishonapproach="true">
           <position value="$safepos"/>
           <interrupt_after_time time="100ms" />
