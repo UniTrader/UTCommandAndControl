@@ -67,8 +67,9 @@
         <set_value name="$ignoredobject" exact="this.ship"/>
       </do_else>
       
-      <!-- Dont abort Path on first move_to, but for each one after that for fluid movement -->
-      <set_value name="$continuepath" exact="true"/>
+      <!-- Dont abort Path on first move_to, but for each one after that for fluid movement (except it is currently just flying to a safepos, indicated by this$mayabortpath)-->
+      <set_value name="$continuepath" exact="not this.$mayabortpath?"/>
+      <remove_value name="this.$mayabortpath"/>
       
       <!-- determine if we are leader - see comment of Parameter -->
       <do_if value="$isleader == 2">

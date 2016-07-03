@@ -52,7 +52,7 @@
     <handler comment="Handler for Navigation Signals">
       <conditions>
         <check_any>
-          <event_object_signalled object="$object" param="'travel normal prep'"/>
+          <event_object_signalled object="$object" param="'travel normal start'"/>
           <event_object_signalled object="$object" param="'travel boost prep'"/>
           <event_object_signalled object="$object" param="'travel jump prep'"/>
           <event_object_signalled object="$object" param="'travel gate prep'"/>
@@ -62,12 +62,12 @@
       </conditions>
       <actions> 
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signal on Leader receiveds:\nparam: %4 , param2: %5 , param3: %6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
-        <do_if value="event.param == 'travel normal prep'">
+        <do_if value="event.param == 'travel normal start'">
           <!-- interrupt with regular Travel script -->
-          <run_interrupt_script name="'ut.cac.move.follow.capital.step'" resume="start">
-            <param name="leader" value="$object"/>
+          <run_interrupt_script name="'ut.cac.move.to.pos'" resume="start">
             <param name="position" value="event.param2.{1}"/>
             <param name="rotation" value="event.param2.{2}"/>
+            <param name="leader" value="$object"/>
             <param name="leader_preparegroup" value="event.param3"/>
           </run_interrupt_script>
         </do_if>

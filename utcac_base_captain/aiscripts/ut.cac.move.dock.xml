@@ -1,0 +1,280 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.move.dock" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+Script to Dock or Park an Object
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="destination" default="null" comment="Object to Dock at, specifying a Dock here is planned"/>
+    <param name="tradeoffer" default="null" comment="Tredeoffer for which a fitting Dock should be preffered (only applies to bigships)"/>
+    <param name="direct_parking" default="false" comment="NYI - direct Parking without moving to approach pos first"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$destination?">
+          <set_value name="$destination" exact="$params.$destination"/>
+        </do_if>
+      </do_if>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4'.[player.age,this.name,this.container.name,$destination]"/>
+      
+      <!-- Verify Input and Situation -->
+<!-- => no Movement out of Zone
+      => 
+      -->
+      <do_if value="not $destination.exists">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination not given or non-existent - Abort'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      <do_if value="$destination.zone != this.zone">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination Zone ( %4 ) not current Zone ( %5 ) - Abort'.[player.age,this.name,this.container.name,$destination.zone.kownname,this.zone.knownname]"/>
+        <return/>
+      </do_if>
+      
+      <!-- Check if Destination can be docked at.. -->
+      
+      <set_command_action commandaction="commandaction.docking" param="$destination"/>
+      <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
+      
+      
+      <!-- leave formation (if there is any) as that would block our movement (from move.dockat)-->
+      <leave_formation object="this.ship" />
+      
+      <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" comment="use this part if the Ship can Dock internally - preffered over external Parking">
+        <resume label="docking"/>
+      </do_if>
+      <do_else>
+        <resume label="parking"/>
+      </do_else>
+      
+      
+      <!-- ############################################################################ -->
+      <!-- ############################################################################ -->
+      <!-- Movement Steps for Docking-->
+      <label name="docking"/>
+      
+      <!-- for now simply passing on to Vanilla -->
+      <run_script name="'move.dockat'" result="$dockresult">
+        <param name="destination" value="$destination"/>
+      </run_script>
+      
+      
+      <resume label="finish"/>
+      
+      <!-- Movement Steps for parking -->
+      <label name="parking"/>
+      
+      <do_if value="$destination.isclass.componentslot">
+        <!-- if a Parking Spot was passed directly - check it if its free and use it. otherwise use any at the Station its attached to.. -->
+        <set_value name="$parkslot" exact="$destination"/>
+        <set_value name="$destination" exact="$destination.component.container"/>
+        <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+        <do_if value="$success">
+          <resume label="park"/>
+        </do_if>
+      </do_if>
+      
+      <!-- check for existing Slots -->
+      <find_tradeoffer_parking_slot name="$slot_exists" object="$destination" includeoccupied="true" check="true" />
+      <do_if value="not $slot_exists">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No Parking Spot - Abort'.[player.age,this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      
+      <label name="wait for parking slot"/>
+      <!-- first try to get a free  a Parking Spot for the correct Offer, or a busy Slot, and if found park there -->
+      <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship" />
+      <do_if value="$parkslot.exists">
+        <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+        <do_if value="$success">
+          <set_value name="$move_to_approach_pos_first"/>
+          <resume label="park"/>
+        </do_if>
+      </do_if>
+      
+      <!-- if no Park Slot is free register in general Park Queue and wait till you are first to find a Park pos -->
+      <!-- create Park Queue if necesary (turn it into a global Table? ) -->
+      <do_if value="$destination.tradenpc">
+        <do_if value="not $destination.tradenpc.$park_queue?">
+          <set_value name="$destination.tradenpc.$park_queue" exact="table[$destination=[]]"/>
+        </do_if>
+        <set_value name="$park_queue" exact="$destination.tradenpc.$park_queue"/>
+        
+        <do_if value="not $park_queue.$destination.indexof.{this.ship}">
+          <append_to_list name="$park_queue.$destination" exact="this.ship"/>
+        </do_if>
+        <do_while value="$park_queue.$destination.{1} != this.ship">
+          <wait max="5min">
+            <interrupt>
+              <conditions>
+                <event_object_signalled object="$destination" param="'parking queue update'"/>
+              </conditions>
+            </interrupt>
+          </wait>
+        </do_while>
+       
+        <!-- find Dock Slot where no Ship is waiting for and register to dock there (also un-register from common queue) -->
+        <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
+        <do_all exact="$slots.count" counter="$i">
+          <do_if value="not $park_queue.{$slots.{$i}}?">
+            <set_value name="$park_queue.{$slots.{$i}}" exact="this.ship"/>
+            <set_value name="$parkslot" exact="{$slots.{$i}}"/>
+            <remove_value name="$park_queue.$destination.indexof.{this.ship}"/>
+            <break/>
+          </do_if>
+        </do_all>
+        
+        <!-- fallback in case no Slot is free to wait or Dock -->
+        <do_if value="not $parkslot?">
+          <resume label="wait for parking slot"/>
+        </do_if>
+        
+        <!-- move to an approach pos near the Dock to minimize final Parking Time - basically its a more far out approach pos..  -->
+        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="true" position="$approachpos" />
+        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="false" position="$parkpos" rotation="$parkrot"/>
+        <!-- Calculate a more distant Approach Pos to allow the currently docked Ship to undock properly -->
+        <!-- basically Approach pos + 2* vector park pos to approach pos -->
+        <set_value name="$approachpos" exact="position.[$approachpos.x + ( $approachpos.x - $parkpos.x * 2 ) , $approachpos.y + ( $approachpos.y - $parkpos.y * 2 ) , $approachpos.z + ( $approachpos.z - $parkpos.z * 2 ) ]"/>
+        
+        <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="true" abortpath="this.$mayabortpath?">
+          <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
+          <!-- Using it anyway - UniTrader -->
+          <position value="$approachpos" />
+          <rotation value="$approachrot" /> 
+        </move_to>
+        <remove_value name="this.$mayabortpath"/>
+        
+       <!-- check regulary if our parking Spot still works -->
+        <do_if value="not $parkslot.component.isoperational">
+          <resume label="wait for parking slot" />
+        </do_if>
+        
+        <!-- wait for Unpark Signal from Ship parked and, if common queue is empty, also wait for other Slots just freed up completely -->
+        <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+        <do_while value="not $success">
+          <wait>
+            <interrupt>
+              <conditions>
+                <check_any>
+                  <event_object_signalled object="$parkslot" param="'parking queue update'"/>
+                  <check_all>
+                    <event_object_signalled object="$destination" param="'parking queue update'"/>
+                    <check_value value="$park_queue.$destination.count == 0"/>
+                  </check_all>
+                </check_any>
+              </conditions>
+              <actions>
+                <do_if value="event.object == $parkslot">
+                  <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+                </do_if>
+                <do_elseif value="event.object == $destination">
+                  <connect_to_trade_location ship="this.ship" tradedock="event.param2" result="$success" />
+                  <do_if value="$success">
+                    <set_value name="$parkslot" exact="event.param2"/>
+                    <set_value name="$move_to_approach_pos_first"/>
+                  </do_if>
+                </do_elseif>
+              </actions>
+            </interrupt>
+          </wait>
+          <!-- check regulary if our parking Spot still works -->
+          <do_if value="not $parkslot.component.isoperational">
+            <resume label="wait for parking slot" />
+          </do_if>
+        </do_while>
+      </do_if>
+      <do_else>
+        <!-- no coordinating Entity - basically do polling until successful (use events instead of time to poll though) -->
+        <set_value name="$success" exact="false"/>
+        <set_value name="$move_to_approach_pos_first"/>
+        <do_while value="not $success">
+          <wait max="5min">
+            <interrupt>
+              <conditions>
+                <event_object_signalled object="$destination" param="'parking queue update'"/>
+              </conditions>
+              <actions>
+                <connect_to_trade_location ship="this.ship" tradedock="event.param2" result="$success" />
+                <do_if value="$success">
+                  <set_value name="$parkslot" exact="event.param2"/>
+                </do_if>
+              </actions>
+            </interrupt>
+          </wait>
+          <!-- fallback in case signalling didnt work -->
+          <do_if value="not $sucess">
+            <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship" />
+            <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+          </do_if>
+        </do_while>
+      </do_else>
+      
+      <label name="park"/>
+      
+      <!-- check regulary if our parking Spot still works -->
+      <do_if value="not $parkslot.component.isoperational">
+        <resume label="wait for parking slot" />
+      </do_if>
+      
+      <do_if value="$move_to_approach_pos_first?">
+        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="true" position="$approachpos" rotation="$parkrot"/>
+        <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="true" abortpath="this.$mayabortpath?">
+          <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
+          <!-- Using it anyway - UniTrader -->
+          <position value="$approachpos" />
+          <rotation value="$approachrot" />
+        </move_to>
+      </do_if>
+      <remove_value name="this.$mayabortpath"/>
+      
+      <!-- check regulary if our parking Spot still works -->
+      <do_if value="not $parkslot.component.isoperational">
+        <resume label="wait for parking slot" />
+      </do_if>
+      
+      <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
+        <move_strafe object="this.ship" destination="$destination" forcerotation="true" abortpath="false">
+          <position value="$parkpos" />
+          <rotation value="$parkrot" />
+        </move_strafe>
+      </do_if>
+      <do_elseif value="$quadrant == quadrant.back">
+        <move_to object="this.ship" usehighways="false" destination="$destination" forcerotation="true" reverse="true" abortpath="false">
+          <position value="$parkpos" />
+          <rotation value="$parkrot" />
+        </move_to>
+      </do_elseif>
+      <do_else>
+        <move_to object="this.ship" usehighways="false" destination="$destination" forcerotation="true" abortpath="false">
+          <position value="$parkpos" />
+          <rotation value="$parkrot" />
+        </move_to>
+      </do_else>
+      
+      <!-- check regulary if our parking Spot still works -->
+      <do_if value="not $parkslot.component.isoperational">
+        <resume label="wait for parking slot" />
+      </do_if>
+      <resume label="finish"/>
+      
+      <!-- Cleanup -->
+      <label name="finish"/>
+      
+      
+    </actions>
+  </attention>
+  <on_abort>
+    <remove_value name="$park_queue.$destination.indexof.{this.ship}"/>
+    <do_if value="$park_queue.$parkslot == this.ship">
+      <remove_value name="$park_queue.$parkslot"/>
+    </do_if>
+    <disconnect_from_trade_location ship="this.ship" />
+    <!-- ToDo: make parent Order Interruptable again -->
+  </on_abort>
+</aiscript>

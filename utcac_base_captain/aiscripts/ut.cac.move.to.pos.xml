@@ -18,6 +18,9 @@ with a given Rotation or Orientation
     <param name="rotation" default="null" comment="rotation the ship should have - overridden by lookat"/>
     <param name="lookat" default="null" comment="position the ship should point to - overrides rotation"/>
     <param name="forceendpos" default="false" comment="force moving until exact end position is reached"/>
+    <!-- Group Movement stuff -->
+    <param name="leader" default="null" comment="the formation leader/object which coordinates the Movement"/>
+    <param name="leader_preparegroup" default="null" comment="the group of Ships the Leader waits for"/>
   </params>
   <patch sinceversion="30">
     <create_group groupname="$leader_preparegroup"/>
@@ -59,6 +62,14 @@ with a given Rotation or Orientation
           <return/>
         </do_if>
       </do_elseif>
+      <do_if value="not $leader and $leader_preparegroup">
+        <debug_text filter="error" text="'%1 %2 %3 Preparegroup provided but no Leader - removing preparegroup %4'.[ player.age,this.name,this.container.name,$leader_preparegroup]" />
+        <set_value name="$leader_preparegroup" exact="null"/>
+      </do_if>
+      <do_if value="$leader and not $leader_preparegroup">
+        <debug_text filter="error" text="'%1 %2 %3 Leader provided but no Prepare Group - removing leader %4'.[ player.age,this.name,this.container.name, $leader]" />
+        <set_value name="$leader" exact="null"/>
+      </do_if>
       
       <set_command_action commandaction="commandaction.flyingto" param="$destination"/>
       <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
@@ -89,11 +100,18 @@ with a given Rotation or Orientation
         </create_orientation>
       </do_if>
       
-      <!-- Signal Followers where to move next, wait a few frames till everyone registered in Follower List, figure out new Safepos nearby the old one based on Size of whole Formation, signal everyone with update -->
+      <!-- Signal Followers where to move next, for prep case wait till Group s empty before beginning movement, for start case wait at end of Movement -->
+      <do_if value="$leader and $leader_preparegroup">
+        <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
+      </do_if>
+      <do_else>
+        <create_group groupname="$leader_preparegroup"/>
+      </do_else>
       <create_group groupname="$leader_preparegroup"/>
       <signal_objects object="this.ship" param="'travel normal prep'" param2="[$safepos,$rotation]" param3="$leader_preparegroup"/>
       <wait max="100ms"/>
       <wait max="100ms"/>
+      <!-- this Part is currently unused and untested - will be used at a leter Date -->
       <do_if value="$leader_preparegroup.count">
         <!-- figure out size of overall Formation -->
         <!-- this Var holds the List of the Size for all possible Ships - the max value it contains in the end is the result -->
@@ -145,16 +163,17 @@ with a given Rotation or Orientation
         </do_else>
       </do_if-->
       <do_if value="not $rotation">
-        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos">
+        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" abortpath="this.$mayabortpath?">
           <position value="$safepos"/>
         </move_to>
       </do_if>
       <do_else>
-        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" forcerotation="$forceendpos">
+        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" forcerotation="$forceendpos" abortpath="this.$mayabortpath?">
           <position value="$safepos"/>
           <rotation value="$rotation"/>
         </move_to>
       </do_else>
+      <remove_value name="this.$mayabortpath"/>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Movement done.'.[player.age,this.name,this.container.name]"/>
       

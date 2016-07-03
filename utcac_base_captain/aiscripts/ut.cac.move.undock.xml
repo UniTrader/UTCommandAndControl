@@ -1,0 +1,126 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.move.dock" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+Script to Dock or Park an Object
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="fast" default="false" comment="Fast Undocking - skip all unecesaryMovement, just disconnect and signal Objects"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$fast?">
+          <set_value name="$fast" exact="$params.$fast"/>
+        </do_if>
+      </do_if>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$fast: %4'.[player.age,this.name,this.container.name,$fast]"/>
+      
+      <!-- Verify Input and Situation -->
+      
+      <set_command_action commandaction="commandaction.undocking"/>
+      <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
+      
+      
+      <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" comment="use this part if the Ship can Dock internally - preffered over external Parking">
+        <resume label="undocking"/>
+      </do_if>
+      <do_else>
+        <resume label="unparking"/>
+      </do_else>
+      
+      
+      <!-- ############################################################################ -->
+      <!-- ############################################################################ -->
+      <!-- Movement Steps for Unocking-->
+      <label name="undocking"/>
+      
+      <!-- for now simply passing on to Vanilla -->
+      <run_script name="'move.undock'"/>
+      
+      <resume label="finish"/>
+      
+      <!-- Movement Steps for Unparking -->
+      <label name="unparking"/>
+      
+      
+      <set_value name="$parked" exact="this.ship.parkedat" />
+      <do_if value="$parked.exists">
+      <!-- HACK: this should find the nearest slot which *should* be the one that we are parked at -->
+        <do_if value="$parked.isclass.container">
+          <set_value name="$undockfrom" exact="$parked" />
+        </do_if>
+        <do_else>
+          <set_value name="$undockfrom" exact="$parked.container" />
+        </do_else>
+        <find_tradeoffer_parking_slot name="$freeslot" object="$undockfrom" refobject="this.ship" includeoccupied="true" />
+        <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom" approach="true" position="$approachpos" quadrant="$quadrant" />
+        <!-- check if its really nearby - if not simply skip the move-part -->
+        <transform_position name="$undockfrompos" refposition="$undockfrom.position" refrotation="$undockfrom.rotation">
+          <position value="$freeslot.offset"/>
+        </transform_position>
+        
+        <do_if value="this.ship.distanceto.{$undockfrompos} lt 500m">
+          <set_avoid_collisions object="this.ship" enabled="false" />
+          <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
+            <move_strafe object="this.ship" destination="$destination" forcerotation="true" abortpath="false" finishonapproach="true">
+              <position value="$parkpos" />
+              <rotation value="$parkrot" />
+            </move_strafe>
+            <set_value name="$unparkquadrants" exact="[$quadrant.inverse, quadrant.front]"/>
+          </do_if>
+          <do_elseif value="$quadrant == quadrant.back">
+            <move_to object="this.ship" usehighways="false" destination="$destination" forcerotation="true" abortpath="false" finishonapproach="true">
+              <position value="$parkpos" />
+              <rotation value="$parkrot" />
+            </move_to>
+            <set_value name="$unparkquadrants" exact="[quadrant.front, quadrant.none]"/>
+          </do_elseif>
+          <do_else>
+            <move_to object="this.ship" usehighways="false" destination="$destination" forcerotation="true" reverse="true" abortpath="false" finishonapproach="true">
+              <position value="$parkpos" />
+              <rotation value="$parkrot" />
+            </move_to>
+            <set_value name="$unparkquadrants" exact="[quadrant.back, quadrant.none]"/>
+          </do_else>
+          
+        </do_if>
+        
+        
+        <disconnect_from_trade_location ship="this.ship" />
+        <signal_objects object="$freeslot" param="'parking queue update'"/>
+        <signal_objects object="$undockfrom" param="'parking queue update'" delay="1s"/>
+        
+        <!-- just in case, move to a safepos -->
+        <!--Don't ignore this ship. Use it to avoid finding a safepos in the parking position.-->
+        <get_safe_pos object="this.ship" radius="this.ship.size * 1.5" zone="this.zone" directionobject="this.ship" direction="$unparkquadrants.{1}" direction2="$unparkquadrants.{2}" angle="45deg" result="$safepos"/>
+        <set_value name="this.$mayabortpath" comment="tell other movement Scripts the current movement has no priority and they can start their Path immediately"/>
+        <move_to destination="this.zone" object="this.ship" usehighways="false" forceposition="false" abortpath="false" finishonapproach="true">
+          <position value="$safepos"/>
+          <interrupt_after_time time="100ms" />
+        </move_to>
+      </do_if>
+      
+      <resume label="finish"/>
+      
+      <!-- Cleanup -->
+      <label name="finish"/>
+      
+      
+    </actions>
+  </attention>
+  <on_abort>
+    <remove_value name="$park_queue.$destination.indexof.{this.ship}"/>
+    <do_if value="$park_queue.$parkslot == this.ship">
+      <remove_value name="$park_queue.$parkslot"/>
+    </do_if>
+    <disconnect_from_trade_location ship="this.ship" />
+    <!-- ToDo: make parent Order Interruptable again -->
+  </on_abort>
+</aiscript>
