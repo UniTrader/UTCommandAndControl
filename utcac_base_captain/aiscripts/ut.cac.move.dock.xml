@@ -30,11 +30,11 @@ Script to Dock or Park an Object
       -->
       <do_if value="not $destination.exists">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination not given or non-existent - Abort'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <return value="false"/>
       </do_if>
       <do_if value="$destination.zone != this.zone">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination Zone ( %4 ) not current Zone ( %5 ) - Abort'.[player.age,this.name,this.container.name,$destination.zone.kownname,this.zone.knownname]"/>
-        <return/>
+        <return value="false"/>
       </do_if>
       
       <!-- Check if Destination can be docked at.. -->
@@ -46,7 +46,7 @@ Script to Dock or Park an Object
       <!-- leave formation (if there is any) as that would block our movement (from move.dockat)-->
       <leave_formation object="this.ship" />
       
-      <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" comment="use this part if the Ship can Dock internally - preffered over external Parking">
+      <do_if value="not (this.ship.isclass.ship_xl or this.ship.isclass.ship_l)" comment="use this part if the Ship can Dock internally - preffered over external Parking">
         <resume label="docking"/>
       </do_if>
       <do_else>
@@ -70,7 +70,7 @@ Script to Dock or Park an Object
       <!-- Movement Steps for parking -->
       <label name="parking"/>
       
-      <do_if value="$destination.isclass.componentslot">
+      <do_if value="$destination.component?">
         <!-- if a Parking Spot was passed directly - check it if its free and use it. otherwise use any at the Station its attached to.. -->
         <set_value name="$parkslot" exact="$destination"/>
         <set_value name="$destination" exact="$destination.component.container"/>
@@ -84,7 +84,7 @@ Script to Dock or Park an Object
       <find_tradeoffer_parking_slot name="$slot_exists" object="$destination" includeoccupied="true" check="true" />
       <do_if value="not $slot_exists">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No Parking Spot - Abort'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <return value="false"/>
       </do_if>
       
       <label name="wait for parking slot"/>
@@ -122,7 +122,8 @@ Script to Dock or Park an Object
         <!-- find Dock Slot where no Ship is waiting for and register to dock there (also un-register from common queue) -->
         <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
         <do_all exact="$slots.count" counter="$i">
-          <do_if value="not $park_queue.{$slots.{$i}}?">
+          <set_value name="$slot" exact="$slots.{$i}"/>
+          <do_if value="not $park_queue.{$slot}?">
             <set_value name="$park_queue.{$slots.{$i}}" exact="this.ship"/>
             <set_value name="$parkslot" exact="{$slots.{$i}}"/>
             <remove_value name="$park_queue.$destination.indexof.{this.ship}"/>
@@ -266,7 +267,7 @@ Script to Dock or Park an Object
       <!-- Cleanup -->
       <label name="finish"/>
       
-      
+      <return value="true"/>
     </actions>
   </attention>
   <on_abort>
