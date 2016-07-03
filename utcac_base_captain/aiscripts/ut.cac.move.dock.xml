@@ -122,10 +122,9 @@ Script to Dock or Park an Object
         <!-- find Dock Slot where no Ship is waiting for and register to dock there (also un-register from common queue) -->
         <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
         <do_all exact="$slots.count" counter="$i">
-          <set_value name="$slot" exact="$slots.{$i}"/>
-          <do_if value="not $park_queue.{$slot}?">
+          <do_if value="not $park_queue.{$slots.{$i}}?">
             <set_value name="$park_queue.{$slots.{$i}}" exact="this.ship"/>
-            <set_value name="$parkslot" exact="{$slots.{$i}}"/>
+            <set_value name="$parkslot" exact="$slots.{$i}"/>
             <remove_value name="$park_queue.$destination.indexof.{this.ship}"/>
             <break/>
           </do_if>
