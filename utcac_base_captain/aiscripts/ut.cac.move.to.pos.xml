@@ -58,8 +58,13 @@ with a given Rotation or Orientation
       </do_if>
       <do_elseif value="not $destination.isclass.zone">
         <do_if value="$destination.zone != this.zone">
-          <debug_text filter="error" text="'%1 %2 %3 Destination Object not in this Zone. Aborting!'.[ player.age,this.name,this.container.name]" />
-          <return/>
+          <do_if value="this.ship.isboostactive">
+            <debug_text filter="general" text="'%1 %2 %3  Destination Object not in this Zone but still Boosting (towards it?) - Continuing'.[ player.age,this.name,this.container.name]" />
+          </do_if>
+          <do_else>
+            <debug_text filter="error" text="'%1 %2 %3 Destination Object not in this Zone. Aborting!'.[ player.age,this.name,this.container.name]" />
+            <return/>
+          </do_else>
         </do_if>
       </do_elseif>
       <do_if value="not $leader and $leader_preparegroup">
