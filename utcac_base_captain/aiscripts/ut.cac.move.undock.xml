@@ -65,26 +65,26 @@ Script to Dock or Park an Object
         <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom.zone" approach="false" position="$checkpos"/>
         <do_if value="this.ship.distanceto.{$checkpos} lt 100m">
         
-          <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom" approach="true" position="$approachpos" quadrant="$quadrant" />
+          <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom" approach="true" position="$undockpos" quadrant="$quadrant" rotation="$undockrot"/>
           <set_avoid_collisions object="this.ship" enabled="false" />
           <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
             <move_strafe object="this.ship" destination="$undockfrom" forcerotation="true" abortpath="false" finishonapproach="true">
-              <position value="$parkpos" />
-              <rotation value="$parkrot" />
+              <position value="$undockpos" />
+              <rotation value="$undockrot" />
             </move_strafe>
             <set_value name="$unparkquadrants" exact="[$quadrant.inverse, quadrant.front]"/>
           </do_if>
           <do_elseif value="$quadrant == quadrant.back">
             <move_to object="this.ship" usehighways="false" destination="$undockfrom" forcerotation="true" abortpath="false" finishonapproach="true">
-              <position value="$parkpos" />
-              <rotation value="$parkrot" />
+              <position value="$undockpos" />
+              <rotation value="$undockrot" />
             </move_to>
             <set_value name="$unparkquadrants" exact="[quadrant.front, quadrant.none]"/>
           </do_elseif>
           <do_else>
             <move_to object="this.ship" usehighways="false" destination="$undockfrom" forcerotation="true" reverse="true" abortpath="false" finishonapproach="true">
-              <position value="$parkpos" />
-              <rotation value="$parkrot" />
+              <position value="$undockpos" />
+              <rotation value="$undockrot" />
             </move_to>
             <set_value name="$unparkquadrants" exact="[quadrant.back, quadrant.none]"/>
           </do_else>
