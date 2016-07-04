@@ -106,10 +106,10 @@ Script to Dock or Park an Object
         </do_if>
         <set_value name="$park_queue" exact="$destination.tradenpc.$park_queue"/>
         
-        <do_if value="not $park_queue.$destination.indexof.{this.ship}">
-          <append_to_list name="$park_queue.$destination" exact="this.ship"/>
+        <do_if value="not $park_queue.{$destination}.indexof.{this.ship}">
+          <append_to_list name="$park_queue.{$destination}" exact="this.ship"/>
         </do_if>
-        <do_while value="$park_queue.$destination.{1} != this.ship">
+        <do_while value="$park_queue.{$destination}.{1} != this.ship">
           <wait max="5min">
             <interrupt>
               <conditions>
@@ -125,7 +125,7 @@ Script to Dock or Park an Object
           <do_if value="not $park_queue.{$slots.{$i}}?">
             <set_value name="$park_queue.{$slots.{$i}}" exact="this.ship"/>
             <set_value name="$parkslot" exact="$slots.{$i}"/>
-            <remove_value name="$park_queue.$destination.indexof.{this.ship}"/>
+            <remove_value name="$park_queue.{$destination}.indexof.{this.ship}"/>
             <break/>
           </do_if>
         </do_all>
@@ -164,7 +164,7 @@ Script to Dock or Park an Object
                   <event_object_signalled object="$parkslot.component" param="'parking queue update'"/>
                   <check_all>
                     <event_object_signalled object="$destination" param="'parking queue update'"/>
-                    <check_value value="$park_queue.$destination.count == 0"/>
+                    <check_value value="$park_queue.{$destination}.count == 0"/>
                   </check_all>
                 </check_any>
               </conditions>
@@ -272,7 +272,7 @@ Script to Dock or Park an Object
     </actions>
   </attention>
   <on_abort>
-    <remove_value name="$park_queue.$destination.indexof.{this.ship}"/>
+    <remove_value name="$park_queue.{$destination}.indexof.{this.ship}"/>
     <do_if value="$park_queue.$parkslot == this.ship">
       <remove_value name="$park_queue.$parkslot"/>
     </do_if>
