@@ -272,9 +272,13 @@ Script to Dock or Park an Object
     </actions>
   </attention>
   <on_abort>
-    <remove_value name="$park_queue.{$destination}.indexof.{this.ship}"/>
-    <do_if value="$park_queue.{$parkslot} == this.ship">
-      <remove_value name="$park_queue.{$parkslot}"/>
+    <do_if value="$park_queue?">
+      <do_if value="$park_queue.{$destination}.indexof.{this.ship}">
+        <remove_value name="$park_queue.{$destination}.indexof.{this.ship}"/>
+      </do_if>
+      <do_if value="$park_queue.{$parkslot} == this.ship">
+        <remove_value name="$park_queue.{$parkslot}"/>
+      </do_if>
     </do_if>
     <disconnect_from_trade_location ship="this.ship" />/>
     <set_avoid_collisions object="this.ship" enabled="true" />
