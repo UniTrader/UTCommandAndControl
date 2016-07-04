@@ -68,21 +68,21 @@ Script to Dock or Park an Object
           <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom" approach="true" position="$approachpos" quadrant="$quadrant" />
           <set_avoid_collisions object="this.ship" enabled="false" />
           <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
-            <move_strafe object="this.ship" destination="$destination" forcerotation="true" abortpath="false" finishonapproach="true">
+            <move_strafe object="this.ship" destination="$undockfrom" forcerotation="true" abortpath="false" finishonapproach="true">
               <position value="$parkpos" />
               <rotation value="$parkrot" />
             </move_strafe>
             <set_value name="$unparkquadrants" exact="[$quadrant.inverse, quadrant.front]"/>
           </do_if>
           <do_elseif value="$quadrant == quadrant.back">
-            <move_to object="this.ship" usehighways="false" destination="$destination" forcerotation="true" abortpath="false" finishonapproach="true">
+            <move_to object="this.ship" usehighways="false" destination="$undockfrom" forcerotation="true" abortpath="false" finishonapproach="true">
               <position value="$parkpos" />
               <rotation value="$parkrot" />
             </move_to>
             <set_value name="$unparkquadrants" exact="[quadrant.front, quadrant.none]"/>
           </do_elseif>
           <do_else>
-            <move_to object="this.ship" usehighways="false" destination="$destination" forcerotation="true" reverse="true" abortpath="false" finishonapproach="true">
+            <move_to object="this.ship" usehighways="false" destination="$undockfrom" forcerotation="true" reverse="true" abortpath="false" finishonapproach="true">
               <position value="$parkpos" />
               <rotation value="$parkrot" />
             </move_to>
