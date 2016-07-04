@@ -114,8 +114,15 @@ Script to Dock or Park an Object
         </do_else>
         <move_to destination="this.zone" object="this.ship" usehighways="false" forceposition="false" abortpath="false" finishonapproach="true">
           <position value="$safepos"/>
+          <interrupt>
+            <conditions>
+              <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="false"/>
+            </conditions>
+          </interrupt>
         </move_to>
       </do_if>
+      <set_value name="this.$mayabortpath" comment="tell following movement Script that the remainder of the Path is irrelevant"/>
+      
       
       <resume label="finish"/>
       
