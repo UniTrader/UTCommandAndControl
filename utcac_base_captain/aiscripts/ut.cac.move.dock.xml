@@ -136,13 +136,15 @@ Script to Dock or Park an Object
         </do_if>
         
         <!-- move to an approach pos near the Dock to minimize final Parking Time - basically its a more far out approach pos..  -->
-        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="true" position="$approachpos" rotation="$approachrot"/>
-        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="false" position="$parkpos" rotation="$parkrot"/>
+        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
+        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot"/>
         <!-- Calculate a more distant Approach Pos to allow the currently docked Ship to undock properly -->
         <!-- basically Approach pos + 2* vector park pos to approach pos -->
         <set_value name="$approachpos" exact="position.[$approachpos.x + ( $approachpos.x - $parkpos.x ) * 2 , $approachpos.y + ( $approachpos.y - $parkpos.y ) * 2 , $approachpos.z + ( $approachpos.z - $parkpos.z ) * 2 ]"/>
+        <!-- Signal Followers where we attempt to Park so they can wait nearby -->
+        <signal_objects object="this.ship" param="'travel dockat'" param2="[$destination,$parkslot,$approachpos]" param3="null" comment="not waiting - no prep group needed"/>
         
-        <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="false" abortpath="this.$mayabortpath?">
+        <move_to object="this.ship" usehighways="false" destination="$destination.zone" finishonapproach="false" abortpath="this.$mayabortpath?">
           <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
           <position value="$approachpos" />
           <rotation value="$approachrot" /> 
@@ -222,8 +224,10 @@ Script to Dock or Park an Object
       </do_if>
       
       <do_if value="$move_to_approach_pos_first?">
-        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="true" position="$approachpos" rotation="$approachrot"/>
-        <move_to object="this.ship" usehighways="false" destination="$destination" finishonapproach="false" abortpath="this.$mayabortpath?">
+        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
+        <!-- Signal Followers where we attempt to Park so they can wait nearby - also in Update Case when Parkpos changed-->
+        <signal_objects object="this.ship" param="'travel dockat'" param2="[$destination,$parkslot,$approachpos]" param3="null" comment="not waiting - no prep group needed"/>
+        <move_to object="this.ship" usehighways="false" destination="$destination.zone" finishonapproach="false" abortpath="this.$mayabortpath?">
           <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
           <position value="$approachpos" />
           <rotation value="$approachrot" />
@@ -238,21 +242,21 @@ Script to Dock or Park an Object
       
       <!-- final Movement -->
       <set_avoid_collisions object="this.ship" enabled="false"/>
-      <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
+      <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
       <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
-        <move_strafe object="this.ship" destination="$destination" forcerotation="true" abortpath="false">
+        <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_strafe>
       </do_if>
       <do_elseif value="$quadrant == quadrant.back">
-        <move_to object="this.ship" usehighways="false" destination="$destination" forcerotation="true" reverse="true" abortpath="false">
+        <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" reverse="true" abortpath="false">
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_to>
       </do_elseif>
       <do_else>
-        <move_to object="this.ship" usehighways="false" destination="$destination" forcerotation="true" abortpath="false">
+        <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" abortpath="false">
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_to>
@@ -263,6 +267,13 @@ Script to Dock or Park an Object
       <do_if value="not $parkslot.component.isoperational">
         <resume label="wait for parking slot" />
       </do_if>
+      
+      <!-- Just to be safe - Force final Position -->
+      <warp object="this.ship" zone="$destination.zone">
+        <position value="$parkpos"/>
+        <rotation value="$parkrot"/>
+      </warp>
+      
       <resume label="finish"/>
       
       <!-- Cleanup -->
