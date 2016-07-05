@@ -110,16 +110,20 @@ Script to Dock or Park an Object
         <do_else>
           <get_safe_pos object="this.ship" radius="this.ship.size * 1.5" zone="this.zone" directionobject="this.ship" direction="$unparkquadrants.{1}" direction2="$unparkquadrants.{2}" angle="45deg" result="$safepos"/>
         </do_else>
+      <set_value name="this.$mayabortpath" comment="tell following movement Script that the remainder of the Path is irrelevant"/>
         <move_to destination="this.zone" object="this.ship" usehighways="false" forceposition="false" abortpath="false" finishonapproach="true">
           <position value="$safepos"/>
           <interrupt>
             <conditions>
               <event_object_approaching_waypoint object="this.ship" lastwaypoint="false"/>
             </conditions>
+            <actions>
+              <remove_value name="this.$mayabortpath"/>
+            </actions>
           </interrupt>
+          <interrupt_after_time time="30s"/>
         </move_to>
       </do_if>
-      <set_value name="this.$mayabortpath" comment="tell following movement Script that the remainder of the Path is irrelevant"/>
       
       
       <resume label="finish"/>
