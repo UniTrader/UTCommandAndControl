@@ -80,6 +80,14 @@ with a given Rotation or Orientation
       <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
       
       <!-- Calculate actually used parameters -->
+      <!-- Set Space movement is relative to-->
+      <do_if value="$destination.isclass.zone">
+        <set_value name="$zone" exact="$destination"/>
+      </do_if>
+      <do_else>
+        <set_value name="$zone" exact="$destination.zone"/>
+      </do_else>
+      
       <!-- Transform relative Position to Position in Zone and get a near safe pos (or get near safe pos if we dont have a ref pos)-->
       <do_if value="not $destination.isclass.zone">
         <do_if value="$position">
@@ -90,13 +98,13 @@ with a given Rotation or Orientation
         <do_else>
           <set_value name="$position" exact="$destination.position"/>
         </do_else>
-        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="$zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
       </do_if>
       <do_elseif value="$position">
-        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="$zone" value="$position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
       </do_elseif>
       <do_else>
-        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="$zone" value="this.ship.position" radius="this.ship.size" ignored="this.ship" directionobject="this.ship"/>
       </do_else>
       
       <do_if value="$lookat">
@@ -113,7 +121,7 @@ with a given Rotation or Orientation
         <create_group groupname="$leader_preparegroup"/>
       </do_else>
       <create_group groupname="$leader_preparegroup"/>
-      <signal_objects object="this.ship" param="'travel normal prep'" param2="[$safepos,$rotation]" param3="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel normal prep'" param2="[$zone, $safepos,$rotation]" param3="$leader_preparegroup"/>
       <wait max="100ms"/>
       <wait max="100ms"/>
       <!-- this Part is currently unused and untested - will be used at a leter Date -->
@@ -126,12 +134,12 @@ with a given Rotation or Orientation
         </do_all>
         <set_value name="$formation_size" exact="$formation_size.max"/>
         <!-- re-define safepos based on Formation Size -->
-        <get_safe_pos result="$safepos" allowyaxis="true" zone="this.zone" value="$safepos" radius="$formation_size" ignored="this.ship"/>
+        <get_safe_pos result="$safepos" allowyaxis="true" zone="$zone" value="$safepos" radius="$formation_size" ignored="this.ship"/>
       </do_if>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got final Pos and rotation, starting movement: %4 %5 %6'.[player.age,this.name,this.container.name,$safepos,@$rotation,this.ship.distanceto.{$safepos}]"/>
       
-      <signal_objects object="this.ship" param="'travel normal start'" param2="[$zone,$safepos,$rotation]" param3="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel normal start'" param2="[$zone, $safepos,$rotation]" param3="$leader_preparegroup"/>
       
       <!-- Do actual movement -->
       <!-- check if we are near destination safepos and if it makes sense to strafe or fly backwards -->
@@ -168,12 +176,12 @@ with a given Rotation or Orientation
         </do_else>
       </do_if-->
       <do_if value="not $rotation">
-        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" abortpath="this.$mayabortpath?">
+        <move_to object="this.ship" destination="$zone" forceposition="$forceendpos" abortpath="this.$mayabortpath?">
           <position value="$safepos"/>
         </move_to>
       </do_if>
       <do_else>
-        <move_to object="this.ship" destination="this.zone" forceposition="$forceendpos" forcerotation="$forceendpos" abortpath="this.$mayabortpath?">
+        <move_to object="this.ship" destination="$zone" forceposition="$forceendpos" forcerotation="$forceendpos" abortpath="this.$mayabortpath?">
           <position value="$safepos"/>
           <rotation value="$rotation"/>
         </move_to>
