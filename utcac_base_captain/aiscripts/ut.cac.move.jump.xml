@@ -366,7 +366,9 @@ ToDo:
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jump done, Blocking Group: %4'.[player.age,this.name,this.container.name,$leader_preparegroup]"/>
       <remove_from_group group="$leader_preparegroup" object="this.ship"/>
-      <signal_objects object="$leader" param="'preparegroup shrunk'"/>
+      <do_if value="$leader.exists">
+        <signal_objects object="$leader" param="'preparegroup shrunk'"/>
+      </do_if>
       <!-- Fly to a randomSafepos to not stay still while cooling for the next Jump -->
       <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" object="this.ship" radius="this.ship.size" min="10km" max="20km"/>
       <set_value name="this.$mayabortpath" comment="to allow following Scripts to immediately change Destination"/>
