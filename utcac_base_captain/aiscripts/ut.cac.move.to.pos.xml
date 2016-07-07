@@ -24,6 +24,13 @@ with a given Rotation or Orientation
   </params>
   <patch sinceversion="30">
     <create_group groupname="$leader_preparegroup"/>
+    <do_if value="$destination.isclass.zone">
+      <set_value name="$zone" exact="$destination"/>
+    </do_if>
+    <do_else>
+      <set_value name="$zone" exact="$destination.zone"/>
+    </do_else>
+    <set_value name="$leader" exact="null"/>
   </patch>
   <attention min="unknown">
     <actions>
