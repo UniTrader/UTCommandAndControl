@@ -192,6 +192,7 @@ with a given Rotation or Orientation
       
       <!-- wait till everyone in Prep Group has arrive before continuing -->
       <do_if value="not $leader">
+        <remove_from_group group="$leader_preparegroup" object="this.ship"/>
         <do_while value="$leader_preparegroup.count">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrivey\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
           <wait max="30s">
