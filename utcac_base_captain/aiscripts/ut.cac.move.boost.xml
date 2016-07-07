@@ -329,7 +329,7 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost movement done, distance to boost target pos: %4, Blocking Group: %5'.[player.age,this.name,this.container.name,this.ship.distanceto.{$targetpos},$leader_preparegroup]"/>
       <!-- We have Arrived - As Follower make we AND the Leader are really in $targetzone before Continuing to avoid Scripts running which dont handle the outstanding Zone Transition -->
       <do_if value="$leader.exists">
-        <do_while value="this.ship.zone != $targetzone and $leader.zone != $targetzone ">
+        <do_while value="this.ship.zone != $targetzone or $leader.zone != $targetzone ">
           <wait sinceversion="30">
             <interrupt>
               <conditions>
