@@ -258,15 +258,20 @@
       <do_if value="not $leader.exists">
         <do_while value="$leader_preparegroup.count">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be ready\nPreparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
-          <wait min="5s" max="8s">
+          <wait max="10s">
             <interrupt>
               <conditions>
-                <event_object_changed_zone group="$leader_preparegroup"/>
+                <check_any>
+                  <event_object_signalled object="this.ship" param="'preparegroup shrunk'"/>
+                  <event_object_changed_zone group="$leader_preparegroup"/>
+                </check_any>
               </conditions>
               <actions>
-                <!-- what the hell? the leader has flown away or jumped without telling anyone - Kick him out of Group! -->
-                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Follower %4 switched Zones or Jumped without telling anyone! - Dont wait for that ******'.[player.age,this.name,this.container.name,event.object.knownname]"/>
-                <remove_from_group group="$leader_preparegroup" object="event_object"/>
+                <do_if value="event.name == 'event_object_changed_zone'">
+                  <!-- what the hell? the someone in the prep group has flown away or jumped without telling anyone - Kick him out of Group! -->
+                  <debug_text filter="error" text="'%1 %2 %3 What the Hell? Follower %4 switched Zones or Jumped without telling anyone! - Dont wait for that ******'.[player.age,this.name,this.container.name,event.object.knownname]"/>
+                  <remove_from_group group="$leader_preparegroup" object="event_object"/>
+                </do_if>
               </actions>
             </interrupt>
           </wait>
@@ -275,6 +280,7 @@
       <!-- if we are a follower in a Group Boost - remove ourselves from the prep group and wait for the Start Signal -->
       <do_else>
         <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+        <signal_objects object="$leader" param="'preparegroup shrunk'"/>
         <wait>
           <interrupt>
             <conditions>
@@ -321,6 +327,7 @@
       </move_to>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost movement done, distance to boost target pos: %4, Blocking Group: %5'.[player.age,this.name,this.container.name,this.ship.distanceto.{$targetpos},$leader_preparegroup]"/>
       <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+      <signal_objects object="$leader" param="'preparegroup shrunk'"/>
       <!-- We have Arrived - As Follower make sure the Leader is in $targetzone before Continuing to avoid Boosting Back to "keep up" -->
       <do_if value="$leader.exists">
         <do_if value="$leader.isboostactive and not ( $leader.zone == $targetzone )">
@@ -337,7 +344,13 @@
       <do_else>
         <do_while value="$leader_preparegroup.count">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrivey\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
-          <wait min="5s" max="8s"/>
+          <wait max="30s">
+            <interrupt>
+              <conditions>
+                <event_object_signalled object="this.ship" param="'preparegroup shrunk'"/>
+              </conditions>
+            </interrupt>
+          </wait>
         </do_while>
       </do_else>
       
@@ -361,6 +374,7 @@
     <stop_moving object="this.ship"/>
     <do_if value="$leader_preparegroup.indexof.{this.ship}">
       <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+      <signal_objects object="$leader" param="'preparegroup shrunk'"/>
     </do_if>
     <signal_objects object="this.ship" param="'travel aborted'"/>
   </on_abort>

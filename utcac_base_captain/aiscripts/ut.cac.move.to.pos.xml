@@ -191,11 +191,22 @@ with a given Rotation or Orientation
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Movement done.'.[player.age,this.name,this.container.name]"/>
       
       <!-- wait till everyone in Prep Group has arrive before continuing -->
-      <do_while value="$leader_preparegroup.count">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrivey\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
-        <wait min="5s" max="8s"/>
-      </do_while>
-      
+      <do_if value="not $leader">
+        <do_while value="$leader_preparegroup.count">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrivey\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+          <wait max="30s">
+            <interrupt>
+              <conditions>
+                <event_object_signalled object="this.ship" param="'preparegroup shrunk'"/>
+              </conditions>
+            </interrupt>
+          </wait>
+        </do_while>
+      </do_if>
+      <do_else>
+        <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+        <signal_objects object="$leader" param="'preparegroup shrunk'"/>
+      </do_else>
     </actions>
   </attention>
   <on_abort>
