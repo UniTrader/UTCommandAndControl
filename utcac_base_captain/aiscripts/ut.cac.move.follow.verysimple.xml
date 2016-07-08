@@ -139,7 +139,13 @@
         <resume label="fly to leader zone"/>
       </do_if>
       
-      <wait/>
+      <wait>
+        <interrupt comment="check if Leader flew away and we missed his Signal">
+          <conditions>
+            <event_object_changed_zone object="$leader"/>
+          </conditions>
+        </interrupt>
+      </wait>
       
       <resume label="start"/>
     </actions>
