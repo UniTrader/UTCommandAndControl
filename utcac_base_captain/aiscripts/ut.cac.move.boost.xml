@@ -92,8 +92,6 @@
       <!-- Figure out final Params -->
       <!-- =================== -->
       
-      <!-- save unmodified Target Pos to pass to Followers -->
-      <set_value name="$position_passed" exact="$position"/>
       
       <!-- calculate Offset if we want to get to an Object and set the Destination Zone Var-->
       <do_if value="$destination.isclass.zone">
@@ -228,7 +226,7 @@
       <do_else>
         <create_group groupname="$leader_preparegroup"/>
       </do_else>
-      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ $destination , $position_passed , if $startpos? then $startpos else this.ship.position, if $startrot? then $startrot else this.ship.rotation ]" param3="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ $targetzone , $position , if $startpos? then $startpos else this.ship.position, if $startrot? then $startrot else this.ship.rotation ]" param3="$leader_preparegroup"/>
       
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
