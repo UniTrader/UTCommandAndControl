@@ -131,7 +131,7 @@ Script to Dock or Park an Object
         </do_all>
         
         <!-- fallback in case no Slot is free to wait or Dock -->
-        <do_if value="not $parkslot?">
+        <do_if value="not $parkslot">
           <resume label="wait for parking slot"/>
         </do_if>
         
@@ -172,7 +172,7 @@ Script to Dock or Park an Object
                 </check_any>
               </conditions>
               <actions>
-                <do_if value="event.object == $parkslot">
+                <do_if value="event.object == $parkslot.component">
                   <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
                 </do_if>
                 <do_elseif value="event.object == $destination">
@@ -210,7 +210,7 @@ Script to Dock or Park an Object
             </interrupt>
           </wait>
           <!-- fallback in case signalling didnt work -->
-          <do_if value="not $sucess">
+          <do_if value="not $success">
             <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship" />
             <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
           </do_if>
