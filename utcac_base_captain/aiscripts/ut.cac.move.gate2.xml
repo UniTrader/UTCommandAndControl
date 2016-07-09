@@ -17,7 +17,7 @@
     <param name="cleargate" default="true" comment="Clear the Gate after Passage?"/>
     
     <param name="queue_position" default="false" comment="position in the Gate queue where Fight Ships add themselves to to pass the Gate before unarmed Ships (false will assume this is the leader and add to the End)"/>
-    <param name="isleader" default="2" comment="set to true if this Ship should wait for the $passage_group before continuing and to false if not - (if set to 2 will default to be true if a queue_position is passed and false if not )"/>
+    <param name="leader" default="false" comment="set to true if this Ship should wait for the $passage_group before continuing and to false if not - (if set to 2 will default to be true if a queue_position is passed and false if not )"/>
     <param name="passage_group" default="false" comment="Group of all Ships which pass the Gate as a Group"/>
     
   </params>
@@ -70,11 +70,6 @@
       <!-- Dont abort Path on first move_to, but for each one after that for fluid movement (except it is currently just flying to a safepos, indicated by this$mayabortpath)-->
       <set_value name="$continuepath" exact="not this.$mayabortpath?"/>
       <remove_value name="this.$mayabortpath"/>
-      
-      <!-- determine if we are leader - see comment of Parameter -->
-      <do_if value="$isleader == 2">
-        <set_value name="$isleader" exact="not $queue_position"/>
-      </do_if>
       
       <set_command_action commandaction="commandaction.flyingto" param="$gate.destination"/>
       <do_if value="this.$ut_cac?">
@@ -270,19 +265,20 @@
     <remove_from_group group="$passage_group" object="this.ship"/>
       
       <!-- wait till everyone in Group has passed the Gate (unregistered from Group) -->
-      <do_if value="$isleader">
+      <do_if value="not $leader">
         <do_while value="$passage_group.count">
-          <wait max="120s" comment="fallback: re-check regulary">
+          <wait max="1min" comment="fallback: re-check regulary">
             <interrupt>
               <conditions>
-                <event_object_changed_cluster group="$passage_group"/>
+                <event_object_signalled object="this.ship" param="'preparegroup shrunk'"/>
               </conditions>
             </interrupt>
           </wait>
-          <!-- make sure the Ship has removed itself from the Group and then check if there are still members in -->
-          <wait exact="12s"/>
         </do_while>
       </do_if>
+      <do_else>
+        <signal_objects object="$leader" param="'preparegroup shrunk'"/>
+      </do_else>
     </actions>
   </attention>
   <on_abort>
