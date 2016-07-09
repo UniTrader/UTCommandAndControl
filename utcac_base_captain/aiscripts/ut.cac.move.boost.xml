@@ -349,15 +349,15 @@
       <!--As Leader wait till all Followers are there, too before progressing -->
       <do_else>
         <remove_from_group group="$leader_preparegroup" object="this.ship"/>
-        <do_if value="this.zone != $targetzone">
-          <wait sinceversion="30">
+        <do_while value="this.zone != $targetzone or this.shipdistanceto.[$targetzone, $targetpos] gt 5km">
+          <wait max="1min" sinceversion="30">
             <interrupt>
               <conditions>
                 <event_object_changed_zone object="this.ship" zone="$targetzone"/>
               </conditions>
             </interrupt>
           </wait>
-        </do_if>
+        </do_while>
         <do_while value="$leader_preparegroup.count">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrive\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
           <wait max="1min">
