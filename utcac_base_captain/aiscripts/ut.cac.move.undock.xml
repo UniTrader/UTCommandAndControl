@@ -101,6 +101,7 @@ Script to Dock or Park an Object
           <move_to destination="this.zone" object="this.ship" usehighways="false" forceposition="false" abortpath="false" finishonapproach="true"/>
         </do_if>
         <disconnect_from_trade_location ship="this.ship" />
+        <set_avoid_collisions object="this.ship" enabled="true" />
         <signal_objects object="$freeslot.component" param="'parking queue update'" param2="$freeslot"/>
         <signal_objects object="$undockfrom" param="'parking queue update'" param2="$freeslot" delay="1s"/>
         
@@ -141,6 +142,8 @@ Script to Dock or Park an Object
   </attention>
   <on_abort>
     <disconnect_from_trade_location ship="this.ship" />
+    <set_avoid_collisions object="this.ship" enabled="true" />
+    <clear_collision_filter object="this.ship"/>
     <!-- ToDo: make parent Order Interruptable again -->
   </on_abort>
 </aiscript>
