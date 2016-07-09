@@ -316,15 +316,36 @@
       <disable_collision_response object="this.ship"/>
       <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" boost="true" abortpath="false">
         <position value="$targetpos" />
-        <interrupt>
-          <conditions>
-            <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/>
-          </conditions>
-          <actions>
-            <set_value name="$arriving_at" exact="event.param2 + player.age"/>
-          </actions>
-        </interrupt>
+        <interrupt_after_time time="10s"/>
       </move_to>
+      <disable_collision_response object="this.ship"/>
+      <do_while value="not $reachingdestination">
+        <wait>
+          <interrupt>
+            <conditions>
+              <check_any>
+                <event_object_collided object="this.ship"/>
+                <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+                <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/>
+              </check_any>
+            </conditions>
+            <actions>
+              <do_if value="event.name == 'event_object_collided'">
+                <do_if value="event.param.isclass.asteroid">
+                  <destroy_object object="event.param"/>
+                </do_if>
+              </do_if>
+              <do_elseif value="event.name == 'event_object_arrived_at_waypoint'">
+                <set_value name="$reachingdestination"/>
+              </do_elseif>
+              <do_elseif value="event.name == 'event_object_arrived_at_waypoint'">
+                <set_value name="$reachingdestination"/>
+                <set_value name="$arriving_at" exact="event.param2 + player.age"/>
+              </do_elseif>
+            </actions>
+          </interrupt>
+        </wait>
+      </do_while>
       <clear_collision_filter object="this.ship" />
       <!-- wait till we are almost there - event_approaching_waypoint usually triggers too early, instead wait till 2-5 seconds before estimated arrival  -->
       <wait min="$arriving_at - player.age - 5s" max="$arriving_at - player.age - 2s" sinceversion="30" chance="$arriving_at? *100"/>
