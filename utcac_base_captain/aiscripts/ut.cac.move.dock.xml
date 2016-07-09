@@ -160,7 +160,7 @@ Script to Dock or Park an Object
         <!-- wait for Unpark Signal from Ship parked and, if common queue is empty, also wait for other Slots just freed up completely -->
         <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
         <do_while value="not $success">
-          <wait>
+          <wait max="1min">
             <interrupt>
               <conditions>
                 <check_any>
@@ -172,22 +172,22 @@ Script to Dock or Park an Object
                 </check_any>
               </conditions>
               <actions>
-                <do_if value="event.object == $parkslot.component">
-                  <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
-                </do_if>
-                <do_elseif value="event.object == $destination">
+                <do_if value="event.object == $destination">
                   <connect_to_trade_location ship="this.ship" tradedock="event.param2" result="$success" />
                   <do_if value="$success">
                     <set_value name="$parkslot" exact="event.param2"/>
                     <set_value name="$move_to_approach_pos_first"/>
                   </do_if>
-                </do_elseif>
+                </do_if>
               </actions>
             </interrupt>
           </wait>
           <!-- check regulary if our parking Spot still works -->
           <do_if value="not $parkslot.component.isoperational">
             <resume label="wait for parking slot" />
+          </do_if>
+          <do_if value="not $success">
+            <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
           </do_if>
         </do_while>
       </do_if>
