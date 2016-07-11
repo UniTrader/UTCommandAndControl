@@ -60,8 +60,8 @@
         <debug_text filter="error" text="'%1 %2 %3 Destination does not exist. Aborting!'.[ player.age,this.name,this.container.name]" />
         <return/>
       </do_if>
-      <do_if value="$destination == this.zone">
-        <!-- we are already here - so why boosting? -->
+      <do_if value="$destination == this.zone and this.ship.distanceto.{$positon} lt 5km">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Already in the right Zone and close to Target Position - so why boosting?'.[player.age,this.name,this.container.name]"/>
         <return/>
       </do_if>
       <do_if value="not $leader and $leader_preparegroup">
