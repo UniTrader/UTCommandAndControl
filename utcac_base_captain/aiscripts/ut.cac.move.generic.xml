@@ -314,6 +314,18 @@
       
       <label name="fine movement"/>
       
+      <do_while value="not $destination.hascontext.{$targetspace}">
+        <wait sinceversion="30">
+          <interrupt>
+            <conditions>
+              <check_any>
+                <event_object_changed_zone object="$destination"/>
+              </check_any>
+            </conditions>
+          </interrupt>
+        </wait>
+      </do_while>
+      
       <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 20 km away) and boost to a generous safe spot nearby the Target -->
       <!-- Final boost to nearby the Destination Object -->
       <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 7km and $destination != $targetspace )">
