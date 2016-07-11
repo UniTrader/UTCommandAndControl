@@ -97,7 +97,7 @@ Script to Dock or Park an Object
         
         <!-- move out of the Way of the next ship if someone is waiting, then Signal Dock is free -->
         <do_if value="$undockfrom.exists and $undockfrom.tradenpc.exists and $undockfrom.tradenpc.$park_queue? and $undockfrom.tradenpc.$park_queue.{$freeslot.component}?">
-          <get_safe_pos result="safepos" object="this.ship" zone="this.zone" radius="this.ship.size" directionobject="this.ship" direction="$unparkquadrants.{1}" direction2="$unparkquadrants.{2}" ignored="$unparkfrom" min="this.ship.size + $undockfrom.tradenpc.$park_queue.{$freeslot.component}.size"/>
+          <get_safe_pos result="$safepos" object="this.ship" zone="this.zone" radius="this.ship.size" directionobject="this.ship" direction="$unparkquadrants.{1}" direction2="$unparkquadrants.{2}" ignored="$undockfrom" min="this.ship.size + $undockfrom.tradenpc.$park_queue.{$freeslot.component}.size"/>
           <move_to destination="this.zone" object="this.ship" usehighways="false" forceposition="false" abortpath="false" finishonapproach="true"/>
         </do_if>
         <disconnect_from_trade_location ship="this.ship" />
