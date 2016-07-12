@@ -231,7 +231,7 @@
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to Start Position'.[player.age,this.name,this.container.name]"/>
-        <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="true" forcesteering="this.ship.distanceto.{$startpos} lt 100m" finishonapproach="false" abortpath="this.$mayabortpath?">
+        <move_to object="this.ship" destination="this.zone" forceposition="false" forcerotation="true" forcesteering="this.ship.distanceto.{$startpos} lt 100m" finishonapproach="true" abortpath="this.$mayabortpath?">
           <position value="$startpos" />
           <rotation value="$startrot" />
         </move_to>
@@ -244,6 +244,15 @@
             <position value="this.ship.position"/>
             <rotation yaw="this.ship.rotation.yaw" roll="this.ship.rotation.roll" pitch="if this.ship.rotation.pitch gt 45deg then 45deg else if this.ship.rotation.pitch lt -45deg then -45deg else 0deg"/>
           </warp>
+        </do_if>
+        <do_if value="$leader_preparegroup.count and this.ship.numwaypoints" comment="to sync Boosting in Groups, but also allow smooth transition for single boosting">
+          <wait sinceversion="30">
+            <interrupt>
+              <conditions>
+                <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+              </conditions>
+            </interrupt>
+          </wait>
         </do_if>
       </do_if>
       <!-- for coordinated boost - wait a split-second so everyone can add himself to the group if there is no movement first -->
@@ -313,7 +322,6 @@
         <precache_hint zone="$targetzone"/>
       </do_if>
       
-      <wait min="100ms" max="1s" sinceversion="30"/>
       <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" boost="true" abortpath="false">
         <position value="$targetpos" />
         <interrupt>
