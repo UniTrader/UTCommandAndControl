@@ -332,6 +332,7 @@
         <precache_hint zone="$targetzone"/>
       </do_if>
       
+      <set_avoid_collisions object="this.ship" enabled="false"/>
       <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" boost="true" abortpath="false">
         <position value="$targetpos" />
         <interrupt>
@@ -343,6 +344,7 @@
           </actions>
         </interrupt>
       </move_to>
+      <set_avoid_collisions object="this.ship" enabled="true"/>
     <!-- wait till we are almost there - event_approaching_waypoint usually triggers too early, instead wait till 2-5 seconds before estimated arrival  -->
       <wait min="$arriving_at - player.age - 5s" max="$arriving_at - player.age - 2s" sinceversion="30" chance="$arriving_at? *100"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost movement done, distance to boost target pos: %4, Blocking Group: %5'.[player.age,this.name,this.container.name,this.ship.distanceto.{$targetpos},$leader_preparegroup]"/>
@@ -417,5 +419,6 @@
       </do_if>
     </do_if>
     <signal_objects object="this.ship" param="'travel aborted'"/>
+    <set_avoid_collisions object="this.ship" enabled="true"/>
   </on_abort>
 </aiscript>
