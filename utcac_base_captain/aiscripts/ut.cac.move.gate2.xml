@@ -113,13 +113,13 @@
       <!-- calculate Target Distance BEHIND the Gate (therefore subtract) -->
       <set_value name="$queue_distance" exact="0m"/>
       <do_all exact="$queue_position" counter="$i">
-        <set_value name="$queue_distance" operation="subtract" exact="global.$gate_queue.{$gate}.{$i}.size * 1.5"/>
+        <set_value name="$queue_distance" operation="subtract" exact="global.$gate_queue.{$gate}.{$i}.size * 2"/>
       </do_all>
       <do_if value="global.$gate_queue.{$gate}.{1}.pilot.commandaction.param == $gate" comment="if the leading Ship is currently flying into the Gate it doesnt need a space behind the gate reserved for it">
-        <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{1}.size * 1.5"/>
+        <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{1}.size * 2"/>
       </do_if>
       <do_else>
-        <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{1}.size * 0.75"/>
+        <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{1}.size * 1"/>
       </do_else>
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
         <position x="0m" y="0m" z="$queue_distance"/>
