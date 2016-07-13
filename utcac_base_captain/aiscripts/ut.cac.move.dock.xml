@@ -83,12 +83,12 @@ Script to Dock or Park an Object
       <!-- check for existing Slots -->
       <find_tradeoffer_parking_slot name="$slot_exists" object="$destination" includeoccupied="true" check="true" />
       <do_if value="not $slot_exists">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No Parking Spot - Abort'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 %3 No Parking Spot - Abort'.[player.age,this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       
       <label name="wait for parking slot"/>
-      <!-- first try to get a free  a Parking Spot for the correct Offer, or a busy Slot, and if found park there -->
+      <!-- first try to get a free  a Parking Spot for the correct Offer and if found park there -->
       <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship" />
       <do_if value="$parkslot">
         <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
@@ -106,6 +106,8 @@ Script to Dock or Park an Object
         </do_if>
         <set_value name="$park_queue" exact="$destination.tradenpc.$park_queue"/>
         
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sorting into park queue for: %4\n%5'.[player.age,this.name,this.container.name,$destination,$park_queue]"/>
+        
         <do_if value="not $park_queue.{$destination}.indexof.{this.ship}">
           <append_to_list name="$park_queue.{$destination}" exact="this.ship"/>
         </do_if>
@@ -119,6 +121,8 @@ Script to Dock or Park an Object
           </wait>
         </do_while>
        
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Park queue next'.[player.age,this.name,this.container.name]"/>
+        
         <!-- find Dock Slot where no Ship is waiting for and register to dock there (also un-register from common queue) -->
         <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
         <do_all exact="$slots.count" counter="$i">
@@ -132,8 +136,10 @@ Script to Dock or Park an Object
         
         <!-- fallback in case no Slot is free to wait or Dock -->
         <do_if value="not $parkslot">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No Free Parking Spot - Retry'.[player.age,this.name,this.container.name]"/>
           <resume label="wait for parking slot"/>
         </do_if>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Parking Spot - parking'.[player.age,this.name,this.container.name]"/>
         
         <!-- move to an approach pos near the Dock to minimize final Parking Time - basically its a more far out approach pos..  -->
         <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
