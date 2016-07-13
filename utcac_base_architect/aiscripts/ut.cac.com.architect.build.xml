@@ -297,11 +297,13 @@
           </interrupt>
         </wait>
         <!-- check for Components still under Construction and Force-complete them -->
-        <find_object_component name="$incompletecomponents" object="this.ship.buildanchor" multiple="true" class="class.construction"/>
+        <find_object_component name="$incompletecomponents" object="this.ship.buildanchor" multiple="true"/>
         <do_if value="$incompletecomponents.count">
           <set_value name="$errormessage" exact="'Incomplete Components: '"/>
           <do_all exact="$incompletecomponents.count" counter="$i">
-            <set_value name="$errormessage" exact="'%1 /// %2'.[$errormessage,$incompletecomponents.{$i}.knownname]"/>
+            <do_if value="$incompletecomponents.{$i}.isconstruction">
+              <set_value name="$errormessage" exact="'%1 /// %2'.[$errormessage,$incompletecomponents.{$i}.knownname]"/>
+            </do_if>
           </do_all>
           <debug_text filter="error" text="$errormessage"/>
         </do_if>
