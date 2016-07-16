@@ -66,12 +66,14 @@
     </handler>
     <handler>
       <conditions>
-        <event_object_changed_zone object="@$destination"/>
+        <check_any>
+          <event_object_changed_zone object="@$destination"/>
+          <event_object_signalled object="$destination" param="'travel next waypoint'"/>
+        </check_any>
+        <check_value value="$targetspace != ( if $destination.pilot.$waypoint? then $destination.pilot.$waypoint else $destination.zone )"/>
       </conditions>
       <actions>
-        <do_if value="$targetspace != ( if $destination.pilot.$waypoint? then $destination.pilot.$waypoint else $destination.zone )">
-          <abort_called_scripts resume="start"/>
-        </do_if>
+        <abort_called_scripts resume="start"/>
       </actions>
     </handler>
   </interrupts>
@@ -234,6 +236,7 @@
           <!-- follow the Waypoints to the Destination Zone/Space, when we reached the right Cluster or Sector Exit (no need to follow remaining waypoints), when Destination is a Zone or Object continue with boosting towards Destination in a seperate script -->
         <do_while value="$waypoints.count">
           <set_value name="this.$waypoint" exact="$waypoints.{1}"/>
+          <signal_objects object="this.ship" param="'travel next waypoint'"/>
           <do_if value="this.$waypoint.isclass.sector">
             <!-- Idea: if sector is very close -maybe consider boosting? requires a specialized boost script which handles the context change though -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
@@ -334,6 +337,7 @@
           <param name="position" value="$position" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
         </run_script>
       </do_if>
+      <remove_value name="this.$waypoint"/>
       
       <do_if value="not $endintargetspace">
         <!-- second move slowly near the Target (may not be necesary if we are satisfied with the Target Zone) -->
@@ -348,6 +352,10 @@
       
       
       <label name="finish"/>
+      <remove_value name="this.$waypoint"/>
     </actions>
   </attention>
+  <on_abort>
+    <remove_value name="this.$waypoint"/>
+  </on_abort>
 </aiscript>
