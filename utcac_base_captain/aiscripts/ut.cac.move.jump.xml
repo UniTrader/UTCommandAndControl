@@ -352,7 +352,7 @@ ToDo:
       <wait min="100ms" max="1s" sinceversion="30" comment="de-perfect perfect synchromisation"/>
       <jump result="$result" object="this.ship" zone="$beacon.zone" ignorefuel="$ignorefuel">
         <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
-        <orientation refobject="$beacon" orientation="look_away_bbox"/>
+        <orientation refobject="$beacon" orientation="look_away"/>
       </jump>
       <do_if value="$result">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
@@ -361,7 +361,11 @@ ToDo:
         </do_if>
       </do_if>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7\n Performing Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive,$jumpdrive.cooldowntimeleft]"/>
+        <warp object="this.ship" zone="$beacon.zone">
+          <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
+          <orientation refobject="$beacon" orientation="look_away"/>
+        </warp>
       </do_else>
       
       <!-- Fly to a randomSafepos to not stay still while cooling for the next Jump -->
