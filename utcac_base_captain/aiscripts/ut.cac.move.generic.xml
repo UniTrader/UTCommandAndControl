@@ -134,7 +134,19 @@
           <return/>
         </do_if>
         <do_elseif value="$endintargetspace">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Exit without movement'.[player.age,this.name,this.container.name]"/>
+          <do_if value="$destination.pilot.$waypoint? and $destination.zone != this.zone">
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Waiting for Target to arrive there, too'.[player.age,this.name,this.container.name]"/>
+            <wait>
+              <interrupt>
+                <conditions>
+                  <event_object_changed_zone object="@$destination" zone="this.zone"/>
+                </conditions>
+              </interrupt>
+            </wait>
+          </do_if>
+          <do_else>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Exit without movement'.[player.age,this.name,this.container.name]"/>
+          </do_else>
           <return/>
         </do_elseif>
         <do_else>
