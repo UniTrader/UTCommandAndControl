@@ -32,8 +32,8 @@ Script to Dock or Park an Object
         <debug_text filter="error" text="'%1 %2 %3 Destination not given or non-existent - Abort'.[player.age,this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
-      <do_if value="$destination.zone != this.zone">
-        <debug_text filter="error" text="'%1 %2 %3 Destination Zone ( %4 ) not current Zone ( %5 ) - Abort'.[player.age,this.name,this.container.name,$destination.zone.knownname,this.zone.knownname]"/>
+      <do_if value="$destination.zone != this.zone and this.ship.distanceto.{$destination} gt 50km">
+        <debug_text filter="error" text="'%1 %2 %3 Destination Zone ( %4 ) not current Zone ( %5 ) or at least nearby - Abort'.[player.age,this.name,this.container.name,$destination.zone.knownname,this.zone.knownname]"/>
         <return value="false"/>
       </do_if>
       
@@ -69,6 +69,8 @@ Script to Dock or Park an Object
       
       <!-- Movement Steps for parking -->
       <label name="parking"/>
+      
+      <set_avoid_collisions object="this.ship" enabled="false"/>
       
       <do_if value="$destination.component?">
         <!-- if a Parking Spot was passed directly - check it if its free and use it. otherwise use any at the Station its attached to.. -->
@@ -134,10 +136,10 @@ Script to Dock or Park an Object
               </conditions>
             </interrupt>
           </wait>
-         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Park queue next'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Park queue next'.[player.age,this.name,this.container.name]"/>
         </do_while>
         
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got Parking Slot: %4 - Moving to secondary Approach Pos'.[player.age,this.name,this.container.name,$parkslot]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got Parking Slot: %4 - Moving to secondary Approach Pos. Park Queue:\n%5'.[player.age,this.name,this.container.name,$parkslot,$park_queue]"/>
         
         <!-- move to an approach pos near the Dock to minimize final Parking Time - basically its a more far out approach pos..  -->
         <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
@@ -246,7 +248,6 @@ Script to Dock or Park an Object
       </do_if>
       
       <!-- final Movement -->
-      <set_avoid_collisions object="this.ship" enabled="false"/>
       <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
       <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
         <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
