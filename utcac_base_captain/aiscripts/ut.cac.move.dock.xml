@@ -88,6 +88,12 @@ Script to Dock or Park an Object
       </do_if>
       
       <label name="wait for parking slot"/>
+      
+      <!-- cleanup in case of a previous Abort -->
+      <do_if value="this.ship.parkedat.exists">
+        <disconnect_from_trade_location ship="this.ship" />
+      </do_if>
+      
       <!-- first try to get a free  a Parking Spot for the correct Offer and if found park there -->
       <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship" />
       <do_if value="$parkslot">
