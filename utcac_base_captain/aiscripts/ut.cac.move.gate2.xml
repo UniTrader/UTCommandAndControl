@@ -138,6 +138,7 @@
           </conditions>
           <actions>
             <do_if value="event.object == this.ship">
+              <set_avoid_collisions object="this.ship" enabled="true" comment="re-enable Collision avoidance since we are no longer in queue"/>
               <set_value name="$continuepath" exact="false" comment="disable soft-advancing queue because we just got kicked back"/>
             </do_if>
             <do_elseif value="$continuepath != 2">
@@ -148,6 +149,7 @@
         </interrupt>
       </move_to>
       <set_value name="$continuepath" exact="2" comment="re-enable soft-advancing queue and also set it persistent"/>
+      <set_avoid_collisions object="this.ship" enabled="false" comment="disable collision avoidance while in queue to avoid other ships pushing us out and delaying everything"/>
       <do_if value="$queue_position == 1">
         <resume label="pass gate"/>
       </do_if>
@@ -238,6 +240,7 @@
           </interrupt>
         </wait>
       </do_if>
+      <set_avoid_collisions object="this.ship" enabled="true" comment="restore collision avoidance behavior after Gate Passage"/>
       
       <!-- unlock Gate (Vanilla) and remove ourselves from the Waiting List, signal the next to go/prepare (UT CAC) -->
       <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
@@ -295,5 +298,7 @@
     <signal_objects object="this.ship" param="'travel aborted'"/>
     <!-- remove from Passage Group -->
     <remove_from_group group="$passage_group" object="this.ship"/>
+    <!-- restore collision avoidance behavior -->
+    <set_avoid_collisions object="this.ship" enabled="true"/>
   </on_abort>
 </aiscript>
