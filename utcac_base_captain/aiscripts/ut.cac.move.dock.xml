@@ -128,6 +128,7 @@ Script to Dock or Park an Object
                 <set_value name="$park_queue.{$slots.{$i}.component}" exact="this.ship"/>
                 <set_value name="$parkslot" exact="$slots.{$i}"/>
                 <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
+                <debug_text filter="general" chance="100" text="'%1 %2 %3 Sorted into Parkslot: %4\n%5'.[player.age,this.name,this.container.name,$park_queue]"/>
                 <break/>
               </do_if>
             </do_all>
@@ -168,6 +169,7 @@ Script to Dock or Park an Object
        <!-- check regulary if our parking Spot still works -->
         <do_if value="not $parkslot.component.isoperational">
           <remove_value name="$park_queue.{$parkslot.component}"/>
+          <remove_value name="$parkslot"/>
           <resume label="wait for parking slot" />
         </do_if>
         
