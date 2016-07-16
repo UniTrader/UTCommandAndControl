@@ -22,7 +22,7 @@ Script to Dock or Park an Object
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4'.[player.age,this.name,this.container.name,$destination]"/>
+      <debug_text filter="general" chance="100" text="'%1 %2 %3 Script started with Params:\n$destination: %4'.[player.age,this.name,this.container.name,$destination]"/>
       
       <!-- Verify Input and Situation -->
 <!-- => no Movement out of Zone
@@ -112,7 +112,7 @@ Script to Dock or Park an Object
         </do_if>
         <set_value name="$park_queue" exact="$destination.tradenpc.$park_queue"/>
         
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sorting into park queue for: %4\n%5'.[player.age,this.name,this.container.name,$destination,$park_queue]"/>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Sorting into park queue for: %4\n%5'.[player.age,this.name,this.container.name,$destination,$park_queue]"/>
         
         <do_if value="not $park_queue.{$destination}.indexof.{this.ship}">
           <append_to_list name="$park_queue.{$destination}" exact="this.ship"/>
@@ -140,10 +140,10 @@ Script to Dock or Park an Object
               </conditions>
             </interrupt>
           </wait>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Park queue next'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="100" text="'%1 %2 %3 Park queue next'.[player.age,this.name,this.container.name]"/>
         </do_while>
         
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got Parking Slot: %4 - Moving to secondary Approach Pos. Park Queue:\n%5'.[player.age,this.name,this.container.name,$parkslot,$park_queue]"/>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Got Parking Slot: %4 - Moving to secondary Approach Pos. Park Queue:\n%5'.[player.age,this.name,this.container.name,$parkslot,$park_queue]"/>
         
         <!-- move to an approach pos near the Dock to minimize final Parking Time - basically its a more far out approach pos..  -->
         <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
@@ -162,7 +162,7 @@ Script to Dock or Park an Object
         </move_to>
         <remove_value name="this.$mayabortpath"/>
         
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Arrived at Parking Wait Pos'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Arrived at Parking Wait Pos'.[player.age,this.name,this.container.name]"/>
         
        <!-- check regulary if our parking Spot still works -->
         <do_if value="not $parkslot.component.isoperational">
@@ -173,7 +173,7 @@ Script to Dock or Park an Object
         <!-- wait for Unpark Signal from Ship parked and, if common queue is empty, also wait for other Slots just freed up completely -->
         <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
         <do_while value="not $success">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for Parking Slot to be freed'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="100" text="'%1 %2 %3 Waiting for Parking Slot to be freed'.[player.age,this.name,this.container.name]"/>
           <wait max="1min">
             <interrupt>
               <conditions>
@@ -233,7 +233,7 @@ Script to Dock or Park an Object
       
       <label name="park"/>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Beginning Parking'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="100" text="'%1 %2 %3 Beginning Parking'.[player.age,this.name,this.container.name]"/>
       
       <set_avoid_collisions object="this.ship" enabled="false"/>
       
@@ -243,7 +243,7 @@ Script to Dock or Park an Object
       </do_if>
       
       <do_if value="$move_to_approach_pos_first?">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to Approach Pos'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Flying to Approach Pos'.[player.age,this.name,this.container.name]"/>
         <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
         <!-- Signal Followers where we attempt to Park so they can wait nearby - also in Update Case when Parkpos changed-->
         <signal_objects object="this.ship" param="'travel dockat'" param2="[$destination,$parkslot,$approachpos]" param3="null" comment="not waiting - no prep group needed"/>
@@ -261,7 +261,7 @@ Script to Dock or Park an Object
       </do_if>
       
       <!-- final Movement -->
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Parking'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="100" text="'%1 %2 %3 Parking'.[player.age,this.name,this.container.name]"/>
       <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
       <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
         <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
@@ -293,7 +293,7 @@ Script to Dock or Park an Object
         <rotation value="$parkrot"/>
       </warp>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Parking done'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="100" text="'%1 %2 %3 Parking done'.[player.age,this.name,this.container.name]"/>
       
       <resume label="finish"/>
       
