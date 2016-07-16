@@ -70,8 +70,6 @@ Script to Dock or Park an Object
       <!-- Movement Steps for parking -->
       <label name="parking"/>
       
-      <set_avoid_collisions object="this.ship" enabled="false"/>
-      
       <do_if value="$destination.component?">
         <!-- if a Parking Spot was passed directly - check it if its free and use it. otherwise use any at the Station its attached to.. -->
         <set_value name="$parkslot" exact="$destination"/>
@@ -150,6 +148,7 @@ Script to Dock or Park an Object
         <!-- Signal Followers where we attempt to Park so they can wait nearby -->
         <signal_objects object="this.ship" param="'travel dockat'" param2="[$destination,$parkslot,$approachpos]" param3="null" comment="not waiting - no prep group needed"/>
         
+        <set_avoid_collisions object="this.ship" enabled="false"/>
         <move_to object="this.ship" usehighways="false" destination="$destination.zone" finishonapproach="false" abortpath="this.$mayabortpath?">
           <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
           <position value="$approachpos" />
@@ -224,6 +223,8 @@ Script to Dock or Park an Object
       </do_else>
       
       <label name="park"/>
+      
+      <set_avoid_collisions object="this.ship" enabled="false"/>
       
       <!-- check regulary if our parking Spot still works -->
       <do_if value="not $parkslot.component.isoperational">
