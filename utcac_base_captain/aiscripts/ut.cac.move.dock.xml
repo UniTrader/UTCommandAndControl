@@ -123,7 +123,7 @@ Script to Dock or Park an Object
           <do_if value="$park_queue.{$destination}.{1} == this.ship">
             <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
             <do_all exact="$slots.count" counter="$i">
-              <do_if value="$slots.{$i}.component.isoperational and ( not $park_queue.{$slots.{$i}.component}.exists )">
+              <do_if value="$slots.{$i}.component.isoperational and ( ( not $park_queue.{$slots.{$i}.component}? ) or ( not $park_queue.{$slots.{$i}.component}.exists ) or ( not $park_queue.{$slots.{$i}.component}.sector == this.sector) )">
                 <set_value name="$park_queue.{$slots.{$i}.component}" exact="this.ship"/>
                 <set_value name="$parkslot" exact="$slots.{$i}"/>
                 <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
