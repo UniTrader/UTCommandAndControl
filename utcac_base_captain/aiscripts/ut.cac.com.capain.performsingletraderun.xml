@@ -361,30 +361,7 @@
       <!-- Script shouldnt be Interrupted/aborted at this point anymore -->
       <set_value name="$params.$interruptable" exact="false" chance="$params? * 100"/>
       
-      <!-- since the Order is almost finished try to get some new Orders in advance if necesary - only if called with params
-      3 Possible Scenarios where this happens:
-      A) Orderlist is completely empty
-      B) One Order remaining in Orderlist - the current Order
-      C) Two Orders remaining in Orderlist: current one on top, and refuel as second (because refuel may skip itself entirely)-->
-      <do_if value="$params? and (this.$orderlist.count == 0 or ( this.$orderlist.count == 1 and $params == this.$orderlist.{1} ) or ( this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ) )">
-        <do_if value="this.ship.commanderentity? and this.ship.commanderentity.exists and this.ship.commanderentity.type == entitytype.manager">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Manager Signal)'.[player.age,this.name,this.container.name]"/>
-          <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
-        </do_if>
-        <do_elseif value="this.$ut_cac.$commanderentity? and this.$ut_cac.$commanderentity.exists and this.$ut_cac.$commanderentity.type == entitytype.manager">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Fallback Manager Signal)'.[player.age,this.name,this.container.name]"/>
-          <signal_objects object="this.$ut_cac.$commanderentity" param="'request orders'" param2="this"/>
-        </do_elseif>
-        <do_else>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Script Call)'.[player.age,this.name,this.container.name]"/>
-          <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="20">
-            <param name="params" value="this.$ut_cac.$defaultorders"/>
-          </run_script>
-        </do_else>
-      </do_if>
-      <do_else>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2  NOT Requesting new Orders: %3 and ( %4 or ( %5 and %6 ) or ( %7 and %8 and %9 ) )'.[this.name,this.container.name,$params? , this.$orderlist.count == 0 , this.$orderlist.count == 1 , $params == this.$orderlist.{1} , this.$orderlist.count == 2 , $params == this.$orderlist.{1} , this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ]"/>
-      </do_else>
+      <run_script sinceversion="20" chance="0" name="''"/>
       
       <do_if value="$tradeoffer.available or $tradeoffer == $trade">
         <do_if value="$tradeoffer.seller.isoperational">
@@ -441,6 +418,31 @@
       </do_else>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade finished,\nWare: %4 Amount here: %5 Amount Partner: %6\n$traderesult: %7 ware:%8 amount:%9'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count,$traderesult,$trade.ware,$amount]"/>
+      
+      <!-- since the Order is finished try to get some new Orders in advance if necesary - only if called with params param
+      3 Possible Scenarios where this happens:
+      A) Orderlist is completely empty
+      B) One Order remaining in Orderlist - the current Order
+      C) Two Orders remaining in Orderlist: current one on top, and refuel as second (because refuel may skip itself entirely)-->
+      <do_if value="$params? and (this.$orderlist.count == 0 or ( this.$orderlist.count == 1 and $params == this.$orderlist.{1} ) or ( this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ) )">
+        <do_if value="this.ship.commanderentity? and this.ship.commanderentity.exists and this.ship.commanderentity.type == entitytype.manager">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Manager Signal)'.[player.age,this.name,this.container.name]"/>
+          <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
+        </do_if>
+        <do_elseif value="this.$ut_cac.$commanderentity? and this.$ut_cac.$commanderentity.exists and this.$ut_cac.$commanderentity.type == entitytype.manager">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Fallback Manager Signal)'.[player.age,this.name,this.container.name]"/>
+          <signal_objects object="this.$ut_cac.$commanderentity" param="'request orders'" param2="this"/>
+        </do_elseif>
+        <do_else>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Requesting new Orders in advance (Script Call)'.[player.age,this.name,this.container.name]"/>
+          <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="30">
+            <param name="params" value="this.$ut_cac.$defaultorders"/>
+          </run_script>
+        </do_else>
+      </do_if>
+      <do_else>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2  NOT Requesting new Orders: %3 and ( %4 or ( %5 and %6 ) or ( %7 and %8 and %9 ) )'.[this.name,this.container.name,$params? , this.$orderlist.count == 0 , this.$orderlist.count == 1 , $params == this.$orderlist.{1} , this.$orderlist.count == 2 , $params == this.$orderlist.{1} , this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ]"/>
+      </do_else>
       
       <!-- If after execute there is no trade order(e.g. cleared by player) finish - should not happen since player is not supposed to remove trade Orders from CAC Ships! -->
       <do_if value="not $trade.exists">
