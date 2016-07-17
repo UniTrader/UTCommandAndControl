@@ -142,6 +142,9 @@ Script to Dock or Park an Object
   </attention>
   <on_abort>
     <disconnect_from_trade_location ship="this.ship" />
+    <!-- Signal next Ship in Queue to move to prep Pos -->
+    <signal_objects object="$parkslot.component" param="'parking queue update'" param2="$freeslot"/>
+    <signal_objects object="$destination" param="'parking queue update'" param2="$freeslot" delay="1s"/>
     <set_avoid_collisions object="this.ship" enabled="true" />
     <clear_collision_filter object="this.ship"/>
     <!-- ToDo: make parent Order Interruptable again -->

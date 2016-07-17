@@ -302,6 +302,24 @@ Script to Dock or Park an Object
         <rotation value="$parkrot"/>
       </warp>
       
+      
+      
+      <!-- Clear Queue since we are not part of it anymore -->
+      <do_if value="$park_queue?">
+        <do_if value="$park_queue.{$destination}.indexof.{this.ship}">
+          <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
+        </do_if>
+        <do_if value="$parkslot.component.exists">
+          <do_if value="$park_queue.{$parkslot.component} == this.ship">
+            <remove_value name="$park_queue.{$parkslot.component}"/>
+          </do_if>
+        </do_if>
+      </do_if>
+      <!-- Signal next Ship in Queue to move to Advance -->
+      <signal_objects object="$parkslot.component" param="'parking queue update'" param2="$freeslot"/>
+      <signal_objects object="$destination" param="'parking queue update'" param2="$freeslot" delay="1s"/>
+      
+      
       <debug_text filter="general" chance="100" text="'%1 %2 %3 Parking done'.[player.age,this.name,this.container.name]"/>
       
       <resume label="finish"/>
@@ -313,6 +331,7 @@ Script to Dock or Park an Object
     </actions>
   </attention>
   <on_abort>
+    <!-- free our Position in queue -->
     <do_if value="$park_queue?">
       <do_if value="$park_queue.{$destination}.indexof.{this.ship}">
         <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
@@ -324,6 +343,9 @@ Script to Dock or Park an Object
       </do_if>
     </do_if>
     <disconnect_from_trade_location ship="this.ship" />
+    <!-- Signal next Ship in Queue to move to Advance -->
+    <signal_objects object="$parkslot.component" param="'parking queue update'" param2="$freeslot"/>
+    <signal_objects object="$destination" param="'parking queue update'" param2="$freeslot" delay="1s"/>
     <set_avoid_collisions object="this.ship" enabled="true" />
     <!-- ToDo: make parent Order Interruptable again -->
   </on_abort>
