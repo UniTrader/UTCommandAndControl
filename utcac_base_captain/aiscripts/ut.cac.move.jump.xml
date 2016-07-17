@@ -369,7 +369,10 @@ ToDo:
       </do_else>
       
       <!-- Fly to a randomSafepos to not stay still while cooling for the next Jump -->
-      <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" object="this.ship" radius="this.ship.size" direction="quadrant.front" angle="45deg" min="20km" max="30km"/>
+      <transform_position name="$safeposition" refposition="this.container.position" refrotation="this.container.rotation">
+        <position x="0m" y="0m" z="25km"/>
+      </transform_position>
+      <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" radius="this.ship.size"  max="10km" value="$safeposition"/>
       <set_value name="this.$mayabortpath" comment="to allow following Scripts to immediately change Destination"/>
       <move_to object="this.ship" destination="this.zone" finishonapproach="true" sinceversion="30">
         <position value="$safeposition"/>
