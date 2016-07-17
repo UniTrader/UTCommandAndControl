@@ -96,14 +96,18 @@ Script to Dock or Park an Object
       
       <!-- first try to get a free  a Parking Spot for the correct Offer and if found park there -->
       <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship"  />
-      <debug_text filter="general" chance="100" text="'%1 %2 %3 Got Park Slot: %4 %5'.[player.age,this.name,this.container.name,@$parkslot,@$parkslot.component.isoperational]"/>
       <do_if value="$parkslot and $parkslot.component.isoperational">
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Got Park Slot: %4'.[player.age,this.name,this.container.name,$parkslot]"/>
         <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
         <do_if value="$success">
           <set_value name="$move_to_approach_pos_first"/>
           <resume label="park"/>
         </do_if>
       </do_if>
+      <do_else>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Park Slot not existent or operational, removing it and waiting for queue clearing: %4'.[player.age,this.name,this.container.name,$parkslot]"/>
+        <set_value name="$parkslot" exact="false"/>
+      </do_else>
       
       <!-- if no Park Slot is free register in general Park Queue and wait till you are first to find a Park pos -->
       <!-- create Park Queue if necesary (turn it into a global Table? ) -->
