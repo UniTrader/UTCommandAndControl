@@ -165,13 +165,19 @@
           <!-- For Testing: print the full Path to Debuglog -->
             <set_value name="$LogMessage" exact="'%1 %2 %3 Highway Path:'.[player.age,this.name,this.container.name]"/>
             <do_all exact="$waypoints.count" counter="$i">
-              <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname]"/>
+              <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5 // %6 // %7'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname,@$waypoints.{$i}.sector.knownname,@$waypoints.{$i}.zone.knownname]"/>
+              <do_if value="$waypoints.{$i}.isclass.highway">
+                <set_value name="$LogMessage" exact="'%1\nJunctions: %2'.[$LogMessage,$waypoints.{$i}.junctions]"/>
+              </do_if>
             </do_all>
             <debug_text filter="general" text="$LogMessage"/>
             <get_global_path component="$waypoints" multiple="true" usehighways="false"><start object="this.ship"/><end object="$targetspace"/></get_global_path>
             <set_value name="$LogMessage" exact="'%1 %2 %3 Nohighway Path:'.[player.age,this.name,this.container.name]"/>
             <do_all exact="$waypoints.count" counter="$i">
-              <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname]"/>
+              <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5 // %6 // %7'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname,@$waypoints.{$i}.sector.knownname,@$waypoints.{$i}.zone.knownname]"/>
+              <do_if value="$waypoints.{$i}.isclass.highway">
+                <set_value name="$LogMessage" exact="'%1\nJunctions: %2'.[$LogMessage,$waypoints.{$i}.junctions]"/>
+              </do_if>
             </do_all>
             <debug_text filter="general" text="$LogMessage"/>
           </do_if>
