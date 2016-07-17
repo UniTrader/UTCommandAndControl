@@ -18,6 +18,7 @@
     <param name="rotation" default="null" comment="rotation the ship should have - overridden by lookat"/>
     <param name="lookat" default="null" comment="position the ship should point to - overrides rotation"/>
     <param name="endintargetspace" default="false" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
+    <param name="exitonneworder" default="false" comment="Exit immediately when receiving a new Order. If set to a Number of 2 or greater this is the Number of Orders the this.{$orderlist} has to contain before aborting (since 1 is always this Script)"/>
   </params>
   <init>
     <!-- first turn params param into the real params -->
@@ -35,6 +36,9 @@
     </do_if>
     <do_if value="$params.$endintargetspace?">
       <set_value name="$endintargetspace" exact="$params.$endintargetspace"/>
+    </do_if>
+    <do_if value="$params.$exitonneworder?">
+      <set_value name="$exitonneworder" exact="$params.$exitonneworder"/>
     </do_if>
     <!-- confirm that Destination is Valid - will be re-checked and exited in beginning of main Script -->
     <do_if value="not $destination.exists">
@@ -76,6 +80,15 @@
         <abort_called_scripts resume="start"/>
       </actions>
     </handler>
+    <handler>
+      <conditions>
+        <event_object_signalled object="this" param="'new order received'"/>
+        <check_value value="$exitonneworder and this.$orderlist.{$exitonneworder}?"/>
+      </conditions>
+      <actions>
+        <abort_called_scripts resume="finish"/>
+      </actions>
+    </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
@@ -90,6 +103,10 @@
       -->
       
       <label name="start"/>
+      
+      <do_if value="$exitonneworder gt 1 and this.$orderlist.{$exitonneworder}?">
+        <resume label="finish"/>
+      </do_if>
       
       <do_if value="not $destination.exists">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination does not exist - aborting'.[player.age,this.name,this.container.name]"/>
