@@ -97,7 +97,7 @@ Script to Dock or Park an Object
       <!-- first try to get a free  a Parking Spot for the correct Offer and if found park there -->
       <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship"  />
       <do_if value="$parkslot and $parkslot.component.isoperational">
-        <debug_text filter="general" chance="100" text="'%1 %2 %3 Got Park Slot: %4 %5'.[player.age,this.name,this.container.name,$parkslot,$parkslot.component]"/>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Got Park Slot: %4'.[player.age,this.name,this.container.name,$parkslot]"/>
         <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
         <do_if value="$success">
           <set_value name="$move_to_approach_pos_first"/>
@@ -132,7 +132,7 @@ Script to Dock or Park an Object
                 <set_value name="$park_queue.{$slots.{$i}.component}" exact="this.ship"/>
                 <set_value name="$parkslot" exact="$slots.{$i}"/>
                 <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
-                <debug_text filter="general" chance="100" text="'%1 %2 %3 Sorted into Parkslot: %4 %5\n%6'.[player.age,this.name,this.container.name,$parkslot,$parkslot.component,$park_queue]"/>
+                <debug_text filter="general" chance="100" text="'%1 %2 %3 Sorted into Parkslot: %4 \n%6'.[player.age,this.name,this.container.name,$parkslot,$park_queue]"/>
                 <break/>
               </do_if>
             </do_all>
@@ -151,7 +151,7 @@ Script to Dock or Park an Object
           <debug_text filter="general" chance="100" text="'%1 %2 %3 Park queue next'.[player.age,this.name,this.container.name]"/>
         </do_while>
         
-        <debug_text filter="general" chance="100" text="'%1 %2 %3 Got Parking Slot: %4 %5 - Moving to secondary Approach Pos. Park Queue:\n%6'.[player.age,this.name,this.container.name,$parkslot,$parkslot.component,$park_queue]"/>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Got Parking Slot: %4 - Moving to secondary Approach Pos. Park Queue:\n%6'.[player.age,this.name,this.container.name,$parkslot,$park_queue]"/>
         
         <!-- move to an approach pos near the Dock to minimize final Parking Time - basically its a more far out approach pos..  -->
         <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
@@ -200,6 +200,7 @@ Script to Dock or Park an Object
                   <do_if value="$success">
                     <set_value name="$parkslot" exact="event.param2"/>
                     <set_value name="$move_to_approach_pos_first"/>
+                    <debug_text filter="general" chance="100" text="'%1 %2 %3 Changed Parkslot: %4 \n%6'.[player.age,this.name,this.container.name,$parkslot,$park_queue]"/>
                   </do_if>
                 </do_if>
               </actions>
