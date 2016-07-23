@@ -24,6 +24,8 @@
         <return value="false"/>
       </do_if>
       
+      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Finding Patrol for %4'.[player.age,this.name,this.container.name,$entity.name]"/>
+      
       
       <set_command_action commandaction="commandaction.calculating"/>
       <do_if value="this.$ut_cac?">
@@ -33,8 +35,8 @@
       
       <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname='Patrolling %1 (Manager)'.[this.zone.knownname],$space=this.zone,$patroltimeout=1h,$exitonneworder=true,$interruptable=true]"/>
       
-      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Sent Ship %4 to patrol (locally)'.[player.age,this.name,this.container.name.$entity.ship.name]"/>
-      <return value="false"/>
+      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Sent Ship %4 to patrol (locally)'.[player.age,this.name,this.container.name,$entity.ship.name]"/>
+      <return value="true"/>
     </actions>
   </attention>
 </aiscript>
