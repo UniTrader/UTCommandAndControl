@@ -96,7 +96,13 @@
         
         <do_while value="player.age lt $zonetimeout">
           
-          <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" directionobject="this.ship" direction="quadrant.front" angle="60deg" zone="$zone" space="$zone" max="40km" />
+          <find_station name="$station" space="$zone"/>
+          <do_if value="$station.exists">
+            <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" zone="$zone" object="$station" min="$station.size * 1.5" max="$station.size * 2.5" />
+          </do_if>
+          <do_else>
+            <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" directionobject="this.ship" direction="quadrant.front" angle="60deg" zone="$zone" space="$zone" max="40km" />
+          </do_else>
           
           <move_to object="this.ship" destination="$zone" boost="false" abortpath="false" finishonapproach="true" >
             <position value="$safepos"/>
