@@ -16,7 +16,7 @@
       <remove_value name="$params"/>
       <do_if value="not $entity.exists">
         <debug_text filter="error" text="'%1 %2 %3 No Entity passed to give Trade Orders to - aborting'.[player.age,this.name,this.container.name]"/>
-        <return/>
+        <return value="false"/>
       </do_if>
       
       <set_command_action commandaction="commandaction.searchingtrades"/>
@@ -190,7 +190,7 @@
               <param name="mininglist" value="$mininglist"/>
             </run_script>
             <do_if value="$success">
-              <return/>
+              <return value="true"/>
             </do_if>
             <remove_value name="$success"/>
           </do_all>
@@ -584,7 +584,7 @@
               <param name="mininglist" value="$mininglist"/>
             </run_script>
             <do_if value="$success">
-              <return/>
+              <return value="true"/>
             </do_if>
             <do_else>
               <remove_value name="$success"/>
@@ -760,6 +760,11 @@ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform T
 table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] ]"/>
               </do_else>
             </do_else>
+            <!-- Request Escort if Ware Value is greater than half the Ship Value -->
+            <do_if value="$amount * $ware.maxprice gt $entity.ship.value *0.5">
+              <signal_objects object="$entity" param="'new order'" param2="[ 
+table[$script='ut.cac.com.manager.findjob.assign.escort',$displayname='Gather Escort for  %1'.[$entity.ship.name],$escortee=$entity.ship,$destination=this.zone] ]"/>
+            </do_if>
             <break/>
           </do_if>
         </do_if>
@@ -850,14 +855,18 @@ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undoc
 table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Manager)',$undock=2,$interruptable=true] , 
 table[$script='ut.cac.move.generic',$displayname='Fly back to Homebase',$destination=this.station,$endintargetspace=true,$exitonneworder=2] 
 ]"/>
-             </do_else>
-            <!--do_if value="$entity.$orderlist.{1}.$order == 'wait minmax'">
-              <signal_objects object="$entity.ship" param="'next order'"/>
-            </do_if-->
+            </do_else>
+            <!-- Request Escort if Ware Value is greater than half the Ship Value -->
+            <do_if value="$amount * $ware.maxprice gt $entity.ship.value *0.5">
+              <signal_objects object="$entity" param="'new order'" param2="[ 
+table[$script='ut.cac.com.manager.findjob.assign.escort',$displayname='Gather Escort for  %1'.[$entity.ship.name],$escortee=$entity.ship,$destination=$buyoffer.owner.zone,$return_waypoint=$range_w.{$i}] ]"/>
+            </do_if>
             <break/>
           </do_if>
         </do_elseif>
       </do_all>
+      <!-- couldnt find fitting Trades to execute - returning failure -->
+      <return value="false"/>
     </actions>
   </attention>
 </aiscript>

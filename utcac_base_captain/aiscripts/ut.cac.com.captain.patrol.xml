@@ -1,50 +1,115 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.captain.patrol" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
   <!--
-  This Script is intended to move a Ship to a safe initial State for further Actions
-  (basically a cleanup for everything: 
-    a combination of move.unpark, move.undock, leave formations, stop boost and Engines etc.)
+  This Script is intended to let a Ship idle through changing Zonens and reacting to appearing Enemies
   -->
   <params>
-     <param name="fast" default="false" comment="Skip some actions (like moving to a safe pos) if possible to improve Speed - not implemented yet"/>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="space" default="this.zone" comment="the Space to patrol in - will select the nearest Zone within or a nearby on if already in context"/>
+    <param name="zonetime" default="30min" comment="the Time Patrolling a certain Zone - will go to next Zone after that (Ignored for Zone Spaces)"/>
+    <param name="patroltimeout" default="3h" comment="the time after which the Patrol ends and new Commands are requested"/><!-- wil be converted to Game Time internally -->
+    <param name="exitonneworder" default="false" comment="Exit immediately when receiving a new Order. If set to a Number of 2 or greater this is the Number of Orders the this.{$orderlist} has to contain before aborting (since 1 is always this Script)"/>
   </params>
+  <init>
+    <!-- first turn params param into the real params -->
+    <do_if value="$params.$space?">
+      <set_value name="$space" exact="$params.$space"/>
+    </do_if>
+    <do_if value="$params.$patroltime?">
+      <set_value name="$patroltime" exact="$params.$patroltime"/>
+    </do_if>
+    <do_if value="$params.$timeout?">
+      <set_value name="$timeout" exact="$params.$timeout"/>
+    </do_if>
+    <do_if value="$params.$exitonneworder?">
+      <set_value name="$exitonneworder" exact="$params.$exitonneworder"/>
+    </do_if>
+  </init>
+  <interrupts>
+    <handler>
+      <conditions>
+        <event_object_signalled object="this" param="'new order received'"/>
+        <check_value value="$exitonneworder and this.$orderlist.{$exitonneworder}?"/>
+      </conditions>
+      <actions>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received new Order - Exiting (interrupt case)'.[player.age,this.name,this.container.name]"/>
+        <abort_called_scripts resume="finish"/>
+      </actions>
+    </handler>
+  </interrupts>
   <attention min="visible">
     <actions>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$space: %4 , $zonetime: %5 , $patroltimeout: %6 , $exitonneworder: %7 '.[player.age,this.name,this.container.name,$space.knownname, $zonetime, $patroltimeout,$exitonneworder]"/>
       
-      <stop_moving object="this.ship" />
-      <stop_boost object="this.ship" />
-      <stop_shooting object="this.ship" slot="tag.primary_slot" />
-      <stop_shooting object="this.ship" slot="tag.secondary_slot" />
-      <!--stop_attack object="this.ship" target="?????"/-->
-      <!-- stop_observation object="this.ship" target="$target" /-->
       
-      <!-- stolen from player.default and other scripts - will be re-implemented by me later -->
-      
-      <leave_formation object="this.ship" />
-      
-      <label name="init" />
-      <do_if value="this.$shiptrader_docking?">
-        <do_if value="this.$shiptrader_docking.component.isoperational">
-          <do_if value="not this.ship.dockslot">
-            <wait_for_prev_script action="$action"/>
-            <do_if value="$action == 'move_docking'">
-              <dock ship="this.ship" />
-            </do_if>
-            <do_else>
-              <run_script name="'move.dockat'">
-                <param name="dockingslot" value="this.$shiptrader_docking" />
-              </run_script>
-              <return />
-            </do_else>
-          </do_if>
-          <return />
-        </do_if>
-        <do_else>
-          <remove_value name="this.$shiptrader_docking" />
-        </do_else>
+      <!-- Check/Sanitize Input -->
+      <do_if value="$space.isclass.zone or $space.isclass.sector or $space.isclass.cluster or $space.isclass.galaxy" negate="true">
+        <debug_text filter="error" text="'%1 %2 %3 Delivered $space %4 %5 is not a space!'.[player.age,this.name,this.container.name,$space.knownname,$space]"/>
+        <return/>
       </do_if>
-      <detach_from_masstraffic object="this.ship"/>
-      <run_script name="'move.undock'" />
+      
+      <!-- Exit if we got new Orders -->
+      <do_if value="if $exitonneworder gt 1 then this.$orderlist.{$exitonneworder}? else $exitonneworder and this.$orderlist.{2}? ">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received New Orders - Exiting (start Case)'.[player.age,this.name,this.container.name]"/>
+        <resume label="finish"/>
+      </do_if>
+      
+      
+      <!-- Patrolling only a single Zone - set Zone  timeout and Patrol Timepout to the same Game Time  -->
+      <do_if value="$space.isclass.zone">
+        <set_value name="$patroltimeout" exact="player.age + $patroltimeout"/>
+        <set_value name="$zonetimeout" exact="$patroltimeout"/>
+        <set_value name="$zonetime" exact="$zonetimeout + 1min - player.age" comment="just to keep values internally consistent"/>
+        <set_value name="$zones" exact="[$space]"/>
+      </do_if>
+      <do_else>
+        <set_value name="$patroltimeout" exact="player.age + $patroltimeout"/>
+        
+        <find_zone name="$zones" multiple="true" space="$space" >
+          <match class="class.highway" negate="true"/>
+          <match_any>
+            <match tempzone="true">
+              <match_content class="class.station" owner="this.faction"/>
+            </match>
+            <match tempzone="false"/>
+          </match_any>
+        </find_zone>
+      </do_else>
+      
+      <label name="start"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Patrol starts, Zones: %4'.[player.age,this.name,this.container.name,$zones]"/>
+      
+      <do_while value="player.age lt $patroltimeout">
+        <!-- Select Patrol Zone - currently taken randomly from given Space, but may later include priority Spaces -->
+        <set_value name="$zone" exact="$zones.random"/>
+        <do_if value="not this.hascontext.$zone">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to: %4'.[player.age,this.name,this.container.name,$zone.knownname]"/>
+          <run_script name="'ut.cac.move.generic'">
+            <param name="destination" value="$zone" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+            <param name="endintargetspace" value="true" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
+            <param name="exitonneworder" value="$exitonneworder" comment="Exit immediately when receiving a new Order. If set to a Number of 2 or greater this is the Number of Orders the this.{$orderlist} has to contain before aborting (since 1 is always this Script)"/>
+          </run_script>
+        </do_if>
+        
+        <set_value name="$zonetimeout" exact="player.age + $zonetime"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Patrolling: %4 until %5'.[player.age,this.name,this.container.name,$zone.knownname,$zonetimeout]"/>
+        
+        <do_while value="player.age lt $zonetimeout">
+          
+          <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" directionobject="this.ship" direction="quadrant.front" angle="60deg" zone="$zone" space="$zone" max="40km" />
+          
+          <move_to object="this.ship" destination="$zone" boost="false" abortpath="false" finishonapproach="true" >
+            <position value="$safepos"/>
+          </move_to>
+          
+          
+          
+        </do_while>
+        
+      </do_while>
+      
+      <label name="finish"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Patrol ends'.[player.age,this.name,this.container.name]"/>
       
     </actions>
   </attention>

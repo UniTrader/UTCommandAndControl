@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.manager.findjob.mine" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="entity" default="false" comment="Entity who needs Patrol-Orders (NOT as Ship)"/>
+  </params>
+  <init>
+
+  </init>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <do_if value="$params">
+        <do_if value="$params.$entity?">
+          <set_value name="$entity" exact="$params.$entity"/>
+        </do_if>
+        <remove_value name="$params"/>
+      </do_if>
+      
+      <!-- Input Validation -->
+      <do_if value="not $entity.exists">
+        <debug_text filter="error" text="'%1 %2 %3 No Entity passed to give Mine Orders to - aborting'.[player.age,this.name,this.container.name]"/>
+        <return value="false"/>
+      </do_if>
+      
+      
+      <set_command_action commandaction="commandaction.calculating"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
+      </do_if>
+      <wait min="3s" max="15s" />
+      
+      <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname='Patrolling %1 (Manager)'.[this.zone.knownname],$space=this.zone,$patroltimeout=1h,$exitonneworder=true,$interruptable=true]"/>
+      
+      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Sent Ship %4 to patrol (locally)'.[player.age,this.name,this.container.name.$entity.ship.name]"/>
+      <return value="false"/>
+    </actions>
+  </attention>
+</aiscript>

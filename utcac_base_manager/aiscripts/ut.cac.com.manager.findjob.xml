@@ -4,11 +4,6 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="entity" default="false" comment="Entity who needs (Trade)Orders (NOT as Ship)"/>
   </params>
-  <interrupts>
-  </interrupts>
-  <init>
-
-  </init>
   <attention min="unknown">
     <actions>
       <do_if value="$params">
@@ -26,10 +21,27 @@
         <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       
-      <!-- For now only Trading or Mining is supported, so just passing this to the related find order Script -->
-      <run_script name="'ut.cac.com.manager.findjob.trade'" >
-        <param name="entity" value="$entity"/>
-      </run_script>
+      <!-- first try: send Ship Trading or Mining -->
+      <do_if value="$entity.ship.primarypurpose == objectpurpose.trade or ( $entity.ship.cargo.capacity gt $entity.ship.cargo.{ware.fuelcells}.max)" comment="Either defined as Trading Ship os has other Cargo Capacity than Fuel">
+        <run_script name="'ut.cac.com.manager.findjob.trade'" result="$success" >
+          <param name="entity" value="$entity"/>
+        </run_script>
+        <do_if value="$success">
+          <return/>
+        </do_if>
+      </do_if>
+      
+      <!-- Second Try: send Ship Patrolling (currently only Station Zone) - can be Taken for Escorts there -->
+      <do_if value="$entity.ship.primarypurpose == objectpurpose.fight or ( $entity.ship.dps.all * 75 gt ($entity.ship.maxshield + $entity.ship.maxhull ))" comment="Either defined as Fight Ship or could kill itself in under 75 seconds">
+        <run_script name="'ut.cac.com.manager.findjob.patrol'" result="$success" >
+          <param name="entity" value="$entity"/>
+        </run_script>
+        <do_if value="$success">
+          <return/>
+        </do_if>
+      </do_if>
+      
+      <!-- Third: Just let them Idle for now (default - no need to give a specific Command)  -->
       
     </actions>
   </attention>

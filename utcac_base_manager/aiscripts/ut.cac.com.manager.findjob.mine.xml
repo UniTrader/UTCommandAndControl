@@ -80,6 +80,11 @@
             <do_else>
               <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.mining',$displayname='Mining in %1 (Manager)'.[$zone.knownname],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=true]"/>
             </do_else>
+            <!-- Request Escort if Ware Value is greater than half the Ship Value -->
+            <do_if value="$amount * $ware.maxprice gt $entity.ship.value *0.3">
+              <signal_objects object="$entity" param="'new order'" param2="[ 
+table[$script='ut.cac.com.manager.findjob.assign.escort',$displayname='Gather Escort for  %1'.[$entity.ship.name],$escortee=$entity.ship,$destination=this.zone] ]"/>
+            </do_if>
             <return value="true"/>
           </do_if>
         </do_if>

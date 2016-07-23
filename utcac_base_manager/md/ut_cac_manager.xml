@@ -411,7 +411,7 @@ Rest is shared between all Actor types
                 <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
                   <do_if value="@event.param.pilot.$XRCLS and @event.param.pilot.$XRCLS.{1} == true" comment="MT Station Logistics Ship - Ignore as new Subordinate"/>
                   <do_elseif value="event.param.primarypurpose == objectpurpose.build" comment="Construction Vessel - ignore as new Subordinate"/>
-                  <do_elseif value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine" >
+                  <do_elseif value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine or event.param.primarypurpose == objectpurpose.fight" >
                     <!-- convert new Subordinate to my command model if not already happened -->
                     <do_if value="not event.param.pilot.$ut_cac?">
                       <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
@@ -421,7 +421,7 @@ Rest is shared between all Actor types
                   <do_else>
                     <!-- cannt use this Ship for anything - remove assignment (maybe add passing it to the right entity? ) -->
                     <!-- ToDo: Also add an obvious Error Message - currently this fails siltently for the player-->
-                    <debug_text filter="error" text="'trying to add a non-trade Ship ( %1 ) to a Manager ( %2 , %3 in %4 ) - not supported yet!'.[event.param.name,$actor.name,$actor.station.name,$actor.zone.name]"/>
+                    <debug_text filter="error" text="'trying to add a non-trade/fight Ship ( %1 ) to a Manager ( %2 , %3 in %4 ) - not supported yet!'.[event.param.name,$actor.name,$actor.station.name,$actor.zone.name]"/>
                     <remove_object_commander object="event.param"/>
                   </do_else>
                 </do_if>
