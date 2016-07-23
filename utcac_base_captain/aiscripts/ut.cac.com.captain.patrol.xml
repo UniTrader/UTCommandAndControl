@@ -98,9 +98,11 @@
           
           <find_station name="$station" space="$zone"/>
           <do_if value="$station.exists">
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Station %4 - patrolling nearby'.[player.age,this.name,this.container.name,$station.konwnname]"/>
             <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" zone="$zone" object="$station" min="$station.size * 1.2" max="$station.size * 2" />
           </do_if>
           <do_else>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No Station found - Patrolling Zone'.[player.age,this.name,this.container.name,$station.konwnname]"/>
             <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" directionobject="this.ship" direction="quadrant.front" angle="60deg" zone="$zone" space="$zone" max="40km" />
           </do_else>
           
