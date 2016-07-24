@@ -183,18 +183,28 @@ with a given Rotation or Orientation
         </do_else>
       </do_if-->
       <do_if value="not $rotation">
-        <move_to object="this.ship" destination="$zone" forceposition="$forceendpos" abortpath="this.$mayabortpath?">
+        <move_to object="this.ship" destination="$zone" forceposition="$forceendpos" abortpath="this.$mayabortpath?" finishonapproach="true">
           <position value="$safepos"/>
         </move_to>
       </do_if>
       <do_else>
-        <move_to object="this.ship" destination="$zone" forceposition="$forceendpos" forcerotation="$forceendpos" abortpath="this.$mayabortpath?">
+        <move_to object="this.ship" destination="$zone" forceposition="$forceendpos" forcerotation="$forceendpos" abortpath="this.$mayabortpath?" finishonapproach="true">
           <position value="$safepos"/>
           <rotation value="$rotation"/>
         </move_to>
       </do_else>
       <remove_value name="this.$mayabortpath"/>
       
+      
+      <do_if value="$forceendpos and this.ship.numwaypoints">
+        <wait sinceversion="30">
+          <interrupt>
+            <conditions>
+              <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+            </conditions>
+          </interrupt>
+        </wait>
+      </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Movement done.'.[player.age,this.name,this.container.name]"/>
       
       <!-- wait till everyone in Prep Group has arrive before continuing -->
@@ -202,7 +212,7 @@ with a given Rotation or Orientation
         <remove_from_group group="$leader_preparegroup" object="this.ship"/>
         <do_while value="$leader_preparegroup.count">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrivey\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
-          <wait max="30s">
+          <wait max="1min">
             <interrupt>
               <conditions>
                 <event_object_signalled object="this.ship" param="'preparegroup shrunk'"/>
