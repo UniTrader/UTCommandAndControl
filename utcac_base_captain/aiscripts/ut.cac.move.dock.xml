@@ -72,6 +72,7 @@ Script to Dock or Park an Object
       
       <do_if value="$destination.component?">
         <!-- if a Parking Spot was passed directly - check it if its free and use it. otherwise use any at the Station its attached to.. -->
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Passed Dock directly: %4'.[player.age,this.name,this.container.name,$destination]"/>
         <set_value name="$parkslot" exact="$destination"/>
         <set_value name="$destination" exact="$destination.component.container"/>
         <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
@@ -97,7 +98,7 @@ Script to Dock or Park an Object
       <!-- first try to get a free  a Parking Spot for the correct Offer and if found park there -->
       <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship"  />
       <do_if value="$parkslot and $parkslot.component.isoperational">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got Park Slot: %4'.[player.age,this.name,this.container.name,$parkslot]"/>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Got Park Slot: %4 on %5'.[player.age,this.name,this.container.name,$parkslot,$destination.knownname]"/>
         <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
         <do_if value="$success">
           <set_value name="$move_to_approach_pos_first"/>
