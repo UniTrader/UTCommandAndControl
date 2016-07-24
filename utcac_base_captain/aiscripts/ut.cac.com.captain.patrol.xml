@@ -106,11 +106,11 @@
             <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" directionobject="this.ship" direction="quadrant.front" angle="60deg" zone="$zone" space="$zone" max="40km" />
           </do_else>
           
-          <move_to object="this.ship" destination="$zone" boost="false" abortpath="false" finishonapproach="true" >
-            <position value="$safepos"/>
-          </move_to>
-          
-          
+          <!-- perform movement -->
+          <run_script name="'ut.cac.move.to.pos'">
+            <param name="destination" value="$zone" comment="Object to move relative to - will default to relative to Zone if not set"/>
+            <param name="position" value="$safepos" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+          </run_script>
           
         </do_while>
         
