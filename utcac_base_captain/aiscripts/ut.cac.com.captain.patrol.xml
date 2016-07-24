@@ -82,7 +82,7 @@
       <do_while value="player.age lt $patroltimeout">
         <!-- Select Patrol Zone - currently taken randomly from given Space, but may later include priority Spaces -->
         <set_value name="$zone" exact="$zones.random"/>
-        <do_if value="not this.hascontext.$zone">
+        <do_if value="this.zone != $zone">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to: %4'.[player.age,this.name,this.container.name,$zone.knownname]"/>
           <run_script name="'ut.cac.move.generic'">
             <param name="destination" value="$zone" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
