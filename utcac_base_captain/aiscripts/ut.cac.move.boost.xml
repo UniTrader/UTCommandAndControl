@@ -66,6 +66,10 @@
       </do_if>
       <do_if value="not $leader and $leader_preparegroup">
         <debug_text filter="error" text="'%1 %2 %3 Preparegroup provided but no Boost Leader - removing preparegroup %4'.[ player.age,this.name,this.container.name,$leader_preparegroup]" />
+        <debug_text filter="general" text="'Ship: %1 Name: %2 Zone:%3 Job: %4'.[this.ship,this.ship.knownname,this.ship.zone.knownname,this.ship.job]" />
+        <do_all exact="$leader_preparegroup.count">
+          <debug_text filter="general" text="'Object: %1 Name: %2 Zone:%3 Job: %4'.[$leader_preparegroup.{$i},$leader_preparegroup.{$i}.knownname,$leader_preparegroup.{$i}.zone.knownname,$leader_preparegroup.{$i}.job]" />
+        </do_all>
         <set_value name="$leader_preparegroup" exact="null"/>
       </do_if>
       <do_if value="$leader and not $leader_preparegroup">
