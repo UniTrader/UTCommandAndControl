@@ -4,9 +4,10 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="escortee" default="false" comment="Ship needing Escorts"/>
     <param name="destination" default="false" comment="Destination Space to where the Ship will be escorted to (will check on Zone Context changes)"/>
-    <param name="destination_timeout" default="5min" comment="How long the ship will continue the Escort after arriving in Destination context (will check on Zone Context changes)"/>
-    <param name="timeout" default="player.age + 2h" comment="Game Time until when the Ship will be Escorted (will check on Zone Context changes)"/>
+    <param name="destination_timeout" default="5min" comment="NYI // Planned: How long the ship will continue the Escort after arriving in Destination context (will check on Zone Context changes)"/>
+    <param name="timeout" default="player.age + 2h" comment="NYI // Planned: Game Time until when the Ship will be Escorted (will check on Zone Context changes)"/>
     <param name="return_waypoint" default="false" comment="optional: Waypoint to move to first after Escort ended (to account for Range Waypoints)"/>
+    <param name="value" default="false" comment="optional: For Trade/Mining Escort Jobs the eventual Value of the Goods Transported - to determine the amount of neccesary Escorts"/>
   </params>
   <init>
 
@@ -16,28 +17,47 @@
   <attention min="unknown">
     <actions>
       <do_if value="$params">
-        <do_if value="$params.$entity?">
-          <set_value name="$entity" exact="$params.$entity"/>
+        <do_if value="$params.$escortee?">
+          <set_value name="$escortee" exact="$params.$escortee"/>
         </do_if>
-        <do_if value="$params.$range?">
-          <set_value name="$range" exact="$params.$range"/>
+        <do_if value="$params.$destination?">
+          <set_value name="$destination" exact="$params.$destination"/>
         </do_if>
-        <do_if value="$params.$ware?">
-          <set_value name="$ware" exact="$params.$ware"/>
+        <do_if value="$params.$destination_timeout?">
+          <set_value name="$$destination_timeout" exact="$params.$$destination_timeout"/>
         </do_if>
-        <do_if value="$params.$mininglist?">
-          <set_value name="$mininglist" exact="$params.$mininglist"/>
+        <do_if value="$params.$timeout?">
+          <set_value name="$timeout" exact="$params.$timeout"/>
         </do_if>
-        <remove_value name="$params"/>
+        <do_if value="$params.$return_waypoint?">
+          <set_value name="$return_waypoint" exact="$params.$return_waypoint"/>
+        </do_if>
+        <do_if value="$params.$value?">
+          <set_value name="$value" exact="$params.$value"/>
+        </do_if>
       </do_if>
       
-      <!---
-      ######################################
-      Script is just a Dummy to avoid pointless debug spam !!!
-      will be written later....
-      #######################################
-      -->
       
+      <!-- get available Ships -->
+      
+      <set_value name="$availableships" exact="this.$ut_cac.$availablefightships.list.clone"/>
+      
+      <!-- get escortee Value and add fight Shipsto escort duty until their Value is at least half the Ware Value -->
+      <set_value name="$isvalue" exact="$escortee.value"/>
+      
+      <do_while value="$isvalue * 2 lt $value and $availableships.count">
+        <set_value name="$ship" exact="$availableships.random"/>
+        <do_if value="$ship.orderlist.count gt 1">
+          <remove_value name="$availableships.indexof.{$ship}"/>
+          <continue/>
+        </do_if>
+        <set_value name="$isvalue" exact="$ship.value" operation="add"/>
+        <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.escort',$object=$escortee,$destination=$destination]"/>
+        <do_if value="$return_waypoint">
+          <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
+        </do_if>
+        
+      </do_while>
       
       </actions>
   </attention>
