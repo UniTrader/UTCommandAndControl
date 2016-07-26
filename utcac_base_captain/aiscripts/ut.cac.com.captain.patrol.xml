@@ -7,7 +7,8 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="space" default="this.zone" comment="the Space to patrol in - will select the nearest Zone within or a nearby on if already in context"/>
     <param name="zonetime" default="30min" comment="the Time Patrolling a certain Zone - will go to next Zone after that (Ignored for Zone Spaces)"/>
-    <param name="patroltimeout" default="3h" comment="the time after which the Patrol ends and new Commands are requested"/><!-- wil be converted to Game Time internally -->
+    <param name="patroltime" default="3h" comment="the time after which the Patrol ends and new Commands are requested"/><!-- wil be converted to Game Time internally -->
+    <param name="patroltimeout" default="false" comment="the Gametime after which the Patrol ends and new Commands are requested - overrides patroltime"/>
     <param name="exitonneworder" default="false" comment="Exit immediately when receiving a new Order. If set to a Number of 2 or greater this is the Number of Orders the this.{$orderlist} has to contain before aborting (since 1 is always this Script)"/>
   </params>
   <init>
@@ -15,11 +16,14 @@
     <do_if value="$params.$space?">
       <set_value name="$space" exact="$params.$space"/>
     </do_if>
+    <do_if value="$params.$zonetime?">
+      <set_value name="$zonetime" exact="$params.$zonetime"/>
+    </do_if>
     <do_if value="$params.$patroltime?">
       <set_value name="$patroltime" exact="$params.$patroltime"/>
     </do_if>
-    <do_if value="$params.$timeout?">
-      <set_value name="$timeout" exact="$params.$timeout"/>
+    <do_if value="$params.$patroltimeout?">
+      <set_value name="$patroltimeout" exact="$params.$patroltimeout"/>
     </do_if>
     <do_if value="$params.$exitonneworder?">
       <set_value name="$exitonneworder" exact="$params.$exitonneworder"/>
@@ -39,7 +43,7 @@
   </interrupts>
   <attention min="visible">
     <actions>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$space: %4 , $zonetime: %5 , $patroltimeout: %6 , $exitonneworder: %7 '.[player.age,this.name,this.container.name,$space.knownname, $zonetime, $patroltimeout,$exitonneworder]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$space: %4 , $zonetime: %5 , $patroltime: %6 , $patroltimeout: %7 , $exitonneworder: %8 '.[player.age,this.name,this.container.name,$space.knownname, $zonetime, $patroltime, $patroltimeout,$exitonneworder]"/>
       
       
       <!-- Check/Sanitize Input -->
@@ -54,17 +58,21 @@
         <resume label="finish"/>
       </do_if>
       
+      <!-- Register in Suprior's "Available for other sudden Orders"-List -->
+      <add_to_group groupname="this.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
       
+      <!-- determine until when we should Patrol (real time may be a few minutes longer to complete current Movement) -->
+      <do_if value="not $patroltimeout">
+        <set_value name="$patroltimeout" exact="player.age + $patroltime"/>
+        <set_value name="$params.$patroltimeout" exact="$patroltimeout" comment="that a possible replacement Leader completes the Job properly if assigned"/>
+      </do_if>
       <!-- Patrolling only a single Zone - set Zone  timeout and Patrol Timepout to the same Game Time  -->
       <do_if value="$space.isclass.zone">
-        <set_value name="$patroltimeout" exact="player.age + $patroltimeout"/>
         <set_value name="$zonetimeout" exact="$patroltimeout"/>
         <set_value name="$zonetime" exact="$zonetimeout + 1min - player.age" comment="just to keep values internally consistent"/>
         <set_value name="$zones" exact="[$space]"/>
       </do_if>
       <do_else>
-        <set_value name="$patroltimeout" exact="player.age + $patroltimeout"/>
-        
         <find_zone name="$zones" multiple="true" space="$space" >
           <match class="class.highway" negate="true"/>
           <match_any>
@@ -117,8 +125,20 @@
       </do_while>
       
       <label name="finish"/>
+      <!-- Unregister from Suprior's "Available for other sudden Orders"-List -->
+      <remove_from_group groupname="this.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
+      
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Patrol ends'.[player.age,this.name,this.container.name]"/>
       
     </actions>
   </attention>
+  <on_abort>
+    <!-- seperate Escort Groups since we just removed ourselves from it -->
+    <remove_from_group group="this.$escortgroup" object="this.ship"/>
+    <remove_value name="this.$escortgroup"/>
+    <add_to_group groupname="this.$escortgroup" object="this.ship"/>
+    <signal_objects object="this" param="'patrol aborted'" param2="$params" param3="this.escortgroup"/>
+    <!-- Unregister from Suprior's "Available for other sudden Orders"-List -->
+    <remove_from_group groupname="this.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
+  </on_abort>
   </aiscript>

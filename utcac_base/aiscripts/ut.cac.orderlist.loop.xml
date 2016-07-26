@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.orderlist.loop" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.orderlist.loop" version="30" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <params/>
   <interrupts>
     <handler>
@@ -126,9 +126,9 @@
       </actions>
     </handler>
   </interrupts>
-  <init>
-
-  </init>
+  <patch sinceversion="30">
+    <add_to_group groupname="this.$escortgroup" object="this.ship"/>
+  </patch>
   <attention min="unknown">
     <actions>
       
@@ -151,6 +151,10 @@
       <do_if value="not this.$orderlist?">
         <create_list name="this.$orderlist"/>
       </do_if>
+      
+      <!-- set up Escortgroup (always assumed to be existent, even if unused) -->
+      <add_to_group groupname="this.$escortgroup" object="this.ship"/>
+      
       
       <!-- set up Timer to avoid looking for Orders too often-->
       <set_value name="$next_default_order_call" exact="0s"/>

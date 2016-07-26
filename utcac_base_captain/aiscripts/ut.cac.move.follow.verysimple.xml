@@ -49,76 +49,7 @@
         <return value="1"/>
       </actions>
     </handler>
-    <handler comment="Handler for Navigation Signals">
-      <conditions>
-        <check_any>
-          <event_object_signalled object="$object" param="'travel dockat'"/>
-          <event_object_signalled object="$object" param="'travel normal start'"/>
-          <event_object_signalled object="$object" param="'travel boost prep'"/>
-          <event_object_signalled object="$object" param="'travel jump prep'"/>
-          <event_object_signalled object="$object" param="'travel gate prep'"/>
-          <event_object_signalled object="$object" param="'travel aborted'"/>
-        </check_any>
-        <check_value value="not $fly_to_leader?"/>
-      </conditions>
-      <actions> 
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signal on Leader received:\nparam: %4 , param2: %5 , param3: %6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
-        <do_if value="event.param == 'travel dockat'">
-          <!-- Leader attempts to Dock somewhere - Fly to near position outside Bounding Box -->
-          <create_position_outside_boundingbox name="$position" component="event.param2.{1}" distance="this.ship.size">
-            <position value="event.param2.{3}"/>
-          </create_position_outside_boundingbox>
-          <get_safe_pos result="$position" radius="this.ship.size" allowyaxis="true" value="$position" ignored="this.ship" zone="event.param2.{1}.zone" min="$object.size * 2"/>
-          <run_interrupt_script name="'ut.cac.move.to.pos'" resume="start">
-            <param name="destination" value="event.param2.{1}.zone"/>
-            <param name="position" value="$position"/>
-          </run_interrupt_script>
-          <remove_value name="$positon"/>
-        </do_if>
-        <do_elseif value="event.param == 'travel normal start'">
-          <!-- interrupt with regular Travel script -->
-          <run_interrupt_script name="'ut.cac.move.to.pos'" resume="start">
-            <param name="destination" value="event.param2.{1}"/>
-            <param name="position" value="event.param2.{2}"/>
-            <param name="rotation" value="event.param2.{3}"/>
-            <param name="leader" value="$object"/>
-            <param name="leader_preparegroup" value="event.param3"/>
-          </run_interrupt_script>
-        </do_elseif>
-        <do_elseif value="event.param == 'travel boost prep'">
-          <!-- interrupt with boost script -->
-          <run_interrupt_script name="'ut.cac.move.boost'" resume="start">
-            <param name="destination" value="event.param2.{1}"/>
-            <param name="position" value="event.param2.{2}"/>
-            <param name="leader_startposition" value="event.param2.{3}"/>
-            <param name="leader_startrotation" value="event.param2.{4}"/>
-            <param name="leader" value="$object"/>
-            <param name="leader_preparegroup" value="event.param3"/>
-          </run_interrupt_script>
-        </do_elseif>
-        <do_elseif value="event.param == 'travel jump prep'">
-          <!-- interrupt with jump script -->
-          <run_interrupt_script name="'ut.cac.move.jump'" resume="start">
-            <param name="destination" value="event.param2"/>
-            <param name="type" value="'object'"/>
-            <param name="leader" value="$object"/>
-            <param name="leader_preparegroup" value="event.param3"/>
-          </run_interrupt_script>
-        </do_elseif>
-        <do_elseif value="event.param == 'travel gate prep'">
-          <!-- interrupt with Gate Passage script -->
-          <run_interrupt_script name="'ut.cac.move.gate2'" resume="start">
-            <param name="gate" value="event.param2.{1}"/>
-            <param name="queue_position" value="event.param2.{2}"/>
-            <param name="passage_group" value="event.param3"/>
-            <param name="leader" value="$object"/>
-          </run_interrupt_script>
-        </do_elseif>
-        <do_elseif value="event.param == 'travel aborted'">
-          <abort_called_scripts resume="start"/>
-        </do_elseif>
-      </actions>
-    </handler>
+    <handler ref="ut_cac_follow_signalling" comment="Handler for Navigation Signals"/>
   </interrupts>
   <attention min="unknown">
     <actions>

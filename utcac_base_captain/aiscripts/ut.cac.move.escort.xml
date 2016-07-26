@@ -1,0 +1,181 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.move.follow.verysimple" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<!--
+
+rewritten from scratch by UniTrader
+
+General-Purpose Escort-Script utilizing UT CaC Follow- and Attack-Signalling (the latter is NyI / WiP!!!)
+roughly based on the experimental us.cac.follow.verysimple
+
+-->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="object" default="null" comment="the Object to follow"/>
+    <param name="time" default="null" comment="how long the other Object should be followed"/>
+    <param name="timeout" default="null" comment="until when the Object should be followed - overrides time"/>
+    <param name="destination" default="null" comment="where the other Object followed to (as Space, since the context is checked)"/>
+  </params>
+  <init>
+    <!-- first turn params param into the real params -->
+    <do_if value="$params">
+      <do_if value="$params.$object?">
+        <set_value name="$object" exact="$params.$object"/>
+      </do_if>
+      <do_if value="$params.$time?">
+        <set_value name="$time" exact="$params.$time"/>
+      </do_if>
+      <do_if value="$params.$timeout?">
+        <set_value name="$timeout" exact="$params.$timeout"/>
+      </do_if>
+      <do_if value="$params.$destination?">
+        <set_value name="$destination" exact="$params.$destination"/>
+      </do_if>
+    </do_if>
+  </init>
+  <interrupts>
+    <handler>
+        <conditions>
+          <event_object_target_invalid object="this.ship" />
+        </conditions>
+        <actions>
+          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $object: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
+          <abort_called_scripts />
+          <resume label="start"/>
+      </actions>
+    </handler>
+    <handler>
+      <!--- destination destroyed - abort Movement and (for now) also print an Error -->
+      <conditions>
+        <event_object_destroyed object="$object"/>
+      </conditions>
+      <actions>
+        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+        <abort_called_scripts/>
+        <return value="1"/>
+      </actions>
+    </handler>
+    <!--
+=> Library for Signal Handlers to follow a certain Object. Must be saved as $object in main Script (NOTE: Name may change during further Development!!! )
+Vars used internally:
+> $object => the Object to follow
+> $fly_to_leader => Set this Var during initial Movement to de-activate the Signal Handlers (until the Ship has same Zone Context as the Leader)
+> $follow_position => used temporarily to determine a Safe Position during certain Signals - do not use!
+Labels used:
+> start => Object moved to last Target Pos and Leader is in same Zone - usually wait for next Movement Signal after this (Label Name may change in further Development!!!!)
+-->
+    <handler ref="ut_cac_follow_signalling" comment="Handler for Navigation Signals"/>
+    <handler comment="Planned Handler to react to Enemies annouced by the Leader"/>
+    <handler comment="Planned Handler to handle transition to another Leader in case the current one gets new Orders">
+      <conditions>
+        <check_any>
+          <event_object_signalled object="$object.pilot" param="'patrol aborted'"/>
+          <event_object_destroyed object="$object"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <!-- Determine who is Leader of the Formation and either re-start Escort Script with updated params or start previous Leader's Script -->
+        <do_if value="event.param3.{1} == this.ship">
+          <do_if value="this.$orderlist.{2}?">
+            <!-- got other outstanding Orders - also Abort and continue with next (signal everyone who may have decided this is the new Leader) -->
+            <remove_from_group group="this.$escortgroup" object="this.ship"/>
+            <remove_value name="this.$escortgroup"/>
+            <add_to_group groupname="this.$escortgroup" object="this.ship"/>
+            <signal_objects object="this" param="'patrol aborted'" param2="$params" param3="this.escortgroup" delay="1s"/>
+          </do_if>
+          <do_else>
+            <!-- continue where the previous Leader left off -->
+            <append_to_list name="this.$orderlist" exact="event.param2"/>
+          </do_else>
+          <resume label="finish"/>
+        </do_if>
+        <do_elseif value="not this.$orderlist.{2}?">
+          <set_value name="$params.$object" exact="this.$escortgroup.{1}"/>
+          <append_to_list name="this.$orderlist" exact="event.param2"/>
+        </do_elseif>
+        <!-- if there are further Orders just continue with them -->
+        <resume label="finish"/>
+      </actions>
+    </handler>
+    <handler comment="Handler for when Leader switches Escort Group - just a passive one performing just a few set_value">
+      <conditions>
+        <event_object_signalled object="$object.pilot" param="'escortgroup changed'"/>
+        <!-- hope this Workaround for add_to_group / remove_from_group works... otherwise the Signal Handler must trigger to use these... -->
+        <remove_value name="this.$escortgroup.indexof.{this.ship}" comment="remove from previous Group"/>
+        <set_value name="this.$escortgroup" exact="event.param2" comment="set new Group"/>
+        <set_value name="this.$escortgroup.{this.$escortgroup.count+1}" exact="this.ship" comment="register in new Group"/>
+        <check_value value="false" comment="to prevent actually triggering this Handler - we just modify a few Values, but dont want to trigger the handler"/>
+      </conditions>
+    </handler>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      
+      <do_if value="$time and not $timeout">
+        <set_value name="$timeout" exact="player.age + $time"/>
+        <set_value name="$params.timeout" exact="$timeout" comment="to keep time consistent in case of restarts when $params changes"/>
+      </do_if>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$object: %4'.[player.age,this.name,this.container.name,$object.knownname]"/>
+      
+      <label name="fly to leader zone" />
+      
+      <set_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
+      <run_script name="'ut.cac.move.generic'">
+        <param name="destination" value="$object"/>
+        <param name="endintargetspace" value="true"/>
+      </run_script>
+      <remove_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
+      
+      <!-- Escort Duty begins - first add us to the Group managing possible Leader Replacements -->
+      <add_to_group groupname="$object.pilot.$escortgroup" group="this.$escortgroup"/>
+      <remove_value name="this.$escortgroup"/>
+      <set_value name="this.$escortgroup" exact="$object.pilot.$escortgroup"/>
+      <signal_objects object="this" param="'Escortgroup changed'"/>
+      
+      <!-- then add us to Suprior's "Available for other sudden Orders"-List if $object is also in there-->
+      <do_if value="this.commanderentity.$ut_cac.$availablefightships.indexof.{$object}">
+        <add_to_group groupname="this.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
+      </do_if>
+      
+      <label name="start" />
+      <do_if value="player.age gt $timeout">
+        <resume label="finish"/>
+      </do_if>
+      <do_if value="$object.zone != this.zone">
+        <resume label="fly to leader zone"/>
+      </do_if>
+      
+      <wait max="5min">
+        <interrupt comment="check if Leader flew away and we missed his Signal">
+          <conditions>
+            <event_object_changed_zone object="$object"/>
+          </conditions>
+        </interrupt>
+      </wait>
+      
+      <resume label="start"/>
+      <label name="finish"/>
+      <!-- seperate Escort Groups since our Escort Duty ends here -->
+      <remove_from_group group="this.$escortgroup" object="this.ship"/>
+      <remove_value name="this.$escortgroup"/>
+      <add_to_group groupname="this.$escortgroup" object="this.ship"/>
+      <signal_objects object="this" param="'escortgroup changed'" param2="this.$escortgroup"/>
+      
+      
+      <!-- Unregister from Suprior's "Available for other sudden Orders"-List (may not be part of it)-->
+      <remove_from_group groupname="this.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
+      
+    </actions>
+  </attention>
+  <on_abort>
+      <!-- seperate Escort Groups since our Escort Duty ends here -->
+      <remove_from_group group="this.$escortgroup" object="this.ship"/>
+      <remove_value name="this.$escortgroup"/>
+      <add_to_group groupname="this.$escortgroup" object="this.ship"/>
+      <signal_objects object="this" param="'escortgroup changed'" param2="this.$escortgroup"/>
+      
+      
+      <!-- Unregister from Suprior's "Available for other sudden Orders"-List (may not be part of it)-->
+      <remove_from_group groupname="this.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
+  </on_abort>
+</aiscript>

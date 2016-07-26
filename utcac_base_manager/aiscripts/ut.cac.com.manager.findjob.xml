@@ -22,7 +22,7 @@
       </do_if>
       
       <!-- first try: send Ship Trading or Mining -->
-      <do_if value="$entity.ship.primarypurpose == objectpurpose.trade or ( $entity.ship.cargo.capacity gt $entity.ship.cargo.{ware.fuelcells}.max)" comment="Either defined as Trading Ship os has other Cargo Capacity than Fuel">
+      <do_if value="$entity.ship.primarypurpose == objectpurpose.trade or $entity.ship.primarypurpose == objectpurpose.mine or $entity.ship.cargo.tags.count gt 1 or ( $entity.ship.cargo.tags.count == 1 and not  $entity.ship.cargo.tags.indexof.{tag.fuel} )" comment="Either defined as Trading Ship os has other Cargo Capacity than Fuel">
         <run_script name="'ut.cac.com.manager.findjob.trade'" result="$success" >
           <param name="entity" value="$entity"/>
         </run_script>
@@ -33,7 +33,7 @@
       
       <!-- Second Try: send Ship Patrolling (currently only Station Zone) - can be Taken for Escorts there -->
       <do_if value="$entity.ship.primarypurpose == objectpurpose.fight or ( $entity.ship.dps.all * 75 gt ($entity.ship.maxshield + $entity.ship.maxhull ))" comment="Either defined as Fight Ship or could kill itself in under 75 seconds">
-        <run_script name="'ut.cac.com.manager.findjob.patrol'" result="$success" >
+        <run_script name="'ut.cac.com.manager.findjob.fight'" result="$success" >
           <param name="entity" value="$entity"/>
         </run_script>
         <do_if value="$success">

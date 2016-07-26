@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.lib.signals" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<!--
+
+rewritten from scratch by UniTrader
+
+Contains all Signal Handlers used in multiple Places:
+
+=> Library for Signal Handlers to follow a certain Object. Must be saved as $object in main Script (NOTE: Name may change during further Development!!! )
+Vars used internally:
+> $object => the Object to follow
+> $fly_to_leader => Set this Var during initial Movement to de-activate the Signal Handlers (until the Ship has same Zone Context as the Leader)
+> $follow_position => used temporarily to determine a Safe Position during certain Signals - do not use!
+Labels used:
+> start => Object moved to last Target Pos and Leader is in same Zone - usually wait for next Movement Signal after this (Label Name may change in further Development!!!!)
+
+-->
+  <interrupts>
+    <library>
+      <handler name="ut_cac_follow_signalling" comment="Handler for Navigation Signals">
+        <conditions>
+          <check_any>
+            <event_object_signalled object="$object" param="'travel dockat'"/>
+            <event_object_signalled object="$object" param="'travel normal start'"/>
+            <event_object_signalled object="$object" param="'travel boost prep'"/>
+            <event_object_signalled object="$object" param="'travel jump prep'"/>
+            <event_object_signalled object="$object" param="'travel gate prep'"/>
+            <event_object_signalled object="$object" param="'travel aborted'"/>
+          </check_any>
+          <check_value value="not $fly_to_leader?"/>
+        </conditions>
+        <actions>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signal on Leader received:\nparam: %4 , param2: %5 , param3: %6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+          <do_if value="event.param == 'travel dockat'">
+            <do_if value="$follow_position">
+              <debug_text filter="error" text="'%1 %2 %3 $follow_position already set! ( %4 ) Do not use this Var when using ut_cac_follow_signalling!!! Overriding Var!'.[ player.age,this.name,this.container.name,$follow_position]"/>
+            </do_if>
+            <!-- Leader attempts to Dock somewhere - Fly to near position outside Bounding Box -->
+            <create_position_outside_boundingbox name="$follow_position" component="event.param2.{1}" distance="this.ship.size">
+              <position value="event.param2.{3}"/>
+            </create_position_outside_boundingbox>
+            <get_safe_pos result="$follow_position" radius="this.ship.size" allowyaxis="true" value="$follow_position" ignored="this.ship" zone="event.param2.{1}.zone" min="$object.size * 2"/>
+            <run_interrupt_script name="'ut.cac.move.to.pos'" resume="start">
+              <param name="destination" value="event.param2.{1}.zone"/>
+              <param name="position" value="$follow_position"/>
+            </run_interrupt_script>
+            <remove_value name="$follow_position"/>
+          </do_if>
+          <do_elseif value="event.param == 'travel normal start'">
+            <!-- interrupt with regular Travel script -->
+            <run_interrupt_script name="'ut.cac.move.to.pos'" resume="start">
+              <param name="destination" value="event.param2.{1}"/>
+              <param name="position" value="event.param2.{2}"/>
+              <param name="rotation" value="event.param2.{3}"/>
+              <param name="leader" value="$object"/>
+              <param name="leader_preparegroup" value="event.param3"/>
+            </run_interrupt_script>
+          </do_elseif>
+          <do_elseif value="event.param == 'travel boost prep'">
+            <!-- interrupt with boost script -->
+            <run_interrupt_script name="'ut.cac.move.boost'" resume="start">
+              <param name="destination" value="event.param2.{1}"/>
+              <param name="position" value="event.param2.{2}"/>
+              <param name="leader_startposition" value="event.param2.{3}"/>
+              <param name="leader_startrotation" value="event.param2.{4}"/>
+              <param name="leader" value="$object"/>
+              <param name="leader_preparegroup" value="event.param3"/>
+            </run_interrupt_script>
+          </do_elseif>
+          <do_elseif value="event.param == 'travel jump prep'">
+            <!-- interrupt with jump script -->
+            <run_interrupt_script name="'ut.cac.move.jump'" resume="start">
+              <param name="destination" value="event.param2"/>
+              <param name="type" value="'object'"/>
+              <param name="leader" value="$object"/>
+              <param name="leader_preparegroup" value="event.param3"/>
+            </run_interrupt_script>
+          </do_elseif>
+          <do_elseif value="event.param == 'travel gate prep'">
+            <!-- interrupt with Gate Passage script -->
+            <run_interrupt_script name="'ut.cac.move.gate2'" resume="start">
+              <param name="gate" value="event.param2.{1}"/>
+              <param name="queue_position" value="event.param2.{2}"/>
+              <param name="passage_group" value="event.param3"/>
+              <param name="leader" value="$object"/>
+            </run_interrupt_script>
+          </do_elseif>
+          <do_elseif value="event.param == 'travel aborted'">
+            <abort_called_scripts resume="start"/>
+          </do_elseif>
+        </actions>
+      </handler>
+    </library>
+  </interrupts>
+</aiscript>
