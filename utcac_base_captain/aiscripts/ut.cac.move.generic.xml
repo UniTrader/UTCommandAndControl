@@ -328,7 +328,7 @@
             <resume label="start"/>
           </do_if>
         </do_while>
-        <debug_text filter="error"  text="'%1 %2 %3 This Part should NEVER be reached!!! last waypoint: %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+        <debug_text filter="error"  text="'%1 %2 %3 This Part should NEVER be reached!!! last waypoint: %4, destination: %5'.[player.age,this.name,this.container.name,this.$waypoint.knownname,$destination]"/>
       </do_if>
       <do_else>
         <!-- small ships not implemented yet - skipping over to Vanilla Script -->
@@ -366,11 +366,12 @@
       </do_while>
       
       <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 20 km away) and boost to a generous safe spot nearby the Target -->
-      <!-- Final boost to nearby the Destination Object -->
+      <!-- Final boost to nearby the Destination Object - get safepos a bit in our Direction before to avoid yoyo-effect-->
+      <get_safe_pos result="$safepos" zone="if $destination.isclass.zone then $destination else $destination.zone" value="$position" radius="this.ship.size" directionobject="this.ship" min="5km"/>
       <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 7km and $destination != $targetspace )">
         <run_script name="'ut.cac.move.boost'">
           <param name="destination" value="$destination"/>
-          <param name="position" value="$position" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
+          <param name="position" value="$safepos" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
         </run_script>
       </do_if>
       <remove_value name="this.$waypoint"/>
