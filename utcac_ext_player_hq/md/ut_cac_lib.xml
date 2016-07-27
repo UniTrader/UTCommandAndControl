@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_PHQ_CHEAT" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
+  <cues>
+    <cue name="Create_PHQ">
+      <actions>
+        <find_sector name="$sector" space="player.galaxy" macro="macro.Cluster_B_Sector05_macro" comment="Ascendancy"/>
+        <get_zone_at_position name="$PHQ_Zone" sector="$sector" value="position.[0m,50km,0m]"/>
+        <create_ship name="$Buildership" zone="$PHQ_Zone" macro="macro.units_size_xl_builder_ship_plot_01_macro"/>
+        <do_all exact="$PHQ_Zone.buildlocations.count" counter="$i">
+          <do_if value="$PHQ_Zone.buildlocations.{$i}.offset.x == 0m and$PHQ_Zone.buildlocations.{$i}.offset.y == 0m and $PHQ_Zone.buildlocations.{$i}.offset.z == 0m">
+            <set_value name="$buildlocation" exact="$PHQ_Zone.buildlocations.{$i}"/>
+          </do_if>
+          <do_else>
+            <claim_build_location buildlocation="$PHQ_Zone.buildlocations.{$i}" object="$Buildership" comment="disabling all other Build Spots in Zone - the PHQ is BIG"/>
+          </do_else>
+        </do_all>
+        <get_building_position position="$Buildershipposition" buildlocation="$buildlocation" macro="macro.struct_bt_UT_Omicron_Superyard_macro" object="$Buildership"/>
+        <create_station name="$PHQ" buildlocation="$buildlocation" macro="macro.struct_bt_UT_Omicron_Superyard_macro" owner="faction.player" zone="$PHQ_Zone">
+          <position value="position.[0,0,0]"/>
+        </create_station>
+        <warp object="$Buildership" zone="$PHQ_Zone">
+          <position value="$Buildershipposition"/>
+          <orientation orientation="look_at" refobject="$PHQ"/>
+        </warp>
+        <connect_to_build_location object="$Buildership" buildlocation="$buildlocation"/>
+      </actions>
+    </cue>
+  </cues>
+</mdscript>
