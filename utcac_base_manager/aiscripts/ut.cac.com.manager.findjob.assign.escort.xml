@@ -47,6 +47,8 @@
       <!-- get escortee Value and add fight Shipsto escort duty until their Value is at least half the Ware Value -->
       <set_value name="$isvalue" exact="$escortee.value"/>
       
+      <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship Value: %4, Availableships: %5'.[player.age,this.name,this.container.name,$isvalue,$availableships]"/>
+      
       <do_while value="$isvalue * 2 lt $value and $availableships.count">
         <set_value name="$ship" exact="$availableships.random"/>
         <do_if value="$ship.orderlist.count gt 1">
@@ -54,6 +56,7 @@
           <continue/>
         </do_if>
         <set_value name="$isvalue" exact="$ship.value" operation="add"/>
+      <debug_text filter="general" chance="100" text="'%1 %2 %3 Assigned %4 Ship Value: %5 isvalue: %6'.[player.age,this.name,this.container.name, $ship.knownname,$ship.value,$isvalue]"/>
         <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.escort',$object=$escortee,$destination=$destination]"/>
         <do_if value="$return_waypoint">
           <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
