@@ -80,6 +80,7 @@ Labels used:
             <remove_from_group group="this.$escortgroup" object="this.ship"/>
             <remove_value name="this.$escortgroup"/>
             <add_to_group groupname="this.$escortgroup" object="this.ship"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (seperate in signal handler):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
             <signal_objects object="this" param="'patrol aborted'" param2="$params" param3="this.escortgroup" delay="1s"/>
           </do_if>
           <do_else>
@@ -103,6 +104,7 @@ Labels used:
         <remove_value name="this.$escortgroup.indexof.{this.ship}" comment="remove from previous Group"/>
         <set_value name="this.$escortgroup" exact="event.param2" comment="set new Group"/>
         <set_value name="this.$escortgroup.{this.$escortgroup.count+1}" exact="this.ship" comment="register in new Group"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (seperate in signal handler 2):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
         <check_value value="false" comment="to prevent actually triggering this Handler - we just modify a few Values, but dont want to trigger the handler"/>
       </conditions>
     </handler>
@@ -130,11 +132,12 @@ Labels used:
       <add_to_group groupname="$object.pilot.$escortgroup" group="this.$escortgroup"/>
       <remove_value name="this.$escortgroup"/>
       <set_value name="this.$escortgroup" exact="$object.pilot.$escortgroup"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (merge on start):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'Escortgroup changed'"/>
       
       <!-- then add us to Suprior's "Available for other sudden Orders"-List if $object is also in there-->
-      <do_if value="this.commanderentity.$ut_cac.$availablefightships.indexof.{$object}">
-        <add_to_group groupname="this.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
+      <do_if value="this.ship.commanderentity.$ut_cac.$availablefightships.indexof.{$object}">
+        <add_to_group groupname="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
       </do_if>
       
       <label name="start" />
@@ -159,11 +162,12 @@ Labels used:
       <remove_from_group group="this.$escortgroup" object="this.ship"/>
       <remove_value name="this.$escortgroup"/>
       <add_to_group groupname="this.$escortgroup" object="this.ship"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (finish case):\n$object: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'escortgroup changed'" param2="this.$escortgroup"/>
       
       
       <!-- Unregister from Suprior's "Available for other sudden Orders"-List (may not be part of it)-->
-      <remove_from_group group="this.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
+      <remove_from_group group="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
       
     </actions>
   </attention>
@@ -172,10 +176,11 @@ Labels used:
       <remove_from_group group="this.$escortgroup" object="this.ship"/>
       <remove_value name="this.$escortgroup"/>
       <add_to_group groupname="this.$escortgroup" object="this.ship"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (on_abort case):\n$object: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'escortgroup changed'" param2="this.$escortgroup"/>
       
       
       <!-- Unregister from Suprior's "Available for other sudden Orders"-List (may not be part of it)-->
-      <remove_from_group group="this.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
+      <remove_from_group group="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
   </on_abort>
 </aiscript>
