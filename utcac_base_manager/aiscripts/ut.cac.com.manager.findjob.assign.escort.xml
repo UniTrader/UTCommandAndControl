@@ -53,7 +53,7 @@
         <set_value name="$ship" exact="$availableships.random"/>
         <do_if value="$ship.pilot.$orderlist.count gt 1">
          <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 has a too long orderlist - removing'.[player.age,this.name,this.container.name, $ship.knownname,$ship.pilot.$orderlist]"/>
-          <remove_value name="$availableships.indexof.{$ship}"/>
+          <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
           <continue/>
         </do_if>
         <set_value name="$isvalue" exact="$ship.value" operation="add"/>
@@ -63,7 +63,7 @@
           <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
         </do_if>
         
-        <remove_value name="$availableships.indexof.{$ship}"/>
+        <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
       </do_while>
       
       </actions>
