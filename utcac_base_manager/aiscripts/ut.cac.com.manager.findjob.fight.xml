@@ -20,7 +20,7 @@
       
       <!-- Input Validation -->
       <do_if value="not $entity.exists">
-        <debug_text filter="error" text="'%1 %2 %3 No Entity passed to give Mine Orders to - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 %3 No Entity passed to give Fight Orders to - aborting'.[player.age,this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       
@@ -34,9 +34,9 @@
       <wait min="3s" max="15s" />
       
       <!-- find Ship where it makes sense to possibly escort it (only Patrolling Ships to avoid unecesarily deep hierarchies) -->
-      <do_if value="this.$availablefightships.count gt 3">
+      <do_if value="this.$ut_cac.$availablefightships.count gt 3">
         <do_all exact="3">
-          <set_value name="$testship" exact="this.$availablefightships.random"/>
+          <set_value name="$testship" exact="this.$ut_cac.$availablefightships.random"/>
           <do_if value="$testship.pilot.$oderlist.{1}.$script == 'ut.cac.com.captain.patrol'">
             <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.escort',$displayname='Escorting %1 (Manager)'.[$testship.knownname],$time=2h,$exitonneworder=true,$interruptable=true]"/>
             <return/>

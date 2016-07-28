@@ -3,7 +3,7 @@
 
   <cues>
 
-    <cue name="Main" instantiate="true" namespace="this" version="20">
+    <cue name="Main" instantiate="true" namespace="this" version="30">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
@@ -21,6 +21,8 @@
           <append_to_list name="$actor.$ut_cac.$range_j" exact="$actor.cluster"/>
           <append_to_list name="$actor.$ut_cac.$range_w" exact="null"/>
         </do_if>
+        <!-- add Group for managing available Fight Ships to avoid debug Errors -->
+        <create_group groupname="this.$ut_cac.$availablefightships"/>
         <debug_text filter="general"  chance="$actor.$debug * 100" text="'%1 now uses UT CAC Manager comm handlers'.[$actor.name]" />
         <set_comm_handler actor="$actor" customhandler="true" />
         <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
@@ -62,6 +64,9 @@
         <set_value name="$actor.$ut_cac" exact="$actor.$ut_cac_settings"/>
         <remove_value name="$actor.$ut_cac_settings"/>
         <create_list name="$actor.$ut_cac.$range_w" exact="$actor.$ut_cac.$range.count"/>
+      </patch>
+      <patch sinceversion="30" state="complete">
+        <create_group groupname="this.$ut_cac.$availablefightships"/>
       </patch>
       <cues>
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
