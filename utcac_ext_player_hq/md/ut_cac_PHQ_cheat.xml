@@ -8,7 +8,8 @@
         <!--get_zone_at_position name="$PHQ_Zone" sector="$sector" value="position.[0m,100km,0m]" />
         <debug_text filter="general" text="'found zone %1 %2'.[$PHQ_Zone,$PHQ_Zone.knownname]"/-->
         <create_ship name="$Buildership" macro="macro.units_size_xl_builder_ship_plot_01_macro" sector="$sector">
-          <position x="0m" y="75km" z="0m"/>
+          <position x="0m" y="0m" z="-75km"/>
+          <owner exact="faction.player"/>
         </create_ship>
         <debug_text filter="general" text="'created builder Ship %1 %2'.[$Buildership,$Buildership.knownname]"/>
         <set_value name="$PHQ_Zone" exact="$Buildership.zone"/>
@@ -24,9 +25,15 @@
           </do_else>
         </do_all>
         <get_building_position position="$Buildershipposition" buildlocation="$buildlocation" macro="macro.struct_bt_UT_Omicron_Superyard_macro" object="$Buildership"/>
-        <create_station name="$PHQ" macro="macro.struct_bt_UT_Omicron_Superyard_macro" owner="faction.player" sector="$sector">
-          <position value="position.[0m,0m,-75km]"/>
-          <buildsequence sequence="'A'" stage="1"/>
+        <create_station name="$PHQ" macro="macro.struct_bt_UT_Omicron_Superyard_macro" owner="faction.player" zone="$PHQ_Zone">
+          <position value="position.[0m,0m,0m]"/>
+          <buildsequence sequence="'a'" stage="1"/>
+          <buildsequence sequence="'dock_a'" stage="1"/>
+          <buildsequence sequence="'dock_b'" stage="1"/>
+          <buildsequence sequence="'dock_c'" stage="1"/>
+          <buildsequence sequence="'dock_d'" stage="1"/>
+          <buildsequence sequence="'dock_e'" stage="1"/>
+          <buildsequence sequence="'dock_f'" stage="1"/>
           <buildsequence sequence="'Dock_A'" stage="1"/>
           <buildsequence sequence="'Dock_B'" stage="1"/>
           <buildsequence sequence="'Dock_C'" stage="1"/>
