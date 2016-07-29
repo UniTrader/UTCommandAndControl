@@ -48,6 +48,10 @@
       <set_value name="$isvalue" exact="$escortee.value"/>
       
       <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship Value: %4, Availableships: %5'.[player.age,this.name,this.container.name,$isvalue,$availableships]"/>
+      <do_if value="not $availableships.count" comment="no Ships available for Escorts - exiting to prevent debug errors">
+        <return/>
+      </do_if>
+      
       
       <do_all exact="[($availableships.count / 3 + 1)i,5].max">
         <set_value name="$ship" exact="$availableships.random"/>
