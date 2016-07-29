@@ -45,5 +45,16 @@
         <connect_to_build_location object="$Buildership" buildlocation="$buildlocation"/>
       </actions>
     </cue>
+    <cue name="Cheat_buildmaterials" instantiate="true">
+      <conditions>
+        <event_build_started object="$Buildership"/>
+      </conditions>
+      <actions>
+        <set_value name="$materials" exact="$Buildership.buildmodule.neededslotresources.list"/>
+        <do_all exact="$materials.count" counter="$i" reverse="true">
+          <add_cargo object="$Buildership" ware="$materials.{$i}" exact="$Buildership.buildmodule.neededslotresources.{$materials.{$i}}.count"/>
+        </do_all>
+      </actions>
+    </cue>
   </cues>
 </mdscript>
