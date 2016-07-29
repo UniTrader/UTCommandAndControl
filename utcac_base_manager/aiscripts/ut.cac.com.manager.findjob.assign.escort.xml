@@ -49,7 +49,7 @@
       
       <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship Value: %4, Availableships: %5'.[player.age,this.name,this.container.name,$isvalue,$availableships]"/>
       
-      <do_while value="$isvalue  * 0.005 lt $value and $availableships.count">
+      <do_all exact="[($availableships.count / 3 + 1)i,5].max">
         <set_value name="$ship" exact="$availableships.random"/>
         <do_if value="$ship.pilot.$orderlist.count gt 1">
          <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 has a too long orderlist - removing'.[player.age,this.name,this.container.name, $ship.knownname,$ship.pilot.$orderlist]"/>
@@ -57,14 +57,14 @@
           <continue/>
         </do_if>
         <set_value name="$isvalue" exact="$ship.value" operation="add"/>
-      <debug_text filter="general" chance="100" text="'%1 %2 %3 Assigned %4 Ship Value: %5 isvalue: %6'.[player.age,this.name,this.container.name, $ship.knownname,$ship.value,$isvalue]"/>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Assigned %4 Ship Value: %5 isvalue: %6'.[player.age,this.name,this.container.name, $ship.knownname,$ship.value,$isvalue]"/>
         <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.escort',$object=$escortee,$destination=$destination]"/>
         <do_if value="$return_waypoint">
           <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
         </do_if>
         
         <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
-      </do_while>
+      </do_all>
       
       </actions>
   </attention>
