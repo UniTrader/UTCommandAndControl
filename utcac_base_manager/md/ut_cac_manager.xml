@@ -420,6 +420,7 @@ Rest is shared between all Actor types
                     <!-- convert new Subordinate to my command model if not already happened -->
                     <do_if value="not event.param.pilot.$ut_cac?">
                       <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
+                      <set_value name="event.param.pilot.$debug" exact="$actor.$debug" comment="new Subordinaes inherit debug status"/>
                       <do_if value="event.param.isclass.ship_xl or event.param.isclass.ship_l">
                         <find_dock_location name="$eventparamdock" container="event.param" size="tag.dock_p"/>
                         <do_if value="not event.param.engineer.exists">
