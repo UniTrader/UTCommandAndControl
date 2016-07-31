@@ -420,6 +420,25 @@ Rest is shared between all Actor types
                     <!-- convert new Subordinate to my command model if not already happened -->
                     <do_if value="not event.param.pilot.$ut_cac?">
                       <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
+                      <do_if value="event.param.isclass.ship_xl or event.param.isclass.ship_l">
+                        <find_dock_location name="$eventparamdock" container="event.param" size="tag.dock_p"/>
+                        <do_if value="not event.param.engineer.exists">
+                          <create_platform_actor name="$tmpnpc" type="entitytype.engineer" dockingbay="$eventparamdock.component" ref="engineer_omicron_lyrae_random">
+                            <owner exact="faction.player"/>
+                          </create_platform_actor>
+                          <assign_engineer actor="$tmpnpc" object="event.param"/>
+                          <start_script object="$tmpnpc" name="'engineer.ai'"/>
+                        </do_if>
+                        <do_if value="not event.param.defencenpc.exists">
+                          <create_platform_actor name="$tmpnpc" type="entitytype.defencecontrol" dockingbay="$eventparamdock.component" ref="fighter_omicron_lyrae_random">
+                            <owner exact="faction.player"/>
+                          </create_platform_actor>
+                          <assign_defence_manager actor="$tmpnpc" object="event.param"/>
+                          <start_script object="$tmpnpc" name="'fight.defend.capital'"/>
+                        </do_if>
+                        <remove_value name="$eventparamdock"/>
+                        <remove_value name="$tmpnpc"/>
+                      </do_if>
                     </do_if>
                     <signal_objects object="event.param.pilot" param="'set commanderentity'" param2="$actor" delay="100ms"/>
                   </do_elseif>
