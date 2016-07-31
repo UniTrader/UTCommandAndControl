@@ -171,12 +171,13 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: \n%4'.[player.age,this.name,this.container.name,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}"/>
         <do_if value="typeof $order == datatype.table">
-          <run_script name="this.$ut_cac.$defaultorders.$signals.{1}">
-            <param name="signalparams" value="this.$ut_cac.$defaultorders"/>
-            <param name="signalcount" value="1"/>
-            <param name="scriptparams" value="$order"/>
+          <run_script name="$order.$script">
+            <param name="params" value="$order"/>
           </run_script>
         </do_if>
+        <do_else>
+        <debug_text filter="error" text="'%1 %2 %3 Order is not a Table - Skipping: %4'.[player.age,this.name,this.container.name,$order]"/>
+        </do_else>
         <!-- If current first Order is still the same as before executing it - remove it from Orderlist so we can continue with the next one - after that wait a split-second to prevent Freezes should something go wrong -->
         <!-- (if its a diffrent Order the first Order was moved or replaced, which should cause an abort of it and a the new first Order should be executed immediately) -->
         <do_if value="this.$orderlist.{1} == $order">
