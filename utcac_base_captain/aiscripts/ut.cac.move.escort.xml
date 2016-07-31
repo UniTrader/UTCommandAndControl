@@ -116,14 +116,18 @@ Labels used:
         <set_value name="$timeout" exact="player.age + $time"/>
         <set_value name="$params.timeout" exact="$timeout" comment="to keep time consistent in case of restarts when $params changes"/>
       </do_if>
+      <do_if value="not $timeout">
+        <do_if value="$destination">
+          <set_value name="$timeout" exact="player.age + 2400h" comment="follow till Destination is reached, 100 Days should be sufficient"/>
+        </do_if>
+        <do_else>
+          <set_value name="$timeout" exact="player.age + 3h" comment="follow for 3 hours if no Destination or Time is specified"/>
+        </do_else>
+      </do_if>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$object: %4'.[player.age,this.name,this.container.name,$object.knownname]"/>
       
       <label name="fly to leader zone" />
-      
-      <do_if value="$object.hascontext.{$destination}" comment="to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case)">
-        <set_value name="$startsindestinationzone"/>
-      </do_if>
       
       <set_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
       <run_script name="'ut.cac.move.generic'">
@@ -145,13 +149,11 @@ Labels used:
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Added us to Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
       </do_if>
       
-      
-      <do_if value="$startsindestinationzone? and not $object.hascontext.{$destination}" comment="to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case)">
-        <remove_value name="$startsindestinationzone"/>
-      </do_if>
-      <do_elseif value="$object.hascontext.{$destination}">
+      <!-- to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case) -->
+      <do_if value="$object.hascontext.{$destination}" comment="">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Object starts in Destination Zone - setting Var to avoid immediate exit'.[player.age,this.name,this.container.name,$object.knownname]"/>
         <set_value name="$startsindestinationzone"/>
-      </do_elseif>
+      </do_if>
       
       <label name="start" />
       <do_if value="player.age gt $timeout">
