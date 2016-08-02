@@ -28,16 +28,39 @@
         <create_station name="$PHQ" macro="macro.struct_bt_UT_Omicron_Superyard_macro" owner="faction.player" zone="$PHQ_Zone">
           <position value="position.[0m,0m,0m]"/>
           <buildsequence sequence="'a'" stage="1"/>
-          <buildsequence sequence="'structure_west'" stage="4"/>
-          <buildsequence sequence="'structure_east'" stage="4"/>
-          <buildsequence sequence="'dock_a'" stage="1"/>
-          <buildsequence sequence="'dock_b'" stage="1"/>
-          <buildsequence sequence="'dock_c'" stage="1"/>
-          <buildsequence sequence="'dock_d'" stage="1"/>
-          <buildsequence sequence="'dock_e'" stage="1"/>
-          <buildsequence sequence="'dock_f'" stage="1"/>
-          <buildsequence sequence="'to'" stage="4"/>
+          <buildsequence sequence="'e'" stage="4"/>
+          <buildsequence sequence="'w'" stage="4"/>
+          <buildsequence sequence="'$dock_a'" stage="1"/>
+          <buildsequence sequence="'$dock_b'" stage="1"/>
+          <buildsequence sequence="'$dock_c'" stage="1"/>
+          <buildsequence sequence="'$dock_d'" stage="1"/>
+          <buildsequence sequence="'$dock_e'" stage="1"/>
+          <buildsequence sequence="'$dock_f'" stage="1"/>
+          <buildsequence sequence="'$to'" stage="4"/>
         </create_station>
+        <!-- Table for Sequence/Stage dependencies:
+Sequence A (or more generally all sequences without $ prefix) are always buildable 
+the rest depends on Settings in a Table: $table.{$sequence}.{$stage}
+this is a List of conditions, usually in pairs usinf odd and the following even entries:
+=> if the Sequence is in the Table but the Stage is higher than defined it willnot  be buildable
+=> if there is no list but just true the Stage is always buildable (just requires the previous stage)
+=> For odd Entries which are a String a required sequence is meant and the following even Entry defines the minimum Stage required
+=> For odd Entries which are a Cue the following even Entry defines the State this Cue should be in before allowing this Extension
+=> For odd Entries which are an Inventory Ware the following Entry defines how much of it should be consumed to build this Extension (or null if it just has to be present)
+=> further Types of odd Entries are evaluated for their bool result (change Table externally to enable/disable) - the following even entry is ignored
+*** More possibilities will be defined as needed ****
+table[
+$dock_a = [ 'w' , 3 ] , true ],
+$dock_b = [ 'w' , 2 ] , true ],
+$dock_c = [ [ 'w' , 1 ] , true ],
+$dock_d = [ [ 'e' , 1 ] , true ],
+$dock_e = [ [ 'e' , 2 ] , true ],
+$dock_f = [ [ 'e' , 3 ] , true ],
+$to = [ [ ware.teladioverwatchplans , 1 ] , [ ware.teladioverwatchplans , 1 , 'w' , 2 , 'e' , 2 ] , [ ware.teladioverwatchplans , 1 ] , [ ware.teladioverwatchplans , 1 ] ]
+$hol = [ [ ware.holwarehouseplans , 1 ] , [ ware.holwarehouseplans , 1 ] , [ ware.holwarehouseplans , 1 ] , [ ware.holwarehouseplans , 1 ] ]
+
+
+-->
         <debug_text filter="general" text="'created Station %1 %2'.[$PHQ,$PHQ.knownname]"/>
         <warp object="$Buildership" zone="$PHQ_Zone">
           <position value="$Buildershipposition"/>
