@@ -40,6 +40,9 @@
           <buildsequence sequence="'hol'" stage="3"/>
         </create_station>
         <warp object="player.primaryship" zone="$PHQ_Zone"/>
+        <do_all exact="$PHQ.completebuildplan.sequences.count" counter="$i">
+          <debug_text filter="general" text="'%1 : %2 / %3'.[$PHQ.completebuildplan.sequences.{$i},$PHQ.currentbuildplan.{$PHQ.completebuildplan.sequences.{$i}}.stage,$PHQ.completebuildplan.{$PHQ.completebuildplan.sequences.{$i}}.stage]"/>
+        </do_all>
         <!-- Table for Sequence/Stage dependencies:
 Sequence A (or more generally all sequences without $ prefix) are always buildable 
 the rest depends on Settings in a Table: $table.{$sequence}.{$stage}
