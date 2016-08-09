@@ -41,7 +41,8 @@
         </create_station>
         <warp object="player.primaryship" zone="$PHQ_Zone"/>
         <do_all exact="$PHQ.completebuildplan.sequences.count" counter="$i">
-          <debug_text filter="general" text="'%1 : %2 / %3'.[$PHQ.completebuildplan.sequences.{$i},$PHQ.currentbuildplan.{$PHQ.completebuildplan.sequences.{$i}}.stage,$PHQ.completebuildplan.{$PHQ.completebuildplan.sequences.{$i}}.stage]"/>
+          <set_value name="$sequence" exact="$PHQ.completebuildplan.sequences.{$i}"/>
+          <debug_text filter="general" text="'%1 : %2 / %3'.[$sequence,$PHQ.currentbuildplan.{$sequence}.stage,$PHQ.completebuildplan.{$sequence}.stage]"/>
         </do_all>
         <!-- Table for Sequence/Stage dependencies:
 Sequence A (or more generally all sequences without $ prefix) are always buildable 
