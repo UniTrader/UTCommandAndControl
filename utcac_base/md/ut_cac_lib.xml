@@ -1034,7 +1034,7 @@ Which Orders are available depends on entity Type
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,$actor.name,$actor.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'comm_orders_main'">
           <do_if value="event.name == 'event_conversation_next_section' and $actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
@@ -1049,6 +1049,11 @@ Which Orders are available depends on entity Type
               <add_player_choice_sub text="$order.$displayname" position="$slot" section="comm_orders_modify" choiceparam="[$slot , $order , $order_number]" selectable="@$order.$interruptable"/>
               <set_value name="$slot" operation="add"/>
             </do_if>
+            <do_elseif value="this.$debug">
+              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Order #%4 has no $displaname, full Order: \n%5'.[player.age,$actor.name,$actor.container.name,$order_number,$order]"/>
+              <add_player_choice_sub text="'Order %1 - Without Name'.[$order_number]" position="$slot" section="comm_orders_modify" choiceparam="[$slot , $order , $order_number]" selectable="@$order.$interruptable"/>
+              <set_value name="$slot" operation="add"/>
+            </do_elseif>
             <set_value name="$order_number" operation="add"/>
           </do_while>
           <do_if value="$slot le 6">
