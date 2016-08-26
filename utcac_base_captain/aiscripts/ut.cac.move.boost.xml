@@ -173,12 +173,12 @@
           </do_if>
           
         </do_else>
-        <do_if value="$startrot.pitch gt 45deg">
+        <!--do_if value="$startrot.pitch gt 45deg">
           <set_value name="$startrot" exact="rotation.[$startrot.yaw,45deg,$startrot.roll]"/>
         </do_if>
         <do_if value="$startrot.pitch lt -45deg">
           <set_value name="$startrot" exact="rotation.[$startrot.yaw,-45deg,$startrot.roll]"/>
-        </do_if>
+        </do_if-->
         <!-- if Destination is in our View and we are near our Exit Pos dont move first, boost immediately.  -->
         <check_object result="$result" object="$targetzone">
           <match_is_in_view_of object="this.ship" vertical="30deg" horizontal="30deg"/>
@@ -304,14 +304,14 @@
         </do_elseif>
         <remove_value name="this.$mayabortpath"/>
         <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
-        <!-- HACK: decrease Ship Pitch to avoid sharp turn boosts -->
-        <do_if value="( this.ship.rotation.pitch gt 45deg or this.ship.rotation.pitch lt -45deg ) and this.zone != $targetzone">
+        <!-- HACK: decrease Ship Pitch to avoid sharp turn boosts - not needed anymore -->
+        <!--do_if value="( this.ship.rotation.pitch gt 45deg or this.ship.rotation.pitch lt -45deg ) and this.zone != $targetzone">
           <debug_text filter="error" text="'%1 %2 %3 Moving to Start Position failed to have pith below 45deg - forcing pitch'.[player.age,this.name,this.container.name]"/>
           <warp object="this.ship" zone="this.zone">
             <position value="this.ship.position"/>
             <rotation yaw="this.ship.rotation.yaw" roll="this.ship.rotation.roll" pitch="if this.ship.rotation.pitch gt 45deg then 45deg else if this.ship.rotation.pitch lt -45deg then -45deg else 0deg"/>
           </warp>
-        </do_if>
+        </do_if-->
       </do_if>
       <!-- for coordinated boost - wait a split-second so everyone can add himself to the group if there is no movement first -->
       <do_else>
