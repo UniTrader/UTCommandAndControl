@@ -390,6 +390,13 @@
           </conditions>
           <actions>
             <set_value name="$arriving_at" exact="event.param2 + player.age"/>
+            <!-- preperation for future Usage: Save current Speed to a Global Var so we can use this to get Ships with similiar Boost Speed -->
+            <do_if value="not global.$ship_boost_speed?">
+              <set_value name="global.$ship_boost_speed" exact="table[]"/>
+            </do_if>
+            <do_if value="( not global.$ship_boost_speed.{this.ship.macro}? ) or global.$ship_boost_speed.{this.ship.macro} lt this.ship.speed">
+              <set_value name="global.$ship_boost_speed.{this.ship.macro}" exact="this.ship.speed"/>
+            </do_if>
           </actions>
         </interrupt>
       </move_to>
