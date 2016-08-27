@@ -171,13 +171,15 @@ Labels used:
         <resume label="fly to leader zone"/>
       </do_if>
       
-      <wait max="5min">
+      <get_safe_pos result="$safepos" object="this.ship" radius="this.ship.size" direction="quadrant.front" zone="$object.zone" angle="80deg" allowyaxis="true" x="$object.position.x" y="$object.position.y" z="$object.position.z"/>
+      <move_to object="this.ship" abortpath="false" destination="$object.zone" finishonapproach="true">
+        <position value="$safepos"/>
         <interrupt comment="check if Leader flew away and we missed his Signal">
           <conditions>
             <event_object_changed_zone object="$object"/>
           </conditions>
         </interrupt>
-      </wait>
+      </move_to>
       
       <resume label="start"/>
       <label name="finish"/>
