@@ -52,6 +52,9 @@
         <return/>
       </do_if>
       
+      <do_if value="global.$ship_boost_speed.{$escortee.macro}?">
+        <set_value name="$escortee_speed" exact="global.$ship_boost_speed.{$escortee.macro}"/>
+      </do_if>
       
       <do_all exact="[($availableships.count / 3 + 1)i,5].min">
         <set_value name="$ship" exact="$availableships.random"/>
@@ -59,6 +62,14 @@
          <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 has a too long orderlist - removing'.[player.age,this.name,this.container.name, $ship.knownname,$ship.pilot.$orderlist]"/>
           <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
           <continue/>
+        </do_if>
+        <do_if value="$escortee.speed? and global.$ship_boost_speed.{$ship.macro}?">
+          <!-- check if the Speed difference would be too great (max 100 m/s) and ignore if it is -->
+          <do_if value="$escortee.speed gt global.$ship_boost_speed.{$ship.macro} + 100m or $escortee.speed lt global.$ship_boost_speed.{$ship.macro} - 100m">
+         <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too fast or slow - removing'.[player.age,this.name,this.container.name, $ship.knownname,$ship.pilot.$orderlist]"/>
+          <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
+          <continue/>
+          </do_if>
         </do_if>
         <set_value name="$isvalue" exact="$ship.value" operation="add"/>
         <debug_text filter="general" chance="100" text="'%1 %2 %3 Assigned %4 Ship Value: %5 isvalue: %6'.[player.age,this.name,this.container.name, $ship.knownname,$ship.value,$isvalue]"/>
