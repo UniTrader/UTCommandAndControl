@@ -394,22 +394,33 @@
       <wait min="100ms" max="1s" sinceversion="30" comment="tode-perfect-sync Ships in Group Boosts"/>
       <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" boost="true" abortpath="false">
         <position value="$targetpos" />
-        <interrupt>
-          <conditions>
-            <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/>
-          </conditions>
-          <actions>
-            <set_value name="$arriving_at" exact="event.param2 + player.age"/>
-            <!-- preperation for future Usage: Save current Speed to a Global Var so we can use this to get Ships with similiar Boost Speed -->
-            <do_if value="not global.$ship_boost_speed?">
-              <set_value name="global.$ship_boost_speed" exact="table[]"/>
-            </do_if>
-            <do_if value="( not global.$ship_boost_speed.{this.ship.macro}? ) or global.$ship_boost_speed.{this.ship.macro} lt this.ship.speed">
-              <set_value name="global.$ship_boost_speed.{this.ship.macro}" exact="this.ship.speed"/>
-            </do_if>
-          </actions>
-        </interrupt>
+        <interrupt_after_time time="100ms"/>
       </move_to>
+      <label name="boosting"/>
+      <do_if value="( not $arriving_at? ) and this.ship.numwaypoints">
+        <wait>
+          <interrupt>
+            <conditions>
+              <check_any>
+               <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/>
+                <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+              </check_any>
+            </conditions>
+            <actions>
+              <do_if value="event.name == 'event_object_approaching_waypoint'">
+                <set_value name="$arriving_at" exact="event.param2 + player.age"/>
+                <!-- preperation for future Usage: Save current Speed to a Global Var so we can use this to get Ships with similiar Boost Speed -->
+                <do_if value="not global.$ship_boost_speed?">
+                  <set_value name="global.$ship_boost_speed" exact="table[]"/>
+                </do_if>
+                <do_if value="( not global.$ship_boost_speed.{this.ship.macro}? ) or global.$ship_boost_speed.{this.ship.macro} lt this.ship.speed">
+                  <set_value name="global.$ship_boost_speed.{this.ship.macro}" exact="this.ship.speed"/>
+                </do_if>
+              </do_if>
+            </actions>
+          </interrupt>
+        </wait>
+      </do_if>
       <set_avoid_collisions object="this.ship" enabled="true"/>
       <!-- wait till we are almost there - event_approaching_waypoint usually triggers too early, instead wait till 2-5 seconds before estimated arrival  -->
       <wait min="$arriving_at - player.age - 5s" max="$arriving_at - player.age - 2s" sinceversion="30" chance="$arriving_at? *100"/>
