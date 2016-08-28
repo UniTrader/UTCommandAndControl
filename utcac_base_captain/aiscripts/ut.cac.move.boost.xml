@@ -20,6 +20,16 @@
     
   </params>
   <interrupts>
+    <handler comment="Exploding Rocks">
+      <conditions>
+        <event_object_collided object="this.ship"/>
+        <check_value value="this.ship.isboostactive"/>
+        <check_value value="event.param.isclass.asteroid"/>
+      </conditions>
+      <actions>
+        <destroy_object object="event.param" explosion="true"/>
+      </actions>
+    </handler>
   </interrupts>
   <patch sinceversion="30">
     <do_if value="$followers_preparing?">
