@@ -41,11 +41,7 @@
       <debug_text filter="general" chance="100" text="'%1 %2 %3 Script started; escortee: %4 destination: %5 return Waypoint: %6 Value: %7'.[player.age,this.name,this.container.name,$escortee,$destination,$return_waypoint,$value]"/>
       
       <!-- get available Ships -->
-      
       <set_value name="$availableships" exact="this.$ut_cac.$availablefightships.list.clone"/>
-      
-      <!-- get escortee Value and add fight Shipsto escort duty until their Value is at least half the Ware Value -->
-      <set_value name="$isvalue" exact="$escortee.value"/>
       
       <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship Value: %4, Availableships: \n%5\n%6'.[player.age,this.name,this.container.name,$isvalue,$availableships,this.$ut_cac.$availablefightships]"/>
       <do_if value="not $availableships.count" comment="no Ships available for Escorts - exiting to prevent debug errors">
@@ -55,8 +51,14 @@
       <do_if value="global.$ship_boost_speed.{$escortee.macro}?">
         <set_value name="$escortee_speed" exact="global.$ship_boost_speed.{$escortee.macro}"/>
       </do_if>
+      <do_else>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 No Boost Speed known for this Ship - skipping comparisions (should sort itself out quickly)'.[player.age,this.name,this.container.name]"/>
+      </do_else>
       
-      <do_all exact="[($availableships.count / 3 + 1)i,5].min">
+      <set_value name="$wantedescorts" exact="1" comment="for now only one Escort per Ship, will tune later as needed"/>
+      <set_value name="$escortcount" exact="0"/>
+      
+      <do_while value="$availableships.count and $escortscount lt $wantedescorts">
         <set_value name="$ship" exact="$availableships.random"/>
         <do_if value="$ship.pilot.$orderlist.count gt 1">
          <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 has a too long orderlist - removing'.[player.age,this.name,this.container.name, $ship.knownname,$ship.pilot.$orderlist]"/>
@@ -66,20 +68,22 @@
         <do_if value="$escortee.speed? and global.$ship_boost_speed.{$ship.macro}?">
           <!-- check if the Speed difference would be too great (max 100 m/s) and ignore if it is -->
           <do_if value="$escortee.speed gt global.$ship_boost_speed.{$ship.macro} + 100m or $escortee.speed lt global.$ship_boost_speed.{$ship.macro} - 100m">
-         <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too fast or slow - removing'.[player.age,this.name,this.container.name, $ship.knownname,$ship.pilot.$orderlist]"/>
-          <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
-          <continue/>
+            <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too fast or slow - removing'.[player.age,this.name,this.container.name, $ship.knownname]"/>
+            <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
+            <continue/>
           </do_if>
         </do_if>
-        <set_value name="$isvalue" exact="$ship.value" operation="add"/>
-        <debug_text filter="general" chance="100" text="'%1 %2 %3 Assigned %4 Ship Value: %5 isvalue: %6'.[player.age,this.name,this.container.name, $ship.knownname,$ship.value,$isvalue]"/>
+        <do_else>
+          <debug_text filter="general" chance="100" text="'%1 %2 %3 No Boost Speed known for Other Ship %4 - assuming it is suitable for now (should sort itself out quickly)'.[player.age,this.name,this.container.name, $ship.knownname]"/>
+        </do_else>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Assigned %4 '.[player.age,this.name,this.container.name, $ship.knownname]"/>
         <signal_objects object="$ship.pilot" param="'new order'" param2="table[$displayname='Escorting %1 (Manager Order)'.[$escortee.name],$script='ut.cac.move.escort',$object=$escortee,$destination=$destination]"/>
         <do_if value="$return_waypoint">
           <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
         </do_if>
         
         <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
-      </do_all>
+      </do_while>
       
       </actions>
   </attention>
