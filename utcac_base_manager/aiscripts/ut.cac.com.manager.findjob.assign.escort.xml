@@ -67,8 +67,13 @@
         </do_if>
         <do_if value="$escortee.speed? and global.$ship_boost_speed.{$ship.macro}?">
           <!-- check if the Speed difference would be too great (max 100 m/s) and ignore if it is -->
-          <do_if value="$escortee.speed gt global.$ship_boost_speed.{$ship.macro} - 110m or $escortee.speed lt global.$ship_boost_speed.{$ship.macro} + 110m">
-            <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too fast or slow ( %5ms vs %6ms ) - removing'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}]"/>
+          <do_if value="$escortee.speed gt global.$ship_boost_speed.{$ship.macro} - 110m">
+            <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too fast ( %5ms vs %6ms ) - removing'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}]"/>
+            <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
+            <continue/>
+          </do_if>
+          <do_if value="$escortee.speed lt global.$ship_boost_speed.{$ship.macro} + 110m">
+            <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too slow ( %5ms vs %6ms ) - removing'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}]"/>
             <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
             <continue/>
           </do_if>
