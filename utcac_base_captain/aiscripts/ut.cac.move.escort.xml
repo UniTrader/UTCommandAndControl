@@ -173,6 +173,7 @@ Labels used:
       
       <get_safe_pos result="$safepos" object="this.ship" radius="this.ship.size" direction="quadrant.front" zone="$object.zone" angle="80deg" allowyaxis="true" x="$object.position.x" y="$object.position.y" z="$object.position.z"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to nearby Escortee %4 // Our Pos: %5 %6 // Escortee Pos: %7 %8'.[player.age,this.name,this.container.name,$object.knownname,this.ship.zone.name,this.ship.position,$object.zone.name,$object.position]"/>
+      <set_value name="this.$mayabortpath"/>
       <move_to object="this.ship" abortpath="false" destination="$object.zone" finishonapproach="true">
         <position value="$safepos"/>
         <interrupt_after_time time="5min" comment="Escortee may hae moved - updating Path"/>
@@ -182,6 +183,7 @@ Labels used:
           </conditions>
         </interrupt>
       </move_to>
+      <remove_value name="this.$mayabortpath"/>
       <do_if value="this.ship.distanceto.{$safepos} gt 3km" comment="Moving probably timed out - aborting Path to start a new one">
         <stop_moving object="this.ship"/>
       </do_if>
