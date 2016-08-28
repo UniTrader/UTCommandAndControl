@@ -107,12 +107,12 @@
           
           <find_station name="$station" space="$zone"/>
           <do_if value="$station.exists">
-          <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" zone="$zone" object="$station" directionobject="this.ship" direction="quadrant.front" angle="80deg"/>
+          <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" zone="$zone" object="$station"/>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Station %4 - flying to waypoint nearby (distance: %5 , size: %6)'.[player.age,this.name,this.container.name,$station.knownname,$station.distanceto.{$safepos},$station.size]"/>
           </do_if>
           <do_else>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No Station found - Patrolling Zone'.[player.age,this.name,this.container.name]"/>
-            <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" directionobject="this.ship" direction="quadrant.front" angle="60deg" zone="$zone" space="$zone" max="40km" />
+            <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" directionobject="this.ship" zone="$zone" space="$zone" max="40km" />
           </do_else>
           
           <!-- perform movement -->
