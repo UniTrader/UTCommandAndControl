@@ -58,7 +58,7 @@
       <set_value name="$wantedescorts" exact="1" comment="for now only one Escort per Ship, will tune later as needed"/>
       <set_value name="$escortcount" exact="0"/>
       
-      <do_while value="$availableships.count and $escortscount lt $wantedescorts">
+      <do_while value="$availableships.count and $escortcount lt $wantedescorts">
         <set_value name="$ship" exact="$availableships.random"/>
         <do_if value="$ship.pilot.$orderlist.count gt 1">
          <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 has a too long orderlist - removing'.[player.age,this.name,this.container.name, $ship.knownname,$ship.pilot.$orderlist]"/>
@@ -81,7 +81,7 @@
         <do_if value="$return_waypoint">
           <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
         </do_if>
-        
+        <set_value name="$escortcount" operation="add"/>
         <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
       </do_while>
       
