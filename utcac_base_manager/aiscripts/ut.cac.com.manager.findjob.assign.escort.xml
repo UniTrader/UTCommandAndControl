@@ -67,21 +67,26 @@
         </do_if>
         <do_if value="$escortee.speed? and global.$ship_boost_speed.{$ship.macro}?">
           <!-- check if the Speed difference would be too great (max 100 m/s) and ignore if it is -->
-          <do_if value="$escortee.speed lt global.$ship_boost_speed.{$ship.macro} - 110m">
+          <do_if value="( $escortee.speed - global.$ship_boost_speed.{$ship.macro} ) lt -110m">
             <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too fast ( %5ms vs %6ms ) - removing'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}]"/>
             <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
             <continue/>
           </do_if>
-          <do_if value="$escortee.speed gt global.$ship_boost_speed.{$ship.macro} + 110m">
+          <do_elseif value="( $escortee.speed - global.$ship_boost_speed.{$ship.macro} ) gt 110m">
             <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too slow ( %5ms vs %6ms ) - removing'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}]"/>
             <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
             <continue/>
-          </do_if>
+          </do_elseif>
+          <do_else>
+            <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 meets speed range criterion ( %5ms vs %6ms )'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}]"/>
+            <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
+            <continue/>
+          </do_else>
         </do_if>
         <do_else>
           <debug_text filter="general" chance="100" text="'%1 %2 %3 No Boost Speed known for Other Ship %4 - assuming it is suitable for now (should sort itself out quickly)'.[player.age,this.name,this.container.name, $ship.knownname]"/>
         </do_else>
-        <debug_text filter="general" chance="100" text="'%1 %2 %3 Assigned %4  ( %5ms vs %6ms )'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}]"/>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Assigned %4'.[player.age,this.name,this.container.name, $ship.knownname]"/>
         <signal_objects object="$ship.pilot" param="'new order'" param2="table[$displayname='Escorting %1 (Manager Order)'.[$escortee.name],$script='ut.cac.move.escort',$object=$escortee,$destination=$destination]"/>
         <do_if value="$return_waypoint">
           <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
