@@ -43,7 +43,7 @@
       <!-- get available Ships -->
       <set_value name="$availableships" exact="this.$ut_cac.$availablefightships.list.clone"/>
       
-      <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship Value: %4, Availableships: \n%5\n%6'.[player.age,this.name,this.container.name,$isvalue,$availableships,this.$ut_cac.$availablefightships]"/>
+      <debug_text filter="general" chance="100" text="'%1 %2 %3 Availableships: \n%4\n%5'.[player.age,this.name,this.container.name,$availableships,this.$ut_cac.$availablefightships]"/>
       <do_if value="not $availableships.count" comment="no Ships available for Escorts - exiting to prevent debug errors">
         <return/>
       </do_if>
@@ -68,7 +68,7 @@
         <do_if value="$escortee.speed? and global.$ship_boost_speed.{$ship.macro}?">
           <!-- check if the Speed difference would be too great (max 100 m/s) and ignore if it is -->
           <do_if value="$escortee.speed gt global.$ship_boost_speed.{$ship.macro} + 100m or $escortee.speed lt global.$ship_boost_speed.{$ship.macro} - 100m">
-            <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too fast or slow - removing'.[player.age,this.name,this.container.name, $ship.knownname]"/>
+            <debug_text filter="general" chance="100" text="'%1 %2 %3 Ship %4 is too fast or slow ( %5ms vs %6ms ) - removing'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}]"/>
             <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
             <continue/>
           </do_if>
