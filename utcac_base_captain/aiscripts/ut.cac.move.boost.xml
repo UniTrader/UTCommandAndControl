@@ -425,16 +425,14 @@
       <!-- wait till we are almost there - event_approaching_waypoint usually triggers too early, instead wait till 2-5 seconds before estimated arrival  -->
       <wait min="$arriving_at - player.age - 5s" max="$arriving_at - player.age - 2s" sinceversion="30" chance="$arriving_at? *100"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost movement done, distance to boost target pos: %4, Blocking Group: %5'.[player.age,this.name,this.container.name,this.ship.distanceto.{$targetpos},$leader_preparegroup]"/>
-      <!-- We have Arrived - As Follower make sure we AND the Leader are really in $targetzone before Continuing to avoid running Scripts which dont handle the outstanding Zone Transition -->
+      <!-- We have Arrived - As Follower make sure we are really in $targetzone before Continuing to avoid running Scripts which dont handle the outstanding Zone Transition -->
       <do_if value="$leader.exists">
-        <do_while value="( this.ship.zone != $targetzone and this.ship.numwaypoints or $leader.zone != $targetzone and $leader.numwaypoints )">
+        <do_while value="this.ship.zone != $targetzone and this.ship.numwaypoints">
           <wait sinceversion="30">
             <interrupt>
               <conditions>
                 <check_any>
-                  <event_object_changed_zone object="$leader" zone="$targetzone"/>
                   <event_object_changed_zone object="this.ship" zone="$targetzone"/>
-                  <event_object_arrived_at_waypoint object="$leader" lastwaypoint="true"/>
                   <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
                 </check_any>
               </conditions>
@@ -456,7 +454,6 @@
       </do_if>
       <!--As Leader wait till all Followers are there, too before progressing -->
       <do_else>
-        <remove_from_group group="$leader_preparegroup" object="this.ship"/>
         <do_if value="this.zone != $targetzone and this.ship.numwaypoints">
           <wait sinceversion="30">
             <interrupt>
@@ -469,6 +466,8 @@
             </interrupt>
           </wait>
         </do_if>
+        <remove_from_group group="$leader_preparegroup" object="this.ship"/>
+        <signal_objects object="$leader" param="'preparegroup shrunk'"/>
         <do_while value="$leader_preparegroup.count">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrive\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
           <wait max="1min">
