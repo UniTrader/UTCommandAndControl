@@ -49,7 +49,7 @@ roughly based on the experimental us.cac.follow.verysimple
         <event_object_destroyed object="$object"/>
       </conditions>
       <actions>
-        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Escort Object destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
         <abort_called_scripts/>
         <return value="1"/>
       </actions>
@@ -125,9 +125,22 @@ Labels used:
         </do_else>
       </do_if>
       
+      <!-- check input -->
+      <do_if value="not $object.exists">
+        <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist: %4'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
+        <abort_called_scripts/>
+        <return value="1"/>
+      </do_if>
+      
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$object: %4'.[player.age,this.name,this.container.name,$object.knownname]"/>
       
       <label name="fly to leader zone" />
+      <!-- re - check input because it caused a Lockuop here (FIX CORE ISSUE BEHIND THIS AT SOME POINT!!! ) -->
+      <do_if value="not $object.exists">
+        <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist (Case 2): %4'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
+        <abort_called_scripts/>
+        <return value="1"/>
+      </do_if>
       
       <set_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
       <run_script name="'ut.cac.move.generic'">
