@@ -30,7 +30,17 @@
           </do_if>
           <set_value name="$name" exact="$object.controlentity.$unformatted_object_name"/>
           <!-- Perform Static Replacements (Preffered Marking Key / ) -->
-          <get_text_ids_in_range result="$keys" page="5554301" start="1" end="3000"/>
+          <get_text_ids_in_range result="$keys" page="5554301" start="1" end="1999"/>
+          <do_all exact="$keys.count" counter="$i" reverse="false">
+            <substitute_text text="$name">
+              <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554302}.{$keys.{$i}}"/>
+            </substitute_text>
+          </do_all>
+          <!-- If Language-transfer is desired Save name Var back to local Var now -->
+          <do_if value="readtext.{5554303}.{1} == 'yes'">
+            <set_value name="$object.controlentity.$unformatted_object_name" exact="$name"/>
+          </do_if>
+          <get_text_ids_in_range result="$keys" page="5554301" start="2000" end="3000"/>
           <do_all exact="$keys.count" counter="$i" reverse="false">
             <substitute_text text="$name">
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554302}.{$keys.{$i}}"/>
@@ -47,7 +57,7 @@
           </do_if>
           <!-- Perform Engine-based Dynamic Replacements ( Marking Key % )-->
           <substitute_text text="$name">
-            <replace string="readtext.{5554303}.{1}" with="$object.commander.name"/>
+            <replace string="readtext.{5554303}.{10}" with="$object.commander.name"/>
           </substitute_text>
           <!-- Finally Set Name -->
           <set_object_name object="$object" name="$name"/>
