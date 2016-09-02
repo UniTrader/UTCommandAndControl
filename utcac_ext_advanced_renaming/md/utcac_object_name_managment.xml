@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Object_Name_Managment" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
+  <cues>
+    <cue name="Init">
+      <actions>
+        <!-- Set Up all Groups needed for Automatic Name Upates -->
+        <create_group groupname="$Group"/>
+        <!-- C&P Template -->
+      </actions>
+    </cue>
+    <cue name="GlobalRenameEvent" instantiate="true">
+      <conditions>
+        <check_any>
+          <event_object_signalled object="player.galaxy" param="'Object Name Updated'"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <set_value name="$object" exact="event.param2"/>
+        <include_actions ref="RenameActions"/>
+        <remove_value name="$object"/>
+      </actions>
+    </cue>
+    <library name="RenameActions">
+        <!-- Feel free to Include in your Code if optionally depending on this Mod; Use $object as the Object where the Name should be updated, dont use the Vars $keys or $name since they are used internally-->
+      <actions>
+        <!-- confirm valadity of Object -->
+        <do_if value="$object.exists">
+          <do_if value="$keys? or $name?">
+            <debug_text filter="error" text="'Internally used Vars in Included Actions also used by previous Code: $keys: %1 $name: %2 - will be overridden!!'.{@$keys,@$name}"/>
+          </do_if>
+          <set_value name="$name" exact="$object.controlentity.$unformatted_object_name"/>
+          <!-- Perform Static Replacements (Preffered Marking Key / ) -->
+          <get_text_ids_in_range result="$keys" page="5554301" start="1" end="3000"/>
+          <do_all exact="$keys.count" counter="$i" reverse="false">
+            <substitute_text text="$name">
+              <replace string="{5554301,$keys.{$i}}" with="{5554301,$keys.{$i}}"/>
+            </substitute_text>
+          </do_all>
+          <!-- Perform Script-Dynamic Replacements ( Marking Key $ )-->
+          <do_if value="$object.controlentity.$namereplacement">
+            <set_value name="$keys" exact="$object.controlentity.$namereplacement.keys.list"/>
+            <do_all exact="$keys.count" counter="$i" reverse="false">
+              <substitute_text text="$name">
+                <replace string="$keys.{$i}" with="$object.controlentity.$namereplacement.{$keys.{$i}}"/>
+              </substitute_text>
+            </do_all>
+          </do_if>
+          <!-- Perform Engine-based Dynamic Replacements ( Marking Key % )-->
+          <substitute_text text="$name">
+            <replace string="{5554303,1}" with="$object.commander.name"/>
+          </substitute_text>
+          <!-- Finally Set Name -->
+          <set_object_name object="$object" name="$name"/>
+          <remove_value name="$keys"/>
+          <remove_value name="$name"/>
+        </do_if>
+        <do_else>
+          <debug_text filter="error" text="'Object not set or Invalid for Included Code $object: %1 - doing nothing!!'.{@$object}"/>
+        </do_else>
+      </actions>
+    </library>
+  </cues>
+</mdscript>
