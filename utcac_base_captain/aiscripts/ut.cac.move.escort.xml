@@ -157,11 +157,11 @@ Labels used:
       <!-- then add us to Suprior's "Available for other sudden Orders"-List if $object is also in there-->
       <do_if value="this.ship.commanderentity.$ut_cac.$availablefightships.indexof.{$object}">
         <add_to_group groupname="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Added us to Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Added us to Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
       </do_if>
       
       <!-- to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case) -->
-      <do_if value="$object.hascontext.{$destination}" comment="">
+      <do_if value="$destination.exists and $object.hascontext.{$destination}" comment="">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Object starts in Destination Zone - setting Var to avoid immediate exit'.[player.age,this.name,this.container.name,$object.knownname]"/>
         <set_value name="$startsindestinationzone"/>
       </do_if>
@@ -170,14 +170,14 @@ Labels used:
       <do_if value="player.age gt $timeout">
         <resume label="finish"/>
       </do_if>
-      <do_if value="$object.hascontext.{$destination}">
+      <do_if value="$destination.exists and $object.hascontext.{$destination}">
         <do_if value="not $startsindestinationzone?" comment="to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case)">
           <resume label="finish"/>
         </do_if>
       </do_if>
-      <do_else comment="to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case)">
+      <do_elseif value="$destination.exists" comment="to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case)">
         <remove_value name="$startsindestinationzone"/>
-      </do_else>
+      </do_elseif>
       <do_if value="$object.zone != this.zone">
         <resume label="fly to leader zone"/>
       </do_if>
