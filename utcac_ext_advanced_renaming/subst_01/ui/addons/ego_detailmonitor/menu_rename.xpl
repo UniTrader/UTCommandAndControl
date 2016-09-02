@@ -31,7 +31,7 @@ function menu.editboxUpdateText(_, text, textchanged)
 -- UniTrader Change: dont change Object Name directly - instead Set local Var and Signal Name Managment MD Script to handle the rest
 		if GetComponentData(menu.object, "controlentity") then
 			SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
-			SignalObject(GetComponentData(playership, "galaxyid" ) , "'Object Name Updated'" , menu.object )
+			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "'Object Name Updated'" , menu.object )
 		else
 			SetComponentName(menu.object, text) -- this line was previously by itself, not in the if
 		end
