@@ -31,7 +31,7 @@ function menu.editboxUpdateText(_, text, textchanged)
 -- UniTrader Change: dont change Object Name directly - instead Set local Var and Signal Name Managment MD Script to handle the rest
 		if GetComponentData(menu.object, "controlentity") then
 			SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
-			SignalObject(GetComponentData(playership, "galaxyid" ) , "'Object Name Updated'" , menu.object )
+			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object , 1 )
 		else
 			SetComponentName(menu.object, text) -- this line was previously by itself, not in the if
 		end
@@ -56,17 +56,17 @@ function menu.onShowMenu()
 
 	local container = GetContextByClass(menu.object, "container", false)
 	local isship = IsComponentClass(menu.object, "ship")
-	local name, objectowner = GetComponentData(menu.object, "name", "owner")
--- UniTrader Change: read Name from Local Var of Control Entity instead of directly from Object - Overwrites previously received Value
+-- UniTrader Change: Split Name Var into displayname (from Object) and (edit)name (from Local Var of Control Entity , fallback to displayname)
+	local displayname, name, objectowner = GetComponentData(menu.object, "name", "name", "owner")
 	if GetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name") then
-		local name = GetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name")
+		name = GetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name")
+	end
+	if container then
+		menu.title = GetComponentData(container, "name") .. " - " .. (name ~= "" and displayname or ReadText(1001, 56))
+	else
+		menu.title = (name ~= "" and displayname or ReadText(1001, 56))
 	end
 -- UniTrader Change end
-	if container then
-		menu.title = GetComponentData(container, "name") .. " - " .. (name ~= "" and name or ReadText(1001, 56))
-	else
-		menu.title = (name ~= "" and name or ReadText(1001, 56))
-	end
 
 	-- Title line as one TableView
 	local setup = Helper.createTableSetup(menu)	
