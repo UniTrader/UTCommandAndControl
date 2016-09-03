@@ -5,10 +5,11 @@
       <actions>
         <!-- Set Up all Groups needed for Automatic Name Upates -->
         <create_group groupname="$Skill"/>
-        <!-- C&P Template -->
+        <!-- set current User Expression Version so Update on load only happens when it changed -->
+        <set_value name="$customversion" exact="{5554302,1}"/>
       </actions>
       <cues>
-        <cue name="NameUpdate" instantiate="true">
+        <cue name="NameUpdateSingleobject" instantiate="true">
           <conditions>
             <check_any>
               <event_object_signalled object="player.galaxy" param="'Object Name Updated'"/>
@@ -19,6 +20,26 @@
             <set_value name="$object" exact="event.param2"/>
             <include_actions ref="RenameActions"/>
             <remove_value name="$object"/>
+          </actions>
+        </cue>
+        <cue name="NameUpdateAllPlayerObjects" instantiate="true">
+          <conditions>
+            <check_any>
+              <check_all>
+                <event_game_loaded/>
+                <check_value value="{5554302,1} != @$customversion" comment="only update when Custom (User) Version has changed"/>
+              </check_all>
+            </check_any>
+          </conditions>
+          <delay exact="5s"/>
+          <actions>
+            <set_value name="$customversion" exact="{5554302,1}"/>
+            <find_object name="$playerobjects" space="player.galaxy" multiple="true"/>
+            <do_all exact="$playerobjects.count" counter="$i">
+              <set_value name="$object" exact="$playerobjects.{$i}"/>
+              <include_actions ref="RenameActions"/>
+              <remove_value name="$object"/>
+            </do_all>
           </actions>
         </cue>
       </cues>
@@ -49,7 +70,8 @@
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
             </substitute_text>
           </do_all>
-          <!-- Perform Script-Dynamic Replacements ( Marking Key $ ) - no Registration for Automated Update Event, send Signal yourself.-->
+          <!-- Perform Script-Dynamic Replacements ( Marking Key $ ) - no Registration for Automated Update Event, send Signal or Include Actions yourself.-->
+          <!-- (feel free to create and add your own Values to the local table $namereplacement though ;) -->
           <do_if value="$object.controlentity.$namereplacement?">
             <set_value name="$keys" exact="$object.controlentity.$namereplacement.keys.list"/>
             <do_all exact="$keys.count" counter="$i" reverse="false">
