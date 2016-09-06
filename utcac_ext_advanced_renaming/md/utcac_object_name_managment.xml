@@ -60,7 +60,7 @@
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
             </substitute_text>
           </do_all>
-          <!-- If Language-transfer is desired Save name Var back to local Var now -->
+          <!-- If Language-transfer is desired Save name Var back to local Var now, continue with remaining phrases after that -->
           <do_if value="{5554302,1} == 'yes'">
             <set_value name="$object.controlentity.$unformatted_object_name" exact="$nameA"/>
           </do_if>
@@ -70,6 +70,7 @@
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
             </substitute_text>
           </do_all>
+          
           <!-- Perform Script-Dynamic Replacements ( Marking Key $ ) - no Registration for Automated Update Event, send Signal or Include Actions yourself.-->
           <!-- (feel free to create and add your own Values to the local table $namereplacement though ;) -->
           <do_if value="$object.controlentity.$namereplacement?">
@@ -80,6 +81,7 @@
               </substitute_text>
             </do_all>
           </do_if>
+          
           <!-- Perform Engine-based Dynamic Replacements ( Marking Key % ) and also add them to Update Group if used-->
           <!-- Skill-based Expressions - switching to from $nameA to $nameB for actual name to compare it to before substitution -->
           <substitute_text source="$nameA" text="$nameB">
@@ -175,7 +177,18 @@
             <replace string="{5554302,105}" with="$object.sector.name"/>
             <replace string="{5554302,106}" with="$object.cluster.name"/>
             <replace string="{5554302,107}" with="$object.macro.name"/>
+            <replace string="{5554302,108}" with="$object.class"/>
+            <replace string="{5554302,109}" with="$object.primarypurpose"/>
           </substitute_text>
+          
+          <!-- Post-dynamic substitutions -->
+          <get_text_ids_in_range result="$keys" page="5554301" start="10000" end="12000" factor="2"/>
+          <do_all exact="$keys.count" counter="$i" reverse="false">
+            <substitute_text text="$nameB">
+              <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
+            </substitute_text>
+          </do_all>
+          
           <!-- Finally Set Name -->
           <set_object_name object="$object" name="$nameB"/>
         </do_if>
