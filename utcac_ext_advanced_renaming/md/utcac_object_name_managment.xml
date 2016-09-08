@@ -1,23 +1,33 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Object_Name_Managment" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
   <cues>
-    <cue name="Init">
+    <cue name="Init" version="2">
       <actions>
         <!-- Set Up all Groups needed for Automatic Name Upates -->
-        <create_group groupname="$Skill"/>
+        <create_group groupname="$NamedObjects"/>
         <!-- set current User Expression Version so Update on load only happens when it changed -->
         <set_value name="$customversion" exact="{5554302,1}"/>
       </actions>
+      <patch sinceversion="2">
+        <remove_value name="$Skill"/>
+        <create_group groupname="$NamedObjects"/>
+      </patch>
       <cues>
         <cue name="NameUpdateSingleobject" instantiate="true">
           <conditions>
             <check_any>
               <event_object_signalled object="player.galaxy" param="'Object Name Updated'"/>
-              <event_object_signalled group="$Skill" param="'Skill Changed'"/>
+              <event_object_signalled group="$NamedObjects" param="'Object Name Updated'"/>
             </check_any>
           </conditions>
           <actions>
-            <set_value name="$object" exact="event.param2"/>
+            <do_if value="event.object == player.galaxy">
+              <set_value name="$object" exact="event.param2"/>
+              <add_to_group groupname="$NamedObjects" object="$object"/>
+            </do_if>
+            <do_else>
+              <set_value name="$object" exact="event.object"/>
+            </do_else>
             <include_actions ref="RenameActions"/>
             <remove_value name="$object"/>
           </actions>
@@ -45,7 +55,6 @@
       </cues>
     </cue>
     <library name="RenameActions">
-        <!-- Feel free to Include in your Code if optionally depending on this Mod; Use $object as the Object where the Name should be updated, dont use the Vars $keys, $nameA or $nameB since they are used internally-->
       <actions>
         <!-- confirm valadity of Object -->
         <do_if value="$object.exists and $object.controlentity.$unformatted_object_name?">
