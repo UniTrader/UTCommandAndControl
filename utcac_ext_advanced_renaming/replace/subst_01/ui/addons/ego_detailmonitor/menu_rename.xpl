@@ -16,6 +16,8 @@ local function init()
 	end
 end
 
+local renamesubordinates = false --UniTrader change: add script-local bool to indicate that Subordinates should be renamed rather than the Ship itself
+
 function menu.cleanup()
 	menu.title = nil
 	menu.object = nil
@@ -30,8 +32,12 @@ function menu.editboxUpdateText(_, text, textchanged)
 	if textchanged then
 -- UniTrader Change: dont change Object Name directly - instead Set local Var and Signal Name Managment MD Script to handle the rest
 		if GetComponentData(menu.object, "controlentity") then
-			SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
-			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object , 1 )
+		    if renamesubordinates then
+			    SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated" , menu.object , text )
+			else
+			    SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
+			    SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
+			end
 		else
 			SetComponentName(menu.object, text) -- this line was previously by itself, not in the if
 		end
@@ -47,6 +53,7 @@ end
 
 -- UniTrader new Function: Rename all Subordinates of Object (instead of current Object)
 function menu.buttonRenameSubordinates()
+    renamesubordinates = true
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 -- UniTrader new Function end
@@ -114,7 +121,7 @@ function menu.onShowMenu()
 	-- set scripts
 	Helper.setEditBoxScript(menu, nil, menu.selecttable, 1, 1, menu.editboxUpdateText)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 2, menu.buttonOK)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 4, menu.buttonOK) -- UniTrader new Button: Rename all Subordinates
+	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 4, menu.buttonRenameSubordinates) -- UniTrader new Button: Rename all Subordinates
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 6, menu.buttonCancel)
 	
 	menu.activateEditBox = true

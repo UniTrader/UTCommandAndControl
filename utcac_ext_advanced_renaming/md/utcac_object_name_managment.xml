@@ -17,18 +17,19 @@
           <conditions>
             <check_any>
               <event_object_signalled object="player.galaxy" param="'Object Name Updated'" comment="for (initial) signalling from lua"/>
+              <event_object_signalled object="player.galaxy" param="'Subordinates Name Updated'" comment="for (initial) signalling from lua"/>
               <event_object_signalled group="$NamedObjects" param="'Object Name Updated'" comment="for Update Signalling from other Scripts"/>
             </check_any>
           </conditions>
           <actions>
             <do_if value="event.object == player.galaxy">
-              <do_if value="event.param3 == 'Subordinates'">
+              <do_if value="event.param == 'Subordinates Name Updated'">
                 <!-- Redirect to Cue for Renaming Subordinates, dont update Name of this Object - the include_actions later checks for valadity of $object so not setting it here. -->
-                <create_group groupname="$subordinates"/>
-                <add_to_group groupname="$NamedObjects" list="event.param2.subordinates"/>
-                <add_to_group groupname="$subordinates" list="event.param2.subordinates"/>
-                <signal_objects group="$subordinates" param="'Object Name Updated'"/>
-                <remove_value name="$subordinates"/>
+                <do_all exact="event.param2.subordinates.count" counter="$i">
+                  <set_value name="event.param2.subordinates.{$i}.controlentity.$unformatted_object_name" exact="event.param3"/>
+                  <add_to_group groupname="$NamedObjects" object="event.param2.subordinates.{$i}"/>
+                  <signal_objects object="event.param2.subordinates.{$i}" param="'Object Name Updated'"/>
+                </do_all>
               </do_if>
               <do_else>
                 <set_value name="$object" exact="event.param2"/>
