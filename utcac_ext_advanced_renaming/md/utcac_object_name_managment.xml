@@ -16,17 +16,28 @@
         <cue name="NameUpdateSingleobject" instantiate="true">
           <conditions>
             <check_any>
-              <event_object_signalled object="player.galaxy" param="'Object Name Updated'"/>
-              <event_object_signalled group="$NamedObjects" param="'Object Name Updated'"/>
+              <event_object_signalled object="player.galaxy" param="'Object Name Updated'" comment="for (initial) signalling from lua"/>
+              <event_object_signalled group="$NamedObjects" param="'Object Name Updated'" comment="for Update Signalling from other Scripts"/>
             </check_any>
           </conditions>
           <actions>
             <do_if value="event.object == player.galaxy">
-              <set_value name="$object" exact="event.param2"/>
-              <add_to_group groupname="$NamedObjects" object="$object"/>
+              <do_if value="event.param3 == 'Subordinates'">
+                <!-- Redirect to Cue for Renaming Subordinates, dont update Name of this Object - the include_actions later checks for valadity of $object so not setting it here. -->
+                <create_group groupname="$subordinates"/>
+                <add_to_group groupname="$NamedObjects" list="event.param2.subordinates"/>
+                <add_to_group groupname="$subordinates" list="event.param2.subordinates"/>
+                <signal_objects group="$subordinates" param="'Object Name Updated'"/>
+                <remove_value name="$subordinates"/>
+              </do_if>
+              <do_else>
+                <set_value name="$object" exact="event.param2"/>
+                <add_to_group groupname="$NamedObjects" object="$object"/>
+              </do_else>
             </do_if>
             <do_else>
               <set_value name="$object" exact="event.object"/>
+              <!-- note: In this case event.param2 should contain why the Object Name has to be updated ( currently implemented reasons: Skill ) - skip Update if there is no effecive change when you know how to check for this -->
             </do_else>
             <include_actions ref="RenameActions"/>
             <remove_value name="$object"/>
