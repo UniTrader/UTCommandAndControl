@@ -102,8 +102,9 @@
               </substitute_text>
             </do_all>
           </do_if>
-          
+          <!-- ========= -->
           <!-- Perform Engine-based Dynamic Replacements ( Marking Key % ) and also add them to Update Group if used-->
+          <!-- - - - - - - - - - - - -->
           <!-- Skill-based Expressions - switching to from $nameA to $nameB for actual name to compare it to before substitution -->
           <substitute_text source="$nameA" text="$nameB">
             <replace string="{5554302,10}" with="$object.boardingnpc.combinedskill"/>
@@ -189,6 +190,44 @@
           <do_else>
             <remove_from_group group="$Skill" object="$object"/>
           </do_else>
+          <!-- - - - - - - - - - - - - -->
+          <!-- Freight Class (has to be evaluated first) -->
+          <!-- Universal Cargo -->
+          <do_if value="$object.cargo.tags.indexof.{tag.bulk} and $object.cargo.tags.indexof.{tag.container} and $object.cargo.tags.indexof.{tag.energy} and $object.cargo.tags.indexof.{tag.liquid}">
+            <set_value name="$cargotype" exact="{5554302,201}"/>
+          </do_if>
+          <!-- Single/Hybrid Cargo - check each class individually -->
+          <do_else>
+            <set_value name="$cargotype" exact="''"/>
+            <do_if value="$object.cargo.tags.indexof.{tag.bulk}">
+              <set_value name="$cargotype" operation="add" exact="{5554302,202}"/>
+            </do_if>
+            <do_if value="$object.cargo.tags.indexof.{tag.container}">
+              <set_value name="$cargotype" operation="add" exact="{5554302,203}"/>
+            </do_if>
+            <do_if value="$object.cargo.tags.indexof.{tag.energy}">
+              <set_value name="$cargotype" operation="add" exact="{5554302,204}"/>
+            </do_if>
+            <do_if value="$object.cargo.tags.indexof.{tag.liquid}">
+              <set_value name="$cargotype" operation="add" exact="{5554302,205}"/>
+            </do_if>
+          </do_else>
+          <!-- Other/odd Cargo Types - just for completeness -->
+          <!-- <do_if value="$object.cargo.tags.indexof.{tag.fuel}">
+            <set_value name="$cargotype" operation="add" exact="{5554302,206}"/>
+          </do_if> -->
+          <do_if value="$object.cargo.tags.indexof.{tag.ship}">
+            <set_value name="$cargotype" operation="add" exact="{5554302,207}"/>
+          </do_if>
+          <do_if value="$object.cargo.tags.indexof.{tag.inventory}">
+            <set_value name="$cargotype" operation="add" exact="{5554302,208}"/>
+          </do_if>
+          <substitute_text text="$nameB">
+            <replace string="{5554302,200}" with="$cargotype"/>
+          </substitute_text>
+          <remove_value name="$cargotype"/>
+          <!-- - - - - - - - - - - - - -->
+          <!-- Object and Commander-based Expressions which can be inserted directly -->
           <substitute_text text="$nameB">
             <replace string="{5554302,100}" with="$object.commander.name"/>
             <replace string="{5554302,101}" with="$object.commander.zone.name"/>
@@ -201,6 +240,8 @@
             <replace string="{5554302,108}" with="{5554301,11001} + $object.primarypurpose"/> <!-- will be post-dynamic replaced with proper Purpose Name -->
             <replace string="{5554302,109}" with="{5554301,11015} + $object.class"/> <!-- will be post-dynamic replaced with proper Class Name -->
           </substitute_text>
+          
+          
           
           <!-- Post-dynamic substitutions -->
           <get_text_ids_in_range result="$keys" page="5554301" start="10000" end="12000" factor="2"/>
