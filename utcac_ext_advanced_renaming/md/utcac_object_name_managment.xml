@@ -194,7 +194,13 @@
           <!-- Freight Class (has to be evaluated first) -->
           <!-- Universal Cargo -->
           <do_if value="$object.cargo.tags.indexof.{tag.bulk} and $object.cargo.tags.indexof.{tag.container} and $object.cargo.tags.indexof.{tag.energy} and $object.cargo.tags.indexof.{tag.liquid}">
-            <set_value name="$cargotype" exact="{5554302,201}"/>
+            <!-- Differ between real Universal Cargo and Split Multi  Cargo -->
+            <do_if value="$object.cargo.{ware.ore}.max == $object.cargo.{ware.refinedmetals}.max and$object.cargo.{ware.ore}.max ==$object.cargo.{ware.energycells}.max and $object.cargo.{ware.ore}.max == $object.cargo.{ware.hydrogen}.max">
+              <set_value name="$cargotype" exact="{5554302,201}"/>
+            </do_if>
+            <do_else>
+              <set_value name="$cargotype" exact="{5554302,209}"/>
+            </do_else>
           </do_if>
           <!-- Single/Hybrid Cargo - check each class individually -->
           <do_else>
@@ -239,7 +245,8 @@
             <replace string="{5554302,107}" with="$object.macro.name"/>
             <replace string="{5554302,108}" with="{5554301,11001} + $object.primarypurpose"/> <!-- will be post-dynamic replaced with proper Purpose Name -->
             <replace string="{5554302,109}" with="{5554301,11015} + $object.class"/> <!-- will be post-dynamic replaced with proper Class Name -->
-            <!-- Short Name Variants -->
+            <!-- Short Name Variants - doesnt work in XR v4.0, but for future usage -->
+            <!--
             <replace string="{5554302,110}" with="$object.commander.zone.shortname"/>
             <replace string="{5554302,111}" with="$object.commander.sector.shortname"/>
             <replace string="{5554302,112}" with="$object.commander.cluster.shortname"/>
@@ -247,6 +254,7 @@
             <replace string="{5554302,114}" with="$object.sector.shortname"/>
             <replace string="{5554302,115}" with="$object.cluster.shortname"/>
             <replace string="{5554302,116}" with="$object.macro.shortname"/>
+            -->
           </substitute_text>
           
           
