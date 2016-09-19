@@ -106,8 +106,8 @@ function menu.onShowMenu()
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
 		Helper.createButton(Helper.createButtonText(ReadText(1001, 14), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_A", true), nil, isship and ReadText(1026, 1119) or nil),
-		Helper.getEmptyCellDescriptor(),
-		Helper.createButton(Helper.createButtonText("Rename Subordinates", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_A", true), nil, "Rename all Subordinates of this Object"), -- UniTrader Button for new Function to rename all Subordinates
+		-- Helper.getEmptyCellDescriptor(),
+		-- Helper.createButton(Helper.createButtonText("Rename Subordinates", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_A", true), nil, "Rename all Subordinates of this Object"), -- UniTrader Button for new Function to rename all Subordinates
 		Helper.getEmptyCellDescriptor(),
 		Helper.createButton(Helper.createButtonText(ReadText(1001, 64), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_ESC", true), nil, isship and ReadText(1026, 1120) or nil),
 		Helper.getEmptyCellDescriptor()
@@ -121,7 +121,7 @@ function menu.onShowMenu()
 	-- set scripts
 	Helper.setEditBoxScript(menu, nil, menu.selecttable, 1, 1, menu.editboxUpdateText)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 2, menu.buttonOK)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 4, menu.buttonRenameSubordinates) -- UniTrader new Button: Rename all Subordinates
+	-- Helper.setButtonScript(menu, nil, menu.buttontable, 1, 4, menu.buttonRenameSubordinates) -- UniTrader new Button: Rename all Subordinates
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 6, menu.buttonCancel)
 	
 	menu.activateEditBox = true
