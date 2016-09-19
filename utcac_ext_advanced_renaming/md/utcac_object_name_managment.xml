@@ -189,7 +189,7 @@
             <add_to_group groupname="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object" comment="since this code might be included elsewhere refer to this var with mdscript/cue"/>
           </do_if>
           <do_else>
-            <remove_from_group group="$Skill" object="$object"/>
+            <remove_from_group group="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object"/>
           </do_else>
           <!-- - - - - - - - - - - - - -->
           <!-- Freight Class (has to be evaluated first) -->
@@ -278,13 +278,13 @@
           <!-- Post-dynamic substitutions -->
           <get_text_ids_in_range result="$keys" page="5554301" start="10000" end="12000" factor="2"/>
           <do_all exact="$keys.count" counter="$i" reverse="false">
-            <substitute_text text="$nameB">
+            <substitute_text text="$nameA">
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
             </substitute_text>
           </do_all>
           
           <!-- Finally Set Name and cleanup -->
-          <set_object_name object="$object" name="$nameB"/>
+          <set_object_name object="$object" name="$nameA"/>
           <remove_value name="$keys"/>
           <remove_value name="$nameA"/>
           <remove_value name="$nameB"/>
