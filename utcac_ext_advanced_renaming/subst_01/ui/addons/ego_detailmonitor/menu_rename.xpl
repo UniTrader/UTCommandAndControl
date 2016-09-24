@@ -112,11 +112,11 @@ function menu.onShowMenu()
 	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 	
 	-- Mass Renaming Functions
-	--setup:addHeaderRow({ReadText(5554302, 1001),Helper.getEmptyCellDescriptor()}, nil, {3, 2})
+	setup:addHeaderRow({ReadText(5554302, 1001),"Future Functions"}, nil, {3, 2})
 	setup:addSimpleRow({ 
 		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1002), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
-		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1003), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
-		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1004), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1004), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename Big Ship Subordinates of this Object"),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1006), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename Small Ship Subordinates of this Object"),
 		Helper.getEmptyCellDescriptor(),
 		Helper.getEmptyCellDescriptor()
 	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
