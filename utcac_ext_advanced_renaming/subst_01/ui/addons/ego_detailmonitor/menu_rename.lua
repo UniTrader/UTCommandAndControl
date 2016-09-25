@@ -188,8 +188,7 @@ function menu.onShowMenu()
 	
 	-- Experimental Faction Icons, not intended to be useable yet..
 	local extensionSettings = GetAllExtensionSettings()
-	--if false then
-	if ( extensionSettings["utfactionlogos"].enabled or extensionSettings["ws_329415910"].enabled ) and extensionSettings["utcac_ext_advanced_renaming_user"].enabled then
+	if false and ( extensionSettings["utfactionlogos"].enabled or extensionSettings["ws_329415910"].enabled ) and extensionSettings["utcac_ext_advanced_renaming_user"].enabled then
 		setup:addHeaderRow({ReadText(5554302, 1008)}, nil, {5})
 		setup:addSimpleRow({ 
 			-- Display Superior or Default Logo as first Item in this Row (selectable if Logo is useable)
@@ -222,7 +221,7 @@ function menu.onShowMenu()
 	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 1, menu.buttonRenameSubordinates)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 2, menu.buttonRenameSubordinatesBigShips)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 3, menu.buttonRenameSubordinatesSmallShips)
-	if ( extensionSettings["utfactionlogos"].enabled or extensionSettings["ws_329415910"].enabled ) and extensionSettings["utcac_ext_advanced_renaming_user"].enabled then
+	if false and ( extensionSettings["utfactionlogos"].enabled or extensionSettings["ws_329415910"].enabled ) and extensionSettings["utcac_ext_advanced_renaming_user"].enabled then
 		Helper.setButtonScript(menu, nil, menu.buttontable, 4, 1, menu.buttonSetLogoFromSuperior)
 		Helper.setButtonScript(menu, nil, menu.buttontable, 5, 1, menu.buttonSetLogoCurrent)
 		Helper.setButtonScript(menu, nil, menu.buttontable, 4, 2, menu.buttonSetLogoPlayer_1)
