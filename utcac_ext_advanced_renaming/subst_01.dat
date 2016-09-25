@@ -53,7 +53,7 @@ end
 
 -- UniTrader new Function: Rename all Subordinates of Object (instead of current Object)
 function menu.buttonRenameSubordinates()
-    renamesubordinates = true
+	renamesubordinates = true
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 -- UniTrader new Function end
@@ -105,13 +105,48 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		Helper.createButton(Helper.createButtonText(ReadText(1001, 14), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_A", true), nil, isship and ReadText(1026, 1119) or nil),
+		Helper.createButton(Helper.createButtonText(ReadText(1001, 14), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_A", true), nil, isship and ReadText(1026, 1119) or nil),
 		Helper.getEmptyCellDescriptor(),
-		Helper.createButton(Helper.createButtonText(ReadText(1001, 64), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_ESC", true), nil, isship and ReadText(1026, 1120) or nil),
-		Helper.createButton(Helper.createButtonText("Rename Subordinates", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_A", true), nil, "Rename all Subordinates of this Object") -- UniTrader Button for new Function to rename all Subordinates
+		Helper.createButton(Helper.createButtonText(ReadText(1001, 64), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_ESC", true), nil, isship and ReadText(1026, 1120) or nil),
+		Helper.getEmptyCellDescriptor()
 	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 	
-	local buttondesc = setup:createCustomWidthTable({200, 200, 0, 200, 200}, false, false, false, 2, 1, 0, 150)
+	-- Mass Renaming Functions
+	--setup:addHeaderRow({ReadText(5554302, 1001),Helper.getEmptyCellDescriptor()}, nil, {3, 2})
+	setup:addSimpleRow({ 
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1002), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1003), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1004), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
+		Helper.getEmptyCellDescriptor(),
+		Helper.getEmptyCellDescriptor()
+	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
+	
+	
+	
+	-- Experimental Faction Icons, not intended to be useable yet..
+	local extensionSettings = GetAllExtensionSettings()
+	if false then
+	--if true or extensionSettings["utfactionlogos"].enabled or extensionSettings["utfactionlogos"].enabled then
+		setup:addHeaderRow({ReadText(5554302, 1005)}, nil, {5})
+		setup:addSimpleRow({ 
+			-- Display Superior or Default Logo as first Item in this Row (selectable if Logo is useable)
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player"  , nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "Use Icon of Superior (or Playership)"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_1", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_2", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_3", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_4", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon")
+		}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
+		setup:addSimpleRow({
+			-- Display current Logo as first Item in this Row (not selectable)
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player"  , nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "Current Icon  just for Info"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_5", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_6", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_7", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_8", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon")
+		}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
+	end
+	
+	local buttondesc = setup:createCustomWidthTable({160, 160, 160, 160, 160}, false, false, false, 2, 1, 0, 150)
 
 	-- create tableview
 	menu.infotable, menu.selecttable, menu.buttontable = Helper.displayThreeTableView(menu, infodesc, selectdesc, buttondesc, false)
@@ -120,7 +155,7 @@ function menu.onShowMenu()
 	Helper.setEditBoxScript(menu, nil, menu.selecttable, 1, 1, menu.editboxUpdateText)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 2, menu.buttonOK)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 4, menu.buttonCancel)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 5, menu.buttonRenameSubordinates) -- UniTrader new Button: Rename all Subordinates
+	Helper.setButtonScript(menu, nil, menu.buttontable, 2, 1, menu.buttonRenameSubordinates) -- UniTrader new Button: Rename all Subordinates
 	
 	menu.activateEditBox = true
 
@@ -209,7 +244,7 @@ end
 
 -- UniTrader new Function: Rename all Subordinates of Object (instead of current Object)
 function menu.buttonRenameSubordinates()
-    renamesubordinates = true
+	renamesubordinates = true
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 -- UniTrader new Function end
@@ -261,13 +296,48 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		Helper.createButton(Helper.createButtonText(ReadText(1001, 14), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_A", true), nil, isship and ReadText(1026, 1119) or nil),
+		Helper.createButton(Helper.createButtonText(ReadText(1001, 14), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_A", true), nil, isship and ReadText(1026, 1119) or nil),
 		Helper.getEmptyCellDescriptor(),
-		Helper.createButton(Helper.createButtonText(ReadText(1001, 64), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_ESC", true), nil, isship and ReadText(1026, 1120) or nil),
-		Helper.createButton(Helper.createButtonText("Rename Subordinates", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 200, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_A", true), nil, "Rename all Subordinates of this Object") -- UniTrader Button for new Function to rename all Subordinates
+		Helper.createButton(Helper.createButtonText(ReadText(1001, 64), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_ESC", true), nil, isship and ReadText(1026, 1120) or nil),
+		Helper.getEmptyCellDescriptor()
 	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 	
-	local buttondesc = setup:createCustomWidthTable({200, 200, 0, 200, 200}, false, false, false, 2, 1, 0, 150)
+	-- Mass Renaming Functions
+	--setup:addHeaderRow({ReadText(5554302, 1001),Helper.getEmptyCellDescriptor()}, nil, {3, 2})
+	setup:addSimpleRow({ 
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1002), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1003), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1004), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
+		Helper.getEmptyCellDescriptor(),
+		Helper.getEmptyCellDescriptor()
+	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
+	
+	
+	
+	-- Experimental Faction Icons, not intended to be useable yet..
+	local extensionSettings = GetAllExtensionSettings()
+	if false then
+	--if true or extensionSettings["utfactionlogos"].enabled or extensionSettings["utfactionlogos"].enabled then
+		setup:addHeaderRow({ReadText(5554302, 1005)}, nil, {5})
+		setup:addSimpleRow({ 
+			-- Display Superior or Default Logo as first Item in this Row (selectable if Logo is useable)
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player"  , nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "Use Icon of Superior (or Playership)"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_1", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_2", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_3", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_4", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon")
+		}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
+		setup:addSimpleRow({
+			-- Display current Logo as first Item in this Row (not selectable)
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player"  , nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "Current Icon  just for Info"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_5", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_6", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_7", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player_8", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon")
+		}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
+	end
+	
+	local buttondesc = setup:createCustomWidthTable({160, 160, 160, 160, 160}, false, false, false, 2, 1, 0, 150)
 
 	-- create tableview
 	menu.infotable, menu.selecttable, menu.buttontable = Helper.displayThreeTableView(menu, infodesc, selectdesc, buttondesc, false)
@@ -276,7 +346,7 @@ function menu.onShowMenu()
 	Helper.setEditBoxScript(menu, nil, menu.selecttable, 1, 1, menu.editboxUpdateText)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 2, menu.buttonOK)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 4, menu.buttonCancel)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 5, menu.buttonRenameSubordinates) -- UniTrader new Button: Rename all Subordinates
+	Helper.setButtonScript(menu, nil, menu.buttontable, 2, 1, menu.buttonRenameSubordinates) -- UniTrader new Button: Rename all Subordinates
 	
 	menu.activateEditBox = true
 
