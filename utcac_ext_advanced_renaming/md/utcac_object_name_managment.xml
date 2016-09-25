@@ -18,18 +18,41 @@
             <check_any>
               <event_object_signalled object="player.galaxy" param="'Object Name Updated'" comment="for (initial) signalling from lua"/>
               <event_object_signalled object="player.galaxy" param="'Subordinates Name Updated'" comment="for (initial) signalling from lua"/>
+              <event_object_signalled object="player.galaxy" param="'Subordinates Name Updated - bigships'" comment="for (initial) signalling from lua"/>
+              <event_object_signalled object="player.galaxy" param="'Subordinates Name Updated - smallships'" comment="for (initial) signalling from lua"/>
               <event_object_signalled group="$NamedObjects" param="'Object Name Updated'" comment="for Update Signalling from other Scripts"/>
             </check_any>
           </conditions>
           <actions>
             <do_if value="event.object == player.galaxy">
-              <do_if value="event.param == 'Subordinates Name Updated'">
+              <do_if value="event.param == 'Subordinates Name Updated' or event.param == 'Subordinates Name Updated - bigships' or event.param == 'Subordinates Name Updated - smallships'">
                 <!-- Redirect to Cue for Renaming Subordinates, dont update Name of this Object - the include_actions later checks for valadity of $object so not setting it here. -->
-                <do_all exact="event.param2.subordinates.count" counter="$i">
-                  <set_value name="event.param2.subordinates.{$i}.controlentity.$unformatted_object_name" exact="event.param3"/>
-                  <add_to_group groupname="$NamedObjects" object="event.param2.subordinates.{$i}"/>
-                  <signal_objects object="event.param2.subordinates.{$i}" param="'Object Name Updated'"/>
+                <set_value name="$subordinates" exact="event.param2.subordinates.clone"/>
+                <do_if value="event.param == 'Subordinates Name Updated - bigships'">
+                  <do_all exact="$subordinates.count" counter="$i" reverse="true">
+                    <do_if value="$subordinates.{$i}.isclass.ship_xl or $subordinates.{$i}.isclass.ship_l" negate="true">
+                      <remove_value name="$subordinates.{$i}"/>
+                    </do_if>
+                  </do_all>
+                </do_if>
+                <do_if value="event.param == 'Subordinates Name Updated - smallhips'">
+                  <do_all exact="$subordinates.count" counter="$i" reverse="true">
+                    <do_if value="$subordinates.{$i}.isclass.ship_m or $subordinates.{$i}.isclass.ship_s or $subordinates.{$i}.isclass.ship_xs" negate="true">
+                      <remove_value name="$subordinates.{$i}"/>
+                    </do_if>
+                  </do_all>
+                </do_if>
+                <do_all exact="$subordinates.count" counter="$i">
+                  <substitute_text text="$objectname" source="event.param3">
+                    <replace string="{5554302,117}" with="$subordinates.count"/>
+                    <replace string="{5554302,118}" with="$i"/>
+                  </substitute_text>
+                  <set_value name="$subordinates.{$i}.controlentity.$unformatted_object_name" exact="$objectname"/>
+                  <add_to_group groupname="$NamedObjects" object="$subordinates.{$i}"/>
+                  <signal_objects object="$subordinates.{$i}" param="'Object Name Updated'"/>
                 </do_all>
+                <remove_value name="$subordinates"/>
+                <remove_value name="$objectname"/>
               </do_if>
               <do_else>
                 <set_value name="$object" exact="event.param2"/>
