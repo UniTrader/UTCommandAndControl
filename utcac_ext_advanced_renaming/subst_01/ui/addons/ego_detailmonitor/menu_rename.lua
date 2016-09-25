@@ -32,11 +32,15 @@ function menu.editboxUpdateText(_, text, textchanged)
 	if textchanged then
 -- UniTrader Change: dont change Object Name directly - instead Set local Var and Signal Name Managment MD Script to handle the rest
 		if GetComponentData(menu.object, "controlentity") then
-		    if renamesubordinates then
-			    SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated" , menu.object , text )
+			if renamesubordinates == "all" then
+				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated" , menu.object , text )
+			elseif renamesubordinates == "bigships" then
+				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - bigships" , menu.object , text )
+			elseif renamesubordinates == "smallships" then
+				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - smallships" , menu.object , text )
 			else
-			    SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
-			    SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
+				SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
+				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
 			end
 		else
 			SetComponentName(menu.object, text) -- this line was previously by itself, not in the if
@@ -51,12 +55,71 @@ function menu.buttonOK()
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 
--- UniTrader new Function: Rename all Subordinates of Object (instead of current Object)
+-- UniTrader new Functions: Mass Rename Subordinates
 function menu.buttonRenameSubordinates()
-	renamesubordinates = true
+	renamesubordinates = "all"
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
--- UniTrader new Function end
+function menu.buttonRenameSubordinatesBigShips()
+	renamesubordinates = "bigships"
+	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
+end
+function menu.buttonRenameSubordinatesSmallShips()
+	renamesubordinates = "smallships"
+	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
+end
+-- UniTrader new Functions: Logo Setting (currently same as Cancel Menu)
+function menu.buttonSetLogoFromSuperior()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+function menu.buttonSetLogoCurrent()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+function menu.buttonSetLogoPlayer_1()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+function menu.buttonSetLogoPlayer_2()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+function menu.buttonSetLogoPlayer_3()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+function menu.buttonSetLogoPlayer_4()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+function menu.buttonSetLogoPlayer_5()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+function menu.buttonSetLogoPlayer_6()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+function menu.buttonSetLogoPlayer_7()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+function menu.buttonSetLogoPlayer_8()
+	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
+	Helper.closeMenuAndReturn(menu)
+	menu.cleanup()
+end
+-- UniTrader new Functions end
 
 function menu.buttonCancel()
 	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
@@ -112,11 +175,11 @@ function menu.onShowMenu()
 	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 	
 	-- Mass Renaming Functions
-	setup:addHeaderRow({ReadText(5554302, 1001),"Future Functions"}, nil, {3, 2})
+	setup:addHeaderRow({ReadText(5554302, 1001),""}, nil, {3, 2})
 	setup:addSimpleRow({ 
-		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1002), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename all Subordinates of this Object"),
-		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1004), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename Big Ship Subordinates of this Object"),
-		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1006), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, "Rename Small Ship Subordinates of this Object"),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1002), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, ReadText(5554302, 1003)),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1004), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, ReadText(5554302, 1005)),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1006), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, ReadText(5554302, 1007)),
 		Helper.getEmptyCellDescriptor(),
 		Helper.getEmptyCellDescriptor()
 	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
@@ -125,12 +188,12 @@ function menu.onShowMenu()
 	
 	-- Experimental Faction Icons, not intended to be useable yet..
 	local extensionSettings = GetAllExtensionSettings()
-	if false then
-	--if true or extensionSettings["utfactionlogos"].enabled or extensionSettings["utfactionlogos"].enabled then
-		setup:addHeaderRow({ReadText(5554302, 1005)}, nil, {5})
+	--if false then
+	if ( extensionSettings["utfactionlogos"].enabled or extensionSettings["ws_329415910"].enabled ) and extensionSettings["utcac_ext_advanced_renaming_user"].enabled then
+		setup:addHeaderRow({ReadText(5554302, 1008)}, nil, {5})
 		setup:addSimpleRow({ 
 			-- Display Superior or Default Logo as first Item in this Row (selectable if Logo is useable)
-			Helper.createButton(nil, Helper.createButtonIcon("faction_player"  , nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "Use Icon of Superior (or Playership)"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player"  , nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, ReadText(5554302, 1009)),
 			Helper.createButton(nil, Helper.createButtonIcon("faction_player_1", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
 			Helper.createButton(nil, Helper.createButtonIcon("faction_player_2", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
 			Helper.createButton(nil, Helper.createButtonIcon("faction_player_3", nil, 255, 255, 255, 100), false, true, 16, 0, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
@@ -138,7 +201,7 @@ function menu.onShowMenu()
 		}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 		setup:addSimpleRow({
 			-- Display current Logo as first Item in this Row (not selectable)
-			Helper.createButton(nil, Helper.createButtonIcon("faction_player"  , nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "Current Icon  just for Info"),
+			Helper.createButton(nil, Helper.createButtonIcon("faction_player"  , nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, ReadText(5554302, 1010)),
 			Helper.createButton(nil, Helper.createButtonIcon("faction_player_5", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
 			Helper.createButton(nil, Helper.createButtonIcon("faction_player_6", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
 			Helper.createButton(nil, Helper.createButtonIcon("faction_player_7", nil, 255, 255, 255, 100), false, true, 16, 32, 128, 128, nil, nil, nil, "NOT IMPLEMENTED YET - Set Icon"),
@@ -155,7 +218,23 @@ function menu.onShowMenu()
 	Helper.setEditBoxScript(menu, nil, menu.selecttable, 1, 1, menu.editboxUpdateText)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 2, menu.buttonOK)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 4, menu.buttonCancel)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 2, 1, menu.buttonRenameSubordinates) -- UniTrader new Button: Rename all Subordinates
+  -- New Buttons by UniTrader
+	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 1, menu.buttonRenameSubordinates)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 2, menu.buttonRenameSubordinatesBigShips)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 3, menu.buttonRenameSubordinatesSmallShips)
+	if ( extensionSettings["utfactionlogos"].enabled or extensionSettings["ws_329415910"].enabled ) and extensionSettings["utcac_ext_advanced_renaming_user"].enabled then
+		Helper.setButtonScript(menu, nil, menu.buttontable, 4, 1, menu.buttonSetLogoFromSuperior)
+		Helper.setButtonScript(menu, nil, menu.buttontable, 5, 1, menu.buttonSetLogoCurrent)
+		Helper.setButtonScript(menu, nil, menu.buttontable, 4, 2, menu.buttonSetLogoPlayer_1)
+		Helper.setButtonScript(menu, nil, menu.buttontable, 4, 3, menu.buttonSetLogoPlayer_2)
+		Helper.setButtonScript(menu, nil, menu.buttontable, 4, 4, menu.buttonSetLogoPlayer_3)
+		Helper.setButtonScript(menu, nil, menu.buttontable, 4, 5, menu.buttonSetLogoPlayer_4)
+		Helper.setButtonScript(menu, nil, menu.buttontable, 5, 2, menu.buttonSetLogoPlayer_5)
+		Helper.setButtonScript(menu, nil, menu.buttontable, 5, 3, menu.buttonSetLogoPlayer_6)
+		Helper.setButtonScript(menu, nil, menu.buttontable, 5, 4, menu.buttonSetLogoPlayer_7)
+		Helper.setButtonScript(menu, nil, menu.buttontable, 5, 5, menu.buttonSetLogoPlayer_8)
+	end
+	-- End New Buttons by UniTrader
 	
 	menu.activateEditBox = true
 
