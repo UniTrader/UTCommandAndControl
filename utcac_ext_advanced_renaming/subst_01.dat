@@ -16,36 +16,35 @@ local function init()
 	end
 end
 
-local renamesubordinates = false --UniTrader change: add script-local bool to indicate that Subordinates should be renamed rather than the Ship itself
-
 function menu.cleanup()
 	menu.title = nil
 	menu.object = nil
 
 	menu.infotable = nil
 	menu.selecttable = nil
+
+	menu.renamesubordinates = nil --UniTrader change: add script-local bool to indicate that Subordinates should be renamed rather than the Ship itself
 end
 
 -- Menu member functions
 
 function menu.editboxUpdateText(_, text, textchanged)
-	if textchanged then
--- UniTrader Change: dont change Object Name directly - instead Set local Var and Signal Name Managment MD Script to handle the rest
-		if GetComponentData(menu.object, "controlentity") then
-			if renamesubordinates == "all" then
-				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated" , menu.object , text )
-			elseif renamesubordinates == "bigships" then
-				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - bigships" , menu.object , text )
-			elseif renamesubordinates == "smallships" then
-				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - smallships" , menu.object , text )
-			else
-				SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
-				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
-			end
-		else
-			SetComponentName(menu.object, text) -- this line was previously by itself, not in the if
+	-- UniTrader change: Mass renaming function added
+	if menu.renamesubordinates then
+		if menu.renamesubordinates == "all" then
+			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated" , menu.object , text )
+		elseif menu.renamesubordinates == "bigships" then
+			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - bigships" , menu.object , text )
+		elseif menu.renamesubordinates == "smallships" then
+			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - smallships" , menu.object , text )
 		end
--- UniTrader Change end
+	-- Renaming Function - now always renaming to force an update if needed
+	elseif GetComponentData(menu.object, "controlentity") then
+		SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
+		SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
+	-- UniTrader Changes end (next line was a if before, but i have some diffrent conditions)
+	elseif textchanged then
+		SetComponentName(menu.object, text)
 	end
 	Helper.closeMenuAndReturn(menu)
 	menu.cleanup()
@@ -57,15 +56,15 @@ end
 
 -- UniTrader new Functions: Mass Rename Subordinates
 function menu.buttonRenameSubordinates()
-	renamesubordinates = "all"
+	menu.renamesubordinates = "all"
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 function menu.buttonRenameSubordinatesBigShips()
-	renamesubordinates = "bigships"
+	menu.renamesubordinates = "bigships"
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 function menu.buttonRenameSubordinatesSmallShips()
-	renamesubordinates = "smallships"
+	menu.renamesubordinates = "smallships"
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 -- UniTrader new Functions: Logo Setting (currently same as Cancel Menu)
@@ -285,36 +284,35 @@ local function init()
 	end
 end
 
-local renamesubordinates = false --UniTrader change: add script-local bool to indicate that Subordinates should be renamed rather than the Ship itself
-
 function menu.cleanup()
 	menu.title = nil
 	menu.object = nil
 
 	menu.infotable = nil
 	menu.selecttable = nil
+
+	menu.renamesubordinates = nil --UniTrader change: add script-local bool to indicate that Subordinates should be renamed rather than the Ship itself
 end
 
 -- Menu member functions
 
 function menu.editboxUpdateText(_, text, textchanged)
-	if textchanged then
--- UniTrader Change: dont change Object Name directly - instead Set local Var and Signal Name Managment MD Script to handle the rest
-		if GetComponentData(menu.object, "controlentity") then
-			if renamesubordinates == "all" then
-				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated" , menu.object , text )
-			elseif renamesubordinates == "bigships" then
-				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - bigships" , menu.object , text )
-			elseif renamesubordinates == "smallships" then
-				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - smallships" , menu.object , text )
-			else
-				SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
-				SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
-			end
-		else
-			SetComponentName(menu.object, text) -- this line was previously by itself, not in the if
+	-- UniTrader change: Mass renaming function added
+	if menu.renamesubordinates then
+		if menu.renamesubordinates == "all" then
+			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated" , menu.object , text )
+		elseif menu.renamesubordinates == "bigships" then
+			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - bigships" , menu.object , text )
+		elseif menu.renamesubordinates == "smallships" then
+			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - smallships" , menu.object , text )
 		end
--- UniTrader Change end
+	-- Renaming Function - now always renaming to force an update if needed
+	elseif GetComponentData(menu.object, "controlentity") then
+		SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
+		SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
+	-- UniTrader Changes end (next line was a if before, but i have some diffrent conditions)
+	elseif textchanged then
+		SetComponentName(menu.object, text)
 	end
 	Helper.closeMenuAndReturn(menu)
 	menu.cleanup()
@@ -326,15 +324,15 @@ end
 
 -- UniTrader new Functions: Mass Rename Subordinates
 function menu.buttonRenameSubordinates()
-	renamesubordinates = "all"
+	menu.renamesubordinates = "all"
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 function menu.buttonRenameSubordinatesBigShips()
-	renamesubordinates = "bigships"
+	menu.renamesubordinates = "bigships"
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 function menu.buttonRenameSubordinatesSmallShips()
-	renamesubordinates = "smallships"
+	menu.renamesubordinates = "smallships"
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
 -- UniTrader new Functions: Logo Setting (currently same as Cancel Menu)
