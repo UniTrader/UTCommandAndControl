@@ -255,12 +255,23 @@
           <do_if value="$object.cargo.tags.indexof.{tag.inventory}">
             <set_value name="$cargotype" operation="add" exact="{5554302,208}"/>
           </do_if>
-          <substitute_text text="$nameB">
-            <replace string="{5554302,200}" with="$cargotype"/>
+          <!-- evaluate/clear Ship type (without cargo class variations - already handled by cargo type expression)-->
+          <substitute_text text="$type" source="$object.macro.name">
+            <replace string="' ' {20106,2001}" with="''"/>
+            <replace string="' ' {20106,2101}" with="''"/>
+            <replace string="' ' {20106,2201}" with="''"/>
+            <replace string="' ' {20106,2301}" with="''"/>
+            <replace string="' ' {20106,3001}" with="''"/>
+            <replace string="' ' {20106,3101}" with="''"/>
+            <replace string="' ' {20106,3201}" with="''"/>
+            <replace string="' ' {20106,3301}" with="''"/>
+            <replace string="' ' {20106,3401}" with="''"/>
+            <replace string="' ' {20106,3501}" with="''"/>
           </substitute_text>
           <!-- - - - - - - - - - - - - -->
           <!-- Object and Commander-based Expressions which can be inserted directly -->
           <substitute_text text="$nameB">
+            <replace string="{5554302,200}" with="$cargotype"/>
             <replace string="{5554302,100}" with="$object.commander.name"/>
             <replace string="{5554302,101}" with="$object.commander.zone.name"/>
             <replace string="{5554302,102}" with="$object.commander.sector.name"/>
@@ -268,7 +279,7 @@
             <replace string="{5554302,104}" with="$object.zone.name"/>
             <replace string="{5554302,105}" with="$object.sector.name"/>
             <replace string="{5554302,106}" with="$object.cluster.name"/>
-            <replace string="{5554302,107}" with="$object.macro.name"/>
+            <replace string="{5554302,107}" with="$type"/>
             <replace string="{5554302,108}" with="{5554301,11001} + $object.primarypurpose"/> <!-- will be post-dynamic replaced with proper Purpose Name -->
             <replace string="{5554302,109}" with="{5554301,11015} + $object.class"/> <!-- will be post-dynamic replaced with proper Class Name -->
             <!-- Short Name Variants - doesnt work in XR v4.0, but for future usage -->
@@ -296,7 +307,10 @@
             <replace string="{5554302,309}" with="if @$object.completebuildplan.{'i'}.stage then $object.currentbuildplan.{'i'}.stage else ''"/>
           </substitute_text>
           
-          
+          <!-- Add to Update Group if Name contains build plan expression -->
+          <do_if value="$nameA != $nameB">
+            <add_to_group groupname="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object" comment="since this code might be included elsewhere refer to this var with mdscript/cue"/>
+          </do_if>
           
           <!-- Post-dynamic substitutions -->
           <get_text_ids_in_range result="$keys" page="5554301" start="10000" end="12000" factor="2"/>
