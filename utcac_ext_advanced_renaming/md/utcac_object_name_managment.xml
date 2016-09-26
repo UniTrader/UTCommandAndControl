@@ -93,8 +93,8 @@
       <actions>
         <!-- confirm valadity of Object -->
         <do_if value="$object.exists and $object.controlentity.$unformatted_object_name?">
-          <do_if value="$keys? or $nameA? or $nameB? or $cargotype?">
-            <debug_text filter="error" text="'Internally used Vars in Included Actions also used by previous Code: $keys: %1 $nameA: %2 $nameB: %3 $cargotype: %4 - will be overridden!!'.[@$keys,@$nameA,@$nameB,@$cargotype]"/>
+          <do_if value="$keys? or $nameA? or $nameB? or $cargotype? or $type?">
+            <debug_text filter="error" text="'Internally used Vars in Included Actions also used by previous Code: $keys: %1 $nameA: %2 $nameB: %3 $cargotype: %4 $type: %5 - will be overridden!!'.[@$keys,@$nameA,@$nameB,@$cargotype,@$type]"/>
           </do_if>
           <set_value name="$nameA" exact="$object.controlentity.$unformatted_object_name"/>
           <!-- Perform Static Replacements (Preffered Marking Key / ) -->
@@ -326,6 +326,7 @@
           <remove_value name="$nameA"/>
           <remove_value name="$nameB"/>
           <remove_value name="$cargotype"/>
+          <remove_value name="$type"/>
         </do_if>
         <do_else>
           <debug_text filter="error" text="'Object not set or Invalid for Included Code $object: %1 - doing nothing!!'.{@$object}"/>
