@@ -182,12 +182,17 @@ Labels used:
         <resume label="fly to leader zone"/>
       </do_if>
       
-      <get_safe_pos result="$safepos" object="$object" radius="this.ship.size * 1.5" zone="$object.zone" />
+      <do_if value="this.ship.isboostactive and $object.pilot.$destination? and $object.pilot.$destination.zone == this.zone" comment="currently probaly in the last phase of Boosting - get a waypoint nearby our Escortees Destination instead of himself to stay close">
+        <get_safe_pos result="$safepos" object="$object.pilot.$destination" radius="this.ship.size * 1.5" zone="$object.pilot.$destination" />
+      </do_if>
+      <do_else>
+        <get_safe_pos result="$safepos" object="$object" radius="this.ship.size * 1.5" zone="$object.zone" />
+      </do_else>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to nearby Escortee %4 // Our Pos: %5 %6 // Escortee Pos: %7 %8'.[player.age,this.name,this.container.name,$object.knownname,this.ship.zone.name,this.ship.position,$object.zone.name,$object.position]"/>
       <set_value name="this.$mayabortpath"/>
       <move_to object="this.ship" abortpath="false" destination="$object.zone" finishonapproach="true">
         <position value="$safepos"/>
-        <interrupt_after_time time="5min" comment="Escortee may hae moved - updating Path"/>
+        <interrupt_after_time time="5min" comment="Escortee may have moved - updating Path"/>
         <interrupt comment="check if Leader flew away and we missed his Signal">
           <conditions>
             <event_object_changed_zone object="$object"/>
