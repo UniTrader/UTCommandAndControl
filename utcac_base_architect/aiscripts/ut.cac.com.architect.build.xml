@@ -98,6 +98,7 @@
               <set_value name="this.ship.pilot.$orderlist.{$i}.$macro" exact="$macro"/>
               <set_value name="this.ship.pilot.$orderlist.{$i}.$displayname" exact="'Moving to Build Position for %1'.[$macro.name]"/>
               <set_value name="this.ship.pilot.$orderlist.{$i}.$interruptable" exact="false"/>
+              <signal_objects object="this.container" param="'Object Name Updated'"/>
               <do_if value="$i == 1">
                 <debug_text filter="general" text="'%1 %2 %3 Signalling Captain about new Plans'.[player.age,this.name,this.container.name]"/>
                 <signal_objects object="this.ship.pilot" param="'Set Build Macro'"/>
@@ -170,6 +171,7 @@
         <debug_text filter="general" text="'%1 %2 %3 Builder Ship is starting deployment'.[player.age,this.name,this.container.name]"/>
         <set_value name="$params.$displayname" exact="'Deploying Builder Ship'"/>
         <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Deploying Builder Ship'"/>
+        <signal_objects object="this.container" param="'Object Name Updated'"/>
         <!-- deploy, if no Station exists start construction, if Station exists assign to it and resume construction -->
         <do_if value="not $buildlocation.child.exists">
           <set_command_action commandaction="commandaction.standingby" />
@@ -199,6 +201,7 @@
           <set_value name="$station" exact="this.ship.buildmodule.buildanchor"/>
           <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.name]"/>
           <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Constructing %1'.[$macro.name]"/>
+          <signal_objects object="this.container" param="'Object Name Updated'"/>
           <set_command_action commandaction="commandaction.repairingto" param="$station" />
           <set_trade_restrictions object="this.ship" restricted="false"/>
         </do_if>
@@ -284,6 +287,7 @@
           <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.buildpurposemacro.{$Buildplan}.name]"/>
           <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Constructing %1'.[$macro.buildpurposemacro.{$Buildplan}.name]"/>
           <set_command_action commandaction="commandaction.repairingto" param="$macro.buildpurposemacro.{buildplan.[$sequence,$stage]}" />
+          <signal_objects object="this.container" param="'Object Name Updated'"/>
           <remove_blocked_area blocker="this" zone="this.zone"/>
         </do_if>
         <do_else>
@@ -463,6 +467,8 @@
       <!-- WIP !!!! -->
       <label name="finish"/>
       <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Wait...'"/>
+      <signal_objects object="this.container" param="'Object Name Updated'"/>
+      <signal_objects object="$station" param="'Object Name Updated'"/>
       
     </actions>
   </attention>
