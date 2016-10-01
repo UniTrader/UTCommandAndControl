@@ -171,6 +171,7 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: ( %4 Entries )\n%5'.[player.age,this.name,this.container.name,this.$orderlist.count,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}"/>
         <do_if value="typeof $order == datatype.table">
+          <signal_objects object="this.container" param="'Object Name Updated'"/>
           <run_script name="$order.$script">
             <param name="params" value="$order"/>
           </run_script>

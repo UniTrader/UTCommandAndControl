@@ -93,10 +93,40 @@
       <actions>
         <!-- confirm valadity of Object -->
         <do_if value="$object.exists and $object.controlentity.$unformatted_object_name?">
-          <do_if value="$keys? or $nameA? or $nameB? or $cargotype? or $type?">
-            <debug_text filter="error" text="'Internally used Vars in Included Actions also used by previous Code: $keys: %1 $nameA: %2 $nameB: %3 $cargotype: %4 $type: %5 - will be overridden!!'.[@$keys,@$nameA,@$nameB,@$cargotype,@$type]"/>
+          <do_if value="$keys? or $nameA? or $nameB? or $cargotype? or $type? or $scriptset? or $debug?">
+            <debug_text filter="error" text="'Internally used Vars in Included Actions also used by previous Code: $keys: %1 $nameA: %2 $nameB: %3 $cargotype: %4 $type: %5 $scriptset: %6 $debug: %7 - will be overridden and removed!!'.[@$keys,@$nameA,@$nameB,@$cargotype,@$type,@$scriptset,@$debug]"/>
           </do_if>
           <set_value name="$nameA" exact="$object.controlentity.$unformatted_object_name"/>
+          <!-- Check if we have a Debug Expression in the Object Name and activate it (if not deactivate when outside Debug Mode)-->
+          <!-- DEBUG OFF (Expression will be removed permanently) -->
+          <substitute_text text="$nameB" source="$nameA">
+            <replace string="{5554302,998}" with="''"/>
+          </substitute_text>
+          <do_if value="$nameA != $nameB">
+            <remove_value name="@$object.pilot.$debug"/>
+            <remove_value name="@$object.defencenpc.$debug"/>
+            <remove_value name="@$object.tradenpc.$debug"/>
+            <remove_value name="@$object.engineer.$debug"/>
+            <remove_value name="@$object.architect.$debug"/>
+            <remove_value name="@$object.boardingnpc.$debug"/>
+            <set_value name="$object.controlentity.$unformatted_object_name" exact="$nameB"/>
+            <set_value name="$nameA" exact="$nameB"/>
+          </do_if>
+          <!-- DEBUG ON (Expression will stay) -->
+          <substitute_text text="$nameB" source="$nameA">
+            <replace string="{5554302,999}" with="'something'"/>
+          </substitute_text>
+          <do_if value="$nameA != $nameB">
+            <!-- Activate Debugging on Object -->
+            <set_value name="@$object.pilot.$debug" exact="true"/>
+            <set_value name="@$object.defencenpc.$debug" exact="true"/>
+            <set_value name="@$object.tradenpc.$debug" exact="true"/>
+            <set_value name="@$object.engineer.$debug" exact="true"/>
+            <set_value name="@$object.architect.$debug" exact="true"/>
+            <set_value name="@$object.boardingnpc.$debug" exact="true"/>
+            <set_value name="$debug" exact="'%1 %2 Advanced Renaming Name Stages:\n%3'.[player.age,$object.name,$nameA]"/>
+          </do_if>
+          <!-- ========= -->
           <!-- Perform Static Replacements (Preffered Marking Key / ) -->
           <get_text_ids_in_range result="$keys" page="5554301" start="0" end="1999" factor="2"/>
           <do_all exact="$keys.count" counter="$i" reverse="false">
@@ -104,6 +134,7 @@
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
             </substitute_text>
           </do_all>
+          <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           <!-- If Language-transfer is desired Save name Var back to local Var now, continue with remaining phrases after that -->
           <do_if value="{5554302,1} == 'yes'">
             <set_value name="$object.controlentity.$unformatted_object_name" exact="$nameA"/>
@@ -114,6 +145,7 @@
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
             </substitute_text>
           </do_all>
+          <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           
           <!-- Perform Script-Dynamic Replacements ( Marking Key $ ) - no Registration for Automated Update Event, send Signal or Include Actions yourself.-->
           <!-- (feel free to create and add your own Values to the local table $namereplacement though ;) -->
@@ -125,11 +157,118 @@
               </substitute_text>
             </do_all>
           </do_if>
+          <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
+          
           <!-- ========= -->
           <!-- Perform Engine-based Dynamic Replacements ( Marking Key % ) and also add them to Update Group if used-->
           <!-- - - - - - - - - - - - -->
-          <!-- Skill-based Expressions - switching to from $nameA to $nameB for actual name to compare it to before substitution -->
+          <!-- Aquire Values which might be put into Object Names but cannt be covered in a single expression -->
+          <!-- Freight Class -->
+          <do_if value="true" comment="just for better node folding">
+            <!-- Universal or 4 Type Mixed Cargo -->
+            <do_if value="$object.cargo.tags.indexof.{tag.bulk} and $object.cargo.tags.indexof.{tag.container} and $object.cargo.tags.indexof.{tag.energy} and $object.cargo.tags.indexof.{tag.liquid}">
+              <!-- Differ between real Universal Cargo and Split Multi  Cargo -->
+              <do_if comment="checking if all Cargo Types have equal amount of Capacity ( C and B , C and E , C and L) indicating Universal Cargo (no direct check available)" value="
+                $object.cargo.{ware.bofu}.max == $object.cargo.{ware.meat}.max and 
+                $object.cargo.{ware.bofu}.max == $object.cargo.{ware.antimattercells}.max and 
+                $object.cargo.{ware.microchips}.max == $object.cargo.{ware.hydrogen}.max ">
+                <set_value name="$cargotype" exact="{5554302,201}"/>
+              </do_if>
+              <do_else>
+                <set_value name="$cargotype" exact="{5554302,209}"/>
+              </do_else>
+            </do_if>
+            <!-- Single/Hybrid Cargo - check each class individually -->
+            <do_else>
+              <set_value name="$cargotype" exact="''"/>
+              <do_if value="$object.cargo.tags.indexof.{tag.bulk}">
+                <set_value name="$cargotype" operation="add" exact="{5554302,202}"/>
+              </do_if>
+              <do_if value="$object.cargo.tags.indexof.{tag.container}">
+                <set_value name="$cargotype" operation="add" exact="{5554302,203}"/>
+              </do_if>
+              <do_if value="$object.cargo.tags.indexof.{tag.energy}">
+                <set_value name="$cargotype" operation="add" exact="{5554302,204}"/>
+              </do_if>
+              <do_if value="$object.cargo.tags.indexof.{tag.liquid}">
+                <set_value name="$cargotype" operation="add" exact="{5554302,205}"/>
+              </do_if>
+            </do_else>
+            <!-- Other/odd Cargo Types - just for completeness -->
+            <!-- <do_if value="$object.cargo.tags.indexof.{tag.fuel}">
+              <set_value name="$cargotype" operation="add" exact="{5554302,206}"/>
+            </do_if> -->
+            <do_if value="$object.cargo.tags.indexof.{tag.ship}">
+              <set_value name="$cargotype" operation="add" exact="{5554302,207}"/>
+            </do_if>
+            <do_if value="$object.cargo.tags.indexof.{tag.inventory}">
+              <set_value name="$cargotype" operation="add" exact="{5554302,208}"/>
+            </do_if>
+          </do_if>
+          <!--  Ship type (without cargo class variations - already handled by cargo type expression)-->
+          <substitute_text text="$type" source="$object.macro.name">
+            <replace string="' ' {20106,2001}" with="''"/>
+            <replace string="' ' {20106,2101}" with="''"/>
+            <replace string="' ' {20106,2201}" with="''"/>
+            <replace string="' ' {20106,2301}" with="''"/>
+            <replace string="' ' {20106,3001}" with="''"/>
+            <replace string="' ' {20106,3101}" with="''"/>
+            <replace string="' ' {20106,3201}" with="''"/>
+            <replace string="' ' {20106,3301}" with="''"/>
+            <replace string="' ' {20106,3401}" with="''"/>
+            <replace string="' ' {20106,3501}" with="''"/>
+          </substitute_text>
+          <!-- Script Set running on this Ship -->
+          <do_if value="true" comment="just for better node folding">
+            <do_if value="$object.controlentity.$orderlist?">
+              <set_value name="$scriptset" exact="{5554302,401}"/>
+            </do_if>
+            <do_else comment="Vanilla or Unknown Script Set">
+              <set_value name="$scriptset" exact="{5554302,121}"/>
+            </do_else>
+          </do_if>
+          <!-- - - - - - - - - - - - -->
+          <!-- Actual Replacements in the Name -->
+          <!-- Expressions which always have the same Result - just change the content of the name Var -->
+          <substitute_text text="$nameA">
+            <replace string="{5554302,200}" with="$cargotype"/>
+            <replace string="{5554302,100}" with="$object.commander.name"/>
+            <replace string="{5554302,101}" with="$object.commander.zone.name"/>
+            <replace string="{5554302,102}" with="$object.commander.sector.name"/>
+            <replace string="{5554302,103}" with="$object.commander.cluster.name"/>
+            <replace string="{5554302,104}" with="$object.zone.name"/>
+            <replace string="{5554302,105}" with="$object.sector.name"/>
+            <replace string="{5554302,106}" with="$object.cluster.name"/>
+            <replace string="{5554302,107}" with="$type"/>
+            <replace string="{5554302,108}" with="{5554301,11001} + $object.primarypurpose"/> <!-- will be post-dynamic replaced with proper Purpose Name -->
+            <replace string="{5554302,109}" with="{5554301,11015} + $object.class"/> <!-- will be post-dynamic replaced with proper Class Name -->
+            <!-- Random Color (cannot be done from t-file directly) -->
+            <replace string="{5554302,119}+'0'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <replace string="{5554302,119}+'1'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <replace string="{5554302,119}+'2'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <replace string="{5554302,119}+'3'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <replace string="{5554302,119}+'4'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <replace string="{5554302,119}+'5'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <replace string="{5554302,119}+'6'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <replace string="{5554302,119}+'7'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <replace string="{5554302,119}+'8'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <replace string="{5554302,119}+'9'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <!-- Short Name Variants - doesnt work in XR v4.0, but for future usage -->
+            <!--
+            <replace string="{5554302,110}" with="$object.commander.zone.shortname"/>
+            <replace string="{5554302,111}" with="$object.commander.sector.shortname"/>
+            <replace string="{5554302,112}" with="$object.commander.cluster.shortname"/>
+            <replace string="{5554302,113}" with="$object.zone.shortname"/>
+            <replace string="{5554302,114}" with="$object.sector.shortname"/>
+            <replace string="{5554302,115}" with="$object.cluster.shortname"/>
+            <replace string="{5554302,116}" with="$object.macro.shortname"/>
+            -->
+            
+          </substitute_text>
+          
+          <!-- Expressions which might change their Value - switching to from $nameA to $nameB for actual name to compare it to before substitution -->
           <substitute_text source="$nameA" text="$nameB">
+            <!-- Skill-based Expressions -->
             <replace string="{5554302,10}" with="@$object.boardingnpc.combinedskill"/>
             <replace string="{5554302,11}" with="@$object.boardingnpc.skill.boarding"/>
             <replace string="{5554302,12}" with="@$object.boardingnpc.skill.combat"/>
@@ -175,137 +314,7 @@
             <replace string="{5554302,56}" with="@$object.tradenpc.skill.navigation"/>
             <replace string="{5554302,57}" with="@$object.tradenpc.skill.morale"/>
             <replace string="{5554302,58}" with="@$object.tradenpc.skill.science"/>
-            <!--
-            <replace string="{5554302,60}" with="@$object.pilot.combinedskill"/>
-            <replace string="{5554302,61}" with="@$object.pilot.skill.boarding"/>
-            <replace string="{5554302,62}" with="@$object.pilot.skill.combat"/>
-            <replace string="{5554302,63}" with="@$object.pilot.skill.engineering"/>
-            <replace string="{5554302,64}" with="@$object.pilot.skill.leadership"/>
-            <replace string="{5554302,65}" with="@$object.pilot.skill.management"/>
-            <replace string="{5554302,66}" with="@$object.pilot.skill.morale"/>
-            <replace string="{5554302,67}" with="@$object.pilot.skill.navigation"/>
-            <replace string="{5554302,68}" with="@$object.pilot.skill.science"/>
-            
-            <replace string="{5554302,70}" with="@$object.pilot.combinedskill"/>
-            <replace string="{5554302,71}" with="@$object.pilot.skill.boarding"/>
-            <replace string="{5554302,72}" with="@$object.pilot.skill.combat"/>
-            <replace string="{5554302,73}" with="@$object.pilot.skill.engineering"/>
-            <replace string="{5554302,74}" with="@$object.pilot.skill.leadership"/>
-            <replace string="{5554302,75}" with="@$object.pilot.skill.management"/>
-            <replace string="{5554302,76}" with="@$object.pilot.skill.morale"/>
-            <replace string="{5554302,77}" with="@$object.pilot.skill.navigation"/>
-            <replace string="{5554302,78}" with="@$object.pilot.skill.science"/>
-            
-            <replace string="{5554302,80}" with="@$object.pilot.combinedskill"/>
-            <replace string="{5554302,81}" with="@$object.pilot.skill.boarding"/>
-            <replace string="{5554302,82}" with="@$object.pilot.skill.combat"/>
-            <replace string="{5554302,83}" with="@$object.pilot.skill.engineering"/>
-            <replace string="{5554302,84}" with="@$object.pilot.skill.leadership"/>
-            <replace string="{5554302,85}" with="@$object.pilot.skill.management"/>
-            <replace string="{5554302,86}" with="@$object.pilot.skill.morale"/>
-            <replace string="{5554302,87}" with="@$object.pilot.skill.navigation"/>
-            <replace string="{5554302,88}" with="@$object.pilot.skill.science"/>
-            -->
-          </substitute_text>
-          <!-- if the Name contains something dynamic - add it to the Update-Group, otherwise remove it -->
-          <do_if value="$nameA != $nameB">
-            <add_to_group groupname="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object" comment="since this code might be included elsewhere refer to this var with mdscript/cue"/>
-          </do_if>
-          <do_else>
-            <remove_from_group group="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object"/>
-          </do_else>
-          <!-- - - - - - - - - - - - - -->
-          <!-- Freight Class (has to be evaluated first) -->
-          <!-- Universal Cargo -->
-          <do_if value="$object.cargo.tags.indexof.{tag.bulk} and $object.cargo.tags.indexof.{tag.container} and $object.cargo.tags.indexof.{tag.energy} and $object.cargo.tags.indexof.{tag.liquid}">
-            <!-- Differ between real Universal Cargo and Split Multi  Cargo -->
-            <do_if comment="checking if all Cargo Types have equal amount of Capacity ( C and B , C and E , C and L) indicating Universal Cargo (no direct check available)" value="
-              $object.cargo.{ware.bofu}.max == $object.cargo.{ware.meat}.max and 
-              $object.cargo.{ware.bofu}.max == $object.cargo.{ware.antimattercells}.max and 
-              $object.cargo.{ware.microchips}.max == $object.cargo.{ware.hydrogen}.max ">
-              <set_value name="$cargotype" exact="{5554302,201}"/>
-            </do_if>
-            <do_else>
-              <set_value name="$cargotype" exact="{5554302,209}"/>
-            </do_else>
-          </do_if>
-          <!-- Single/Hybrid Cargo - check each class individually -->
-          <do_else>
-            <set_value name="$cargotype" exact="''"/>
-            <do_if value="$object.cargo.tags.indexof.{tag.bulk}">
-              <set_value name="$cargotype" operation="add" exact="{5554302,202}"/>
-            </do_if>
-            <do_if value="$object.cargo.tags.indexof.{tag.container}">
-              <set_value name="$cargotype" operation="add" exact="{5554302,203}"/>
-            </do_if>
-            <do_if value="$object.cargo.tags.indexof.{tag.energy}">
-              <set_value name="$cargotype" operation="add" exact="{5554302,204}"/>
-            </do_if>
-            <do_if value="$object.cargo.tags.indexof.{tag.liquid}">
-              <set_value name="$cargotype" operation="add" exact="{5554302,205}"/>
-            </do_if>
-          </do_else>
-          <!-- Other/odd Cargo Types - just for completeness -->
-          <!-- <do_if value="$object.cargo.tags.indexof.{tag.fuel}">
-            <set_value name="$cargotype" operation="add" exact="{5554302,206}"/>
-          </do_if> -->
-          <do_if value="$object.cargo.tags.indexof.{tag.ship}">
-            <set_value name="$cargotype" operation="add" exact="{5554302,207}"/>
-          </do_if>
-          <do_if value="$object.cargo.tags.indexof.{tag.inventory}">
-            <set_value name="$cargotype" operation="add" exact="{5554302,208}"/>
-          </do_if>
-          <!-- evaluate/clear Ship type (without cargo class variations - already handled by cargo type expression)-->
-          <substitute_text text="$type" source="$object.macro.name">
-            <replace string="' ' {20106,2001}" with="''"/>
-            <replace string="' ' {20106,2101}" with="''"/>
-            <replace string="' ' {20106,2201}" with="''"/>
-            <replace string="' ' {20106,2301}" with="''"/>
-            <replace string="' ' {20106,3001}" with="''"/>
-            <replace string="' ' {20106,3101}" with="''"/>
-            <replace string="' ' {20106,3201}" with="''"/>
-            <replace string="' ' {20106,3301}" with="''"/>
-            <replace string="' ' {20106,3401}" with="''"/>
-            <replace string="' ' {20106,3501}" with="''"/>
-          </substitute_text>
-          <!-- - - - - - - - - - - - - -->
-          <!-- Object and Commander-based Expressions which can be inserted directly -->
-          <substitute_text text="$nameB">
-            <replace string="{5554302,200}" with="$cargotype"/>
-            <replace string="{5554302,100}" with="$object.commander.name"/>
-            <replace string="{5554302,101}" with="$object.commander.zone.name"/>
-            <replace string="{5554302,102}" with="$object.commander.sector.name"/>
-            <replace string="{5554302,103}" with="$object.commander.cluster.name"/>
-            <replace string="{5554302,104}" with="$object.zone.name"/>
-            <replace string="{5554302,105}" with="$object.sector.name"/>
-            <replace string="{5554302,106}" with="$object.cluster.name"/>
-            <replace string="{5554302,107}" with="$type"/>
-            <replace string="{5554302,108}" with="{5554301,11001} + $object.primarypurpose"/> <!-- will be post-dynamic replaced with proper Purpose Name -->
-            <replace string="{5554302,109}" with="{5554301,11015} + $object.class"/> <!-- will be post-dynamic replaced with proper Class Name -->
-            <replace string="{5554302,119}+'0'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <replace string="{5554302,119}+'1'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <replace string="{5554302,119}+'2'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <replace string="{5554302,119}+'3'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <replace string="{5554302,119}+'4'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <replace string="{5554302,119}+'5'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <replace string="{5554302,119}+'6'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <replace string="{5554302,119}+'7'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <replace string="{5554302,119}+'8'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <replace string="{5554302,119}+'9'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <!-- Short Name Variants - doesnt work in XR v4.0, but for future usage -->
-            <!--
-            <replace string="{5554302,110}" with="$object.commander.zone.shortname"/>
-            <replace string="{5554302,111}" with="$object.commander.sector.shortname"/>
-            <replace string="{5554302,112}" with="$object.commander.cluster.shortname"/>
-            <replace string="{5554302,113}" with="$object.zone.shortname"/>
-            <replace string="{5554302,114}" with="$object.sector.shortname"/>
-            <replace string="{5554302,115}" with="$object.cluster.shortname"/>
-            <replace string="{5554302,116}" with="$object.macro.shortname"/>
-            -->
-          </substitute_text>
-          
-          <!-- Station Build Sequence Progress -->
-          <substitute_text text="$nameA" source="$nameB">
+            <!-- Station Build Sequence Progress -->
             <replace string="{5554302,301}" with="if @$object.completebuildplan.{'a'}.stage then $object.currentbuildplan.{'a'}.stage else ''"/>
             <replace string="{5554302,302}" with="if @$object.completebuildplan.{'b'}.stage then $object.currentbuildplan.{'b'}.stage else ''"/>
             <replace string="{5554302,303}" with="if @$object.completebuildplan.{'c'}.stage then $object.currentbuildplan.{'c'}.stage else ''"/>
@@ -315,28 +324,41 @@
             <replace string="{5554302,307}" with="if @$object.completebuildplan.{'g'}.stage then $object.currentbuildplan.{'g'}.stage else ''"/>
             <replace string="{5554302,308}" with="if @$object.completebuildplan.{'h'}.stage then $object.currentbuildplan.{'h'}.stage else ''"/>
             <replace string="{5554302,309}" with="if @$object.completebuildplan.{'i'}.stage then $object.currentbuildplan.{'i'}.stage else ''"/>
+            <!-- Values based on other Scripts -->
+            <replace string="{5554302,120}" with="$scriptset"/>
+            <!-- UT CaC Functionality -->
+            <replace string="{5554302,401}" with="if @$object.pilot.$orderlist? then $object.pilot.$orderlist.{1}.$displayname else ''"/>
+            <replace string="{5554302,402}" with="if @$object.pilot.$orderlist? then $object.pilot.$orderlist.count else ''"/>
           </substitute_text>
-          
-          <!-- Add to Update Group if Name contains build plan expression -->
+          <!-- if the Name contains something dynamic - add it to the Update-Group, otherwise remove it -->
           <do_if value="$nameA != $nameB">
             <add_to_group groupname="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object" comment="since this code might be included elsewhere refer to this var with mdscript/cue"/>
           </do_if>
+          <do_else>
+            <remove_from_group group="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object"/>
+          </do_else>
+          <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameB]" chance="$debug? *100" comment="fill debug output Value"/>
           
           <!-- Post-dynamic substitutions -->
           <get_text_ids_in_range result="$keys" page="5554301" start="10000" end="12000" factor="2"/>
           <do_all exact="$keys.count" counter="$i" reverse="false">
-            <substitute_text text="$nameA">
+            <substitute_text text="$nameB">
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
             </substitute_text>
           </do_all>
+          <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           
-          <!-- Finally Set Name and cleanup -->
-          <set_object_name object="$object" name="$nameA"/>
+          
+          <!-- Finally Set Name, write debug value to log and cleanup -->
+          <set_object_name object="$object" name="$nameB"/>
+          <debug_text filter="general" text="$debug" chance="$debug? * 100"/>
           <remove_value name="$keys"/>
           <remove_value name="$nameA"/>
           <remove_value name="$nameB"/>
           <remove_value name="$cargotype"/>
           <remove_value name="$type"/>
+          <remove_value name="$scriptset"/>
+          <remove_value name="$debug"/>
         </do_if>
         <do_else>
           <debug_text filter="error" text="'Object not set or Invalid for Included Code $object: %1 - doing nothing!!'.{@$object}"/>
