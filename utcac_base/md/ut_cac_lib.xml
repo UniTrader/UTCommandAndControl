@@ -87,6 +87,7 @@
               <do_all exact="$actor.type.skilltypes.count" counter="$i">
                 <do_if value="$actor.skill.{$actor.type.skilltypes.{$i}} lt 5">
                   <add_skill entity="$actor" type="$actor.type.skilltypes.{$i}" exact="1"/>
+                  <signal_objects object="$actor.container" param="'Object Name Updated'"/>
                 </do_if>
               </do_all>
               <debug_text filter="general"  text="'%1 %2 %3 just got promoted. new combinedskill: %4'.[player.age,$actor.name,$actor.container.name,$actor.combinedskill]"/>
