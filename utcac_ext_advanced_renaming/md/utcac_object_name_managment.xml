@@ -206,18 +206,13 @@
             </do_if>
           </do_if>
           <!--  Ship type (without cargo class variations - already handled by cargo type expression)-->
-          <substitute_text text="$type" source="$object.macro.name">
-            <replace string="' ' + {20106,2001}" with="''"/>
-            <replace string="' ' + {20106,2101}" with="''"/>
-            <replace string="' ' + {20106,2201}" with="''"/>
-            <replace string="' ' + {20106,2301}" with="''"/>
-            <replace string="' ' + {20106,3001}" with="''"/>
-            <replace string="' ' + {20106,3101}" with="''"/>
-            <replace string="' ' + {20106,3201}" with="''"/>
-            <replace string="' ' + {20106,3301}" with="''"/>
-            <replace string="' ' + {20106,3401}" with="''"/>
-            <replace string="' ' + {20106,3501}" with="''"/>
-          </substitute_text>
+          <set_value name="$type" exact="$object.macro.name"/>
+          <get_text_ids_in_range result="$keys" page="5554301" start="20000" end="21000" factor="2"/>
+          <do_all exact="$keys.count" counter="$i" reverse="false">
+            <substitute_text text="$type">
+              <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
+            </substitute_text>
+          </do_all>
           <!-- Script Set running on this Ship -->
           <do_if value="true" comment="just for better node folding">
             <do_if value="$object.controlentity.$orderlist?">
