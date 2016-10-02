@@ -276,7 +276,7 @@
           <signal_objects object="this.ship" param="'travel next waypoint'"/>
           <do_if value="this.$waypoint.isclass.sector">
             <!-- check if InCluster-Boost is allowed and makes sense ( = faster than slow JD charge ) -->
-            <do_if value="this.$ut_cac.$clusterboost and global.$ship_boost_speed.{this.ship.macro}? and ( global.$ship_boost_speed.{this.ship.macro} / this.ship.distanceto.{this.$waypoint} ) lt 600m">
+            <do_if value="@this.$ut_cac.$clusterboost and global.$ship_boost_speed.{this.ship.macro}? and ( global.$ship_boost_speed.{this.ship.macro} / this.ship.distanceto.{this.$waypoint} ) lt 600m">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Attempting to boost to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
               <!-- BOOST!! -->
               <run_script name="'ut.cac.move.boost'" result="$result" sinceversion="30">
@@ -294,7 +294,7 @@
           <do_elseif value="this.$waypoint.isclass.gate">
             
             <!-- Jump to Gate sector -->
-            <find_object name="$beacon" space="this.$waypoint.zone" class="class.jumpbeacon" knownto="this.owner" checkoperational="true" chance="this.$ut_cac.$insectorjump * 100" comment="if beacon is in Target Zone consider IS-Jump"/>
+            <find_object name="$beacon" space="this.$waypoint.zone" class="class.jumpbeacon" knownto="this.owner" checkoperational="true" chance="@this.$ut_cac.$insectorjump * 100" comment="if beacon is in Target Zone consider IS-Jump"/>
             <do_if value="this.sector != this.$waypoint.sector or $beacon.exists">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to nearest Jumpbeacon to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
               <run_script name="'ut.cac.move.jump'" result="$result" >
@@ -319,7 +319,7 @@
           <do_elseif value="this.$waypoint.isclass.zone">
             <!-- next is the Target Zone/Sector - First jump to the closest Beacon (if necesary), then go to Fine Movement for the Destination (with Boosting) -->
             <!-- ToDo: check ii we could save a bit time with IS-Jumping-->
-            <do_if value="this.$waypoint.sector != this.sector or this.$ut_cac.$insectorjump">
+            <do_if value="this.$waypoint.sector != this.sector or @this.$ut_cac.$insectorjump">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
               <run_script name="'ut.cac.move.jump'" result="$result" >
                 <param name="destination" value="this.$waypoint"/>
