@@ -39,14 +39,14 @@
           <set_value name="$testship" exact="this.$ut_cac.$availablefightships.random"/>
           <do_if value="$testship.pilot.$oderlist.{1}.$script == 'ut.cac.com.captain.patrol'">
             <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Will send escorting already Patroling Ship %4'.[player.age,this.name,this.container.name,$testship.name]"/>
-            <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.escort',$displayname='Escorting %1 (Manager)'.[$testship.knownname],$time=2h,$exitonneworder=true,$interruptable=true]"/>
+            <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.com.captain.escort',$displayname='Escorting %1 (Manager)'.[$testship.knownname],$time=2h,$exitonneworder=true,$interruptable=true] ]"/>
             <return/>
           </do_if>
         </do_all>
       </do_if>
       
       <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Will send to Patrol %4'.[player.age,this.name,this.container.name,this.zone.name]"/>
-      <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname='Patrolling %1 (Manager)'.[this.zone.knownname],$space=this.zone,$patroltime=1h,$exitonneworder=true,$interruptable=true]"/>
+      <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.com.captain.patrol',$displayname='Patrolling %1 (Manager)'.[this.zone.knownname],$space=this.zone,$patroltime=1h,$exitonneworder=true,$interruptable=true] ]"/>
       
       <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Sent Ship %4 to patrol (locally)'.[player.age,this.name,this.container.name,$entity.ship.name]"/>
       <return value="true"/>
