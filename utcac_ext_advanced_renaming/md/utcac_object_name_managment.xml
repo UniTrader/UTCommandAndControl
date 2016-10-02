@@ -227,7 +227,7 @@
           <!-- Expressions which always have the same Result - just change the content of the name Var -->
           <substitute_text text="$nameA">
             <replace string="{5554302,200}" with="$cargotype"/>
-            <replace string="{5554302,100}" with="if $object.commander.controlentity.$shortname? then  $object.commander.controlentity.$shortname else $object.commander.name"/>
+            <replace string="{5554302,100}" with="$object.commander.name"/>
             <replace string="{5554302,101}" with="$object.commander.zone.name"/>
             <replace string="{5554302,102}" with="$object.commander.sector.name"/>
             <replace string="{5554302,103}" with="$object.commander.cluster.name"/>
@@ -368,19 +368,6 @@ else 'null'"/>
           </do_all>
           <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           
-          <!-- Create Short Name by cutting away unneeded Info and create Displayed Name by removing Cut Expression -->
-          <substitute_text text="$nameA" source="$nameB">
-            <replace string="{5554302,122}" with="{5554302,123}"/>
-          </substitute_text>
-          <do_if value="$nameA != $nameB">
-            <set_value name="$object.controlentity.$shortname" exact="$nameA + {5554302,124}"/>
-            <substitute_text text="$nameB">
-              <replace string="{5554302,122}" with="''"/>
-            </substitute_text>
-          </do_if>
-          <do_else>
-            <remove_value name="$object.controlentity.$shortname"/>
-          </do_else>
           
           <!-- Finally Set Name, write debug value to log and cleanup -->
           <set_object_name object="$object" name="$nameB"/>
