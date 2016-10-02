@@ -90,6 +90,16 @@
             <offeramount min="$buyamount"/>
           </find_sell_offer>
           <debug_text filter="general" chance="@this.$debug * 100" text="'Commander...'"/>
+          <do_if value="not $selloffer.available and this.zone == this.ship.commander.zone">
+            <!-- check if the Commander has the Fuel and just doesnt have an Offer - turn it into a Transfer then-->
+            <do_if value="this.ship.commander.cargo.{ware.fuelcells}.count ge $buyamount">
+              <create_trade_offer name="$selloffer" seller="this.ship.commander" object="this.ship.commander" amount="$buyamount" ware="ware.fuelcells" price="0Cr" playeronly="true"/>
+              <add_buy_order object="this.ship" trade="$selloffer" amount="$buyamount" price="0Cr"/>
+              <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Refuel (From Homebase)',$undock=2,$interruptable=true]"/>
+              <remove_trade_offer object="this.container" tradeoffer="$selloffer"/>
+              <resume label="finish"/>
+            </do_if>
+          </do_if>
         </do_if>
         <do_elseif value="this.$ut_cac.$comannderentity?">
           <find_sell_offer result="$selloffer" seller="this.$ut_cac.$comannderentity.container" wares="ware.fuelcells">
