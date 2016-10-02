@@ -5,7 +5,7 @@
 rewritten from scratch by UniTrader
 
 General-Purpose Escort-Script utilizing UT CaC Follow- and Attack-Signalling (the latter is NyI / WiP!!!)
-roughly based on the experimental us.cac.follow.verysimple
+roughly based on the experimental ut.cac.follow.verysimple
 
 -->
   <params>
@@ -126,7 +126,7 @@ Labels used:
       </do_if>
       
       <!-- check input -->
-      <do_if value="not $object.exists">
+      <do_if value="not $object.isoperational">
         <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist: %4'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
         <return value="1"/>
       </do_if>
@@ -135,7 +135,7 @@ Labels used:
       
       <label name="fly to leader zone" />
       <!-- re - check input because it caused a Lockuop here (FIX CORE ISSUE BEHIND THIS AT SOME POINT!!! ) -->
-      <do_if value="not $object.exists">
+      <do_if value="not $object.isoperational">
         <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist (Case 2): %4'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
         <return value="1"/>
       </do_if>
