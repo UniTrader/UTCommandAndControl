@@ -39,7 +39,7 @@
           <set_value name="$testship" exact="this.$ut_cac.$availablefightships.random"/>
           <do_if value="$testship.pilot.$orderlist.{1}.$script == 'ut.cac.com.captain.patrol'">
             <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Will send escorting already Patroling Ship %4'.[player.age,this.name,this.container.name,$testship.name]"/>
-            <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.move.escort',$displayname='Escorting %1 (Manager)'.[$testship.knownname],$time=2h,$exitonneworder=true,$interruptable=true] ]"/>
+            <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.move.escort',$displayname='Escorting %1 (Manager)'.[$testship.knownname],$object=$testship,$time=2h,$exitonneworder=true,$interruptable=true] ]"/>
             <return value="true"/>
           </do_if>
         </do_all>
