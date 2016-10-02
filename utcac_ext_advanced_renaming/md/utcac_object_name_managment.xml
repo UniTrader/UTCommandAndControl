@@ -45,7 +45,7 @@
                 <do_all exact="$subordinates.count" counter="$i">
                   <substitute_text text="$objectname" source="event.param3">
                     <replace string="{5554302,117}" with="$subordinates.count"/>
-                    <replace string="{5554302,118}" with="$i"/>
+                    <replace string="{5554302,118}" with="( if subordinates.count ge 100 and $i lt 100  then '0' else '' ) + ( if subordinates.count ge 10 and $i lt 10  then '0' else '' ) + $i"/>
                   </substitute_text>
                   <set_value name="$subordinates.{$i}.controlentity.$unformatted_object_name" exact="$objectname"/>
                   <add_to_group groupname="$NamedObjects" object="$subordinates.{$i}"/>
