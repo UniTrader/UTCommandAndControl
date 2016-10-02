@@ -53,6 +53,8 @@
         <!-- Rename Variable Name -->
         <set_value name="$actor.$ut_cac" exact="$actor.$ut_cac_settings"/>
         <remove_value name="$actor.$ut_cac_settings"/>
+        <set_value name="$actor.$ut_cac.$clusterboost" exact="param.ut_cac.setting_defaults.$clusterboost"/>
+        <!-- Add Clusterboost Variable-->
       </patch>
       <cues>
         <cue name="Delayed_scriptstart">
@@ -307,6 +309,8 @@ Rest is shared between all Actor types
               <add_player_choice text="{5554103,2313}" position="3" section="comm_settings_jump_type_set" choiceparam="'random'" selectable="not ( @$actor.$ut_cac.$jumptype == 'random' )"/>
               <add_player_choice text="{5554103,2314}" position="4" section="comm_settings_jump_insector_toggle" confidence="1" chance="(not $actor.$ut_cac.$insectorjump) *100"/>
               <add_player_choice text="{5554103,2315}" position="4" section="comm_settings_jump_insector_toggle" confidence="5" chance="$actor.$ut_cac.$insectorjump *100"/>
+              <add_player_choice text="{5554103,2316}" position="4" section="comm_settings_clusterboost_toggle" confidence="5" chance="(not $actor.$ut_cac.$clusterboost) *100"/>
+              <add_player_choice text="{5554103,2317}" position="4" section="comm_settings_clusterboost_toggle" confidence="1" chance="$actor.$ut_cac.$clusterboost *100"/>
               <add_player_choice_return text="{5554103,7}" position="6" />
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
@@ -316,6 +320,10 @@ Rest is shared between all Actor types
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_jump_insector_toggle'">
               <set_value name="$actor.$ut_cac.$insectorjump" exact="not $actor.$ut_cac.$insectorjump"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_clusterboost_toggle'">
+              <set_value name="$actor.$ut_cac.$insectorjump" exact="not $actor.$ut_cac.$clusterboost"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior'">
