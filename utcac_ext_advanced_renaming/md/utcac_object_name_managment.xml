@@ -13,7 +13,7 @@
         <create_group groupname="$NamedObjects"/>
       </patch>
       <cues>
-        <cue name="NameUpdateSingleobject" instantiate="true">
+        <cue name="NameUpdate" instantiate="true">
           <conditions>
             <check_any>
               <event_object_signalled object="player.galaxy" param="'Object Name Updated'" comment="for (initial) signalling from lua"/>
@@ -24,7 +24,7 @@
             </check_any>
           </conditions>
           <actions>
-            <do_if value="event.object == player.galaxy">
+            <do_if value="event.object == player.galaxy" comment="initial Signal from lua (will be depracted at some point - signal Object of which the Name should be updated instead)">
               <do_if value="event.param == 'Subordinates Name Updated' or event.param == 'Subordinates Name Updated - bigships' or event.param == 'Subordinates Name Updated - smallships'">
                 <!-- Redirect to Cue for Renaming Subordinates, dont update Name of this Object - the include_actions later checks for valadity of $object so not setting it here. -->
                 <set_value name="$subordinates" exact="event.param2.subordinates.clone"/>
@@ -63,8 +63,10 @@
               <set_value name="$object" exact="event.object"/>
               <!-- note: In this case event.param2 should contain why the Object Name has to be updated ( currently implemented reasons: Skill ) - skip Update if there is no effecive change when you know how to check for this -->
             </do_else>
-            <include_actions ref="RenameActions"/>
-            <remove_value name="$object"/>
+            <do_if value="$object?" comment="not mass renaming">
+              <include_actions ref="RenameActions"/>
+              <remove_value name="$object"/>
+            </do_if>
           </actions>
         </cue>
         <cue name="NameUpdateAllPlayerObjects" instantiate="true">
