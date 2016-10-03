@@ -98,7 +98,7 @@
           
           <find_station name="$station" space="$zone"/>
           <do_if value="$station.exists">
-            <create_random_position_outside_boundingbox name="$safepos" component="$station" mindistance="0" maxdistance="$station.size "/>
+            <create_random_position_outside_boundingbox name="$safepos" component="$station" mindistance="0" maxdistance="$station.size / 3 "/>
             <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" zone="$zone" value="$safepos"/>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Station %4 - flying to waypoint nearby (distance: %5 , size: %6)'.[player.age,this.name,this.container.name,$station.knownname,$station.distanceto.{$safepos},$station.size]"/>
           </do_if>
