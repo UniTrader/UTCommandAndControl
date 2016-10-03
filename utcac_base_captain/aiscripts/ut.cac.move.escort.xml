@@ -93,15 +93,14 @@ Labels used:
             <!-- continue where the previous Leader left off -->
             <append_to_list name="this.$orderlist" exact="event.param2"/>
           </do_else>
-          <abort_called_scripts/>
-          <resume label="finish"/>
+          <abort_called_scripts resume="finish"/>
         </do_if>
         <do_elseif value="not this.$orderlist.{2}?">
           <set_value name="$params.$object" exact="this.$escortgroup.{1}"/>
           <append_to_list name="this.$orderlist" exact="event.param2"/>
         </do_elseif>
         <!-- if there are further Orders just continue with them -->
-        <resume label="finish"/>
+        <abort_called_scripts label="finish"/>
       </actions>
     </handler>
     <handler comment="Handler for when Leader switches Escort Group - just a passive one performing just a few set_value">
