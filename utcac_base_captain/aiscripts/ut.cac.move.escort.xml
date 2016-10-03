@@ -102,12 +102,18 @@ Labels used:
       <conditions>
         <event_object_signalled object="$object.pilot" param="'escortgroup changed'"/>
         <!-- hope this Workaround for add_to_group / remove_from_group works... otherwise the Signal Handler must trigger to use these... -->
-        <remove_value name="this.$escortgroup.indexof.{this.ship}" comment="remove from previous Group"/>
+        <!--<remove_value name="this.$escortgroup.indexof.{this.ship}" comment="remove from previous Group"/>
         <set_value name="this.$escortgroup" exact="event.param2" comment="set new Group"/>
         <set_value name="this.$escortgroup.{this.$escortgroup.count+1}" exact="this.ship" comment="register in new Group"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (seperate in signal handler 2):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
-        <check_value value="false" comment="to prevent actually triggering this Handler - we just modify a few Values, but dont want to trigger the handler"/>
+        <check_value value="false" comment="to prevent actually triggering this Handler - we just modify a few Values, but dont want to trigger the handler"/>-->
       </conditions>
+      <actions>
+        <remove_from_group group="this.$escortgroup" object="this.ship" comment="remove from previous Group"/>
+        <set_value name="this.$escortgroup" exact="event.param2" comment="set new Group"/>
+        <add_to_group groupname="this.$escortgroup" object="this.ship" comment="register in new Group"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (seperate in signal handler 2):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+      </actions>
     </handler>
   </interrupts>
   <attention min="unknown">
