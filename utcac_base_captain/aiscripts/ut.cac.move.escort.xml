@@ -70,10 +70,11 @@ Labels used:
     <handler ref="ut_cac_follow_signalling" comment="Handler for Navigation Signals"/>
     <handler ref="ut_cac_exitonneworder"/>
     <!--handler comment="Planned Handler to react to Enemies annouced by the Leader"/-->
-    <handler comment="Planned Handler to handle transition to another Leader in case the current one gets new Orders">
+    <handler comment="Planned Handler to handle transition to another Leader in case the current one gets new Orders or ends his patrol">
       <conditions>
         <check_any>
           <event_object_signalled object="$object.pilot" param="'patrol aborted'"/>
+          <event_object_signalled object="$object.pilot" param="'patrol ends'"/>
           <event_object_destroyed object="$object"/>
         </check_any>
       </conditions>
