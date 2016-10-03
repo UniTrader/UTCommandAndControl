@@ -1049,12 +1049,12 @@ Which Orders are available depends on entity Type
           <do_while value="$slot le 6 and $order_number le $actor.$orderlist.count">
             <set_value name="$order" exact="$actor.$orderlist.{$order_number}"/>
             <do_if value="$order.$displayname?">
-              <add_player_choice_sub text="$order.$displayname" position="$slot" section="comm_orders_modify" choiceparam="[$slot , $order , $order_number]" selectable="@$order.$interruptable"/>
+              <add_player_choice_sub text="$order.$displayname" position="$slot" section="comm_orders_modify" choiceparam="[$slot , $order , $order_number]" selectable="if $order.$interruptable? then $order.$interruptable else true"/>
               <set_value name="$slot" operation="add"/>
             </do_if>
             <do_elseif value="this.$debug">
               <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Order #%4 has no $displaname, full Order: \n%5'.[player.age,$actor.name,$actor.container.name,$order_number,$order]"/>
-              <add_player_choice_sub text="'Order %1 - Without Name'.[$order_number]" position="$slot" section="comm_orders_modify" choiceparam="[$slot , $order , $order_number]" selectable="@$order.$interruptable"/>
+              <add_player_choice_sub text="'Order %1 - Without Name'.[$order_number]" position="$slot" section="comm_orders_modify" choiceparam="[$slot , $order , $order_number]" selectable="if $order.$interruptable? then $order.$interruptable else true"/>
               <set_value name="$slot" operation="add"/>
             </do_elseif>
             <set_value name="$order_number" operation="add"/>
@@ -1135,7 +1135,7 @@ Which Orders are available depends on entity Type
                   <add_player_choice text="$order.$displayname" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="false"/>
                 </do_if>
                 <do_if value="$order != $selected_order_A">
-                  <add_player_choice text="$order.$displayname" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="@$order.$interruptable"/>
+                  <add_player_choice text="$order.$displayname" position="$slot" section="comm_orders_move" choiceparam="[$slot , $order , $order_number]" selectable="if $order.$interruptable? then $order.$interruptable else true"/>
                 </do_if>
                 <do_else>
                   <!-- This is the Order already selected - its not selectable, but highlighted in Blue to make clear its the already selected one -->
@@ -1150,7 +1150,7 @@ Which Orders are available depends on entity Type
         <do_elseif value="event.param == 'comm_orders_cancel'">
           <!-- Order is at same Position as when we entered the Menu - we can safely cancel it if its still interruptable -->
           <do_if value="$actor.$orderlist.{event.param2.{3}} == event.param2.{2}">
-            <do_if value="$actor.$orderlist.{event.param2.{3}}.$interruptable">
+            <do_if value="if $actor.$orderlist.{event.param2.{3}}.$interruptable? then $actor.$orderlist.{event.param2.{3}}.$interruptable else true">
               <!-- signalling orderlist loop instead of modifying the order list directly to enable canceling the current order -->
               <signal_objects object="$actor" param="'cancel order'" param2="event.param2.{3}"/>
               <!--remove_value name="$actor.$orderlist.{event.param2.{3}}"/>
@@ -1162,7 +1162,7 @@ Which Orders are available depends on entity Type
           </do_if>
           <!-- Order is at a lower Position as when we entered the Menu - We can probably remove it if its still interruptable -->
           <do_elseif value="$actor.$orderlist.indexof.{event.param2.{2}} lt event.param2.{3}">
-            <do_if value="event.param2.{3}.$interruptable">
+            <do_if value="if event.param2.{3}.$interruptable? then event.param2.{3}.$interruptable else true">
               <signal_objects object="$actor" param="'cancel order'" param2="$actor.$orderlist.indexof.{event.param2.{2}}"/>
               <!--remove_value name="$actor.$orderlist.{$actor.$orderlist.indexof.{event.param2.{2}}}"/>
               <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\n Removed Order %4 from Orderlist, although it is now at a lower Position'.[player.age,$actor.$orderlist.event.param2.{3}.$displayname]"/-->
@@ -1175,7 +1175,7 @@ Which Orders are available depends on entity Type
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_cancel_all'">
           <do_all exact="$actor.$orderlist.count" counter="$i" reverse="true">
-            <do_if value="@$actor.$orderlist.{$i}.$interruptable and not ( $i == 1 )">
+            <do_if value="( if $actor.$orderlist.{$i}.$interruptable? then $actor.$orderlist.{$i}.$interruptable else true ) and not ( $i == 1 )">
               <remove_value name="$actor.$orderlist.{$i}"/>
             </do_if>
           </do_all>
