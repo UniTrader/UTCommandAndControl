@@ -22,6 +22,8 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
 %***** is a Engine-based dynamic Replacement (applied third, based on Entries in Page 303 id 1-999)
 
 -->
+
+<!--For translations please use Replacements in the ID Range from 1000 to 1999 instead of replacing the Expressions themselves, like its done in the 0001-L049 for example. this way Savegames can be transferred between Languages. -->
 <page id="5554301" title="UT Advanced Renaming" descr="Object Name Static Expressions" voice="no">
   <!--  Translation Defined Part -->
   <!-- Color Codes -->
@@ -107,8 +109,32 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
   <t id="11024">%CLASS:ship_xs</t>
   <t id="11025">XS</t>
   <t id="11026">%CLASS:station</t>
-  <t id="11027">ST</t></page>
-<page id="5554302" title="Object Name Dynamic Expressions" descr="UT Command and Control" voice="no">
+  <t id="11027">ST</t>
+  <!-- Replacements for Object Names via %type expression to shorten overly long Names (planned to work for Spaces like %zone or %sector, too - but NYI)-->
+  <!-- Remove Type Variation -->
+  <t id="20000"> {20106,2001}</t>
+  <t id="20001"></t>
+  <t id="20002"> {20106,2101}</t>
+  <t id="20003"></t>
+  <t id="20004"> {20106,2201}</t>
+  <t id="20005"></t>
+  <t id="20006"> {20106,2301}</t>
+  <t id="20007"></t>
+  <t id="20008"> {20106,3001}</t>
+  <t id="20009"></t>
+  <t id="20010"> {20106,3101}</t>
+  <t id="20011"></t>
+  <t id="20012"> {20106,3201}</t>
+  <t id="20013"></t>
+  <t id="20014"> {20106,3301}</t>
+  <t id="20015"></t>
+  <t id="20016"> {20106,3401}</t>
+  <t id="20017"></t>
+  <t id="20018"> {20106,3501}</t>
+  <t id="20019"></t>
+  <!-- shorten overly long Names -->
+</page>
+<page id="5554302" title="UT Advanced Renaming" descr="Object Name Dynamic Expressions Internally used Text" voice="no">
   <t id="1" comment="Setting:  Version Number of the Custom Expressions File - change this Entry to update the Result on all Objects upon loading a Savegame">0</t>
   <t id="2" comment="Setting:  Safe Expression converted into English? (default no, set to yes if you want to transfer your Save from another language than english to a Game in another Language)">no</t>
   <!-- NPC Skills
@@ -128,7 +154,8 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
   M => Managment
   N => Navigation
   O => Morale
-  S => Science -->
+  S => Science
+  P=> Primary Skills in order of importance -->
   <t id="10">%SBA</t>
   <t id="11">%SBB</t>
   <t id="12">%SBC</t>
@@ -138,6 +165,7 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
   <t id="16">%SBN</t>
   <t id="17">%SBO</t>
   <t id="18">%SBS</t>
+  <t id="19">%SBP</t>
   <t id="20">%SCA</t>
   <t id="21">%SCB</t>
   <t id="22">%SCC</t>
@@ -147,6 +175,7 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
   <t id="26">%SCN</t>
   <t id="27">%SCO</t>
   <t id="28">%SCS</t>
+  <t id="29">%SCP</t>
   <t id="30">%SDA</t>
   <t id="31">%SDB</t>
   <t id="32">%SDC</t>
@@ -156,6 +185,7 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
   <t id="36">%SDN</t>
   <t id="37">%SDO</t>
   <t id="38">%SDS</t>
+  <t id="39">%SDP</t>
   <t id="40">%SEA</t>
   <t id="41">%SEB</t>
   <t id="42">%SEC</t>
@@ -165,6 +195,7 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
   <t id="46">%SEN</t>
   <t id="47">%SEO</t>
   <t id="48">%SES</t>
+  <t id="49">%SEP</t>
   <t id="50">%SMA</t>
   <t id="51">%SMB</t>
   <t id="52">%SMC</t>
@@ -174,6 +205,7 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
   <t id="56">%SMN</t>
   <t id="57">%SMO</t>
   <t id="58">%SMS</t>
+  <t id="58">%SMP</t>
   <!-- Dynamic Replacements other than Skills -->
   <t id="100">%superiorobject</t>
   <t id="101">%superiorzone</t>
@@ -197,6 +229,7 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
   <t id="119">/rco</t><!-- Random Color Expression - currently internally suffixed with a number to allow multiple random colors -->
   <t id="120">%scriptset</t><!-- Script Set used - will result in next Value if unknown -->
   <t id="121">Vanilla/Unbekannt</t>
+  <t id="122">0</t><!-- Leading Sign for %subnumber if there are more than 9 or 99 total subordinates (will be doubled if necesary)-->
   <!-- Freight Class Expression and Results -->
   <t id="200">%freightclass</t>
   <t id="201">U(niversal - equals MCEF)</t>
@@ -223,7 +256,7 @@ $***** is a Script-defined dnyamic Replacement (applied second;based on a local 
   <t id="401">%currentorder</t>
   <t id="402">%ordercount</t>
   <!-- Debug Expression - sets or removes/resets the Debug Values for Object if present/not present -->
-  <t id="999">DEBUG OFF</t><!-- will be removed but forces Reset of all Debug Vars -->
+  <t id="998">DEBUG OFF</t><!-- will be removed but forces Reset of all Debug Vars -->
   <t id="999">DEBUG</t>
   <!-- Internally used Text eg for Menus -->
   <t id="1001">                             Untergebene Umbenennen</t><!--leading spaces intentional to center text till i find out how to do it properly-->
