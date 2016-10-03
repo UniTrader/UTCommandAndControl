@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
-<aiscript name="ut.cac.move.to.pos" version="30" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<aiscript name="ut.cac.move.to.pos" version="31" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <!--
 
  rewritten from scratch by UniTrader
@@ -21,6 +21,7 @@ with a given Rotation or Orientation
     <!-- Group Movement stuff -->
     <param name="leader" default="null" comment="the formation leader/object which coordinates the Movement"/>
     <param name="leader_preparegroup" default="null" comment="the group of Ships the Leader waits for"/>
+    <param name="waitforleader" default="true" comment="if we are a follower and arrive at the waypoint earlier than the leader then wait for him there until he arrived, too"/>
   </params>
   <patch sinceversion="30">
     <create_group groupname="$leader_preparegroup"/>
@@ -223,6 +224,18 @@ with a given Rotation or Orientation
       <do_else>
         <remove_from_group group="$leader_preparegroup" object="this.ship"/>
         <signal_objects object="$leader" param="'preparegroup shrunk'"/>
+        <do_if value="$waitforleader">
+          <do_while value="$leader_preparegroup.count">
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers and leader to Arrive\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+            <wait max="1min" sinceversion="31">
+              <interrupt>
+                <conditions>
+                  <event_object_signalled object="$leader" param="'preparegroup shrunk'"/>
+                </conditions>
+              </interrupt>
+            </wait>
+          </do_while>
+        </do_if>
       </do_else>
     </actions>
   </attention>
