@@ -90,6 +90,16 @@ Labels used:
           </do_elseif>
         </actions>
       </handler>
+      <handler name="ut_cac_exitonneworder" comment="Handler for exiting current Script when a new Order is received">
+        <conditions>
+          <event_object_signalled object="this" param="'new order received'"/>
+          <check_value value="$exitonneworder and this.$orderlist.{$exitonneworder}?"/>
+        </conditions>
+        <actions>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received new Order - Exiting (interrupt case)'.[player.age,this.name,this.container.name]"/>
+          <abort_called_scripts resume="finish"/>
+        </actions>
+      </handler>
     </library>
   </interrupts>
 </aiscript>

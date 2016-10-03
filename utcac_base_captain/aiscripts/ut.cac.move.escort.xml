@@ -14,6 +14,7 @@ roughly based on the experimental ut.cac.follow.verysimple
     <param name="time" default="null" comment="how long the other Object should be followed"/>
     <param name="timeout" default="null" comment="until when the Object should be followed - overrides time"/>
     <param name="destination" default="null" comment="where the other Object followed to (as Space, since the context is checked)"/>
+    <param name="exitonneworder" default="false" comment="Exit immediately when receiving a new Order. If set to a Number of 2 or greater this is the Number of Orders the this.{$orderlist} has to contain before aborting (since 1 is always this Script)"/>
   </params>
   <init>
     <!-- first turn params param into the real params -->
@@ -29,6 +30,9 @@ roughly based on the experimental ut.cac.follow.verysimple
       </do_if>
       <do_if value="$params.$destination?">
         <set_value name="$destination" exact="$params.$destination"/>
+      </do_if>
+      <do_if value="$params.$exitonneworder?">
+        <set_value name="$exitonneworder" exact="$params.$exitonneworder"/>
       </do_if>
     </do_if>
   </init>
@@ -64,6 +68,7 @@ Labels used:
 > start => Object moved to last Target Pos and Leader is in same Zone - usually wait for next Movement Signal after this (Label Name may change in further Development!!!!)
 -->
     <handler ref="ut_cac_follow_signalling" comment="Handler for Navigation Signals"/>
+    <handler ref="ut_cac_exitonneworder"/>
     <!--handler comment="Planned Handler to react to Enemies annouced by the Leader"/-->
     <handler comment="Planned Handler to handle transition to another Leader in case the current one gets new Orders">
       <conditions>

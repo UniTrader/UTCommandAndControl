@@ -30,16 +30,7 @@
     </do_if>
   </init>
   <interrupts>
-    <handler>
-      <conditions>
-        <event_object_signalled object="this" param="'new order received'"/>
-        <check_value value="$exitonneworder and this.$orderlist.{$exitonneworder}?"/>
-      </conditions>
-      <actions>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received new Order - Exiting (interrupt case)'.[player.age,this.name,this.container.name]"/>
-        <abort_called_scripts resume="finish"/>
-      </actions>
-    </handler>
+    <handler ref="ut_cac_exitonneworder"/>
   </interrupts>
   <attention min="unknown">
     <actions>
