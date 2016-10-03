@@ -137,7 +137,7 @@ with a given Rotation or Orientation
         <!-- this Var holds the List of the Size for all possible Ships - the max value it contains in the end is the result -->
         <set_value name="$formation_size" exact="[this.ship.size]"/>
         <do_all exact="$leader_preparegroup.count" counter="$i">
-          <append_to_list name="$formation_size" exact="this.ship.distanceto.{$leader_preparegroup.{$i} + $leader_preparegroup.{$i}.size}"/>
+          <append_to_list name="$formation_size" exact="this.ship.distanceto.{$leader_preparegroup.{$i}} + $leader_preparegroup.{$i}.size"/>
         </do_all>
         <set_value name="$formation_size" exact="$formation_size.max"/>
         <!-- re-define safepos based on Formation Size -->
