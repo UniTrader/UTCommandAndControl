@@ -179,7 +179,7 @@
             ToDo: Add actual questioning for additional Funds
             ToDo: Add Requesting Money from Commanderentity instead of Player if possible -->
             <do_elseif value="$actor.money lt $actor.minbudget">
-              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Grabbing %4 Credits from Player to keep working'.[player.age,$actor.name,$actor.container.name,($actor.minbudget)Cr]"/>
+              <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Grabbing %4 Credits from Player to keep working'.[player.age,$actor.name,$actor.container.name,($actor.minbudget)Cr]"/>
               <transfer_money from="player.entity" to="$actor" amount="$actor.minbudget"/>
             </do_elseif>
             <!-- Actor has more Money than he needs - transfer the rest to the Player (round transfered amount up to a nice, round number) 
@@ -212,7 +212,7 @@
                 <set_value name="$transferamount" exact="$transferamount + ( 1000000000Cr - ($transferamount % 1000000000Cr) )"/>
               </do_else>
               <do_if value="$transferamount != 0">
-                <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Transferring %4 Credits to Player'.[player.age,$actor.name,$actor.container.name,$transferamount/100]"/>
+                <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Transferring %4 Credits to Player'.[player.age,$actor.name,$actor.container.name,$transferamount/100]"/>
                 <transfer_money amount="$transferamount" from="$actor" to="player.entity"/>
                 <do_if value="$actor.$ut_cac.$loglevel ge param.ut_cac.loglevel.$surplustransfer">
                   <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,111}.[param.ut_cac.loglevel.$surplustransfer,$actor.container.name,$actor.name,($transferamount)Cr]"/>
@@ -227,7 +227,6 @@
     <library name="Actor_Init">
       <actions>
         <!-- set up Variables -->
-        <set_value name="$actor.$debug" exact="false" chance="(not $actor.$debug?)*100" comment="default value if not already set"/>
         <do_if value="not $actor.$ut_cac?">
           <set_value name="$actor.$ut_cac" exact="param.ut_cac.setting_defaults.clone"/>
         </do_if>
@@ -658,7 +657,7 @@ Which Orders are available depends on entity Type
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
         <!--- ################################### -->
         <!--                       Personal Menu                          -->
         <!--- ################################### -->
@@ -865,7 +864,7 @@ Which Orders are available depends on entity Type
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
         <!--- ################################### -->
         <!--                        Connect Menu                          -->
         <!--- ################################### -->
@@ -1009,7 +1008,7 @@ Which Orders are available depends on entity Type
             <add_npc_line speaker="$actor" line="[1055].random" hidechoices="false" comment="Perfect. I'll make sure she's put to work." />
           </do_if>
           <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
-            <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="$actor.$debug"/>
+            <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="@$actor.$debug"/>
             <set_object_commander object="player.primaryship.subordinates.{$i}" commander="$actor.container" type="$actor.type"/>
           </do_all>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
@@ -1038,7 +1037,7 @@ Which Orders are available depends on entity Type
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,$actor.name,$actor.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,$actor.name,$actor.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'comm_orders_main'">
           <do_if value="event.name == 'event_conversation_next_section' and $actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
@@ -1054,7 +1053,7 @@ Which Orders are available depends on entity Type
               <set_value name="$slot" operation="add"/>
             </do_if>
             <do_elseif value="this.$debug">
-              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3 Order #%4 has no $displaname, full Order: \n%5'.[player.age,$actor.name,$actor.container.name,$order_number,$order]"/>
+              <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Order #%4 has no $displaname, full Order: \n%5'.[player.age,$actor.name,$actor.container.name,$order_number,$order]"/>
               <add_player_choice_sub text="'Order %1 - Without Name'.[$order_number]" position="$slot" section="comm_orders_modify" choiceparam="[$slot , $order , $order_number]" selectable="@$order.$interruptable"/>
               <set_value name="$slot" operation="add"/>
             </do_elseif>
@@ -1155,10 +1154,10 @@ Which Orders are available depends on entity Type
               <!-- signalling orderlist loop instead of modifying the order list directly to enable canceling the current order -->
               <signal_objects object="$actor" param="'cancel order'" param2="event.param2.{3}"/>
               <!--remove_value name="$actor.$orderlist.{event.param2.{3}}"/>
-              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Removed Order %4 from Orderlist'.[player.age,$actor.name,$actor.container.name,event.param2.{2}.$displayname]"/-->
+              <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\n Removed Order %4 from Orderlist'.[player.age,$actor.name,$actor.container.name,event.param2.{2}.$displayname]"/-->
             </do_if>
             <do_else>
-              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Trying to remove Order %4 from Orderlist, but its not interruptable anymore'.[player.age,$actor.name,$actor.container.name,$actor.$orderlist.{event.param2.{3}}.$displayname]"/>
+              <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\n Trying to remove Order %4 from Orderlist, but its not interruptable anymore'.[player.age,$actor.name,$actor.container.name,$actor.$orderlist.{event.param2.{3}}.$displayname]"/>
             </do_else>
           </do_if>
           <!-- Order is at a lower Position as when we entered the Menu - We can probably remove it if its still interruptable -->
@@ -1166,10 +1165,10 @@ Which Orders are available depends on entity Type
             <do_if value="event.param2.{3}.$interruptable">
               <signal_objects object="$actor" param="'cancel order'" param2="$actor.$orderlist.indexof.{event.param2.{2}}"/>
               <!--remove_value name="$actor.$orderlist.{$actor.$orderlist.indexof.{event.param2.{2}}}"/>
-              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Removed Order %4 from Orderlist, although it is now at a lower Position'.[player.age,$actor.$orderlist.event.param2.{3}.$displayname]"/-->
+              <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\n Removed Order %4 from Orderlist, although it is now at a lower Position'.[player.age,$actor.$orderlist.event.param2.{3}.$displayname]"/-->
             </do_if>
             <do_else>
-              <debug_text filter="general" chance="$actor.$debug * 100" text="'%1 %2 %3:\n Trying to remove Order %4 from Orderlist, but its not interruptable anymore and on a lower position'.[player.age,$actor.name,$actor.$orderlist.event.param2.{3}.$displayname]"/>
+              <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\n Trying to remove Order %4 from Orderlist, but its not interruptable anymore and on a lower position'.[player.age,$actor.name,$actor.$orderlist.event.param2.{3}.$displayname]"/>
             </do_else>
           </do_elseif>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
@@ -1247,7 +1246,7 @@ Which Orders are available depends on entity Type
         <do_elseif value="event.param == 'comm_debug_main'">
           <add_player_choice text="'Restart Main Script'" position="1" section="comm_debug_script_restart" selectable="player.debug"/>
           <add_player_choice text="'Max out Skills'" position="2" section="comm_debug_fivestars"/>
-          <add_player_choice text="'Toggle Debugging to Log: '+ $actor.$debug" position="3" section="comm_debug_toggle"/>
+          <add_player_choice text="'Toggle Debugging to Log: '+ @$actor.$debug" position="3" section="comm_debug_toggle"/>
           <add_player_choice text="'Destroy Object for complete cleanup \033R(USE WITH CARE)\033X'" position="4" section="comm_debug_cleanup_object" selectable="player.debug"/>
           <add_player_choice text="'Destroy Actor for cleanup'" position="5" section="comm_debug_cleanup_actor"/>
           <add_player_choice_return text="'(Back)'" position="close" />
@@ -1275,7 +1274,7 @@ Which Orders are available depends on entity Type
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_toggle'">
-          <set_value name="$actor.$debug" exact="not $actor.$debug"/>
+          <set_value name="$actor.$debug" exact="not @$actor.$debug"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_cleanup_object'">
