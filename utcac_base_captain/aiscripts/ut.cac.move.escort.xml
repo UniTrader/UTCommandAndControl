@@ -96,11 +96,12 @@ Labels used:
           <abort_called_scripts resume="finish"/>
         </do_if>
         <do_elseif value="not this.$orderlist.{2}?">
-          <set_value name="$params.$object" exact="this.$escortgroup.{1}"/>
+          <!-- continue with Patrol individually - no complicated stuff like selecting a new Leader yet, will be added later -->
+          <!--set_value name="$params.$object" exact="this.$escortgroup.{1}"/-->
           <append_to_list name="this.$orderlist" exact="event.param2"/>
         </do_elseif>
         <!-- if there are further Orders just continue with them -->
-        <abort_called_scripts label="finish"/>
+        <abort_called_scripts resume="finish"/>
       </actions>
     </handler>
     <handler comment="Handler for when Leader switches Escort Group - just a passive one performing just a few set_value">
