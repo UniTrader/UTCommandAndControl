@@ -41,7 +41,7 @@
       <!-- create List of Drones to buy -->
       <set_value name="$unitcategorylist" exact="$droneamounts.keys.list"/>
       <create_list name="$selloffers" />
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trying so buy these Units somewhere:\n%4'.[player.age,this.name,this.container.name,$droneamounts]"/>
+      <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Trying so buy these Units somewhere:\n%4'.[player.age,this.name,this.container.name,$droneamounts]"/>
       
       <!-- first check Homebase if there is stuff we can Grab there -->
       <!--do_if value="this.ship.commander.exists">
@@ -67,7 +67,7 @@
           <remove_value name="$unitcategorylist.{$i}"/>
         </do_if>
       </do_all>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found %4 Sell Offers in sector'.[player.age,this.name,this.container.name,$selloffers.count]"/>
+      <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Found %4 Sell Offers in sector'.[player.age,this.name,this.container.name,$selloffers.count]"/>
       
       <!-- add these Sell Orders to the Trading Queue sorted by shortest Distance to next Trade and add a Trade run order for each -->
       <set_value name="$currentzone" exact="this.zone"/>
@@ -95,7 +95,7 @@
               </do_if>
               <continue/>
             </do_else>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Offer to Trade List (same Zone):\n%4'.[player.age,this.name,this.container.name,$selloffers.{$i}]"/>
+            <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Adding Offer to Trade List (same Zone):\n%4'.[player.age,this.name,this.container.name,$selloffers.{$i}]"/>
             <add_buy_order object="this.ship" trade="$selloffers.{$i}" amount="$amount" price="$selloffers.{$i}.unitprice" unbundle="true"/>
             <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Restock Drones)',$repeat=0]"/>
             <remove_value name="$selloffers.{$i}"/>
@@ -140,7 +140,7 @@
             <set_value name="$mindistindex" exact="null"/>
             <continue/>
           </do_else>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Offer to Trade List (mindist):\n%4'.[player.age,this.name,this.container.name,$selloffers.{$mindistindex}]"/>
+          <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Adding Offer to Trade List (mindist):\n%4'.[player.age,this.name,this.container.name,$selloffers.{$mindistindex}]"/>
           <add_buy_order object="this.ship" trade="$selloffers.{$mindistindex}" amount="$amount" price="$selloffers.{$mindistindex}.unitprice" unbundle="true"/>
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Restock Drones)',$command=command.freetrade]"/>
           <set_value name="$currentzone" exact="$selloffers.{$mindistindex}.owner.zone"/>
@@ -168,7 +168,7 @@
             <set_value name="$droneamounts.{$selloffer.ware}" exact="$droneamounts.{$unitcategorylist.{$i}}"/>
             <remove_value name="$unitcategorylist.{$i}"/>
             <set_value name="$sector" exact="$selloffer.owner.sector"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Trade Offer in another Sector, continuing there:\n%4'.[player.age,this.name,this.container.name,$selloffer]"/>
+            <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Found Trade Offer in another Sector, continuing there:\n%4'.[player.age,this.name,this.container.name,$selloffer]"/>
             <resume label="search sector" comment="goto line 47"/>
           </do_if>
         </do_all>

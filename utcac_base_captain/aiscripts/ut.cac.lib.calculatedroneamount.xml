@@ -125,7 +125,7 @@
           <set_value name="$droneamount.{$unitcategories.{$i}}" exact="[$droneamount.{$unitcategories.{$i}} , $object.units.{$unitcategories.{$i}}.count ].max"/>
         </do_if>
         <set_value name="$totalunits" operation="add" exact="$droneamount.{$unitcategories.{$i}}"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'create Dronelist:\n' + $droneamount"/>
+        <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'create Dronelist:\n' + $droneamount"/>
       </do_all>
       <!-- filter out unneeded unit types (gas and ore collectors if no collection is possible or necesary at location) -->
       <do_if value="not $object.waretransport.indexof.{waretransport.liquid} and $droneamount.{unitcategory.gascollector}?">
@@ -153,7 +153,7 @@
           <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
         </do_else>
       </do_all>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'shrink Dronelist:\n' + $droneamount"/>
+      <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'shrink Dronelist:\n' + $droneamount"/>
       <!--if we still have too many units reduce amount step-by-step -->
       <do_if value="$totalunits gt $object.units.maxcount">
         <set_value name="$i" exact="1"/>
@@ -172,7 +172,7 @@
           <do_else>
             <set_value name="$i" operation="add"/>
           </do_else>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'shrink Dronelist stepwise:\n' + $droneamount"/>
+          <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'shrink Dronelist stepwise:\n' + $droneamount"/>
         </do_while>
       </do_if>
     </do_if>
@@ -188,7 +188,7 @@
       <do_if value="$droneamount.{$unitcategories.{$i}}? and $droneamount.{$unitcategories.{$i}} le 0">
         <remove_value name="$droneamount.{$unitcategories.{$i}}"/>
       </do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'filter Dronelist:\n' + $droneamount"/>
+      <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'filter Dronelist:\n' + $droneamount"/>
     </do_all>
     <return value="$droneamount" />
   </actions>
