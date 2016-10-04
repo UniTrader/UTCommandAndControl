@@ -95,7 +95,7 @@
             <set_value name="$order_pos" exact="event.param2"/>
           </do_else>
           <!-- check if the Order Number could be resolved properly and if it is interruptable -->
-          <do_if value="if $order_pos and this.$orderlist.{$order_pos}.$interruptable? then $order_pos and this.$orderlist.{$order_pos}.$interruptable else true">
+          <do_if value="$order_pos and ( if this.$orderlist.{$order_pos}.$interruptable? then this.$orderlist.{$order_pos}.$interruptable else true )"> 
             <!-- check if an abort Script was defined and execute it -->
             <do_if value="this.$orderlist.{$order_pos}.$abortscript?">
               <run_interrupt_script name="this.$orderlist.{$order_pos}.$abortscript" >
