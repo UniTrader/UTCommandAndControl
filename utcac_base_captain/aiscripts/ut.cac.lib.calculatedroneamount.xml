@@ -19,14 +19,17 @@
     
     <do_if value="this.$ut_cac.$drone_loadout?">
       <set_value name="$droneamount" exact="this.$ut_cac.$drone_loadout"/>
+      <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'Using Ship-defined Drone List:\n' + $droneamount"/>
     </do_if>
     <!-- first check if we have a specific loadout (use it without changes) -->
     <do_elseif value="param.ut_cac.drone_loadout.{$object.macro}?">
       <set_value name="$droneamount" exact="param.ut_cac.drone_loadout.{$object.macro}.clone"/>
+      <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'Using Macro-defined Drone List:\n' + $droneamount"/>
     </do_elseif>
     <!-- then check if its a Station and calculate relative amounts to absolute ones -->
     <do_elseif value="$object.isclass.station">
       <set_value name="$droneamount" exact="param.ut_cac.drone_loadout.{class.station}.clone"/>
+      <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'Basing Drones on Station Rules:\n' + $droneamount"/>
       <set_value name="$unitcategories" exact="$droneamount.keys.list"/>
       <do_all exact="$unitcategories.count" counter="$i">
         <do_if value="not $droneamount.{$unitcategories.{$i}}?">
@@ -100,6 +103,7 @@
     <!-- Calculate Drone Amount for Ships (depends on Objectpurpose and Class) -->
     <do_elseif value="$object.isclass.ship">
       <set_value name="$droneamount" exact="table[]"/>
+      <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'Basing Drones on Ship Rules:\n' + $droneamount"/>
       <set_value name="$unitcategories" exact="param.ut_cac.drone_loadout.$UnitcategoryList"/>
       <do_all exact="$unitcategories.count" counter="$i">
         <do_if value="param.ut_cac.drone_loadout.{$object.primarypurpose}.{$unitcategories.{$i}}? and param.ut_cac.drone_loadout.{$object.class}.{$unitcategories.{$i}}?">
