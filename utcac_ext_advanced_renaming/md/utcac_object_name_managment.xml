@@ -78,11 +78,11 @@
                     <replace string="{5554302,117}" with="$subordinates.count"/>
                     <replace string="{5554302,118}" with="( if $subordinates.count ge 100 and $i lt 100  then {5554302,122} else '' ) + ( if $subordinates.count ge 10 and $i lt 10  then {5554302,122} else '' ) + $i"/>
                   </substitute_text>
-                  <do_if value="$object.isclass.station">
-                    <set_value name="$object.tradenpc.$unformatted_object_name" exact="$objectname"/>
+                  <do_if value="$subordinates.{$i}.isclass.station">
+                    <set_value name="$subordinates.{$i}.tradenpc.$unformatted_object_name" exact="$objectname"/>
                   </do_if>
                   <do_else>
-                    <set_value name="$object.controlentity.$unformatted_object_name" exact="$objectname"/>
+                    <set_value name="$subordinates.{$i}.controlentity.$unformatted_object_name" exact="$objectname"/>
                   </do_else>
                   <add_to_group groupname="$NamedObjectsDynamic" object="$subordinates.{$i}"/>
                   <signal_objects object="$subordinates.{$i}" param="'Object Name Updated'"/>
