@@ -77,7 +77,12 @@
                     <replace string="{5554302,117}" with="$subordinates.count"/>
                     <replace string="{5554302,118}" with="( if $subordinates.count ge 100 and $i lt 100  then {5554302,122} else '' ) + ( if $subordinates.count ge 10 and $i lt 10  then {5554302,122} else '' ) + $i"/>
                   </substitute_text>
-                  <set_value name="if $object.isclass.station then $object.tradenpc.$unformatted_object_name else $object.controlentity.$unformatted_object_name" exact="$objectname"/>
+                  <do_if value="$object.isclass.station">
+                    <set_value name="$object.tradenpc.$unformatted_object_name" exact="$objectname"/>
+                  </do_if>
+                  <do_else>
+                    <set_value name="$object.controlentity.$unformatted_object_name" exact="$objectname"/>
+                  </do_else>
                   <add_to_group groupname="$NamedObjectsDynamic" object="$subordinates.{$i}"/>
                   <signal_objects object="$subordinates.{$i}" param="'Object Name Updated'"/>
                 </do_all>
@@ -140,7 +145,12 @@
             <remove_value name="$object.engineer.$debug" chance="$object.engineer? * 100"/>
             <remove_value name="$object.architect.$debug" chance="$object.architect? * 100"/>
             <remove_value name="$object.boardingnpc.$debug" chance="$object.boardingnpc? * 100"/>
-            <set_value name="if $object.isclass.station then $object.tradenpc.$unformatted_object_name else $object.controlentity.$unformatted_object_name" exact="$nameB"/>
+            <do_if value="$object.isclass.station">
+              <set_value name="$object.tradenpc.$unformatted_object_name" exact="$nameB"/>
+            </do_if>
+            <do_else>
+              <set_value name="$object.controlentity.$unformatted_object_name" exact="$nameB"/>
+            </do_else>
             <set_value name="$nameA" exact="$nameB"/>
           </do_if>
           <!-- DEBUG ON (Expression will stay) -->
@@ -168,7 +178,12 @@
           <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           <!-- If Language-transfer is desired Save name Var back to local Var now, continue with remaining phrases after that -->
           <do_if value="{5554302,1} == 'yes'">
-            <set_value name="if $object.isclass.station then $object.tradenpc.$unformatted_object_name else $object.controlentity.$unformatted_object_name" exact="$nameA"/>
+            <do_if value="$object.isclass.station">
+              <set_value name="$object.tradenpc.$unformatted_object_name" exact="$nameA"/>
+            </do_if>
+            <do_else>
+              <set_value name="$object.controlentity.$unformatted_object_name" exact="$nameA"/>
+            </do_else>
           </do_if>
           <get_text_ids_in_range result="$keys" page="5554301" start="2000" end="3000" factor="2"/>
           <do_all exact="$keys.count" counter="$i" reverse="false">
