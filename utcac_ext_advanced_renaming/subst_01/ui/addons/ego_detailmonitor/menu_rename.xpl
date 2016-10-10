@@ -39,8 +39,8 @@ function menu.editboxUpdateText(_, text, textchanged)
 			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - smallships" , menu.object , text )
 		end
 	-- Renaming Function - now always renaming to force an update if needed
-	elseif GetComponentData(menu.object, "controlentity") then
-		SetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name" , text)
+	elseif menu.controlentity then
+		SetNPCBlackboard(menu.controlentity, "$unformatted_object_name" , text)
 		SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
 	-- UniTrader Changes end (next line was a if before, but i have some diffrent conditions)
 	elseif textchanged then
@@ -132,9 +132,10 @@ function menu.onShowMenu()
 	local container = GetContextByClass(menu.object, "container", false)
 	local isship = IsComponentClass(menu.object, "ship")
 -- UniTrader Change: Split Name Var into displayname (from Object) and (edit)name (from Local Var of Control Entity , fallback to displayname)
+    menu.controlentity = GetControlEntity(menu.object, "manager") or GetComponentData(menu.object, "controlentity")
 	local displayname, name, objectowner = GetComponentData(menu.object, "name", "name", "owner")
-	if GetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name") then
-		name = GetNPCBlackboard(GetComponentData(menu.object, "controlentity"), "$unformatted_object_name")
+	if menu.controlentity and GetNPCBlackboard(menu.controlentity, "$unformatted_object_name") then
+		name = GetNPCBlackboard(menu.controlentity, "$unformatted_object_name")
 	end
 	if container then
 		menu.title = GetComponentData(container, "name") .. " - " .. (name ~= "" and displayname or ReadText(1001, 56))
