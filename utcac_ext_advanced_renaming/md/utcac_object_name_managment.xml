@@ -40,6 +40,7 @@
           </do_if>
         </do_all>
         <add_to_group groupname="$NamedObjects" group="$NamedObjectsDynamic"/>
+        <reset_cue cue="NameUpdate"/>
         <signal_objects group="$NamedObjectsDynamic" param="'Object Name Updated'"/>
       </patch>
       <cues>
@@ -139,12 +140,12 @@
             <replace string="{5554302,998}" with="''"/>
           </substitute_text>
           <do_if value="$nameA != $nameB">
-            <remove_value name="$object.pilot.$debug" chance="$object.pilot? * 100"/>
-            <remove_value name="$object.defencenpc.$debug" chance="$object.defencenpc? * 100"/>
-            <remove_value name="$object.tradenpc.$debug" chance="$object.tradenpc? * 100"/>
-            <remove_value name="$object.engineer.$debug" chance="$object.engineer? * 100"/>
-            <remove_value name="$object.architect.$debug" chance="$object.architect? * 100"/>
-            <remove_value name="$object.boardingnpc.$debug" chance="$object.boardingnpc? * 100"/>
+            <remove_value name="$object.pilot.$debug" chance="$object.pilot.exists * 100"/>
+            <remove_value name="$object.defencenpc.$debug" chance="$object.defencenpc.exists * 100"/>
+            <remove_value name="$object.tradenpc.$debug" chance="$object.tradenpc.exists * 100"/>
+            <remove_value name="$object.engineer.$debug" chance="$object.engineer.exists * 100"/>
+            <remove_value name="$object.architect.$debug" chance="$object.architect.exists * 100"/>
+            <remove_value name="$object.boardingnpc.$debug" chance="$object.boardingnpc.exists * 100"/>
             <do_if value="$object.isclass.station">
               <set_value name="$object.tradenpc.$unformatted_object_name" exact="$nameB"/>
             </do_if>
@@ -159,13 +160,13 @@
           </substitute_text>
           <do_if value="$nameA != $nameB">
             <!-- Activate Debugging on Object -->
-            <set_value name="$object.pilot.$debug" exact="true" chance="$object.pilot? * 100"/>
-            <set_value name="$object.defencenpc.$debug" exact="true" chance="$object.defencenpc.pilot? * 100"/>
-            <set_value name="$object.tradenpc.$debug" exact="true" chance="$object.tradenpc.pilot? * 100"/>
-            <set_value name="$object.engineer.$debug" exact="true" chance="$object.engineer.pilot? * 100"/>
-            <set_value name="$object.architect.$debug" exact="true" chance="$object.architect.pilot? * 100"/>
-            <set_value name="$object.boardingnpc.$debug" exact="true" chance="$object.boardingnpc.pilot? * 100"/>
-            <set_value name="$debug" exact="'%1 %2 Advanced Renaming Name Stages:\n%3'.[player.age,$object.name,$nameA]"/>
+            <set_value name="$object.pilot.$debug" exact="true" chance="$object.pilot.exists * 100"/>
+            <set_value name="$object.defencenpc.$debug" exact="true" chance="$object.defencenpc.pilot.exists * 100"/>
+            <set_value name="$object.tradenpc.$debug" exact="true" chance="$object.tradenpc.pilot.exists * 100"/>
+            <set_value name="$object.engineer.$debug" exact="true" chance="$object.engineer.pilot.exists * 100"/>
+            <set_value name="$object.architect.$debug" exact="true" chance="$object.architect.pilot.exists * 100"/>
+            <set_value name="$object.boardingnpc.$debug" exact="true" chance="$object.boardingnpc.pilot.exists * 100"/>
+            <set_value name="$debug" exact="'%1 %2 Advanced Renaming Name Stages:\nUNFORM:  %3'.[player.age,$object.name,$nameA]"/>
           </do_if>
           <!-- ========= -->
           <!-- Perform Static Replacements (Preffered Marking Key / ) -->
@@ -175,7 +176,7 @@
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
             </substitute_text>
           </do_all>
-          <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
+          <set_value name="$debug" exact="'%1\nCUSTOM:\nLOCAL:  %2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           <!-- If Language-transfer is desired Save name Var back to local Var now, continue with remaining phrases after that -->
           <do_if value="{5554302,1} == 'yes'">
             <do_if value="$object.isclass.station">
@@ -191,7 +192,7 @@
               <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
             </substitute_text>
           </do_all>
-          <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
+          <set_value name="$debug" exact="'%1\nSTATIC:  %2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           
           <!-- Perform Script-Dynamic Replacements ( Marking Key $ ) - no Registration for Automated Update Event, send Signal or Include Actions yourself.-->
           <!-- (feel free to create and add your own Values to the local table $namereplacement though ;) -->
@@ -203,7 +204,7 @@
               </substitute_text>
             </do_all>
           </do_if>
-          <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
+          <set_value name="$debug" exact="'%1\nSCRIPT:  %2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           
           <!-- ========= -->
           <!-- Perform Engine-based Dynamic Replacements ( Marking Key % ) and also add them to Update Group if used-->
@@ -473,7 +474,7 @@ else 'null'"/>
             <remove_from_group group="md.UT_CAC_Object_Name_Managment.Init.$NamedObjectsDynamic" object="$object"/>
             <remove_value name="$nameB"/>
           </do_else>
-          <set_value name="$debug" exact="'%1\n%2 %3'.[$debug,$nameA,@$nameB]" chance="$debug? *100" comment="fill debug output Value"/>
+          <set_value name="$debug" exact="'%1\nDYNAMIC: %2 %4 %3'.[$debug,$nameA,@$nameB,if $nameA == $nameB then '==' else '!=' ]" chance="$debug? *100" comment="fill debug output Value"/>
           
           <!-- Post-dynamic substitutions -->
           <get_text_ids_in_range result="$keys" page="5554301" start="10000" end="12000" factor="2"/>
@@ -501,7 +502,7 @@ else 'null'"/>
             </do_all>
             <remove_value name="$object.controlentity.$shortname"/>
           </do_else>
-          <set_value name="$debug" exact="'%1\n%2 %3'.[$debug,$nameA,@$nameB]" chance="$debug? *100" comment="fill debug output Value"/>
+          <set_value name="$debug" exact="'%1\nPOSTDYN: %2    %3'.[$debug,$nameA,@$nameB]" chance="$debug? *100" comment="fill debug output Value"/>
           
           
           <!-- Finally Set Name, write debug value to log and cleanup -->
