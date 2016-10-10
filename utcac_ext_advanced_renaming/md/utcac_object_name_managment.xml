@@ -1,16 +1,46 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Object_Name_Managment" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
   <cues>
-    <cue name="Init" version="2">
+    <cue name="Init" version="3">
       <actions>
         <!-- Set Up all Groups needed for Automatic Name Upates -->
-        <create_group groupname="$NamedObjects"/>
+        <create_group groupname="$NamedObjects" comment="group to keep track of all Named Objects (for future Force-Updates of Non-Dynamic Names)"/>
+        <create_group groupname="$NamedObjectsDynamic" comment="group to keep track of all Named Objects which have Dnamic Name Parts (to handle update Signals)"/>
         <!-- set current User Expression Version so Update on load only happens when it changed -->
         <set_value name="$customversion" exact="{5554302,1}"/>
       </actions>
       <patch sinceversion="2">
         <remove_value name="$Skill"/>
         <create_group groupname="$NamedObjects"/>
+      </patch>
+      <patch sinceversion="3">
+        <find_object groupname="$NamedObjectsDynamic" multiple="true" space="player.galaxy">
+          <match_any>
+            <match class="class.station"/>
+            <match class="class.ship_xl"/>
+            <match class="class.ship_l"/>
+            <match class="class.ship_m"/>
+            <match class="class.ship_s"/>
+            <match class="class.ship_xs"/>
+          </match_any>
+        </find_object>
+        <do_all exact="$NamedObjectsDynamic" counter="$i" reverse="true">
+          <do_if value="$NamedObjectsDynamic.{$i}.isclass.station">
+            <do_if value="$NamedObjectsDynamic.{$i}.tradenpc.exists and $NamedObjectsDynamic.{$i}.controlentity.$unformatted_object_name? ">
+              <set_value name="$NamedObjectsDynamic.{$i}.tradenpc.$unformatted_object_name" exact="$NamedObjectsDynamic.{$i}.controlentity.$unformatted_object_name"/>
+              <remove_value name="$NamedObjectsDynamic.{$i}.controlentity.$unformatted_object_name"/>
+            </do_if>
+            <do_elseif value="$NamedObjectsDynamic.{$i}.controlentity.$unformatted_object_name?">
+              <remove_value name="$NamedObjectsDynamic.{$i}.controlentity.$unformatted_object_name"/>
+              <remove_from_group group="$NamedObjectsDynamic" object="$NamedObjectsDynamic.{$i}"/>
+            </do_elseif>
+            <do_else>
+              <remove_from_group group="$NamedObjectsDynamic" object="$NamedObjectsDynamic.{$i}"/>
+            </do_else>
+          </do_if>
+        </do_all>
+        <add_to_group groupname="$NamedObjects" group="$NamedObjectsDynamic"/>
+        <signal_objects group="$NamedObjectsDynamic" param="'Object Name Updated'"/>
       </patch>
       <cues>
         <cue name="NameUpdate" instantiate="true">
@@ -20,7 +50,7 @@
               <event_object_signalled object="player.galaxy" param="'Subordinates Name Updated'" comment="for (initial) signalling from lua"/>
               <event_object_signalled object="player.galaxy" param="'Subordinates Name Updated - bigships'" comment="for (initial) signalling from lua"/>
               <event_object_signalled object="player.galaxy" param="'Subordinates Name Updated - smallships'" comment="for (initial) signalling from lua"/>
-              <event_object_signalled group="$NamedObjects" param="'Object Name Updated'" comment="for Update Signalling from other Scripts"/>
+              <event_object_signalled group="$NamedObjectsDynamic" param="'Object Name Updated'" comment="for Update Signalling from other Scripts"/>
             </check_any>
           </conditions>
           <actions>
@@ -47,8 +77,8 @@
                     <replace string="{5554302,117}" with="$subordinates.count"/>
                     <replace string="{5554302,118}" with="( if $subordinates.count ge 100 and $i lt 100  then {5554302,122} else '' ) + ( if $subordinates.count ge 10 and $i lt 10  then {5554302,122} else '' ) + $i"/>
                   </substitute_text>
-                  <set_value name="$subordinates.{$i}.controlentity.$unformatted_object_name" exact="$objectname"/>
-                  <add_to_group groupname="$NamedObjects" object="$subordinates.{$i}"/>
+                  <set_value name="if $object.isclass.station then $object.tradenpc.$unformatted_object_name else $object.controlentity.$unformatted_object_name" exact="$objectname"/>
+                  <add_to_group groupname="$NamedObjectsDynamic" object="$subordinates.{$i}"/>
                   <signal_objects object="$subordinates.{$i}" param="'Object Name Updated'"/>
                 </do_all>
                 <remove_value name="$subordinates"/>
@@ -56,7 +86,7 @@
               </do_if>
               <do_else>
                 <set_value name="$object" exact="event.param2"/>
-                <add_to_group groupname="$NamedObjects" object="$object"/>
+                <add_to_group groupname="$NamedObjectsDynamic" object="$object"/>
               </do_else>
             </do_if>
             <do_else>
@@ -81,12 +111,11 @@
           <delay exact="5s"/>
           <actions>
             <set_value name="$customversion" exact="{5554302,1}"/>
-            <find_object name="$playerobjects" space="player.galaxy" multiple="true"/>
-            <do_all exact="$playerobjects.count" counter="$i">
-              <set_value name="$object" exact="$playerobjects.{$i}"/>
+            <do_all exact="$NamedObjects.count" counter="$i">
+              <set_value name="$object" exact="$NamedObjects.{$i}"/>
               <include_actions ref="RenameActions"/>
-              <remove_value name="$object"/>
             </do_all>
+            <remove_value name="$object"/>
           </actions>
         </cue>
       </cues>
@@ -94,11 +123,11 @@
     <library name="RenameActions">
       <actions>
         <!-- confirm valadity of Object -->
-        <do_if value="$object.exists and $object.controlentity.$unformatted_object_name?">
+        <do_if value="$object.exists and if $object.isclass.station then $object.tradenpc.$unformatted_object_name? else $object.controlentity.$unformatted_object_name?">
           <do_if value="$keys? or $nameA? or $nameB? or $cargotype? or $type? or $scriptset? or $debug?">
             <debug_text filter="error" text="'Internally used Vars in Included Actions also used by previous Code: $keys: %1 $nameA: %2 $nameB: %3 $cargotype: %4 $type: %5 $scriptset: %6 $debug: %7 - will be overridden and removed!!'.[@$keys,@$nameA,@$nameB,@$cargotype,@$type,@$scriptset,@$debug]"/>
           </do_if>
-          <set_value name="$nameA" exact="$object.controlentity.$unformatted_object_name"/>
+          <set_value name="$nameA" exact="if $object.isclass.station then $object.tradenpc.$unformatted_object_name else $object.controlentity.$unformatted_object_name"/>
           <!-- Check if we have a Debug Expression in the Object Name and activate it (if not deactivate when outside Debug Mode)-->
           <!-- DEBUG OFF (Expression will be removed permanently) -->
           <substitute_text text="$nameB" source="$nameA">
@@ -111,7 +140,7 @@
             <remove_value name="$object.engineer.$debug" chance="$object.engineer? * 100"/>
             <remove_value name="$object.architect.$debug" chance="$object.architect? * 100"/>
             <remove_value name="$object.boardingnpc.$debug" chance="$object.boardingnpc? * 100"/>
-            <set_value name="$object.controlentity.$unformatted_object_name" exact="$nameB"/>
+            <set_value name="if $object.isclass.station then $object.tradenpc.$unformatted_object_name else $object.controlentity.$unformatted_object_name" exact="$nameB"/>
             <set_value name="$nameA" exact="$nameB"/>
           </do_if>
           <!-- DEBUG ON (Expression will stay) -->
@@ -139,7 +168,7 @@
           <set_value name="$debug" exact="'%1\n%2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           <!-- If Language-transfer is desired Save name Var back to local Var now, continue with remaining phrases after that -->
           <do_if value="{5554302,1} == 'yes'">
-            <set_value name="$object.controlentity.$unformatted_object_name" exact="$nameA"/>
+            <set_value name="if $object.isclass.station then $object.tradenpc.$unformatted_object_name else $object.controlentity.$unformatted_object_name" exact="$nameA"/>
           </do_if>
           <get_text_ids_in_range result="$keys" page="5554301" start="2000" end="3000" factor="2"/>
           <do_all exact="$keys.count" counter="$i" reverse="false">
@@ -423,10 +452,10 @@ else 'null'"/>
           
           <!-- if the Name contains something dynamic - add it to the Update-Group, otherwise remove it -->
           <do_if value="$nameA != $nameB">
-            <add_to_group groupname="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object" comment="since this code might be included elsewhere refer to this var with mdscript/cue"/>
+            <add_to_group groupname="md.UT_CAC_Object_Name_Managment.Init.$NamedObjectsDynamic" object="$object" comment="since this code might be included elsewhere refer to this var with mdscript/cue"/>
           </do_if>
           <do_else>
-            <remove_from_group group="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object"/>
+            <remove_from_group group="md.UT_CAC_Object_Name_Managment.Init.$NamedObjectsDynamic" object="$object"/>
             <remove_value name="$nameB"/>
           </do_else>
           <set_value name="$debug" exact="'%1\n%2 %3'.[$debug,$nameA,@$nameB]" chance="$debug? *100" comment="fill debug output Value"/>
@@ -461,7 +490,7 @@ else 'null'"/>
           
           
           <!-- Finally Set Name, write debug value to log and cleanup -->
-          <set_object_name object="$object" name="$nameA"/>
+          <set_object_name object="$object" name="$nameA + {5554301,2017}" comment="adding neutral Color Tag at the end"/>
           <!-- for the short name / $nameB look in the Code Group before - more economic there -->
           <debug_text filter="general" text="$debug" chance="$debug? * 100"/>
           <remove_value name="$keys"/>
@@ -473,7 +502,14 @@ else 'null'"/>
           <remove_value name="$debug"/>
         </do_if>
         <do_else>
-          <debug_text filter="error" text="'Object not set or Invalid for Included Code $object: %1 - doing nothing!!'.[@$object]"/>
+          <do_if value="not $object.exists">
+            <debug_text filter="error" text="'Object not set or Invalid for Included Code $object: %1 - doing nothing!!'.[@$object]"/>
+          </do_if>
+          <do_else>
+            <remove_from_group group="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object"/>
+            <remove_from_group group="md.UT_CAC_Object_Name_Managment.Init.$NamedObjectsDynamic" object="$object"/>
+            <debug_text filter="general" text="'No Unformatted Name Var set on Object: %1 - doing nothing!! (may be caused by a Script Update)'.[@$object]"/>
+          </do_else>
         </do_else>
       </actions>
     </library>
