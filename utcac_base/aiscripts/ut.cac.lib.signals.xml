@@ -19,20 +19,34 @@ Labels used:
     <library>
       <handler name="ut_cac_follow_signalling" comment="Handler for Navigation Signals">
         <conditions>
-          <check_any>
-            <event_object_signalled object="$object" param="'travel dockat'"/>
-            <check_value value="this.ship.zone ==  $object.zone"/><!-- make sure we are in the same Zone before attempting slow-boating to leader destination... -->
-            <event_object_signalled object="$object" param="'travel normal start'"/>
-            <check_value value="this.ship.zone ==  $object.zone"/><!-- make sure we are in the same Zone before attempting slow-boating to leader destination... -->
-            <event_object_signalled object="$object" param="'travel boost prep'"/>
-            <check_value value="this.ship.sector ==  $object.sector"/><!-- make sure both Ships are in the same sectors... -->
-            <event_object_signalled object="$object" param="'travel jump prep'"/>
-            <check_value value="this.ship.jumpcostto.{event.param2} le $object.jumpcostto.{event.param2}"/><!-- make sure we dont skip needed Jumps on the way... -->
-            <event_object_signalled object="$object" param="'travel gate prep'"/>
-            <check_value value="this.ship.zone ==  event.param2.{1}.zone"/><!-- make sure we are in the Gate Zone before attempting Passage... -->
-            <event_object_signalled object="$object" param="'travel aborted'"/>
-          </check_any>
-          <check_value value="not $fly_to_leader?"/>
+          <check_all>
+            <check_any>
+              <check_all>
+                <event_object_signalled object="$object" param="'travel dockat'"/>
+                <check_value value="this.ship.zone ==  $object.zone"/><!-- make sure we are in the same Zone before attempting slow-boating to leader destination... -->
+              </check_all>
+              <check_all>
+                <event_object_signalled object="$object" param="'travel normal start'"/>
+                <check_value value="this.ship.zone ==  $object.zone"/><!-- make sure we are in the same Zone before attempting slow-boating to leader destination... -->
+              </check_all>
+              <check_all>
+                <event_object_signalled object="$object" param="'travel boost prep'"/>
+                <check_value value="this.ship.sector ==  $object.sector"/><!-- make sure both Ships are in the same sectors... -->
+              </check_all>
+              <check_all>
+                <event_object_signalled object="$object" param="'travel jump prep'"/>
+                <check_value value="this.ship.jumpcostto.{event.param2} le $object.jumpcostto.{event.param2}"/><!-- make sure we dont skip needed Jumps on the way... -->
+              </check_all>
+              <check_all>
+                <event_object_signalled object="$object" param="'travel gate prep'"/>
+                <check_value value="this.ship.zone ==  event.param2.{1}.zone"/><!-- make sure we are in the Gate Zone before attempting Passage... -->
+              </check_all>
+              <check_all>
+                <event_object_signalled object="$object" param="'travel aborted'"/>
+              </check_all>
+            </check_any>
+            <check_value value="not $fly_to_leader?"/>
+          </check_all>
         </conditions>
         <actions>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signal on Leader received:\nparam: %4 , param2: %5 , param3: %6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
