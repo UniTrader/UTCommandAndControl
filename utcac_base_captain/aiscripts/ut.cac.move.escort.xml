@@ -80,7 +80,7 @@ Labels used:
       </conditions>
       <actions>
         <!-- Determine who is Leader of the Formation and either re-start Escort Script with updated params or start previous Leader's Script -->
-        <do_if value="event.param3.{1} == this.ship">
+        <do_if value="this.$escortgroup.{1} == this.ship">
           <do_if value="this.$orderlist.{2}?">
             <!-- got other outstanding Orders - also Abort and continue with next (signal everyone who may have decided this is the new Leader) -->
             <remove_from_group group="this.$escortgroup" object="this.ship"/>
@@ -91,16 +91,17 @@ Labels used:
           </do_if>
           <do_else>
             <!-- continue where the previous Leader left off -->
+            <set_value name="event.param2.$displayname" exact="'Patrolling %1 ( Patrol passed )'.[event.param2.$space.name]"/>
             <append_to_list name="this.$orderlist" exact="event.param2"/>
           </do_else>
-          <abort_called_scripts resume="finish"/>
         </do_if>
         <do_elseif value="not this.$orderlist.{2}?">
-          <!-- continue with Patrol individually - no complicated stuff like selecting a new Leader yet, will be added later -->
-          <!--set_value name="$params.$object" exact="this.$escortgroup.{1}"/-->
-          <append_to_list name="this.$orderlist" exact="event.param2"/>
+          <!-- continue Escort new Patrol Leader by modifying $params, copying it to the end of the Orderlist and exiting for restart  -->
+          <set_value name="$params.$object" exact="this.$escortgroup.{1}"/>
+          <set_value name="$params.$displayname" exact="'Escorting %1 ( Escortee changed )'.[this.$escortgroup.{1}.name]"/>
+          <append_to_list name="this.$orderlist" exact="$params"/>
         </do_elseif>
-        <!-- if there are further Orders just continue with them -->
+        <!-- Continue with further outstanding Orders or with the determined following ones -->
         <abort_called_scripts resume="finish"/>
       </actions>
     </handler>
