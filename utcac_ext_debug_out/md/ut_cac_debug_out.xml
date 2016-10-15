@@ -18,12 +18,19 @@
               <event_object_incoming_missile object="player.entity.container"/>
               <event_object_killed_object object="player.entity.container"/>
               <event_object_launched_missile object="player.entity.container"/>
-              <event_object_signalled object="player.entity.container"/>
             </check_any>
           </conditions>
           <actions>
             <remove_help all="true"/>
             <show_help custom="'%1\n%2\n%3\n%4\n%5\n%6'.[player.age,event.name,event.object.name,event.param,event.param2,event.param3]" position="1" duration="10s"/>
+          </actions>
+        </cue>
+        <cue name="Player_docked_signalling" instantiate="true">
+          <conditions>
+              <event_object_signalled object="player.entity.container"/>
+          </conditions>
+          <actions>
+            <show_notification caption="event.param" details="[event.param2,event.param3]"/>
           </actions>
         </cue>
       </cues>
