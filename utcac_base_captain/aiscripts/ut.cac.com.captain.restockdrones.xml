@@ -60,11 +60,13 @@
       <label name="search sector"/>
       <!-- find buy Offers in current Sector where we can loose the whole amount in one trade run -->
       <do_all exact="$unitcategorylist.count" counter="$i" reverse="true">
-        <find_sell_offer result="$selloffer" space="$sector" wares="param.ut_cac.warelookup.{$unitcategorylist.{$i}}" multiple="false" knowntoplayer="this.owner == faction.player"/>
-        <do_if value="$selloffer.available">
-          <append_to_list name="$selloffers" exact="$selloffer"/>
-          <set_value name="$droneamounts.{$selloffer.ware}" exact="$droneamounts.{$unitcategorylist.{$i}}"/>
-          <remove_value name="$unitcategorylist.{$i}"/>
+        <do_if value="typeof param.ut_cac.warelookup.{$unitcategorylist.{$i}} == datatype.list">
+          <find_sell_offer result="$selloffer" space="$sector" wares="param.ut_cac.warelookup.{$unitcategorylist.{$i}}" multiple="false" knowntoplayer="this.owner == faction.player"/>
+          <do_if value="$selloffer.available">
+            <append_to_list name="$selloffers" exact="$selloffer"/>
+            <set_value name="$droneamounts.{$selloffer.ware}" exact="$droneamounts.{$unitcategorylist.{$i}}"/>
+            <remove_value name="$unitcategorylist.{$i}"/>
+          </do_if>
         </do_if>
       </do_all>
       <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Found %4 Sell Offers in sector'.[player.age,this.name,this.container.name,$selloffers.count]"/>
