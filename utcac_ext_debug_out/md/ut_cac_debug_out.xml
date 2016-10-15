@@ -23,6 +23,11 @@
           </conditions>
           <actions>
             <!-- make params readable if possible -->
+            <substitute_text text="$eventname" source="event.name">
+              <replace string="'event_object_'" with="'eo_'"/>
+            </substitute_text>
+            <set_value name="$objectname" exact="if event.object.controlentity.$shortname? then event.object.controlentity.$shortname else event.object.name"/>
+            <set_value name="$param" exact="event.param + ''"/>
             <set_value name="$param" exact="event.param + ''"/>
             <set_value name="$param2" exact="event.param2 + ''"/>
             <set_value name="$param3" exact="event.param3 + ''"/>
@@ -37,11 +42,11 @@
               <set_value name="$param3" exact="event.param3.knownname"/>
             </do_if>
             <do_if value="event.name == 'event_object_signalled'">
-              <show_notification caption="$param" details="[$param2,'','#####################',$param3]" timeout="10s"/>
+              <show_notification caption="$param" details="[$param2,'','#####################',$param3]" timeout="20s"/>
             </do_if>
             <do_else>
               <remove_help all="true"/>
-              <show_help custom="'%1\n%2\n%3\n%4\n%5\n%6'.[player.age,event.name,event.object.name,$param,$param2,$param3]" position="11" duration="10s"/>
+              <show_help custom="'%1\n%2\n%3\n%4\n%5\n%6'.[player.age,$eventname,$objectname,$param,$param2,$param3]" position="11" duration="20s"/>
             </do_else>
           </actions>
         </cue>
