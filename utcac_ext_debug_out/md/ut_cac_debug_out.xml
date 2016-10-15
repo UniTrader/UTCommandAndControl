@@ -18,19 +18,31 @@
               <event_object_incoming_missile object="player.entity.container"/>
               <event_object_killed_object object="player.entity.container"/>
               <event_object_launched_missile object="player.entity.container"/>
+              <event_object_signalled object="player.entity.container"/>
             </check_any>
           </conditions>
           <actions>
-            <remove_help all="true"/>
-            <show_help custom="'%1\n%2\n%3\n%4\n%5\n%6'.[player.age,event.name,event.object.name,event.param,event.param2,event.param3]" position="1" duration="10s"/>
-          </actions>
-        </cue>
-        <cue name="Player_docked_signalling" instantiate="true">
-          <conditions>
-              <event_object_signalled object="player.entity.container"/>
-          </conditions>
-          <actions>
-            <show_notification caption="event.param" details="[event.param2,event.param3]"/>
+            <!-- make params readable if possible -->
+            <set_value name="$param" exact="event.param"/>
+            <set_value name="$param2" exact="event.param2"/>
+            <set_value name="$param3" exact="event.param3"/>
+            <!-- Object Params - print Name -->
+            <do_if value="typeof $param == datatype.component">
+              <set_value name="$param" exact="$param.knownname"/>
+            </do_if>
+            <do_if value="typeof $param2 == datatype.component">
+              <set_value name="$param2" exact="$param2.knownname"/>
+            </do_if>
+            <do_if value="typeof $param3 == datatype.component">
+              <set_value name="$param3" exact="$param3.knownname"/>
+            </do_if>
+            <do_if value="event.name == 'event_object_signalled'">
+              <show_notification caption="$param" details="[$param2,$param3]"/>
+            </do_if>
+            <do_else>
+              <remove_help all="true"/>
+              <show_help custom="'%1\n%2\n%3\n%4\n%5\n%6'.[player.age,event.name,event.object.name,$param,$param2,$param3]" position="1" duration="10s"/>
+            </do_else>
           </actions>
         </cue>
       </cues>
