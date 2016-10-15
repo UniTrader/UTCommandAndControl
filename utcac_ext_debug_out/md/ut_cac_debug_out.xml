@@ -9,7 +9,7 @@
       <cues>
         <cue name="Player_docked_events" instantiate="true">
           <conditions>
-            <check_any>
+            <check_any><event_o
               <event_object_approaching_waypoint object="player.entity.container"/>
               <event_object_arrived_at_waypoint object="player.entity.container"/>
               <event_object_attacked object="player.entity.container"/>
@@ -26,20 +26,20 @@
             <substitute_text text="$eventname" source="event.name">
               <replace string="'event_object_'" with="'eo_'"/>
             </substitute_text>
-            <set_value name="$objectname" exact="if event.object.controlentity.$shortname? then event.object.controlentity.$shortname else event.object.name"/>
+            <set_value name="$objectname" exact="if event.object.controlentity.$shortname? then event.object.controlentity.$shortname else event.object.knownname"/>
             <set_value name="$param" exact="event.param + ''"/>
             <set_value name="$param" exact="event.param + ''"/>
             <set_value name="$param2" exact="event.param2 + ''"/>
             <set_value name="$param3" exact="event.param3 + ''"/>
             <!-- Object Params - print Name -->
             <do_if value="typeof event.param == datatype.component">
-              <set_value name="$param" exact="event.param.knownname"/>
+              <set_value name="$param" exact="if event.param.controlentity.$shortname? then event.param.controlentity.$shortname else event.param.knownname"/>
             </do_if>
             <do_if value="typeof event.param2 == datatype.component">
-              <set_value name="$param2" exact="event.param2.knownname"/>
+              <set_value name="$param2" exact="if event.param2.controlentity.$shortname? then event.param2.controlentity.$shortname else event.param2.knownname"/>
             </do_if>
             <do_if value="typeof event.param3 == datatype.component">
-              <set_value name="$param3" exact="event.param3.knownname"/>
+              <set_value name="$param3" exact="if event.param3.controlentity.$shortname? then event.param3.controlentity.$shortname else event.param3.knownname"/>
             </do_if>
             <do_if value="event.name == 'event_object_signalled'">
               <show_notification caption="$param" details="[$param2,'','#####################',$param3]" timeout="20s"/>
