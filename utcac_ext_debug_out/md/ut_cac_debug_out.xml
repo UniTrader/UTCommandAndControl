@@ -23,18 +23,18 @@
           </conditions>
           <actions>
             <!-- make params readable if possible -->
-            <set_value name="$param" exact="event.param"/>
-            <set_value name="$param2" exact="event.param2"/>
-            <set_value name="$param3" exact="event.param3"/>
+            <set_value name="$param" exact="event.param + ''"/>
+            <set_value name="$param2" exact="event.param2 + ''"/>
+            <set_value name="$param3" exact="event.param3 + ''"/>
             <!-- Object Params - print Name -->
-            <do_if value="typeof $param == datatype.component">
-              <set_value name="$param" exact="$param.knownname"/>
+            <do_if value="typeof event.param == datatype.component">
+              <set_value name="$param" exact="event.param.knownname"/>
             </do_if>
-            <do_if value="typeof $param2 == datatype.component">
-              <set_value name="$param2" exact="$param2.knownname"/>
+            <do_if value="typeof event.param2 == datatype.component">
+              <set_value name="$param2" exact="event.param2.knownname"/>
             </do_if>
-            <do_if value="typeof $param3 == datatype.component">
-              <set_value name="$param3" exact="$param3.knownname"/>
+            <do_if value="typeof event.param3 == datatype.component">
+              <set_value name="$param3" exact="event.param3.knownname"/>
             </do_if>
             <do_if value="event.name == 'event_object_signalled'">
               <show_notification caption="$param" details="[$param2,$param3]" timeout="10s" queued="true"/>
