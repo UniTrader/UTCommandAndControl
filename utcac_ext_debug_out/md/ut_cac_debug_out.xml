@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Debug_Out" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
+  <cues>
+    <cue name="Player_docked">
+      <conditions>
+        <event_object_changed_room object="player.entity"/>
+        <check_value value="player.entity.container.isclass.ship and player.controlled != player.primaryship and player.entity.container.owner == faction.player"/>
+      </conditions>
+      <cues>
+        <cue name="Player_docked_events" instantiate="true">
+          <conditions>
+            <check_any>
+              <event_object_approaching_waypoint object="player.entity.container"/>
+              <event_object_arrived_at_waypoint object="player.entity.container"/>
+              <event_object_attacked object="player.entity.container"/>
+              <event_object_collided object="player.entity.container"/>
+              <event_object_enemy_found object="player.entity.container"/>
+              <event_object_incoming_missile object="player.entity.container"/>
+              <event_object_killed_object object="player.entity.container"/>
+              <event_object_launched_missile object="player.entity.container"/>
+              <event_object_signalled object="player.entity.container"/>
+            </check_any>
+          </conditions>
+          <actions>
+            <remove_help all="true"/>
+            <show_help custom="'%1\n%2\n%3\n%4\n%5\n%6'.[player.age,event.name,event.object.name,event.param,event.param2,event.param3]" position="1" duration="3s"/>
+          </actions>
+        </cue>
+      </cues>
+    </cue>
+    <cue name="Player_Undocked" comment="Player Undocked: stop Platform Scripts and reset cue for player wait until docked again">
+      <conditions>
+        <event_object_changed_room object="player.entity"/>
+        <check_value exact="player.entity.container" value="player.primaryship" comment="Only if player is on his ship"/>
+      </conditions>
+      <actions>
+        <reset_cue cue="Ship_Docked"/>
+      </actions>
+    </cue>
+  </cues>
+</mdscript>
