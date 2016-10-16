@@ -200,12 +200,12 @@
             <do_while value="$id lt $waypoints.count">
               <!-- remove multiple Entries of the same highway (only the first should stay) -->
               <do_if value="$waypoints.{$id}.isclass.highway">
-                <do_if value="$waypoints.{$id} == $waypoints.{$id + 1}">
+                <do_if value="$waypoints.{$id + 1}? and $waypoints.{$id} == $waypoints.{$id + 1}">
                   <remove_value name="$waypoints.{$id + 1}"/>
                   <set_value name="$id" operation="subtract"/>
                 </do_if>
                 <!-- remove short piece travelling backwards on a bi-directional tube like in third duke -->
-                <do_elseif value="$waypoints.{$id} == $waypoints.{$id + 2} and $waypoints.{$id + 1} == this.zone">
+                <do_elseif value="$waypoints.{$id + 2}? and $waypoints.{$id} == $waypoints.{$id + 2} and $waypoints.{$id + 1} == this.zone">
                   <remove_value name="$waypoints.{$id}"/>
                   <remove_value name="$waypoints.{$id}"/>
                   <set_value name="$id" operation="subtract"/>
