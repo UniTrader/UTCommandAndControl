@@ -190,6 +190,53 @@
               </do_if>
             </do_all>
             <debug_text filter="general" text="$LogMessage"/>
+            
+            <!-- filter theHighwayp Path for the relevant Path Waypoint
+            => Remove Start Point
+            => Remove Double/Multiple Entries for Highways
+            => Remove Double HWs seperated by a Zone -->
+            <remove_value name="$waypoints.{1}" />
+            <set_value name="$id" exact="1"/>
+            <do_while value="$id lt $waypoints.count">
+              <!-- remove multiple Entries of the same highway (only the first should stay) -->
+              <do_if value="$waypoints.{$id}.isclass.highway">
+                <do_if value="$waypoints.{$id} == $waypoints.{$id + 1}">
+                  <remove_value name="$waypoints.{$id + 1}"/>
+                  <set_value name="$id" operation="subtract"/>
+                </do_if>
+                <!-- remove short piece travelling backwards on a bi-directional tube like in third duke -->
+                <do_elseif value="$waypoints.{$id} == $waypoints.{$id + 2} and $waypoints.{$id + 1} == this.zone">
+                  <remove_value name="$waypoints.{$id}"/>
+                  <remove_value name="$waypoints.{$id}"/>
+                  <set_value name="$id" operation="subtract"/>
+                </do_elseif>
+              </do_if>
+              <!-- remove exit jumpgates  -->
+              <do_elseif value="$waypoints.{$id}.isclass.gate">
+                <do_if value="$waypoints.{$id}.exit == $waypoints.{$id + 1}">
+                  <remove_value name="$waypoints.{$id + 1}"/>
+                  <set_value name="$id" operation="subtract"/>
+                </do_if>
+              </do_elseif>
+              <set_value name="$id" operation="add"/>
+            </do_while>
+            <!-- print the filtered Path to Debuglog -->
+            <set_value name="$LogMessage" exact="'%1 %2 %3 Highway Path cleared:'.[player.age,this.name,this.container.name]"/>
+            <do_all exact="$waypoints.count" counter="$i">
+              <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5 // %6 // %7 /// %8'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname,@$waypoints.{$i}.sector.knownname,@$waypoints.{$i}.zone.knownname,@$waypoints.{$i}]"/>
+              <do_if value="$waypoints.{$i}.isclass.highway">
+                <set_value name="$LogMessage" exact="'%1\nJunctions: %2 => %3 => %4'.[$LogMessage,$waypoints.{$i}.origin,$waypoints.{$i}.junctions,$waypoints.{$i}.destination]"/>
+              </do_if>
+            </do_all>
+            <debug_text filter="general" text="$LogMessage"/>
+            
+            <set_value name="$LogMessage" exact="'%1 %2 %3 Highway Path:'.[player.age,this.name,this.container.name]"/>
+            <do_all exact="$waypoints.count" counter="$i">
+              <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5 // %6 // %7 /// %8'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname,@$waypoints.{$i}.sector.knownname,@$waypoints.{$i}.zone.knownname,@$waypoints.{$i}]"/>
+              <do_if value="$waypoints.{$i}.isclass.highway">
+                <set_value name="$LogMessage" exact="'%1\nJunctions: %2 => %3 => %4'.[$LogMessage,$waypoints.{$i}.origin,$waypoints.{$i}.junctions,$waypoints.{$i}.destination]"/>
+              </do_if>
+            </do_all>
             <get_global_path component="$waypoints" multiple="true" usehighways="false"><start object="this.ship"/><end object="$targetspace"/></get_global_path>
             <set_value name="$LogMessage" exact="'%1 %2 %3 Nohighway Path:'.[player.age,this.name,this.container.name]"/>
             <do_all exact="$waypoints.count" counter="$i">
