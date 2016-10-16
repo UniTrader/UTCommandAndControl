@@ -91,14 +91,14 @@ Labels used:
           </do_if>
           <do_else>
             <!-- continue where the previous Leader left off -->
-            <set_value name="event.param2.$displayname" exact="'Patrolling %1 ( Patrol passed )'.[event.param2.$space.name]"/>
+            <set_value name="event.param2.$displayname" exact="'Patrolling %1 (Patrol passed)'.[event.param2.$space.name]"/>
             <append_to_list name="this.$orderlist" exact="event.param2"/>
           </do_else>
         </do_if>
         <do_elseif value="not this.$orderlist.{2}?">
           <!-- continue Escort new Patrol Leader by modifying $params, copying it to the end of the Orderlist and exiting for restart  -->
           <set_value name="$params.$object" exact="this.$escortgroup.{1}"/>
-          <set_value name="$params.$displayname" exact="'Escorting %1 ( Escortee changed )'.[this.$escortgroup.{1}.name]"/>
+          <set_value name="$params.$displayname" exact="'Escorting %1 (Escortee changed)'.[if this.$escortgroup.{1}.controlentity.$shortname then this.$escortgroup.{1}.controlentity.$shortname else this.$escortgroup.{1}.name]"/>
           <append_to_list name="this.$orderlist" exact="$params"/>
         </do_elseif>
         <!-- Continue with further outstanding Orders or with the determined following ones -->
