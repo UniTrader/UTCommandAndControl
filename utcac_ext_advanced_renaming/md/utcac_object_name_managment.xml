@@ -14,16 +14,8 @@
         <create_group groupname="$NamedObjects"/>
       </patch>
       <patch sinceversion="4">
-        <find_object groupname="$NamedObjectsDynamic" multiple="true" space="player.galaxy">
-          <match_any>
-            <match class="class.station"/>
-            <match class="class.ship_xl"/>
-            <match class="class.ship_l"/>
-            <match class="class.ship_m"/>
-            <match class="class.ship_s"/>
-            <match class="class.ship_xs"/>
-          </match_any>
-        </find_object>
+        <find_ship groupname="$NamedObjectsDynamic" multiple="true" space="player.galaxy" trueowner="faction.player"/>
+        <find_station groupname="$NamedObjectsDynamic" multiple="true" space="player.galaxy" trueowner="faction.player"/>
         <do_all exact="$NamedObjectsDynamic.count" counter="$i" reverse="true">
           <do_if value="$NamedObjectsDynamic.{$i}.isclass.station">
             <do_if value="$NamedObjectsDynamic.{$i}.tradenpc.exists and $NamedObjectsDynamic.{$i}.controlentity.$unformatted_object_name? ">
@@ -34,14 +26,10 @@
               <remove_value name="$NamedObjectsDynamic.{$i}.controlentity.$unformatted_object_name"/>
               <remove_from_group group="$NamedObjectsDynamic" object="$NamedObjectsDynamic.{$i}"/>
             </do_elseif>
-            <do_else>
-              <remove_from_group group="$NamedObjectsDynamic" object="$NamedObjectsDynamic.{$i}"/>
-            </do_else>
           </do_if>
         </do_all>
         <add_to_group groupname="$NamedObjects" group="$NamedObjectsDynamic"/>
-        <reset_cue cue="this"/>
-        <signal_objects group="$NamedObjectsDynamic" param="'Object Name Updated'"/>
+        <signal_objects group="$NamedObjectsDynamic" param="'Object Name Updated'" delay="5s"/>
       </patch>
       <cues>
         <cue name="NameUpdate" instantiate="true">
@@ -117,7 +105,11 @@
           <delay exact="5s"/>
           <actions>
             <set_value name="$customversion" exact="{5554302,1}"/>
-            <signal_objects group="$NamedObjects" param="'Object Name Updated'"/>
+            <do_all exact="$NamedObjects.count" counter="$i">
+              <set_value name="$object" exact="$NamedObjects.{$i}"/>
+              <include_actions ref="RenameActions"/>
+            </do_all>
+            <remove_value name="$object"/>
           </actions>
         </cue>
       </cues>
