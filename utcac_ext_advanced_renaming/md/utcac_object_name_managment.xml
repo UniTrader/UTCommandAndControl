@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Object_Name_Managment" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
   <cues>
-    <cue name="Init" version="3">
+    <cue name="Init" version="4">
       <actions>
         <!-- Set Up all Groups needed for Automatic Name Upates -->
         <create_group groupname="$NamedObjects" comment="group to keep track of all Named Objects (for future Force-Updates of Non-Dynamic Names)"/>
@@ -13,7 +13,7 @@
         <remove_value name="$Skill"/>
         <create_group groupname="$NamedObjects"/>
       </patch>
-      <patch sinceversion="3">
+      <patch sinceversion="4">
         <find_object groupname="$NamedObjectsDynamic" multiple="true" space="player.galaxy">
           <match_any>
             <match class="class.station"/>
@@ -117,11 +117,7 @@
           <delay exact="5s"/>
           <actions>
             <set_value name="$customversion" exact="{5554302,1}"/>
-            <do_all exact="$NamedObjects.count" counter="$i">
-              <set_value name="$object" exact="$NamedObjects.{$i}"/>
-              <include_actions ref="RenameActions"/>
-            </do_all>
-            <remove_value name="$object"/>
+            <signal_objects group="$NamedObjects" param="'Object Name Updated'"/>
           </actions>
         </cue>
       </cues>
@@ -507,6 +503,7 @@ else 'null'"/>
           
           <!-- Finally Set Name, write debug value to log and cleanup -->
           <set_object_name object="$object" name="$nameA + {5554301,2017}" comment="adding neutral Color Tag at the end"/>
+          <add_to_group group="md.UT_CAC_Object_Name_Managment.Init.$NamedObjects" object="$object"/>
           <!-- for the short name / $nameB look in the Code Group before - more economic there -->
           <debug_text filter="general" text="$debug" chance="$debug? * 100"/>
           <remove_value name="$keys"/>
