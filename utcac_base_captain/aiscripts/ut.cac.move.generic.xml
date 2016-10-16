@@ -186,7 +186,7 @@
             <do_all exact="$waypoints.count" counter="$i">
               <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5 // %6 // %7 /// %8'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname,@$waypoints.{$i}.sector.knownname,@$waypoints.{$i}.zone.knownname,@$waypoints.{$i}]"/>
               <do_if value="$waypoints.{$i}.isclass.highway">
-                <set_value name="$LogMessage" exact="'%1\nJunctions: %2'.[$LogMessage,$waypoints.{$i}.junctions]"/>
+                <set_value name="$LogMessage" exact="'%1\nJunctions: %2 => %3 => %4'.[$LogMessage,$waypoints.{$i}.origin,$waypoints.{$i}.junctions,$waypoints.{$i}.destination]"/>
               </do_if>
             </do_all>
             <debug_text filter="general" text="$LogMessage"/>
