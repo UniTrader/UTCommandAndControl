@@ -48,7 +48,9 @@
               <set_value name="$param3" exact="if event.param3.controlentity.$shortname? then event.param3.controlentity.$shortname else event.param3.knownname"/>
             </do_if>
             <do_if value="event.name == 'event_object_signalled'">
-              <show_notification caption="player.age + ' / ' + $param" details="[$param2,'','#####################',$param3]" timeout="3s" queued="true"/>
+              <do_if value="event.param != 'Object Name Updated'">
+                <show_notification caption="player.age + ' / ' + $param" details="[$param2,'','#####################',$param3]" timeout="3s" queued="true"/>
+              </do_if>
             </do_if>
             <do_else>
               <remove_help all="true"/>
