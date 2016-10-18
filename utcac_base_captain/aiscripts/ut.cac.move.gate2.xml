@@ -281,6 +281,15 @@
       </do_if>
       <do_else>
         <signal_objects object="$leader" param="'preparegroup shrunk'"/>
+        <do_while value="$passage_group.count">
+          <wait max="1min" comment="fallback: re-check regulary">
+            <interrupt>
+              <conditions>
+                <event_object_signalled object="$leader" param="'preparegroup shrunk'"/>
+              </conditions>
+            </interrupt>
+          </wait>
+        </do_while>
       </do_else>
     </actions>
   </attention>
