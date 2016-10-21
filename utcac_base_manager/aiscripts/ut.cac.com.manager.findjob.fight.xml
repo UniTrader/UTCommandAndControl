@@ -34,10 +34,10 @@
       <wait min="3s" max="5s" />
       
       <!-- find Ship where it makes sense to possibly escort it (only Patrolling Ships to avoid unecesarily deep hierarchies) -->
-      <do_if value="this.$ut_cac.$availablefightships.count" chance="60">
-        <do_all exact="3">
+      <do_if value="this.$ut_cac.$availablefightships.count">
+        <do_all min="1" max="this.$ut_cac.$availablefightships.count + 2">
           <set_value name="$testship" exact="this.$ut_cac.$availablefightships.random"/>
-          <do_if value="$testship.pilot.$orderlist.{1}.$script == 'ut.cac.com.captain.patrol'">
+          <do_if value="$entity.ship.distanceto.{$testship} le 15km and $testship.pilot.$orderlist.{1}.$script == 'ut.cac.com.captain.patrol'">
             <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Will send escorting already Patroling Ship %4'.[player.age,this.name,this.container.name,$testship.name]"/>
             <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.move.escort',$displayname='Escorting %1 (Manager)'.[if $testship.controlentity.$shortname then $testship.controlentity.$shortname else $testship.knownname],$object=$testship,$time=2h,$exitonneworder=true,$interruptable=true] ]"/>
             <return value="true"/>
