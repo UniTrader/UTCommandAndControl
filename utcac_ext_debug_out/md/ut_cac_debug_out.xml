@@ -48,7 +48,7 @@
               <set_value name="$param3" exact="if event.param3.controlentity.$shortname? then event.param3.controlentity.$shortname else event.param3.knownname"/>
             </do_if>
             <do_if value="event.param != 'Object Name Updated'" comment="far too frequent - ignore"/>
-            <do_if value="event.name == 'event_object_signalled'" comment=" and not player.isinconversation only when player is not in conversation to avoid many poing up messages">
+            <do_if value="event.name == 'event_object_signalled' and not player.isinconversation" comment=" only when player is not in conversation to avoid many poing up messages after end - fall back to help popup">
               <show_notification caption="player.age + ' / ' + $param" details="[$param2,'','#####################',$param3]" priority="999" timeout="3s" queued="true"/>
             </do_if>
             <do_else>
