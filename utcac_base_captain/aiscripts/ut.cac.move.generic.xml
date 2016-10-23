@@ -423,10 +423,16 @@
                 <set_value name="$id" operation="subtract"/>
               </do_elseif>
             </do_if>
-            <!-- remove exit jumpgates  -->
+            <!-- remove exit zone + jumpgate and Entry Zone  -->
             <do_elseif value="$waypoints.{$id}.isclass.gate">
               <do_if value="$waypoints.{$id}.exit == $waypoints.{$id + 1}">
                 <remove_value name="$waypoints.{$id + 1}"/>
+              </do_if>
+              <do_if value="$waypoints.{$id}.destination == $waypoints.{$id + 1}">
+                <remove_value name="$waypoints.{$id + 1}"/>
+              </do_if>
+              <do_if value="$waypoints.{$id}.zone ==  $waypoints.{$id - 1}">
+                <remove_value name="$waypoints.{$id - 1}"/>
                 <set_value name="$id" operation="subtract"/>
               </do_if>
             </do_elseif>
