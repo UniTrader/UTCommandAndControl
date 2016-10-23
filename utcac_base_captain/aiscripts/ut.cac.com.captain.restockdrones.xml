@@ -60,7 +60,7 @@
       <label name="search sector"/>
       <!-- find buy Offers in current Sector where we can loose the whole amount in one trade run -->
       <do_all exact="$unitcategorylist.count" counter="$i" reverse="true">
-        <do_if value="typeof param.ut_cac.warelookup.{$unitcategorylist.{$i}} == datatype.list">
+        <do_if value="( typeof $unitcategorylist.{$i} == datatype.unitcategory ) and ( typeof param.ut_cac.warelookup.{$unitcategorylist.{$i}} == datatype.list )">
           <find_sell_offer result="$selloffer" space="$sector" wares="param.ut_cac.warelookup.{$unitcategorylist.{$i}}" multiple="false" knowntoplayer="this.owner == faction.player"/>
           <do_if value="$selloffer.available">
             <append_to_list name="$selloffers" exact="$selloffer"/>
