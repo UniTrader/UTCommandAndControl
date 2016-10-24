@@ -462,7 +462,7 @@
           <do_while value="$waypoints.count">
             <signal_objects object="this.ship" param="'travel next waypoint'"/>
             
-            <do_if value="this.$waypoint.isclass.highway">
+            <do_if value="$waypoints.{1}.isclass.highway">
               <set_value name="this.$waypoint" exact="@$waypoints.{2}"/>
               <run_script name="'ut.cac.move.highway'" result="$result" >
                 <param name="highway" value="$waypoints.{1}"/>
@@ -473,11 +473,12 @@
             </do_if>
             <!-- Fallback: use Vanilla Nav Scripts to get to next Waypoint -->
             <do_else>
+              <set_value name="this.$waypoint" exact="@$waypoints.{1}"/>
               <run_script name="'move.generic'">
                 <param name="destination" value="$waypoints.{1}" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
               </run_script>
+              <remove_value name="$waypoints.{1}"/>
             </do_else>
-            <remove_value name="$waypoints.{1}"/>
             
             <!-- for reference only - copy of big ship movement stuff -->
             <do_if value="false" chance="0">
