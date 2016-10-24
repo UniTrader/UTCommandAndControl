@@ -1,29 +1,43 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Debug_Out" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
   <cues>
-    <cue name="Player_Docked">
+    <cue name="Debug_On">
       <conditions>
-        <event_object_changed_room object="player.entity"/>
-        <check_value value="player.entity.container != player.primaryship"/>
+        <check_any>
+          <check_all>
+            <event_object_changed_room object="player.entity"/>
+            <check_value value="player.entity.container != player.primaryship"/>
+          </check_all>
+          <check_all>
+            <event_autopilot_target_set/>
+            <check_value value="event.param.isclass.ship_xs or event.param.isclass.ship_s or event.param.isclass.ship_m"/>
+          </check_all>
+        </check_any>
       </conditions>
       <actions>
         <remove_help all="true"/>
-        <show_help custom="'Debug Events registered to \n%1'.[player.entity.container.knownname]" position="11" duration="20s"/>
-        <reset_cue cue="Player_Undocked"/>
+        <do_if value="event.name == 'event_object_changed_room'">
+          <set_value name="$debug_object" exact="player.entity.container"/>
+        </do_if>
+        <do_elseif value="event.name == 'event_autopilot_target_set'">
+          <set_value name="$debug_object" exact="event.param"/>
+        </do_elseif>
+        <show_help custom="'Debug Events registered to \n%1'.[$debug_object.knownname]" position="11" duration="20s"/>
+        <reset_cue cue="Debug_Off"/>
       </actions>
       <cues>
-        <cue name="Player_docked_events" instantiate="true">
+        <cue name="Debug_events" instantiate="true">
           <conditions>
             <check_any>
-              <event_object_approaching_waypoint object="player.entity.container"/>
-              <event_object_arrived_at_waypoint object="player.entity.container"/>
-              <event_object_attacked object="player.entity.container"/>
-              <event_object_collided object="player.entity.container"/>
-              <event_object_enemy_found object="player.entity.container"/>
-              <event_object_incoming_missile object="player.entity.container"/>
-              <event_object_killed_object object="player.entity.container"/>
-              <event_object_launched_missile object="player.entity.container"/>
-              <event_object_signalled object="player.entity.container"/>
+              <event_object_approaching_waypoint object="$debug_object"/>
+              <event_object_arrived_at_waypoint object="$debug_object"/>
+              <event_object_attacked object="$debug_object"/>
+              <event_object_collided object="$debug_object"/>
+              <event_object_enemy_found object="$debug_object"/>
+              <event_object_incoming_missile object="$debug_object"/>
+              <event_object_killed_object object="$debug_object"/>
+              <event_object_launched_missile object="$debug_object"/>
+              <event_object_signalled object="$debug_object"/>
             </check_any>
           </conditions>
           <actions>
@@ -57,17 +71,40 @@
             </do_else>
           </actions>
         </cue>
+        <cue name="Keep_following" onfail="cancel">
+          <conditions>
+            <check_value value="player.autopilottarget.exists and ( player.autopilottarget.isclass.ship_xs or player.autopilottarget.isclass.ship_s or player.autopilottarget.isclass.ship_m )"/>
+          </conditions>
+          <cues>
+            <cue name="Follow_again" instantiate="true">
+              <conditions>
+                <event_object_undocked object="$debug_object"/>
+              </conditions>
+              <actions>
+                <start_player_autopilot destination="$debug_object"/>
+              </actions>
+            </cue>
+          </cues>
+        </cue>
       </cues>
     </cue>
-    <cue name="Player_Undocked" comment="Player Undocked: stop Platform Scripts and reset cue for player wait until docked again">
+    <cue name="Debug_Off" comment="Player Undocked: stop Platform Scripts and reset cue for player wait until docked again">
       <conditions>
-        <event_object_changed_room object="player.entity"/>
-        <check_value value="player.entity.container == player.primaryship" comment="Only if player is on his ship"/>
+        <check_any>
+          <check_all>
+            <event_object_changed_room object="player.entity"/>
+            <check_value value="player.entity.container == player.primaryship" comment="Only if player is on his ship"/>
+          </check_all>
+          <check_all>
+            <event_player_cycled_weapons/>
+            <check_value value="player.autopilottarget.exists and ( player.autopilottarget.isclass.ship_xs or player.autopilottarget.isclass.ship_s or player.autopilottarget.isclass.ship_m )"/>
+          </check_all>
+        </check_any>
       </conditions>
       <actions>
         <remove_help all="true"/>
         <show_help custom="'Debug Events unregistered'" position="11" duration="20s"/>
-        <reset_cue cue="Player_Docked"/>
+        <reset_cue cue="Debug_On"/>
       </actions>
     </cue>
   </cues>
