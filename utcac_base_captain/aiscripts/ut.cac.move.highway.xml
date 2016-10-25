@@ -73,26 +73,38 @@ with a given Rotation or Orientation
         </get_closest_highway_offset>
       </do_if>
       <debug_text filter="general" text="'%1 %2 %3 Highway Offset Start: %4 End: %5'.[player.age,this.name,this.container.name,$highwayoffsetstart,@$highwayoffsetend]"/>
-      <move_to object="this.ship" destination="$highway" usehighways="false" abortpath="false" finishonapproach="true">
+      <move_to object="this.ship" destination="$highway" usehighways="false" abortpath="false" finishonapproach="false">
         <position value="$highwayoffsetstart"/>
+        <interrupt>
+          <conditions>
+            <event_object_changed_zone object="this.ship" zone="$highway"/>
+          </conditions>
+        </interrupt>
       </move_to>
       <!-- move to closest part of highway to the destination -->
       <do_if value="$highwayoffsetend?">
       <move_to object="this.ship" destination="$highway" usehighways="true" abortpath="false" finishonapproach="true">
         <position value="$highwayoffsetend"/>
+        <interrupt>
+          <conditions>
+            <event_object_changed_zone object="this.ship" previous="$highway"/>
+          </conditions>
+        </interrupt>
       </move_to>
       </do_if>
       
       <!-- exit highway -->
+      <do_else>
       <move_to object="this.ship" destination="$destination" usehighways="true" abortpath="false" forceposition="false">
         <position value="position.[0,0,0]" />
         <interrupt>
           <conditions>
-            <event_object_changed_zone object="this.ship" zone="$destinationzone" />
+            <event_object_changed_zone object="this.ship" previous="$highway"/>
+            <!--event_object_changed_zone object="this.ship" zone="$destinationzone" /-->
           </conditions>
         </interrupt>
       </move_to>
-      
+      </do_else>
       
     </actions>
   </attention>
