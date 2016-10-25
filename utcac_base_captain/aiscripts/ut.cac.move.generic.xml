@@ -463,20 +463,24 @@
             <signal_objects object="this.ship" param="'travel next waypoint'"/>
             
             <do_if value="$waypoints.{1}.isclass.highway">
+              <debug_text filter="general" text="'Highway movement from %1 via %2 to %3'.[this.zone.knownname,$waypoints.{1},$waypoints.{2}.knownname]"/>
               <set_value name="this.$waypoint" exact="@$waypoints.{2}"/>
               <run_script name="'ut.cac.move.highway'" result="$result" >
                 <param name="highway" value="$waypoints.{1}"/>
                 <param name="destination" value="@$waypoints.{2}"/>
               </run_script>
+              <debug_text filter="general" text="'Arrived in %1'.[this.zone.knownname]"/>
               <remove_value name="$waypoints.{1}"/>
               <remove_value name="$waypoints.{2}"/>
             </do_if>
             <!-- Fallback: use Vanilla Nav Scripts to get to next Waypoint -->
             <do_else>
               <set_value name="this.$waypoint" exact="@$waypoints.{1}"/>
+              <debug_text filter="general" text="'Vanilla movement from %1 to %2'.[this.zone.knownname,$waypoints.{1}.knownname]"/>
               <run_script name="'move.generic'">
                 <param name="destination" value="$waypoints.{1}" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
               </run_script>
+              <debug_text filter="general" text="'Arrived in %1 (Vanilla movement)'.[this.zone.knownname]"/>
               <remove_value name="$waypoints.{1}"/>
             </do_else>
             
