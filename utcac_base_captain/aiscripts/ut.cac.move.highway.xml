@@ -65,12 +65,20 @@ with a given Rotation or Orientation
       </do_if>
       <!-- experimental: fly into closest tube, fly to offset closest to destination and exit there -->
       <get_closest_highway_offset result="$highwayoffsetstart" highway="$highway" space="this.zone">
-        <position value="this.ship.position"/>
+        <position object="this.ship"/>
       </get_closest_highway_offset>
       <do_if value="true or not $destination.isclass.zone">
         <get_closest_highway_offset result="$highwayoffsetend" highway="$highway" space="$destinationzone">
-          <position value="$destination.position"/>
+          <position object="$destination"/>
         </get_closest_highway_offset>
+      </do_if>
+      <do_if value="$highwayoffsetstart.z gt $highwayoffsetend.z">
+        <debug_text filter="general" text="'%1 %2 %3 Fixing Start offset %4'.[player.age,this.name,this.container.name,$highwayoffsetstart]"/>
+        <set_value name="$highwayoffsetstart" exact="position.[0m,0m,0m]"/>
+      <!--get_closest_highway_offset result="$highwayoffsetstart" highway="$highway" space="this.zone">
+        <position object="this.ship"/>
+        <position z="0m" space="$highway"/>
+      </get_closest_highway_offset-->
       </do_if>
       <debug_text filter="general" text="'%1 %2 %3 Highway Offset Start: %4 End: %5'.[player.age,this.name,this.container.name,$highwayoffsetstart,@$highwayoffsetend]"/>
       <move_to object="this.ship" destination="$highway" usehighways="false" abortpath="false" finishonapproach="false">
