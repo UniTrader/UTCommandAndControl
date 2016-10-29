@@ -64,9 +64,15 @@ with a given Rotation or Orientation
         <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       <!-- experimental: fly into closest tube, fly to offset closest to destination and exit there -->
-      <get_closest_highway_offset result="$highwayoffsetstart" highway="$highway" space="this.zone">
-        <position object="this.ship"/>
-      </get_closest_highway_offset>
+      <do_if value="this.zone != $highway" comment="catch the case where we are already in the related tube - use current zone offset in this case as start">
+        <get_closest_highway_offset result="$highwayoffsetstart" highway="$highway" space="this.zone">
+          <position object="this.ship"/>
+        </get_closest_highway_offset>
+      </do_if>
+      <do_else>
+        <set_value name="$highwayoffsetstar" exact="this.ship.position"/>
+        <debug_text filter="general" text="'%1 %2 %3 Starting in Tube - setting current position as start pos.'.[player.age,this.name,this.container.name]"/>
+      </do_else>
       <do_if value="true or not $destination.isclass.zone">
         <get_closest_highway_offset result="$highwayoffsetend" highway="$highway" space="$destinationzone">
           <position object="$destination"/>
@@ -81,14 +87,16 @@ with a given Rotation or Orientation
       </get_closest_highway_offset-->
       </do_if>
       <debug_text filter="general" text="'%1 %2 %3 Highway Offset Start: %4 End: %5'.[player.age,this.name,this.container.name,$highwayoffsetstart,@$highwayoffsetend]"/>
-      <move_to object="this.ship" destination="$highway" usehighways="false" abortpath="false" finishonapproach="false">
-        <position value="$highwayoffsetstart"/>
-        <interrupt>
-          <conditions>
-            <event_object_changed_zone object="this.ship" zone="$highway"/>
-          </conditions>
-        </interrupt>
-      </move_to>
+      <do_if value="this.zone != $highway" comment="catch the case where we are already in the related tube - no need to fly into it.">
+        <move_to object="this.ship" destination="$highway" usehighways="false" abortpath="false" finishonapproach="false">
+          <position value="$highwayoffsetstart"/>
+          <interrupt>
+            <conditions>
+              <event_object_changed_zone object="this.ship" zone="$highway"/>
+            </conditions>
+          </interrupt>
+        </move_to>
+      </do_if>
       <!-- move to closest part of highway to the destination -->
       <do_if value="$highwayoffsetend?">
       <move_to object="this.ship" destination="$highway" usehighways="true" abortpath="false" finishonapproach="true">
