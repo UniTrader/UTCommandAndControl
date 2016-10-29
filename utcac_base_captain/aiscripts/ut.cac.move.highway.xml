@@ -38,7 +38,7 @@ with a given Rotation or Orientation
       <!-- verify highway input -->
       <do_if value="not $highway.isclass.highway">
         <debug_text filter="error" text="'%1 %2 %3 Invalid Highway to enter passed! %4'.[player.age,this.name,this.container.name,$highway]"/>
-        <return/>
+        <return value="false"/>
       </do_if>
       <!-- get Destination Zone (and destination if not supplied)-->
       <do_if value="$destination == null">
@@ -53,7 +53,7 @@ with a given Rotation or Orientation
       <!-- if there is a Destination Zone check if its either a Waypoint or the Destination of the Tube -->
       <do_if value="$highway.junctions.indexof.{$destinationzone} or $highway.destination == $destinationzone" negate="true">
         <debug_text filter="error" text="'%1 %2 %3 Destinationzone not part of Highway Junctions! %4 %5 != %6'.[player.age,this.name,this.container.name,$highway.junctions,$highway.destination,$destinationzone]"/>
-        <return/>
+        <return value="false"/>
       </do_if>
       <!-- check if we are near enough to the Highway -->
       <!-- innitial Fly-to-highway NYI - this part is not required yet. -->
@@ -122,6 +122,7 @@ with a given Rotation or Orientation
       </move_to>
       </do_else>
       
+      <return value="true"/>
     </actions>
   </attention>
   <on_abort>
