@@ -89,8 +89,8 @@ with a given Rotation or Orientation
         <position z="0m" space="$highway"/>
       </get_closest_highway_offset-->
       </do_if>
-      <debug_text filter="general" text="'%1 %2 %3 Highway Offset Start: %4 End: %5'.[player.age,this.name,this.container.name,$highwayoffsetstart,@$highwayoffsetend]"/>
-      <signal_objects object="this.container" param="'Live Debug'" param2="'%1 %2 %3 Highway Offset Start: %4 End: %5'.[player.age,this.name,this.container.name,$highwayoffsetstart,@$highwayoffsetend]"/>
+      <debug_text filter="general" text="'%1 %2 %3 Highway Offset Start: %4 End: %5'.[player.age,this.name,this.container.name,@$highwayoffsetstart,@$highwayoffsetend]"/>
+      <signal_objects object="this.container" param="'Live Debug'" param2="'%1 %2 %3 Highway Offset Start: %4 End: %5'.[player.age,this.name,this.container.name,@$highwayoffsetstart,@$highwayoffsetend]"/>
       <do_if value="this.zone != $highway" comment="catch the case where we are already in the related tube - no need to fly into it.">
         <debug_text filter="general" text="'%1 %2 %3 Entering highway from %4'.[player.age,this.name,this.container.name,this.ship.zone]"/>
         <signal_objects object="this.container" param="'Live Debug'" param2="'%1 %2 %3 Entering highway from %4'.[player.age,this.name,this.container.name,this.ship.zone]"/>
@@ -108,7 +108,7 @@ with a given Rotation or Orientation
       <!-- move to closest part of highway to the destination -->
       <do_if value="$highwayoffsetend?">
       <debug_text filter="general" text="'%1 %2 %3 Highway Internal Movement with Target offset %4 start'.[player.age,this.name,this.container.name,$highwayoffsetend]"/>
-      <signal_objects object="this.container" param="'Live Debug'" param2="'%1 %2 %3 Highway Internal Movement with Target offset %4 start'.[player.age,this.name,this.container.name,$highwayoffseten"/>
+      <signal_objects object="this.container" param="'Live Debug'" param2="'%1 %2 %3 Highway Internal Movement with Target offset %4 start'.[player.age,this.name,this.container.name,$highwayoffsetend]"/>
       <move_to object="this.ship" destination="$highway" usehighways="true" abortpath="false" finishonapproach="true">
         <position value="$highwayoffsetend"/>
         <interrupt>
