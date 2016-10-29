@@ -88,6 +88,7 @@ with a given Rotation or Orientation
       </do_if>
       <debug_text filter="general" text="'%1 %2 %3 Highway Offset Start: %4 End: %5'.[player.age,this.name,this.container.name,$highwayoffsetstart,@$highwayoffsetend]"/>
       <do_if value="this.zone != $highway" comment="catch the case where we are already in the related tube - no need to fly into it.">
+        <debug_text filter="general" text="'%1 %2 %3 Entering highway from %4'.[player.age,this.name,this.container.name,this.ship.zone]"/>
         <move_to object="this.ship" destination="$highway" usehighways="false" abortpath="false" finishonapproach="false">
           <position value="$highwayoffsetstart"/>
           <interrupt>
@@ -100,6 +101,7 @@ with a given Rotation or Orientation
       </do_if>
       <!-- move to closest part of highway to the destination -->
       <do_if value="$highwayoffsetend?">
+      <debug_text filter="general" text="'%1 %2 %3 Highway Internal Movement with Target offset %4 start'.[player.age,this.name,this.container.name,$highwayoffsetend]"/>
       <move_to object="this.ship" destination="$highway" usehighways="true" abortpath="false" finishonapproach="true">
         <position value="$highwayoffsetend"/>
         <interrupt>
@@ -108,11 +110,21 @@ with a given Rotation or Orientation
           </conditions>
         </interrupt>
       </move_to>
-      <debug_text filter="general" text="'%1 %2 %3 Flying inside highway till %4'.[player.age,this.name,this.container.name,this.ship.position,this.zone.knownname]"/>
+      <debug_text filter="general" text="'%1 %2 %3 Flyed inside highway till %4, exiting'.[player.age,this.name,this.container.name,this.ship.position,this.zone.knownname]"/>
+      <move_to object="this.ship" destination="$destinationzone" usehighways="false" abortpath="true" forceposition="false">
+        <position value="position.[0,0,0]" />
+        <interrupt>
+          <conditions>
+            <event_object_changed_zone object="this.ship" previous="$highway"/>
+            <!--event_object_changed_zone object="this.ship" zone="$destinationzone" /-->
+          </conditions>
+        </interrupt>
+      </move_to>
       </do_if>
       
       <!-- exit highway -->
       <do_else>
+      <debug_text filter="general" text="'%1 %2 %3 Highway Internal Movement without Target offset start'.[player.age,this.name,this.container.name]"/>
       <move_to object="this.ship" destination="$destination" usehighways="true" abortpath="false" forceposition="false">
         <position value="position.[0,0,0]" />
         <interrupt>
