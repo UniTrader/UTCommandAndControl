@@ -71,12 +71,12 @@ with a given Rotation or Orientation
         </get_closest_highway_offset>
       </do_if>
       <do_else>
-        <create_position name="$highwayoffsetstart" object="this.ship" space="$highway"/>
-        <debug_text filter="general" text="'%1 %2 %3 Starting in Tube - still using closest highway offset. but here a few test values: %4 %5 %6'.[player.age,this.name,this.container.name,$highwayoffsetstart,this.ship.zone,this.ship.position]"/>
-        <signal_objects object="this.container" param="'Live Debug'" param2="'%1 %2 %3 Starting in Tube - still using closest highway offset'.[player.age,this.name,this.container.name]"/>
         <get_closest_highway_offset result="$highwayoffsetstart" highway="$highway" space="this.zone">
           <position object="this.ship"/>
         </get_closest_highway_offset>
+        <create_position name="$hwpos" object="this.ship" space="$highway"/>
+        <debug_text filter="general" text="'%1 %2 %3 Starting in Tube - still using closest highway offset. but here a few test values: %4 %5 %6 %7'.[player.age,this.name,this.container.name,$highwayoffsetstart,this.ship.zone,this.ship.position,$hwpos]"/>
+        <signal_objects object="this.container" param="'Live Debug'" param2="'%1 %2 %3 Starting in Tube - still using closest highway offset. but here a few test values: %4 %5 %6 %7'.[player.age,this.name,this.container.name,$highwayoffsetstart,this.ship.zone,this.ship.position,$hwpos]"/>
       </do_else>
       <do_if value="true or not $destination.isclass.zone">
         <get_closest_highway_offset result="$highwayoffsetend" highway="$highway" space="$destinationzone">
