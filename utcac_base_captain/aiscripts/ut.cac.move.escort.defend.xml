@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.move.escort.defend" priority="10" version="30" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+rewritten from scratch by UniTrader
+
+Script to stay at a good defense Position. Will try to stay as close as possible to the Escortee, and if there is a Capship Attacker it will also position itself in-between as Shield.
+Intendes as interrupt Script in event of an Attack. will not block Movement of the Escortee in the event of Movement Signals, but it will try to keep up.
+
+-->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="escortee" default="null" comment="the Object to follow/defend"/>
+    <param name="attackers" default="null" comment="Group of the Attacking Objects - Intended to be maintained by the DO"/>
+    <param name="primarythreat" default="null" comment="Primary Object to defend from - must be a Capship or Station (May be a good idea to arrange this over the DO of the Escortee so it is shielded by multiple ships against all threats)"/>
+  </params>
+  <init>
+    <!-- first turn params param into the real params -->
+    <do_if value="$params">
+      <do_if value="$params.$escortee?">
+        <set_value name="$escortee" exact="$params.$escortee"/>
+      </do_if>
+      <do_if value="$params.$attackers?">
+        <set_value name="$attackers" exact="$params.$attackers"/>
+      </do_if>
+      <do_if value="$params.$primarythreat?">
+        <set_value name="$primarythreat" exact="$params.$primarythreat"/>
+      </do_if>
+    </do_if>
+  </init>
+  <interrupts>
+    <handler>
+      <conditions>
+        <event_object_target_invalid object="this.ship"/>
+      </conditions>
+      <actions>
+        <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $escortee: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
+        <abort_called_scripts/>
+        <resume label="start"/>
+      </actions>
+    </handler>
+    <handler>
+      <!--- destination destroyed - abort Movement and (for now) also print an Error -->
+      <conditions>
+        <event_object_destroyed object="$escortee"/>
+      </conditions>
+      <actions>
+        <debug_text filter="error" text="'%1 %2 %3 Escort Object destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
+        <abort_called_scripts/>
+        <return value="1"/>
+      </actions>
+    </handler>
+    <handler>
+      <!-- Handler for Escortee Movement Events (seperate from lib events because these should not block the Escortee, and be executed at a later point) -->
+      <conditions>
+        <check_all>
+          <check_any>
+            <check_all>
+              <event_object_signalled object="$escortee" param="'travel boost start'"/>
+              <check_value value="this.ship.sector ==  $escortee.sector"/>
+              <!-- make sure both Ships are in the same sectors... -->
+            </check_all>
+            <check_all>
+              <event_object_signalled object="$escortee" param="'travel jump start'"/>
+              <check_value value="this.ship.jumpcostto.{event.param2} le $escortee.jumpcostto.{event.param2}"/>
+              <!-- make sure we dont skip needed Jumps on the way... -->
+            </check_all>
+            <check_all>
+              <event_object_signalled object="$escortee" param="'travel gate prep'"/>
+              <check_value value="this.ship.zone ==  event.param2.{1}.zone"/>
+              <!-- make sure we are in the Gate Zone before attempting Passage... -->
+            </check_all>
+            <check_all>
+              <event_object_signalled object="$escortee" param="'travel aborted'"/>
+            </check_all>
+          </check_any>
+          <check_value value="not $fly_to_leader?"/>
+        </check_all>
+      </conditions>
+      <actions>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signal on Leader received:\nparam: %4 , param2: %5 , param3: %6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+        <do_if value="event.param == 'travel boost start'">
+          <!-- interrupt with boost script -->
+          <run_interrupt_script name="'ut.cac.move.boost'" resume="start" abortscripts="true">
+            <param name="destination" value="event.param2.{1}"/>
+            <param name="position" value="event.param2.{2}"/>
+          </run_interrupt_script>
+        </do_if>
+        <do_elseif value="event.param == 'travel jump start'">
+          <!-- interrupt with jump script -->
+          <run_interrupt_script name="'ut.cac.move.jump'" resume="start" abortscripts="true">
+            <param name="destination" value="event.param2"/>
+            <param name="type" value="'object'"/>
+          </run_interrupt_script>
+        </do_elseif>
+        <do_elseif value="event.param == 'travel gate prep'">
+          <!-- interrupt with Gate Passage script -->
+          <run_interrupt_script name="'ut.cac.move.gate2'" resume="start" abortscripts="true">
+            <param name="gate" value="event.param2.{1}"/>
+            <param name="queue_position" value="false"/>
+            <param name="passage_group" value="event.param3"/>
+            <param name="leader" value="$escortee"/>
+          </run_interrupt_script>
+        </do_elseif>
+        <do_elseif value="event.param == 'travel aborted'">
+          <abort_called_scripts resume="start"/>
+        </do_elseif>
+      </actions>
+    </handler>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <!-- First confirm Situation and check if Input is valid -->
+      <do_if value="not $escortee.isoperational">
+        <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist: %4'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
+        <return value="1"/>
+      </do_if>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$escortee: %4 primarythreat: %5 attackers: %6'.[player.age,this.name,this.container.name,$escortee.knownname,$primarythreat.knownname,$attackers]"/>
+      
+      
+      <label name="start"/>
+      <label name="get target pos"/>
+      <!-- second get current Target Pos - possibly in the Movement Area of Escortee, but if not shielding from something only behinf him to not block his movement -->
+      <do_if value="$primarythreat.isoperational">
+        <get_safe_pos result="$targetpos" object="$escortee" zone="$escortee.zone" directionobject="$primarythreat" radius="this.ship.size" allowyaxis="true"/>
+        
+        <!-- EXPERIMENTAL CODE: RELATIVE MOVEMENT -->
+        <get_safe_pos result="$targetpos" object="$escortee" space="$escortee" zone="$escortee.zone" directionobject="$primarythreat" radius="this.ship.size" allowyaxis="true"/>
+        <move_to object="this.ship" destination="$escortee" finishonapproach="true" abortpath="not $continuepath" avoid="false" relativemovement="true">
+          <position value="$targetpos"/>
+        </move_to>
+        
+        <resume label="get target pos"/>
+        <!--/ EXPERIMENTAL CODE: RELATIVE MOVEMENT -->
+      </do_if>
+      <do_else>
+        <get_safe_pos result="$targetpos" object="$escortee" zone="$escortee.zone" directionobject="$escortee" direction="quadrant.back" direction2="[quadrant.up,quadrant.right,quadrant.down,quadrant.left].random" radius="this.ship.size" allowyaxis="true"/>
+      </do_else>
+      <!-- third - actually move. but re-calculate Target Position, and if currently not aligned towards it restart movement (otherwise continue with it, assuming the next waypoint is in the right direction) -->
+      <check_object result="$continuepath" object="this.ship">
+        <match_is_in_view_of x="$targetpos.x" y="$targetpos.y" z="$targetpos.z" yaw="this.ship.rotation.inverse.yaw" pitch="this.ship.rotation.inverse.pitch" roll="this.ship.rotation.inverse.roll" horizontal="45deg" vertical="45deg"/>
+      </check_object>
+      <move_to object="this.ship" destination="$escortee.zone" finishonapproach="true" abortpath="not $continuepath" avoid="false">
+        <position value="$targetpos"/>
+        <interrupt_after_time time="1min"/>
+      </move_to>
+      <resume label="get target pos"/>
+    </actions>
+  </attention>
+  <on_abort>  </on_abort>
+</aiscript>
