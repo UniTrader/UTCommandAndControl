@@ -10,7 +10,7 @@ roughly based on the experimental ut.cac.follow.verysimple
 -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
-    <param name="object" default="null" comment="the Object to follow"/>
+    <param name="escortee" default="null" comment="the Object to follow"/>
     <param name="time" default="null" comment="how long the other Object should be followed"/>
     <param name="timeout" default="null" comment="until when the Object should be followed - overrides time"/>
     <param name="destination" default="null" comment="where the other Object followed to (as Space, since the context is checked)"/>
@@ -19,8 +19,8 @@ roughly based on the experimental ut.cac.follow.verysimple
   <init>
     <!-- first turn params param into the real params -->
     <do_if value="$params">
-      <do_if value="$params.$object?">
-        <set_value name="$object" exact="$params.$object"/>
+      <do_if value="$params.$escortee?">
+        <set_value name="$escortee" exact="$params.$escortee"/>
       </do_if>
       <do_if value="$params.$time?">
         <set_value name="$time" exact="$params.$time"/>
@@ -35,6 +35,7 @@ roughly based on the experimental ut.cac.follow.verysimple
         <set_value name="$exitonneworder" exact="$params.$exitonneworder"/>
       </do_if>
     </do_if>
+    <set_value name="$object" exact="$escortee" comment="follow signal lib expects $object, in this script $escortee has more obvious meaning though"/>
   </init>
   <interrupts>
     <handler>
@@ -42,7 +43,7 @@ roughly based on the experimental ut.cac.follow.verysimple
           <event_object_target_invalid object="this.ship" />
         </conditions>
         <actions>
-          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $object: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
+          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $escortee: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
           <abort_called_scripts />
           <resume label="start"/>
       </actions>
@@ -50,18 +51,18 @@ roughly based on the experimental ut.cac.follow.verysimple
     <handler>
       <!--- destination destroyed - abort Movement and (for now) also print an Error -->
       <conditions>
-        <event_object_destroyed object="$object"/>
+        <event_object_destroyed object="$escortee"/>
       </conditions>
       <actions>
-        <debug_text filter="error" text="'%1 %2 %3 Escort Object destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Escort Object destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
         <abort_called_scripts/>
         <return value="1"/>
       </actions>
     </handler>
     <!--
-=> Library for Signal Handlers to follow a certain Object. Must be saved as $object in main Script (NOTE: Name may change during further Development!!! )
+=> Library for Signal Handlers to follow a certain Object. Must be saved as $escortee in main Script (NOTE: Name may change during further Development!!! )
 Vars used internally:
-> $object => the Object to follow
+> $escortee => the Object to follow
 > $fly_to_leader => Set this Var during initial Movement to de-activate the Signal Handlers (until the Ship has same Zone Context as the Leader)
 > $follow_position => used temporarily to determine a Safe Position during certain Signals - do not use!
 Labels used:
@@ -73,9 +74,9 @@ Labels used:
     <handler comment="Planned Handler to handle transition to another Leader in case the current one gets new Orders or ends his patrol">
       <conditions>
         <check_any>
-          <event_object_signalled object="$object.pilot" param="'patrol aborted'"/>
-          <event_object_signalled object="$object.pilot" param="'patrol ends'"/>
-          <event_object_destroyed object="$object"/>
+          <event_object_signalled object="$escortee.pilot" param="'patrol aborted'"/>
+          <event_object_signalled object="$escortee.pilot" param="'patrol ends'"/>
+          <event_object_destroyed object="$escortee"/>
         </check_any>
       </conditions>
       <actions>
@@ -97,7 +98,7 @@ Labels used:
         </do_if>
         <do_elseif value="not this.$orderlist.{2}?">
           <!-- continue Escort new Patrol Leader by modifying $params, copying it to the end of the Orderlist and exiting for restart  -->
-          <set_value name="$params.$object" exact="this.$escortgroup.{1}"/>
+          <set_value name="$params.$escortee" exact="this.$escortgroup.{1}"/>
           <set_value name="$params.$displayname" exact="'Escorting %1 (Escortee changed)'.[if this.$escortgroup.{1}.controlentity.$shortname then this.$escortgroup.{1}.controlentity.$shortname else this.$escortgroup.{1}.name]"/>
           <append_to_list name="this.$orderlist" exact="$params"/>
         </do_elseif>
@@ -107,7 +108,7 @@ Labels used:
     </handler>
     <handler comment="Handler for when Leader switches Escort Group - just a passive one performing just a few set_value">
       <conditions>
-        <event_object_signalled object="$object.pilot" param="'escortgroup changed'"/>
+        <event_object_signalled object="$escortee.pilot" param="'escortgroup changed'"/>
         <!-- hope this Workaround for add_to_group / remove_from_group works... otherwise the Signal Handler must trigger to use these... -->
         <!--<remove_value name="this.$escortgroup.indexof.{this.ship}" comment="remove from previous Group"/>
         <set_value name="this.$escortgroup" exact="event.param2" comment="set new Group"/>
@@ -140,43 +141,43 @@ Labels used:
       </do_if>
       
       <!-- check input -->
-      <do_if value="not $object.isoperational">
-        <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist: %4'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
+      <do_if value="not $escortee.isoperational">
+        <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist: %4'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
         <return value="1"/>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$object: %4'.[player.age,this.name,this.container.name,$object.knownname]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$escortee: %4'.[player.age,this.name,this.container.name,$escortee.knownname]"/>
       
       <label name="fly to leader zone" />
       <!-- re - check input because it caused a Lockuop here (FIX CORE ISSUE BEHIND THIS AT SOME POINT!!! ) -->
-      <do_if value="not $object.isoperational">
-        <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist (Case 2): %4'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
+      <do_if value="not $escortee.isoperational">
+        <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist (Case 2): %4'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
         <return value="1"/>
       </do_if>
       
       <set_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
       <run_script name="'ut.cac.move.generic'">
-        <param name="destination" value="$object"/>
+        <param name="destination" value="$escortee"/>
         <param name="endintargetspace" value="true"/>
       </run_script>
       <remove_value name="$fly_to_leader" comment="to prevent interrupts until we are in the same Zone"/>
       
       <!-- Escort Duty begins - first add us to the Group managing possible Leader Replacements -->
-      <add_to_group groupname="$object.pilot.$escortgroup" group="this.$escortgroup"/>
+      <add_to_group groupname="$escortee.pilot.$escortgroup" group="this.$escortgroup"/>
       <remove_value name="this.$escortgroup"/>
-      <set_value name="this.$escortgroup" exact="$object.pilot.$escortgroup"/>
+      <set_value name="this.$escortgroup" exact="$escortee.pilot.$escortgroup"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (merge on start):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'Escortgroup changed'"/>
       
-      <!-- then add us to Suprior's "Available for other sudden Orders"-List if $object is also in there-->
-      <do_if value="this.ship.commanderentity.$ut_cac.$availablefightships.indexof.{$object}">
+      <!-- then add us to Suprior's "Available for other sudden Orders"-List if $escortee is also in there-->
+      <do_if value="this.ship.commanderentity.$ut_cac.$availablefightships.indexof.{$escortee}">
         <add_to_group groupname="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Added us to Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
       </do_if>
       
       <!-- to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case) -->
-      <do_if value="$destination.exists and $object.hascontext.{$destination}" comment="">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Object starts in Destination Zone - setting Var to avoid immediate exit'.[player.age,this.name,this.container.name,$object.knownname]"/>
+      <do_if value="$destination.exists and $escortee.hascontext.{$destination}" comment="">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Object starts in Destination Zone - setting Var to avoid immediate exit'.[player.age,this.name,this.container.name,$escortee.knownname]"/>
         <set_value name="$startsindestinationzone"/>
       </do_if>
       
@@ -184,10 +185,10 @@ Labels used:
       <do_if value="player.age gt $timeout">
         <resume label="finish"/>
       </do_if>
-      <do_if value="not $object.isoperational">
+      <do_if value="not $escortee.isoperational">
         <resume label="finish"/>
       </do_if>
-      <do_if value="$destination.exists and $object.hascontext.{$destination}">
+      <do_if value="$destination.exists and $escortee.hascontext.{$destination}">
         <do_if value="not $startsindestinationzone?" comment="to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case)">
           <resume label="finish"/>
         </do_if>
@@ -195,26 +196,26 @@ Labels used:
       <do_elseif value="$destination.exists" comment="to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case)">
         <remove_value name="$startsindestinationzone"/>
       </do_elseif>
-      <do_if value="$object.zone != this.zone">
+      <do_if value="$escortee.zone != this.zone">
         <resume label="fly to leader zone"/>
       </do_if>
       
       <wait min="300ms" max="1000ms" sinceversion="24" comment="avoid calculating Path when Leader may send new Movements Signal almost immediately after this (shouldnt influence movement)"/>
       
-      <do_if value="this.ship.isboostactive and $object.pilot.$destination? and $object.pilot.$destination.zone == this.zone" comment="currently probaly in the last phase of Boosting - get a waypoint nearby our Escortees Destination instead of himself to stay close">
-        <get_safe_pos result="$safepos" object="$object.pilot.$destination" radius="this.ship.size * 1.5" zone="$object.pilot.$destination.zone" />
+      <do_if value="this.ship.isboostactive and $escortee.pilot.$destination? and $escortee.pilot.$destination.zone == this.zone" comment="currently probaly in the last phase of Boosting - get a waypoint nearby our Escortees Destination instead of himself to stay close">
+        <get_safe_pos result="$safepos" object="$escortee.pilot.$destination" radius="this.ship.size * 1.5" zone="$escortee.pilot.$destination.zone" />
       </do_if>
       <do_else>
-        <get_safe_pos result="$safepos" object="$object" radius="this.ship.size * 1.5" zone="$object.zone" />
+        <get_safe_pos result="$safepos" object="$escortee" radius="this.ship.size * 1.5" zone="$escortee.zone" />
       </do_else>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to nearby Escortee %4 // Our Pos: %5 %6 // Escortee Pos: %7 %8'.[player.age,this.name,this.container.name,$object.knownname,this.ship.zone.name,this.ship.position,$object.zone.name,$object.position]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to nearby Escortee %4 // Our Pos: %5 %6 // Escortee Pos: %7 %8'.[player.age,this.name,this.container.name,$escortee.knownname,this.ship.zone.name,this.ship.position,$escortee.zone.name,$escortee.position]"/>
       <set_value name="this.$mayabortpath"/>
-      <move_to object="this.ship" abortpath="false" destination="$object.zone" finishonapproach="true">
+      <move_to object="this.ship" abortpath="false" destination="$escortee.zone" finishonapproach="true">
         <position value="$safepos"/>
         <interrupt_after_time time="5min" comment="Escortee may have moved - updating Path"/>
         <interrupt comment="check if Leader flew away and we missed his Signal">
           <conditions>
-            <event_object_changed_zone object="$object"/>
+            <event_object_changed_zone object="$escortee"/>
           </conditions>
         </interrupt>
       </move_to>
@@ -229,7 +230,7 @@ Labels used:
       <remove_from_group group="this.$escortgroup" object="this.ship"/>
       <remove_value name="this.$escortgroup"/>
       <add_to_group groupname="this.$escortgroup" object="this.ship"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (finish case):\n$object: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (finish case):\n$escortee: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'escortgroup changed'" param2="this.$escortgroup"/>
       
       
@@ -244,7 +245,7 @@ Labels used:
       <remove_from_group group="this.$escortgroup" object="this.ship"/>
       <remove_value name="this.$escortgroup"/>
       <add_to_group groupname="this.$escortgroup" object="this.ship"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (on_abort case):\n$object: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (on_abort case):\n$escortee: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'escortgroup changed'" param2="this.$escortgroup"/>
       
       
