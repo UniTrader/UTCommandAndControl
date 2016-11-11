@@ -71,6 +71,28 @@ Labels used:
     <handler ref="ut_cac_follow_signalling" comment="Handler for Navigation Signals"/>
     <handler ref="ut_cac_exitonneworder"/>
     <!--handler comment="Planned Handler to react to Enemies annouced by the Leader"/-->
+    <handler comment="Handler to call Defense Script in case a threat is found">
+      <conditions>
+        <check_any>
+          <event_object_attacked object="$escortee"/>
+          <event_object_attacked object="this.ship"/>
+          <event_object_enemy_found object="$escortee"/>
+          <event_object_enemy_found object="this.ship"/>
+        </check_any>
+        <check_value value="event.param.isclass.station or event.param.isclass.ship_xl or event.param.isclass.ship_l"/>
+      </conditions>
+      <actions>
+        <run_interrupt_script abortscripts="true" name="'ut.cac.move.escort.defend'">
+          <param name="escortee" value="$escortee"/>
+          <!--<param name="attackers" default="null" comment="Group of the Attacking Objects - Intended to be maintained by the DO"/>-->
+          <param name="primarythreat" value="event.param" comment="Primary Object to defend from - must be a Capship or Station (May be a good idea to arrange this over the DO of the Escortee so it is shielded by multiple ships against all threats)"/>
+        </run_interrupt_script>
+<!--
+event_object_attacked => Event for the specified object being attacked (object = attacked object, param = attacker, param2 = kill method, param3 = attacked component)
+event_object_enemy_found => Event for the specified object finding an enemy on its Gravidar scanner (object = scanning object, param = enemy)
+-->
+      </actions>
+    </handler>
     <handler comment="Planned Handler to handle transition to another Leader in case the current one gets new Orders or ends his patrol">
       <conditions>
         <check_any>
