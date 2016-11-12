@@ -63,6 +63,39 @@
       <set_value name="$wantedescorts" exact="1" comment="for now only one Escort per Ship, will tune later as needed"/>
       <set_value name="$escortcount" exact="0"/>
       
+      <!-- Debug Feature Assign Player Ship as Escort with Priority -->
+      <do_if value="$availableships.indexof.{player.ship}">
+        <set_value name="$ship" exact="player.ship"/>
+        <do_if value="$ship.pilot.$orderlist.count gt 1" negate="true">
+        <do_if value="$escortee_speed? and global.$ship_boost_speed.{$ship.macro}?">
+          <!-- check if the Speed difference would be too great (max 100 m/s) and ignore if it is -->
+          <do_if value="( $escortee_speed - global.$ship_boost_speed.{$ship.macro} ) lt -110m">
+            <debug_text filter="general" chance="100" text="'%1 %2 %3 PlayerShip %4 is too fast ( %5ms vs %6ms , %7ms diff) - removing'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}, $escortee_speed - global.$ship_boost_speed.{$ship.macro}]"/>
+            <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
+            <continue/>
+          </do_if>
+          <do_elseif value="( $escortee_speed - global.$ship_boost_speed.{$ship.macro} ) gt 110m">
+            <debug_text filter="general" chance="100" text="'%1 %2 %3 PlayerShip %4 is too slow ( %5ms vs %6ms , %7ms diff ) - removing'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}, $escortee_speed - global.$ship_boost_speed.{$ship.macro}]"/>
+            <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
+            <continue/>
+          </do_elseif>
+          <do_else>
+            <debug_text filter="general" chance="100" text="'%1 %2 %3 PlayerShip %4 meets speed range criterion ( %5ms vs %6ms , %7ms diff )'.[player.age,this.name,this.container.name, $ship.knownname,$escortee_speed,global.$ship_boost_speed.{$ship.macro}, $escortee_speed - global.$ship_boost_speed.{$ship.macro}]"/>
+          </do_else>
+        </do_if>
+        <do_else>
+          <debug_text filter="general" chance="100" text="'%1 %2 %3 No Boost Speed known for Other Ship %4 - assuming it is suitable for now (should sort itself out quickly; Player case)'.[player.age,this.name,this.container.name, $ship.knownname]"/>
+        </do_else>
+        <debug_text filter="general" chance="100" text="'%1 %2 %3 Playership Assigned %4'.[player.age,this.name,this.container.name, $ship.knownname]"/>
+        <signal_objects object="$ship.pilot" param="'new order'" param2="table[$displayname='Escorting %1 (Manager)'.[if $escortee.controlentity.$shortname then $escortee.controlentity.$shortname else $escortee.name],$script='ut.cac.move.escort',$escortee=$escortee,$destination=$destination,$interruptable=true]"/>
+        <do_if value="$return_waypoint">
+          <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
+        </do_if>
+        <set_value name="$escortcount" operation="add"/>
+        </do_if>
+        <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>
+      </do_if>
+      
       <do_while value="$availableships.count and $escortcount lt $wantedescorts">
         <set_value name="$ship" exact="$availableships.random"/>
         <do_if value="$ship.pilot.$orderlist.count gt 1">
