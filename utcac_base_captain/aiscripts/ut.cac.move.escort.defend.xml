@@ -107,6 +107,15 @@ Intendes as interrupt Script in event of an Attack. will not block Movement of t
         </do_elseif>
       </actions>
     </handler>
+    <handler>
+      <!-- $primarythreat destroyed or no longer in range - for now exit, later iterations may choose another Ship to Shield the Escortee frrom -->
+      <conditions>
+        <event_object_destroyed object="$primarythreat"/>
+      </conditions>
+      <actions>
+        <return/>
+      </actions>
+    </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
@@ -124,18 +133,12 @@ Intendes as interrupt Script in event of an Attack. will not block Movement of t
       <!-- second get current Target Pos - possibly in the Movement Area of Escortee, but if not shielding from something only behinf him to not block his movement -->
       <do_if value="$primarythreat.isoperational">
         <get_safe_pos result="$targetpos" object="$escortee" zone="$escortee.zone" directionobject="$primarythreat" radius="this.ship.size" allowyaxis="true"/>
-        
-        <!-- EXPERIMENTAL CODE: RELATIVE MOVEMENT -->
-        <get_safe_pos result="$targetpos" object="$escortee" space="$escortee" zone="$escortee.zone" directionobject="$primarythreat" radius="this.ship.size" allowyaxis="true"/>
-        <move_to object="this.ship" destination="$escortee" finishonapproach="true" abortpath="not $continuepath" avoid="false" relativemovement="true">
-          <position value="$targetpos"/>
-        </move_to>
-        
-        <resume label="get target pos"/>
-        <!--/ EXPERIMENTAL CODE: RELATIVE MOVEMENT -->
       </do_if>
-      <do_else>
+      <do_elseif value="$attackers and $attackers.count">
         <get_safe_pos result="$targetpos" object="$escortee" zone="$escortee.zone" directionobject="$escortee" direction="quadrant.back" direction2="[quadrant.up,quadrant.right,quadrant.down,quadrant.left].random" radius="this.ship.size" allowyaxis="true"/>
+      </do_elseif>
+      <do_else>
+        <return/>
       </do_else>
       <!-- third - actually move. but re-calculate Target Position, and if currently not aligned towards it restart movement (otherwise continue with it, assuming the next waypoint is in the right direction) -->
       <check_object result="$continuepath" object="this.ship">
