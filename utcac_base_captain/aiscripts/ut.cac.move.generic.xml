@@ -333,13 +333,13 @@
       
       <label name="fine movement"/>
       
-      <do_while value="( not ( $destination.hascontext.{$targetspace} or $destination == $targetspace ) ) and this.ship.numwaypoints">
-        <wait max="5min" sinceversion="30">
+      <do_while value="not ( $destination.hascontext.{$targetspace} or $destination == $targetspace )">
+        <wait sinceversion="30">
           <interrupt>
             <conditions>
               <check_any>
-                <event_object_changed_zone object="this.ship"/>
-                <event_object_arrived_at_waypoint object="this.ship"/>
+                <event_object_changed_zone object="$destination"/>
+                <event_object_arrived_at_waypoint object="$destination"/>
               </check_any>
             </conditions>
           </interrupt>
