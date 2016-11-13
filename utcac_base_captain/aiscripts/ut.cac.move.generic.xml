@@ -333,6 +333,19 @@
       
       <label name="fine movement"/>
       
+      
+      <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 20 km away) and boost to a generous safe spot nearby the Target -->
+      <!-- Final boost to nearby the Destination Object - get safepos a bit in our Direction before to avoid yoyo-effect-->
+      <get_safe_pos result="$safepos" zone="if $destination.isclass.zone then $destination else $destination.zone" value="if $position then $position else position.[0m,0m,0m]" radius="this.ship.size" directionobject="this.ship" min="5km"/>
+      <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 7km and $destination != $targetspace )">
+        <run_script name="'ut.cac.move.boost'">
+          <param name="destination" value="if $destination.hascontext.{$targetspace} then $destination else $targetspace"/>
+          <param name="position" value="$safepos" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
+        </run_script>
+      </do_if>
+      <remove_value name="this.$waypoint"/>
+      <remove_value name="this.$destination"/>
+      
       <do_while value="not ( $destination.hascontext.{$targetspace} or $destination == $targetspace )">
         <wait sinceversion="30">
           <interrupt>
@@ -345,18 +358,6 @@
           </interrupt>
         </wait>
       </do_while>
-      
-      <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 20 km away) and boost to a generous safe spot nearby the Target -->
-      <!-- Final boost to nearby the Destination Object - get safepos a bit in our Direction before to avoid yoyo-effect-->
-      <get_safe_pos result="$safepos" zone="if $destination.isclass.zone then $destination else $destination.zone" value="if $position then $position else position.[0m,0m,0m]" radius="this.ship.size" directionobject="this.ship" min="5km"/>
-      <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 7km and $destination != $targetspace )">
-        <run_script name="'ut.cac.move.boost'">
-          <param name="destination" value="$destination"/>
-          <param name="position" value="$safepos" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
-        </run_script>
-      </do_if>
-      <remove_value name="this.$waypoint"/>
-      <remove_value name="this.$destination"/>
       
       <do_if value="not $endintargetspace">
         <!-- second move slowly near the Target (may not be necesary if we are satisfied with the Target Zone) -->
