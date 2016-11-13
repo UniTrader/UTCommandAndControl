@@ -249,13 +249,21 @@
       </do_if>
       <signal_objects object="$gate" param="'travel gate update'"/>
       
-      <!-- a very short Boost forward to clear Entry Area (or if not possible right now clear in normal flight) -->
+      <!--  move forward a bit to clear gate exit for the next ship (rate can be one ship every 30s with this Script)  -->
       <do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
         <wait exact="100ms" comment="otherwise the player.ship skips movement for some reason"/>
         <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >
           <position x="0m" y="0m" z="(this.ship.size *5)"/>
         </transform_position>
-        <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="this.ship"/>
+        <!-- figure out an arrival position in the target zone -->
+        <!-- HACK for FoO - AL Gate - ignore the big rock instead of the current ship for safepos -->
+        <do_if value="this.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'}">
+          <find_object name="$ignoredobject" space="$targetzone" macro="macro.landmarks_unique_the_mace_macro"/>
+        </do_if>
+        <do_else>
+          <set_value name="$ignoredobject" exact="this.ship"/>
+        </do_else>
+        <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/>
         <move_to object="this.ship" destination="this.zone" forcesteering="true" finishonapproach="true" comment="boost=this.ship.pilot.skill.navigation ge 3">
           <position value="$safeposition"/>
           <interrupt_after_time time="30s"/>
