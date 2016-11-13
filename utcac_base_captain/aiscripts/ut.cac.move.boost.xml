@@ -217,7 +217,7 @@
         </do_elseif>
         
         <!-- figure out an arrival position in the target zone -->
-        <do_if value="$targetzone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and $destination.isclass.gate">
+        <do_if value="$targetzone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and ( $destination.isclass.gate or ( $position.x gt 30km and $position.z lt -20km and $position.y gt -10km and $position.y lt 10km ) )">
           <!-- HACK for FoO - AL Gate -->
           <find_object name="$ignoredobject" space="$targetzone" macro="macro.landmarks_unique_the_mace_macro"/>
           <get_safe_pos result="$targetpos" allowyaxis="true" zone="$targetzone" value="$position" radius="this.ship.size * 2" ignored="$ignoredobject"/>
