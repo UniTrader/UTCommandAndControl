@@ -130,6 +130,10 @@ Intendes as interrupt Script in event of an Attack. will not block Movement of t
       
       <label name="start"/>
       <label name="get target pos"/>
+      <!-- check if we are still close enough to or Escortee - if not exit to let the escort script catch up -->
+      <do_if value="this.ship.distanceto.{$escortee} gt 30km">
+        <return/>
+      </do_if>
       <!-- second get current Target Pos - possibly in the Movement Area of Escortee, but if not shielding from something only behinf him to not block his movement -->
       <do_if value="$primarythreat.isoperational">
         <get_safe_pos result="$targetpos" object="$escortee" zone="$escortee.zone" directionobject="$primarythreat" radius="this.ship.size" allowyaxis="true"/>
