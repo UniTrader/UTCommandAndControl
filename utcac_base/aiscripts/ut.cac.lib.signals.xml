@@ -38,6 +38,10 @@ Labels used:
                 <check_value value="this.ship.jumpcostto.{event.param2} le $object.jumpcostto.{event.param2}"/><!-- make sure we dont skip needed Jumps on the way... -->
               </check_all>
               <check_all>
+                <event_object_signalled object="$object" param="'travel jump start'"/>
+                <check_value value="this.ship.jumpcostto.{event.param2} le $object.jumpcostto.{event.param2}"/><!-- make sure we dont skip needed Jumps on the way... -->
+              </check_all>
+              <check_all>
                 <event_object_signalled object="$object" param="'travel gate prep'"/>
                 <check_value value="this.ship.zone ==  event.param2.{1}.zone"/><!-- make sure we are in the Gate Zone before attempting Passage... -->
               </check_all>
@@ -87,6 +91,15 @@ Labels used:
             </run_interrupt_script>
           </do_elseif>
           <do_elseif value="event.param == 'travel jump prep'">
+            <!-- interrupt with jump script -->
+            <run_interrupt_script name="'ut.cac.move.jump'" resume="start" abortscripts="true">
+              <param name="destination" value="event.param2"/>
+              <param name="type" value="'object'"/>
+              <param name="leader" value="$object"/>
+              <param name="leader_preparegroup" value="event.param3"/>
+            </run_interrupt_script>
+          </do_elseif>
+          <do_elseif value="event.param == 'travel jump start'">
             <!-- interrupt with jump script -->
             <run_interrupt_script name="'ut.cac.move.jump'" resume="start" abortscripts="true">
               <param name="destination" value="event.param2"/>

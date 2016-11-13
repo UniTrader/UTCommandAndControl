@@ -27,7 +27,7 @@ ToDo:
     <!-- Stuff necesary for coordinated Group Jumps -->
     <param name="leader" default="null" comment="the formation leader/object which coordinates the Jump"/>
     <param name="leader_preparegroup" default="null" comment="the group of Ships the Leader waits for (if you dont specify a leader this will be the Group the Ship waits for to prepare as if it were the leader)"/>
-    
+    <param name="leader_ready" default="false" comment="leader is already charging JD because we missed the initial Jump Event - skipe some sync steps to possibly also make it immediately (or exit immediately if not possible to let other scripts handle the catchup)"/>
   </params>
   <interrupts>
   </interrupts>
@@ -250,6 +250,23 @@ ToDo:
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination Beacon: %4 in %5 // %6'.[player.age,this.name,this.container.name,$beacon.knownname,$beacon.sector.knownname,$beacon.zone.knownname]"/>
       
+      <!-- if leader is already jumping try to keep up if possible or just exit -->
+      <do_if value="$leader_ready">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Leader already jumping, performing fast jump'.[player.age,this.name,this.container.name]"/>
+        <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{$destination}">
+          <!-- not enough fuel, give up-->
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not enough Fuel, give up'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_if>
+        <do_if value="$jumpdrive.cooldowntimeleft gt 0">
+          <!-- not cooled down, give up-->
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not cooled Down, give up'.[player.age,this.name,this.container.name]"/>
+          <return/>
+        </do_if>
+        <!-- we can jump immediately -->
+        <resume label="jump"/>
+      </do_if>
+      
       <!-- Signal our Intention to Jump and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
       <do_if value="$leader and $leader_preparegroup">
         <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
@@ -333,6 +350,8 @@ ToDo:
           </interrupt>
         </wait>
       </do_else>
+      
+      <label name="jump"/>
       <!-- Preperations Done - Tell everyone to start and add ourselves to the blocking group to prevent too fast advancing on the leaders part -->
       <signal_objects object="this.ship" param="'travel jump start'" param2="$beacon" param3="$leader_preparegroup"/>
       <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
