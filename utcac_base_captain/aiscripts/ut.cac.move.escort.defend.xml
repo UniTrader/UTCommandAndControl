@@ -136,7 +136,7 @@ Intendes as interrupt Script in event of an Attack. will not block Movement of t
       </do_if>
       <!-- second get current Target Pos - possibly in the Movement Area of Escortee, but if not shielding from something only behinf him to not block his movement -->
       <do_if value="$primarythreat.isoperational">
-        <get_safe_pos result="$targetpos" object="$escortee" zone="$escortee.zone" directionobject="$primarythreat" radius="this.ship.size" allowyaxis="true"/>
+        <get_safe_pos result="$targetpos" object="$escortee" zone="$escortee.zone" directionobject="$primarythreat" radius="this.ship.size" allowyaxis="true" max="this.ship.maxcombatrange.all"/>
       </do_if>
       <do_elseif value="$attackers and $attackers.count">
         <get_safe_pos result="$targetpos" object="$escortee" zone="$escortee.zone" directionobject="$escortee" direction="quadrant.back" direction2="[quadrant.up,quadrant.right,quadrant.down,quadrant.left].random" radius="this.ship.size" allowyaxis="true"/>
