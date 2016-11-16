@@ -79,13 +79,15 @@ Labels used:
           <event_object_enemy_found object="$escortee"/>
           <event_object_enemy_found object="this.ship"/>
         </check_any>
+        <check_value value="not $defendingr?"/>
         <check_value value="not $fly_to_leader?"/>
         <check_value value="not this.ship.isboostactive"/>
         <check_value value="this.ship.distanceto.{$escortee} lt 20km"/>
         <check_value value="event.param.isclass.station or event.param.isclass.ship_xl or event.param.isclass.ship_l"/>
       </conditions>
       <actions>
-        <run_interrupt_script abortscripts="true" name="'ut.cac.move.escort.defend'">
+        <set_value name="$defending"/>
+        <run_interrupt_script abortscripts="true" name="'ut.cac.move.escort.defend'" resume="start">
           <param name="escortee" value="$escortee"/>
           <!--<param name="attackers" default="null" comment="Group of the Attacking Objects - Intended to be maintained by the DO"/>-->
           <param name="primarythreat" value="event.param" comment="Primary Object to defend from - must be a Capship or Station (May be a good idea to arrange this over the DO of the Escortee so it is shielded by multiple ships against all threats)"/>
@@ -151,7 +153,7 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
   </interrupts>
   <attention min="unknown">
     <actions>
-      
+      <label name="init"/>
       <do_if value="$time and not $timeout">
         <set_value name="$timeout" exact="player.age + $time"/>
         <set_value name="$params.$timeout" exact="$timeout" comment="to keep time consistent in case of restarts when $params changes"/>
@@ -173,6 +175,8 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$escortee: %4'.[player.age,this.name,this.container.name,$escortee.knownname]"/>
       
+      <label name="start"/>
+      <remove_value name="$defending"/>
       <label name="fly to leader zone" />
       <!-- re - check input because it caused a Lockuop here (FIX CORE ISSUE BEHIND THIS AT SOME POINT!!! ) -->
       <do_if value="not $escortee.isoperational">
@@ -208,7 +212,7 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
         <set_value name="$startsindestinationzone"/>
       </do_if>
       
-      <label name="start" />
+      <label name="move" />
       <remove_value name="$follow_position" comment="To clean up Follow Docking Interrupt (lib ut_cac_follow_signalling )"/>
       <do_if value="player.age gt $timeout">
         <resume label="finish"/>
