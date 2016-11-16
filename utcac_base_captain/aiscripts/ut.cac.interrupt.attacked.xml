@@ -34,6 +34,9 @@
         <actions>
           <debug_text filter="general" text="'%1 %2 %3 Flee check Interrupt triggered, evaluated values:'.[player.age,this.name,this.container.name]"/>
           <!-- set certain $params. values to default Values if not set -->
+          <do_if value="not $params">
+            <set_value name="$params" exact="table[]"/>
+          </do_if>
           <do_if value="not $params.$holdouttime?">
             <set_value name="$params.$holdouttime" exact="60s"/>
           </do_if>

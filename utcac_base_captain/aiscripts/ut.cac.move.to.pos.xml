@@ -35,6 +35,7 @@ with a given Rotation or Orientation
   </patch>
   <attention min="unknown">
     <actions>
+      <label name="init"/>
       <!-- first decode the $params to the Variables -->
       <do_if value="$params">
         <do_if value="$params.$destination?">
@@ -84,6 +85,7 @@ with a given Rotation or Orientation
         <set_value name="$leader" exact="null"/>
       </do_if>
       
+      <label name="start"/>
       <set_command_action commandaction="commandaction.flyingto" param="$destination"/>
       <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
       
@@ -148,6 +150,7 @@ with a given Rotation or Orientation
       
       <signal_objects object="this.ship" param="'travel normal start'" param2="[$zone, $safepos,$rotation]" param3="$leader_preparegroup"/>
       
+      <label name="move"/>
       <!-- Do actual movement -->
       <!-- check if we are near destination safepos and if it makes sense to strafe or fly backwards -->
       <!--do_if value="this.ship.distanceto.{$safepos} lt this.ship.size * 1.5">
@@ -237,6 +240,7 @@ with a given Rotation or Orientation
           </do_while>
         </do_if>
       </do_else>
+      <label name="finish"/>
     </actions>
   </attention>
   <on_abort>

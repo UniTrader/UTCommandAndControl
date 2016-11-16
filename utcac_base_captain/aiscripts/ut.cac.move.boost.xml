@@ -39,6 +39,7 @@
   </patch>
   <attention min="unknown">
     <actions>
+      <label name="init"/>
       <!-- first turn params param into the real params -->
       <do_if value="$params">
         <do_if value="$params.$destination?">
@@ -105,7 +106,7 @@
       <!-- =================== -->
       <!-- Figure out final Params -->
       <!-- =================== -->
-      
+      <label name="start"/>
       
       <!-- calculate Offset if we want to get to an Object and set the Destination Zone Var-->
       <do_if value="$destination.isclass.zone">
@@ -281,7 +282,7 @@
       <!-- ================= -->
       <!-- Execute Movements -->
       <!-- ================= -->
-      
+      <label name="move"/>
       
       <!-- Signal our Intention to Boost and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
       <do_if value="$leader and $leader_preparegroup">
@@ -399,6 +400,8 @@
         <precache_hint zone="$targetzone"/>
       </do_if>
       
+      <label name="boost"/>
+      
       <set_avoid_collisions object="this.ship" enabled="false"/>
       <do_if value="not ( this.race == race.xenon or this.race == race.drone)" comment="Computer Races sync the Start perfectly, and a bir earlier than non-computer Races">
         <wait min="100ms" max="2s" profile="inversebell" sinceversion="30" comment="to de-perfect-sync Ships in Group Boosts"/>
@@ -407,7 +410,6 @@
         <position value="$targetpos" />
         <interrupt_after_time time="100ms"/>
       </move_to>
-      <label name="boosting"/>
       <do_if value="( not $arriving_at? ) and this.ship.numwaypoints">
         <wait>
           <interrupt>
@@ -491,8 +493,7 @@
         </do_while>
       </do_else>
       
-      <return/>
-      
+      <label name="finish"/>
     </actions>
   </attention>
   <on_abort>
