@@ -13,6 +13,18 @@ Script to Dock or Park an Object
     <param name="tradeoffer" default="null" comment="Tredeoffer for which a fitting Dock should be preffered (only applies to bigships)"/>
     <param name="direct_parking" default="false" comment="NYI - direct Parking without moving to approach pos first"/>
   </params>
+  <init>
+    <!-- this will require some Signal Handlers once the Personal Moving/Removing is implemented, therefore in init section -->
+    <do_if value="$destination.tradenpc.exists">
+      <set_value name="$docking_coordinator" exact="$destination.tradenpc"/>
+    </do_if>
+    <do_elseif value="$destination.buildanchor.tradenpc.exists" comment="for CVs the Manager of the Station coordinates the Docking">
+      <set_value name="$docking_coordinator" exact="$destination.buildanchor.tradenpc"/>
+    </do_elseif>
+    <do_else>
+      <set_value name="$docking_coordinator" exact="null"/>
+    </do_else>
+  </init>
   <attention min="unknown">
     <actions>
       <!-- first decode the $params to the Variables -->
@@ -112,11 +124,11 @@ Script to Dock or Park an Object
       
       <!-- if no Park Slot is free register in general Park Queue and wait till you are first to find a Park pos -->
       <!-- create Park Queue if necesary (turn it into a global Table? ) -->
-      <do_if value="$destination.tradenpc">
-        <do_if value="not $destination.tradenpc.$park_queue?">
-          <set_value name="$destination.tradenpc.$park_queue" exact="table[{$destination}=[]]"/>
+      <do_if value="$docking_coordinator">
+        <do_if value="not $docking_coordinator.$park_queue?">
+          <set_value name="$docking_coordinator.$park_queue" exact="table[{$destination}=[]]"/>
         </do_if>
-        <set_value name="$park_queue" exact="$destination.tradenpc.$park_queue"/>
+        <set_value name="$park_queue" exact="$docking_coordinator.$park_queue"/>
         
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sorting into park queue for: %4'.[player.age,this.name,this.container.name,$destination,$park_queue]"/>
         
