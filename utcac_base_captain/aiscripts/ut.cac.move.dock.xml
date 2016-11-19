@@ -87,7 +87,7 @@ Script to Dock or Park an Object
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Passed Dock directly: %4'.[player.age,this.name,this.container.name,$destination]"/>
         <set_value name="$parkslot" exact="$destination"/>
         <set_value name="$destination" exact="$destination.component.container"/>
-        <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+        <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'direct pass parkslot'" result="$success" />
         <do_if value="$success">
           <resume label="park"/>
         </do_if>
@@ -111,7 +111,7 @@ Script to Dock or Park an Object
       <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship"  />
       <do_if value="$parkslot and $parkslot.component.isoperational">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got Park Slot: %4 on %5'.[player.age,this.name,this.container.name,$parkslot,$destination.knownname]"/>
-        <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+        <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'First Found Parkslot'" result="$success" />
         <do_if value="$success">
           <set_value name="$move_to_approach_pos_first"/>
           <resume label="park"/>
@@ -168,8 +168,8 @@ Script to Dock or Park an Object
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got Parking Slot: %4 - Moving to secondary Approach Pos. Park Queue:\n%5'.[player.age,this.name,this.container.name,$parkslot,$park_queue]"/>
         
         <!-- move to an approach pos near the Dock to minimize final Parking Time - basically its a more far out approach pos..  -->
-        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
-        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot"/>
+        <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkslot else 'Parking Pos 1'" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
+        <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkslot else 'Parking Pos 2'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot"/>
         <!-- Calculate a more distant Approach Pos to allow the currently docked Ship to undock properly -->
         <!-- basically Approach pos + 2* vector park pos to approach pos -->
         <set_value name="$approachpos" exact="position.[$approachpos.x + ( $approachpos.x - $parkpos.x ) * 2 , $approachpos.y + ( $approachpos.y - $parkpos.y ) * 2 , $approachpos.z + ( $approachpos.z - $parkpos.z ) * 2 ]"/>
@@ -194,7 +194,7 @@ Script to Dock or Park an Object
         </do_if>
         
         <!-- wait for Unpark Signal from Ship parked and, if common queue is empty, also wait for other Slots just freed up completely -->
-        <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+        <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'Unark Signal 1'" result="$success" />
         <do_while value="not $success">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for Parking Slot to be freed'.[player.age,this.name,this.container.name]"/>
           <wait max="1min">
@@ -225,7 +225,7 @@ Script to Dock or Park an Object
             <resume label="wait for parking slot" />
           </do_if>
           <do_if value="not $success">
-            <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+            <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'unpark Signal 2'" result="$success" />
           </do_if>
         </do_while>
       </do_if>
@@ -250,7 +250,7 @@ Script to Dock or Park an Object
           <!-- fallback in case signalling didnt work -->
           <do_if value="not $success">
             <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship" />
-            <connect_to_trade_location ship="this.ship" tradedock="$parkslot" result="$success" />
+            <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'Unpark Signal 3'" result="$success" />
           </do_if>
         </do_while>
       </do_else>
@@ -268,7 +268,7 @@ Script to Dock or Park an Object
       
       <do_if value="$move_to_approach_pos_first?">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to Approach Pos'.[player.age,this.name,this.container.name]"/>
-        <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
+        <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkslot else 'Parking Pos 3'" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
         <!-- Signal Followers where we attempt to Park so they can wait nearby - also in Update Case when Parkpos changed-->
         <signal_objects object="this.ship" param="'travel dockat'" param2="[$destination,$parkslot,$approachpos]" param3="null" comment="not waiting - no prep group needed"/>
         <move_to object="this.ship" usehighways="false" destination="$destination.zone" finishonapproach="false" abortpath="this.$mayabortpath?">
@@ -286,7 +286,7 @@ Script to Dock or Park an Object
       
       <!-- final Movement -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Parking'.[player.age,this.name,this.container.name]"/>
-      <get_trade_parking_pos ship="this.ship" tradedock="$parkslot" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
+      <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkslot else 'parking Pos 4'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
       <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
         <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
           <position value="$parkpos" />
