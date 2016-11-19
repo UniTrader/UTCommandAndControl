@@ -499,7 +499,7 @@
       <!-- destroy all Drones still flying, subtract them from unavailable units and set all units as available -->
       <set_value name="$subordinates" exact="this.ship.subordinates"/>
       <do_all exact="$subordinates.count" counter="$i">
-        <do_if value="$subordinates.{$i}.isclass.ship_xs">
+        <do_if value="$subordinates.{$i}.isclass.ship_xs and $subordinates.{$i}.macro.unitcategory == unitcategory.transport">
           <do_if value="this.ship.units.{$subordinates.{$i}.macro}.count">
             <remove_units object="this.ship" macro="$subordinates.{$i}.macro" unavailable="true"/>
             <destroy_object object="$subordinates.{$i}"/>
@@ -513,7 +513,7 @@
       <do_all exact="this.ship.units.{unitcategory.welder}.list.count" counter="$i">
         <append_to_list name="$unitlist" exact="this.ship.units.{unitcategory.welder}.list.{$i}"/>
       </do_all>
-      <do_all exact="$unitlist" counter="$i">
+      <do_all exact="$unitlist.count" counter="$i">
         <return_units object="this.ship" macro="$unitlist.{$i}"/>
       </do_all>
       <detach_from_masstraffic object="this.ship"/>
