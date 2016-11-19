@@ -470,13 +470,38 @@
       <do_else>
         <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" amount="$amount" mission="$trade.ismission" />
       </do_else-->
+      
+      <detach_from_masstraffic object="this.ship">
+        <interrupt_after_time time="20min"/>
+      </detach_from_masstraffic>
+      <!-- destroy all Drones still flying, subtract them from unavailable units and set all units as available -->
+      <set_value name="$subordinates" exact="this.ship.subordinates"/>
+      <do_all exact="$subordinates.count" counter="$i">
+        <do_if value="$subordinates.{$i}.isclass.ship_xs">
+          <do_if value="this.ship.units.{$subordinates.{$i}.macro}.count">
+            <remove_units object="this.ship" macro="$subordinates.{$i}.macro" unavailable="true"/>
+            <destroy_object object="$subordinates.{$i}"/>
+          </do_if>
+        </do_if>
+      </do_all>
+      <create_list name="$unitlist" />
+      <do_all exact="this.ship.units.{unitcategory.transport}.list.count" counter="$i">
+        <append_to_list name="$unitlist" exact="this.ship.units.{unitcategory.transport}.list.{$i}"/>
+      </do_all>
+      <do_all exact="this.ship.units.{unitcategory.welder}.list.count" counter="$i">
+        <append_to_list name="$unitlist" exact="this.ship.units.{unitcategory.welder}.list.{$i}"/>
+      </do_all>
+      <do_all exact="$unitlist" counter="$i">
+        <return_units object="this.ship" macro="$unitlist.{$i}"/>
+      </do_all>
+      <detach_from_masstraffic object="this.ship"/>
+      
       <do_if value="player.age ge $timeout">
-        <detach_from_masstraffic object="this.ship"/>
-        <!-- remove shoppinglist item, and check list again -->
+        <!-- remove shoppinglist item, exit -->
+        <remove_trade_order object="this.ship" trade="$trade"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Timeout - aborting'.[player.age,this.name,this.container.name]"/>
         <resume label="abort trade"/>
       </do_if>
-      <detach_from_masstraffic object="this.ship" wait="true" />
       
       <do_if value="not $traderesult">
         <!-- TODO: ask player for help -->
