@@ -99,9 +99,11 @@
       <!-- check if we *CAN* Boost -->
       <find_object_component class="class.enginebooster" object="this.ship" name="$booster" />
       <do_if value="not $booster.exists">
-      
         <debug_text filter="error" text="'%1 %2 %3 Ship has no engine booster. Flight from %4(%5) to %6(%7) will take a looong time!'.[ player.age,this.name,this.container.name , this.zone.knownname, this.sector.knownname, $destination.zone.knownname, $destination.sector.knownname]" />
       </do_if>
+      
+      <!-- set Value to interrupt continonous movement on certain ocassions -->
+      <set_value name="$abortpath" exact="false"/>
       
       <!-- =================== -->
       <!-- Figure out final Params -->
@@ -284,6 +286,12 @@
       <!-- ================= -->
       <label name="move"/>
       
+      <!-- if we are already boosting just change the Destination -->
+      <do_if value="this.ship.isboostactive">
+        <set_value name="$abortpath" exact="true"/>
+        <resume label="boost"/>
+      </do_if>
+      
       <!-- Signal our Intention to Boost and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
       <do_if value="$leader and $leader_preparegroup">
         <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
@@ -390,6 +398,9 @@
           </interrupt>
         </wait>
       </do_else>
+      
+      <label name="boost"/>
+      
       <!-- Preperations Done - Tell everyone to start and add ourselves to the blocking group to prevent too fast advancing on the leaders part -->
       <signal_objects object="this.ship" param="'travel boost start'" param2="[ $targetzone , $targetpos , @$startpos ]" param3="$leader_preparegroup"/>
       <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
@@ -400,16 +411,15 @@
         <precache_hint zone="$targetzone"/>
       </do_if>
       
-      <label name="boost"/>
-      
       <set_avoid_collisions object="this.ship" enabled="false"/>
       <do_if value="not ( this.race == race.xenon or this.race == race.drone)" comment="Computer Races sync the Start perfectly, and a bir earlier than non-computer Races">
         <wait min="100ms" max="2s" profile="inversebell" sinceversion="30" comment="to de-perfect-sync Ships in Group Boosts"/>
       </do_if>
-      <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" boost="true" abortpath="false">
+      <move_to object="this.ship" destination="$targetzone" usehighways="false" forceposition="false" boost="true" abortpath="$abortpath">
         <position value="$targetpos" />
         <interrupt_after_time time="100ms"/>
       </move_to>
+      <set_value name="$abortpath" exact="false"/>
       <do_if value="( not $arriving_at? ) and this.ship.numwaypoints">
         <wait>
           <interrupt>
