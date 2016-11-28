@@ -365,7 +365,7 @@
       
       <do_if value="$tradeoffer.available or $tradeoffer == $trade">
         <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
-        <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}count gt 0">
+        <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}.count gt 0">
           <set_value name="$unitmacro" exact="$tradepartner.availableunits.{unitcategory.transport}.list.random"/>
           <remove_units object="$tradepartner" macro="$unitmacro" exact="1"/>
           <add_units object="this.ship" macro="$unitmacro" exact="1"/>
@@ -406,7 +406,7 @@
       <do_elseif value="$trade.owner == this.ship.commander">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No offer found - Exchanging Wares'.[player.age,this.name,this.container.name]"/>
         <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
-        <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}count gt 0">
+        <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}.count gt 0">
           <set_value name="$unitmacro" exact="$tradepartner.availableunits.{unitcategory.transport}.list.random"/>
           <remove_units object="$tradepartner" macro="$unitmacro" exact="1"/>
           <add_units object="this.ship" macro="$unitmacro" exact="1"/>
