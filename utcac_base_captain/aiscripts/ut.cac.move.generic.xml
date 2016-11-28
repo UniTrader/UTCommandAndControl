@@ -247,7 +247,7 @@
             <do_if value="@this.$ut_cac.$clusterboost and global.$ship_boost_speed.{this.ship.macro}? and ( global.$ship_boost_speed.{this.ship.macro} / this.ship.distanceto.{this.$waypoint} ) lt 600m">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Attempting to boost to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
               <!-- BOOST!! -->
-              <run_script name="'ut.cac.move.boost'" result="$result" sinceversion="30">
+              <run_script name="'ut.cac.move.boost'" sinceversion="30">
                 <param name="destination" value="this.$waypoint"/>
               </run_script>
             </do_if>
@@ -308,7 +308,7 @@
             <resume label="start"/>
           </do_if>
         </do_while>
-        <debug_text filter="error"  text="'%1 %2 %3 This Part should NEVER be reached!!! last waypoint: %4, destination: %5'.[player.age,this.name,this.container.name,this.$waypoint.knownname,$destination]"/>
+        <debug_text filter="error"  text="'%1 %2 %3 This Part should NEVER be reached!!! last waypoint: %4, destination: %5'.[player.age,this.name,this.container.name,this.$waypoint.knownname,$destination.knownname]"/>
       </do_if>
       <do_else>
         <debug_text filter="general" text="'%1 %2 %3 Small Ships not implemented yet - defaulting to vanilla movement script'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
