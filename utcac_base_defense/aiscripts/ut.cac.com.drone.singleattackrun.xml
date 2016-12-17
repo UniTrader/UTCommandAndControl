@@ -10,7 +10,7 @@ $params values:
 
   <params>
     <param name="params" comment="script params as table - used directly here"/>
-    <param name="dronesgroup" comment="Drone Managment Group of the DO - included ones are available for Orders, excluded ones not."/>
+    <param name="freedrones" comment="Drone Managment Group of the DO - included ones are available for Orders, excluded ones not."/>
   </params>
   <init>
   </init>
@@ -43,14 +43,14 @@ $params values:
       <shoot_at object="this.ship" target="$params.$target" slot="tag.primary_slot" tolerance="20.0deg" locktarget="true"/>
       <shoot_at object="this.ship" target="$params.$target" slot="tag.secondary_slot" tolerance="15.0deg" locktarget="true"/>
       <do_if value="$params.$kamikaze">
-        <set_value name="$flightbehavior" exact="flighbehavior.guidedmissile"/>
+        <set_value name="$flightbehaviour" exact="flightbehaviour.guidedmissile"/>
         <set_avoid_collisions object="this.ship" enabled="false"/>
       </do_if>
       <do_else>
-        <set_value name="$flightbehavior" exact="flighbehavior.attackrun"/>
+        <set_value name="$flightbehaviour" exact="flightbehaviour.attackrun"/>
         <set_avoid_collisions object="this.ship" enabled="false"/>
       </do_else>
-      <move_to object="this.ship" destination="$params.$target" flightbehaviour="$flightbehavior" forcesteering="true">
+      <move_to object="this.ship" destination="$params.$target" flightbehaviour="$flightbehaviour" forcesteering="true">
         <interrupt>
           <conditions>
             <check_any>
