@@ -16,7 +16,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <library>
       <handler name="ut_cac_drone_recall_listener" comment="Handler for Listening to Superior for Recall Sginal">
         <conditions>
-          <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
+          <event_object_signalled object="this.ship.commanderentity" param="'recall drones'"/>
         </conditions>
         <actions>
           <return value="'drone recall'"/>
@@ -53,7 +53,16 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <label name="start"/>
       <add_to_group groupname="$freedrones"/>
       <join_formation object="this.ship" leader="this.ship.commander"/>
-      <wait/>
+      <wait>
+        <interrupt>
+          <conditions>
+            <event_object_signalled object="this.ship.commanderentity" param="'recall drones'"/>
+          </conditions>
+          <actions>
+            <resume label="return to commander"/>
+          </actions>
+        </interrupt>
+      </wait>
       <resume label="start"/>
       <!-- ============================ -->
       <label name="execute order"/>
@@ -79,7 +88,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <!-- check if ist possible - if not just delete superior (continue with remove commander label) -->
       <do_if value="$newcommander? and $newcommander.units.count lt $newcommander.units.maxcount">
         <remove_units object="this.ship.commander" macro="this.ship.macro" exact="1" unavailable="true"/>
-        <set_object_commander object="this.ship" commander="$newcommander"/>
+        <set_object_commander object="this.ship" commander="$newcommander" type="entitytype.defense"/>
         <add_units object="this.ship.commander" macro="this.ship.macro" exact="1" unavailable="true"/>
         <remove_value name="$newcommander"/>
         <resume label="start"/>
