@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript name="ut.cac.com.drone.main" version="30" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<!--
+Script Managing Operation of Drones. Primitive Version of "Order List" - only knows about one Order which is either signalled or returned from the previous Script.
+Current Orders are overridden if a new Order is signalled, no priorities.
+Exact Behavior is handled by the Sub-Scripts.
+
+Listener for Return Signal has to be implemented by the individual Sub-Scripts - use signal lib ut_cac_drone_recall_listener for this.
+-->
+  <params>
+    <param name="freedrones" comment="Drone Managment Group of the DO/Drone Commander - included ones are available for Orders, excluded ones not."/>
+  </params>
+  <init>
+  </init>
+  <interrupts>
+      <library>
+      <handler name="ut_cac_drone_recall_listener" comment="Handler for Listening to Superior for Recall Sginal">
+        <conditions>
+          <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
+        </conditions>
+        <actions>
+          <return value="'drone recall'"/>
+        </actions>
+      </handler>
+      </library>
+     <handler comment="handler for managing DO commands">
+        <conditions>
+          <event_object_signalled object="this.ship" param="'execute order'"/>
+        </conditions>
+        <actions>
+          <remove_from_group object="this.ship" group="$freedrones"/>
+          <set_value name="$order" exact="event.param2"/>
+          <abort_called_scripts resume="execute order"/>
+        </actions>
+      </handler>
+  </interrupts>
+  <attention min="visible">
+    <actions>
+      <label name="init"/>
+      <!-- wait until we're done launching -->
+      <do_if value="this.ship.numwaypoints">
+        <wait>
+          <interrupt>
+            <conditions>
+              <check_any>
+                <event_object_approaching_waypoint object="this.ship" lastwaypoint="true" />
+                <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+              </check_any>
+            </conditions>
+          </interrupt>
+        </wait>
+      </do_if>
+      <label name="start"/>
+      <add_to_group groupname="$freedrones"/>
+      <join_formation object="this.ship" leader="this.ship.commander"/>
+      <wait/>
+      <resume label="start"/>
+      <!-- ============================ -->
+      <label name="execute order"/>
+      <run_script name="$order.$script" result="$retvar">
+        <param name="params" value="$order"/>
+        <param name="freedrones" value="$freedrones" comment="Script is supposed to manage this itself. note that its very likely to be interupted while not a member of this group (it usually is when called)"/>
+      </run_script>
+      <resume label="evaluate retvar"/>
+      <!-- ============================ -->
+      <label name="return to commander"/>
+      <remove_from_group object="this.ship" group="$freedrones"/>
+      <run_script name="'move.dockat.drone'">
+        <param name="destination" value="this.ship.commander" />
+      </run_script>
+      <!-- cleanup after docking - always assume it was succesful, but print error if needed -->
+      <add_units object="this.ship.commander" macro="this.ship.macro" exact="1" unavailable="false"/>
+      <destroy_object object="this.ship" explosion="false"/>
+      <return/>
+      <!-- ============================ -->
+      <label name="change commander"/>
+      <remove_from_group object="this.ship" group="$freedrones"/>
+      <!-- change $freedrones group !!!!!!!!!!!!!! -->
+      <!-- check if ist possible - if not just delete superior (continue with remove commander label) -->
+      <do_if value="$newcommander? and $newcommander.units.count lt $newcommander.units.maxcount">
+        <remove_units object="this.ship.commander" macro="this.ship.macro" exact="1" unavailable="true"/>
+        <set_object_commander object="this.ship" commander="$newcommander"/>
+        <add_units object="this.ship.commander" macro="this.ship.macro" exact="1" unavailable="true"/>
+        <remove_value name="$newcommander"/>
+        <resume label="start"/>
+      </do_if>
+      <!-- ============================ -->
+      <label name="remove commander"/>
+      <remove_from_group object="this.ship" group="$freedrones"/>
+      <!-- for now make a last stand then self-destruct - planned feature: actively seek new Commander -->
+      <remove_units object="this.ship.commander" macro="this.ship.macro" exact="1" unavailable="true"/>
+      <remove_object_commander object="this.ship"/>
+      <remove_from_group object="this.ship" group="$freedrones" comment="we shouldnt be part of this Group currently, but better be safe.."/>
+      <!-- Kill Enemies if fight Ship, then self-destruct -->
+      <do_if value="this.ship.dps.all gt 0">
+        <run_script name="'move.seekenemies'">
+          <param name="destination" value="this.zone"/>
+          <param name="pos" value="this.ship.position"/>
+        </run_script>
+      </do_if>
+      <destroy_object object="this.ship"/>
+      <return/>
+      <!-- ============================ -->
+      <label name="evaluate retvar"/>
+      <do_if value="$retvar == 'drone recall'">
+        <!-- evaluate if we can dock in resonable time, 
+        if yes return to commander 
+        if not check if we can dock at another ally and change commander
+        if not then run amok at current position till destroyed -->
+        <resume label="return to commander"/>
+        <resume label="remove commander"/>
+        <resume label="change commander"/>
+      </do_if>
+        <resume label="start"/>
+      <!-- ============================ -->
+    </actions>
+  </attention>
+  <attention min="unknown">
+    <actions>
+      <label name="init"/>
+      <label name="start"/>
+      <label name="execute order"/>
+      <label name="change commander"/>
+      <label name="remove commander"/>
+      <label name="evaluate retvar"/>
+      <!-- cleanup - drones dont exist OOS -->
+      <do_if value="this.ship.commander.isoperational">
+        <run_script name="'move.dockat.drone'">
+          <param name="destination" value="this.ship.commander" />
+        </run_script>
+      </do_if>
+      <do_else>
+        <destroy_object object="this.ship" explosion="false" />
+      </do_else>
+      <debug_text filter="error" text="'%1 %2 %3 Drone %4 %5 still exists after docking/destruct'.[player.age,this.name,this.container.name,this.ship.name,this.ship.zone.name]"/>
+      <destroy_object object="this.ship" explosion="false" />
+    </actions>
+  </attention>
+  <on_abort>
+    <!-- Script Terminated - set Drones into self-destruct mode and pass them as group via signal, so a replacement DO can recover them -->
+  </on_abort>
+</aiscript>

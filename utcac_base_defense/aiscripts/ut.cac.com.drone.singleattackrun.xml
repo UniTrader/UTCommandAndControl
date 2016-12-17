@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript name="ut.cac.com.drone.singleattackrun" version="30" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+<!--
+Script for doing a single Attack Run on a specific Target (intended for Drones intercepting Missiles)
+$params values:
+.$target -> the object this Drone should accept
+.$kamikaze -> attempt to crash into target?
+-->
+
+
+  <params>
+    <param name="params" comment="script params as table - used directly here"/>
+    <param name="dronesgroup" comment="Drone Managment Group of the DO - included ones are available for Orders, excluded ones not."/>
+  </params>
+  <init>
+  </init>
+  <interrupts>
+    <!-- maybe exclude this one if close to Missile?? -->
+    <handler ref="ut_cac_drone_recall_listener"/>
+  </interrupts>
+  <attention min="visible">
+    <actions>
+      <label name="init"/>
+      <!-- while executing this we are never available for any other Order -->
+      <remove_from_group object="this.ship" group="$freedrones"/>
+      <!-- wait until we're done launching - assuming this already happened
+      <do_if value="this.ship.numwaypoints">
+        <wait>
+          <interrupt>
+            <conditions>
+              <check_any>
+                <event_object_approaching_waypoint object="this.ship" lastwaypoint="true" />
+                <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+              </check_any>
+            </conditions>
+          </interrupt>
+        </wait>
+      </do_if> -->
+      <label name="start"/>
+      <!-- Set up Target and fly straight into it -->
+      <shoot_at object="this.ship" target="$params.$target" slot="tag.primary_slot" tolerance="20.0deg" locktarget="true"/>
+      <shoot_at object="this.ship" target="$params.$target" slot="tag.secondary_slot" tolerance="15.0deg" locktarget="true"/>
+      <do_if value="$params.$kamikaze">
+        <set_value name="$flightbehavior" exact="flighbehavior.guidedmissile"/>
+        <set_avoid_collisions object="this.ship" enabled="false"/>
+      </do_if>
+      <do_else>
+        <set_value name="$flightbehavior" exact="flighbehavior.attackrun"/>
+        <set_avoid_collisions object="this.ship" enabled="false"/>
+      </do_else>
+      <move_to object="this.ship" destination="$params.$target" flightbehaviour="$flightbehavior" forcesteering="true">
+        <interrupt>
+          <conditions>
+            <check_any>
+              <event_object_destroyed object="$target"/>
+            </check_any>
+          </conditions>
+        </interrupt>
+      </move_to>
+      <!-- in case we failed signal our DO/Superior -->
+      <do_if value="$params.$target.isoperational">
+        <!-- ### SEND SINGAL ###-->
+      </do_if>
+      
+      <!-- end -->
+      <return value="null"/>
+    </actions>
+  </attention>
+  <attention min="unknown">
+    <actions>
+      <label name="init"/>
+      <label name="start"/>
+      
+      <!-- cleanup -->
+      <do_if value="this.ship.commander.isoperational">
+        <run_script name="'move.dockat.drone'">
+          <param name="destination" value="this.ship.commander" />
+        </run_script>
+      </do_if>
+      <do_else>
+        <destroy_object object="this.ship" explosion="false" />
+      </do_else>
+      <debug_text filter="error" text="'%1 %2 %3 Drone %4 %5 still exists after docking/destruct'.[player.age,this.name,this.container.name,this.ship.name,this.ship.zone.name]"/>
+      <label name="run amok"/>
+      <destroy_object object="this.ship" explosion="false" />
+    </actions>
+  </attention>
+  <on_abort>
+    <!-- Script Terminated - set Drones into self-destruct mode and pass them as group via signal, so a replacement DO can recover them -->
+  </on_abort>
+</aiscript>
