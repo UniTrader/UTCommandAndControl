@@ -120,6 +120,19 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </check_any>
       </conditions>
     </handler>
+    <handler comment="travel intent signals - stop maintaining target lists and instead wait for the right moment to recall defensive drones">
+      <conditions>
+        <check_any>
+          <event_object_signalled object="$object" param="'travel boost prep'"/>
+          <event_object_signalled object="$object" param="'travel jump prep'"/>
+          <!--event_object_signalled object="$object" param="'travel jump start'"/-->
+          <event_object_signalled object="$object" param="'travel gate prep'"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <resume label="travel"/>
+      </actions>
+    </handler>
   </interrupts>
   <attention min="visible">
     <actions>
@@ -253,6 +266,41 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <resume label="launchdrones"/>
       <!-- ######################################################################################################################################################### -->
+      <label name="travel"/>
+      <wait resume="true">
+        <interrupt>
+          <conditions>
+            <check_any>
+              <event_object_signalled object="this.ship" param="'travel jump start'" comment="JD charging - time to recall remaining Drones which had an Order when we announced our intent to jump"/>
+              <event_object_approaching_waypoint object="this.ship" lastwaypoint="true" comment="boosting very soon - time to recall remaining Drones which had an Order when we announced our intent to boost"/>
+            </check_any>
+          </conditions>
+          <actions>
+            <signal_objects object="this.ship" param="'recall drones'"/>
+          </actions>
+        </interrupt>
+        <interrupt>
+          <conditions>
+            <event_object_signalled object="this.ship" param="'travel aborted'" comment="Travel intent aborted - resuming as usual"/>
+          </conditions>
+          <actions>
+            <resume label="launchdrones"/>
+          </actions>
+        </interrupt>
+      </wait>
+      <wait resume="true">
+        <interrupt>
+          <conditions>
+            <check_any>
+              <event_object_changed_zone object="this.ship"/>
+              <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+              <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/>
+            </check_any>
+          </conditions>
+        </interrupt>
+      </wait>
+      <resume label="green"/>
+      <!-- ######################################################################################################################################################### -->
       <label name="launchdrones"/><!-- comment="shared by battlestate yellow and red -->
       <!-- Start Drones until next Enemy Scan -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'launching Drones'"/>
@@ -272,7 +320,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
             <remove_value name="$dronelaunchbays.{$i}"/>
           </do_else>
         </do_all>
-        <wait min="1.5s" max="2.5s"/>
+        <wait min="1.5s" max="2.5s" resume="true"/>
       </do_while>
       <!-- if its not time for enemy scan yet just wait -->
       <do_if value="player.age le $nextenemyscan">

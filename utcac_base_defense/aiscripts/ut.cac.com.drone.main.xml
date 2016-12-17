@@ -54,7 +54,11 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <wait>
         <interrupt>
           <conditions>
-            <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
+            <check_any>
+              <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
+              <event_object_signalled object="this.ship.commander" param="'travel boost prep'"/>
+              <event_object_signalled object="this.ship.commander" param="'jump prep'"/>
+            </check_any>
           </conditions>
           <actions>
             <resume label="return to commander"/>
