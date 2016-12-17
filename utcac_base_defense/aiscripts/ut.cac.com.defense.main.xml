@@ -244,7 +244,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <label name="launchdrones"/><!-- comment="shared by battlestate yellow and red -->
       <!-- Start Drones until next Enemy Scan -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'launching Drones'"/>
-      <create_formation object="this.ship" formation="formationshape.vulcan" param="300m"/>
+      <create_formation object="this.ship" formation="formationshape.randomshape" param="500m"/>
       <find_object_component name="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true" chance="if $dronelauchbays? then 10 else 100"/>
       <do_while value="player.age le $nextenemyscan and $dronelaunchbays.count and this.ship.units.{unitcategory.defence}.count">
         <do_all exact="[$dronelaunchbays.count, this.ship.units.{unitcategory.defence}.count].min" counter="$i" reverse="true">
