@@ -104,9 +104,13 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <actions>
         <!-- rate danger of Missile and add to prio Targets and/or send interceptor Drones -->
         <!-- for now just send one Interceptor Drone per missile if avialable -->
-        <do_if value="$availabledrones.count">
-          <signal_objects object="$availabledrones.random" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
-        </do_if>
+        <set_value name="$index" exact="1"/>
+        <do_all exact="$availabledrones.count" counter="$i">
+          <do_if value="$availabledrones.{$i}.distanceto.{event.param2} lt $availabledrones.{$index}.distanceto.{event.param2}">
+            <set_value name="$index" exact="$i"/>
+          </do_if>
+        </do_all>
+        <signal_objects object="$availabledrones.$index" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
       </actions>
     </handler>
     <handler comment="Clean up Enemy Groups when they cease to be a Threat">
