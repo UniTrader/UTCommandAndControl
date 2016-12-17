@@ -192,6 +192,9 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <do_if value="$battlestate != 'yellow'">
         <activate_battlestate object="this.ship" state="battlestate_yellow"/>
         <activate_battlestate object="this.ship" state="open_hangar"/>
+        <do_if value="$battlestate == 'green'" comment="create formation for the Drones if previous battlestate was green (without formation)">
+          <create_formation object="this.ship" formation="formationshape.randomshape" param="500m"/>
+        </do_if>
         <set_value name="$battlestate" exact="'yellow'"/>
       </do_if>
       <!-- Scan for Enemies -->
@@ -205,8 +208,10 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <!-- Filter Enemies -->
       
-      
-      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies"/>
+      <do_if value="not $primarytarget.isoperational">
+        <set_value name="$primarytarget" exact="$enemies.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
+      </do_if>
+      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies.list"/>
       
       
       <set_value name="$nextenemyscan" min="player.age + 20s" max="player.age + 30s"/>
@@ -217,6 +222,9 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <do_if value="$battlestate != 'red'">
         <activate_battlestate object="this.ship" state="battlestate_yellow"/>
         <activate_battlestate object="this.ship" state="close_hangar"/>
+        <do_if value="$battlestate == 'green'" comment="create formation for the Drones if previous battlestate was green (without formation)">
+          <create_formation object="this.ship" formation="formationshape.randomshape" param="500m"/>
+        </do_if>
         <set_value name="$battlestate" exact="'red'"/>
       </do_if>
       
@@ -244,7 +252,6 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <label name="launchdrones"/><!-- comment="shared by battlestate yellow and red -->
       <!-- Start Drones until next Enemy Scan -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'launching Drones'"/>
-      <create_formation object="this.ship" formation="formationshape.randomshape" param="500m"/>
       <find_object_component name="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true" chance="if $dronelauchbays? then 10 else 100"/>
       <do_while value="player.age le $nextenemyscan and $dronelaunchbays.count and this.ship.units.{unitcategory.defence}.count">
         <do_all exact="[$dronelaunchbays.count, this.ship.units.{unitcategory.defence}.count].min" counter="$i" reverse="true">
