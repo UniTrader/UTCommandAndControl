@@ -38,18 +38,16 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
     <actions>
       <label name="init"/>
       <!-- wait until we're done launching -->
-      <do_if value="this.ship.numwaypoints">
-        <wait>
-          <interrupt>
-            <conditions>
-              <check_any>
-                <event_object_approaching_waypoint object="this.ship" lastwaypoint="true" />
-                <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
-              </check_any>
-            </conditions>
-          </interrupt>
-        </wait>
-      </do_if>
+      <wait max="10s">
+        <interrupt>
+          <conditions>
+            <check_any>
+              <event_object_approaching_waypoint object="this.ship" lastwaypoint="true" />
+              <event_object_arrived_at_waypoint object="this.ship" lastwaypoint="true"/>
+            </check_any>
+          </conditions>
+        </interrupt>
+      </wait>
       <label name="start"/>
       <add_to_group groupname="$freedrones" object="this.ship"/>
       <join_formation object="this.ship" leader="this.ship.commander"/>
