@@ -50,6 +50,11 @@ $params values:
         <set_value name="$flightbehaviour" exact="flightbehaviour.attackrun"/>
         <set_avoid_collisions object="this.ship" enabled="false"/>
       </do_else>
+      <!-- Testing visualisation: add slowcharge effect to Interceptor and Missile (just temporary) -->
+      <set_value name="$visu_effect" exact ="'jump_activation_jumpdrive_slow'"/>
+      <add_effect object="this.ship" effect="$visu_effect"/>
+      <add_effect object="$params.$target" effect="$visu_effect"/>
+      <!-- end testing code -->
       <move_to object="this.ship" destination="$params.$target" flightbehaviour="$flightbehaviour" forcesteering="true">
         <interrupt>
           <conditions>
@@ -59,6 +64,10 @@ $params values:
           </conditions>
         </interrupt>
       </move_to>
+      <!-- testing code: remove effect again -->
+      <remove_effect object="this.ship" effect="$visu_effect"/>
+      <remove_effect object="$params.$target" effect="$visu_effect"/>
+      <!-- end testing code -->
       <!-- in case we failed signal our DO/Superior -->
       <do_if value="$params.$target.isoperational">
         <!-- ### SEND SINGAL ###-->
