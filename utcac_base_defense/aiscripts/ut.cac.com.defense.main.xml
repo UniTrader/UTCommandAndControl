@@ -113,10 +113,12 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </do_all>
         <set_value name="$randominterceptors" exact="if this.ship.distanceto.{event.param2} gt this.ship.size * 1.5 then 0 else 3"/>
         <debug_text filter="general" text="'%1 %2 %3 Launching Missile Defense Drone %4 plus %8 random ones to intercept %6 (start distance %7 ) - from set \n%5'.[player.age,this.name,this.container.name,$availabledrones.{$index},$availabledrones,event.param2,this.ship.distanceto.{event.param2},$randominterceptors]"/>
-        <signal_objects object="$availabledrones.{$index}" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
+        <signal_objects object="$availabledrones.{$index}" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true,$debug_out_all=true]"/>
         <do_all exact="$randominterceptors">
           <signal_objects object="$availabledrones.random" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
         </do_all>
+        <add_to_group groupname="$enemies" object="event.param2"/>
+        <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies.list"/>
       </actions>
     </handler>
     <handler comment="Clean up Enemy Groups when they cease to be a Threat">
