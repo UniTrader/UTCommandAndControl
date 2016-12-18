@@ -276,20 +276,18 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <interrupt>
           <conditions>
             <check_any>
+              <event_object_signalled object="this.ship" param="'travel aborted'" comment="Travel intent aborted - resuming as usual"/>
               <event_object_signalled object="this.ship" param="'travel jump start'" comment="JD charging - time to recall remaining Drones which had an Order when we announced our intent to jump"/>
               <event_object_approaching_waypoint object="this.ship" lastwaypoint="true" comment="boosting very soon - time to recall remaining Drones which had an Order when we announced our intent to boost"/>
             </check_any>
           </conditions>
           <actions>
-            <signal_objects object="this.ship" param="'recall drones'"/>
-          </actions>
-        </interrupt>
-        <interrupt>
-          <conditions>
-            <event_object_signalled object="this.ship" param="'travel aborted'" comment="Travel intent aborted - resuming as usual"/>
-          </conditions>
-          <actions>
-            <resume label="check state"/>
+            <do_if value="event.name == 'event_object_signalled' and event.param == 'travel aborted'">
+              <resume label="check state"/>
+            </do_if>
+            <do_else>
+              <signal_objects object="this.ship" param="'recall drones'"/>
+            </do_else>
           </actions>
         </interrupt>
       </wait>
