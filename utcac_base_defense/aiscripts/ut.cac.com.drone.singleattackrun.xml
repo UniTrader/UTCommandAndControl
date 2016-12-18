@@ -63,7 +63,9 @@ $params values:
             </check_any>
           </conditions>
           <actions>
-            <debug_text filter="general" text="'%1 %2 %3 Missile %6 intercept result: killer: %4 method: %5'.[player.age,this.name,this.container.name,event.param.name,event.param2,event.object]"/>
+            <do_if value="event.param2 == killmethod.selfdestructed or event.param == this.ship" comment="reducing debug spam by only displaying related stuff">
+              <debug_text filter="general" text="'%1 %2 %3 Missile %6 intercept result: killer: %4 method: %5'.[player.age,this.name,this.container.name,event.param.name,event.param2,event.object]"/>
+            </do_if>
           </actions>
         </interrupt>
       </move_to>
