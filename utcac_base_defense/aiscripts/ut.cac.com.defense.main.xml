@@ -217,7 +217,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <set_value name="$battlestate" exact="'yellow'"/>
       </do_if>
       <!-- Scan for Enemies -->
-      <find_gravidar_contact groupname="$enemies" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
+      <find_gravidar_contact name="$enemies" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
         <match_distance object="this.ship" max="this.ship.maxradarrange"/>
       </find_gravidar_contact>
       
@@ -230,7 +230,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <do_if value="not $primarytarget.isoperational">
         <set_value name="$primarytarget" exact="$enemies.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
       </do_if>
-      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies.list"/>
+      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies"/>
       
       
       <set_value name="$nextenemyscan" min="player.age + 20s" max="player.age + 30s"/>
@@ -249,7 +249,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       
       <!-- Scan for Enemies -->
-      <find_gravidar_contact groupname="$enemies" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
+      <find_gravidar_contact name="$enemies" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
         <match_distance object="this.ship" max="this.ship.maxradarrange"/>
       </find_gravidar_contact>
       
@@ -262,8 +262,6 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <do_if value="not $primarytarget.isoperational">
         <set_value name="$primarytarget" exact="$enemies.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
       </do_if>
-      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies.list"/>
-      
       <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies"/>
       
       
