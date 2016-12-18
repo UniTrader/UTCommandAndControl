@@ -257,6 +257,10 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <!-- Filter Enemies -->
       
+      <do_if value="not $primarytarget.isoperational">
+        <set_value name="$primarytarget" exact="$enemies.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
+      </do_if>
+      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies.list"/>
       
       <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies"/>
       
@@ -284,7 +288,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
             <event_object_signalled object="this.ship" param="'travel aborted'" comment="Travel intent aborted - resuming as usual"/>
           </conditions>
           <actions>
-            <resume label="launchdrones"/>
+            <resume label="check state"/>
           </actions>
         </interrupt>
       </wait>
@@ -299,7 +303,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           </conditions>
         </interrupt>
       </wait>
-      <resume label="green"/>
+      <resume label="check state"/>
       <!-- ######################################################################################################################################################### -->
       <label name="launchdrones"/><!-- comment="shared by battlestate yellow and red -->
       <!-- Start Drones until next Enemy Scan -->
@@ -326,6 +330,11 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <do_if value="player.age le $nextenemyscan">
         <remove_value name="$dronelaunchbays"/>
         <wait exact="$nextenemyscan - player.age"/>
+      </do_if>
+      
+      <label name="check state"/>
+      <do_if value="$battlestate == 'green'">
+        <resume label="green"/>
       </do_if>
       <do_if value="$battlestate == 'yellow'">
         <resume label="yellow"/>
