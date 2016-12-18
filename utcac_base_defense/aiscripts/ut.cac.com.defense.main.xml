@@ -123,10 +123,10 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
     <handler comment="travel intent signals - stop maintaining target lists and instead wait for the right moment to recall defensive drones">
       <conditions>
         <check_any>
-          <event_object_signalled object="$object" param="'travel boost prep'"/>
-          <event_object_signalled object="$object" param="'travel jump prep'"/>
-          <!--event_object_signalled object="$object" param="'travel jump start'"/-->
-          <event_object_signalled object="$object" param="'travel gate prep'"/>
+          <event_object_signalled object="this.ship" param="'travel boost prep'"/>
+          <event_object_signalled object="this.ship" param="'travel jump prep'"/>
+          <!--event_object_signalled object="this.ship" param="'travel jump start'"/-->
+          <event_object_signalled object="this.ship" param="'travel gate prep'"/>
         </check_any>
       </conditions>
       <actions>
@@ -310,7 +310,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <!-- Start Drones until next Enemy Scan -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'launching Drones'"/>
       <find_object_component name="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true" chance="if $dronelauchbays? then 10 else 100"/>
-      <do_while value="player.age le $nextenemyscan and $dronelaunchbays.count and this.ship.units.{unitcategory.defence}.count">
+      <do_while value="player.age le $nextenemyscan and $dronelaunchbays.count and this.ship.units.{unitcategory.defence}.count and not this.ship.isboostactive">
         <do_all exact="[$dronelaunchbays.count, this.ship.units.{unitcategory.defence}.count].min" counter="$i" reverse="true">
           <do_if value="$dronelaunchbays.{$i}.isoperational">
             <launch_drone name="$drone" object="$dronelaunchbays.{$i}" group="unitcategory.defence" exact="1"/>
