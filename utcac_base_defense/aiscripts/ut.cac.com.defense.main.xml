@@ -110,7 +110,8 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
             <set_value name="$index" exact="$i"/>
           </do_if>
         </do_all>
-        <signal_objects object="$availabledrones.$index" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
+        <debug_text filter="general" text="'%1 %2 %3 Launching Missile Defense Drone %4 from set %5'.[player.age,this.name,this.container.name,$availabledrones.{$index},$availabledrones]"/>
+        <signal_objects object="$availabledrones.{$index}" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
       </actions>
     </handler>
     <handler comment="Clean up Enemy Groups when they cease to be a Threat">
