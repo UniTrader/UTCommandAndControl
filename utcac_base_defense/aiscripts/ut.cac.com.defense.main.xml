@@ -75,7 +75,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
     <!-- Create all internally used Groups -->
     <create_group groupname="$enemies"/>
     <create_group groupname="$availabledrones"/>
-    <create_group groupname="$prioritytargets"/>
+    <set_value name="$prioritytarget" exact="null"/>
     
   </init>
   <interrupts>
@@ -222,8 +222,16 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </do_if>
         <set_value name="$battlestate" exact="'yellow'"/>
       </do_if>
-      <!-- Scan for Enemies -->
-      <find_gravidar_contact name="$enemies" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
+      
+      <!-- check if previous enemies are still in sight -->
+      <do_all exact="$enemies.count" counter="$i" reverse="true">
+        <do_if value="this.ship.distanceto.{$enemies.{$i}} gt this.ship.maxradarrange">
+          <remove_from_group object="$enemies.{$i}" group="$enemies"/>
+        </do_if>
+      </do_all>
+      
+      <!-- Scan for (new) Enemies -->
+      <find_gravidar_contact groupname="$enemies" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
         <match_distance object="this.ship" max="this.ship.maxradarrange"/>
       </find_gravidar_contact>
       
@@ -236,7 +244,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <do_if value="not $primarytarget.isoperational">
         <set_value name="$primarytarget" exact="$enemies.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
       </do_if>
-      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies"/>
+      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies.list"/>
       
       
       <set_value name="$nextenemyscan" min="player.age + 20s" max="player.age + 30s"/>
@@ -253,9 +261,15 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <set_value name="$battlestate" exact="'red'"/>
       </do_if>
       
+      <!-- check if previous enemies are still in sight -->
+      <do_all exact="$enemies.count" counter="$i" reverse="true">
+        <do_if value="this.ship.distanceto.{$enemies.{$i}} gt this.ship.maxradarrange">
+          <remove_from_group object="$enemies.{$i}" group="$enemies"/>
+        </do_if>
+      </do_all>
       
-      <!-- Scan for Enemies -->
-      <find_gravidar_contact name="$enemies" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
+      <!-- Scan for (new) Enemies -->
+      <find_gravidar_contact groupname="$enemies" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
         <match_distance object="this.ship" max="this.ship.maxradarrange"/>
       </find_gravidar_contact>
       
@@ -268,7 +282,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <do_if value="not $primarytarget.isoperational">
         <set_value name="$primarytarget" exact="$enemies.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
       </do_if>
-      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies"/>
+      <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies.list"/>
       
       
       <set_value name="$nextenemyscan" min="player.age + 20s" max="player.age + 30s"/>
