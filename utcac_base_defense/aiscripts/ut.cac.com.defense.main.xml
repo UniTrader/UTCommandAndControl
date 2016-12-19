@@ -113,18 +113,20 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <actions>
         <!-- rate danger of Missile and add to prio Targets and/or send interceptor Drones -->
         <!-- for now just send one Interceptor Drone per missile if avialable -->
-        <set_value name="$index" exact="1"/>
-        <do_all exact="$availabledrones.count" counter="$i">
-          <do_if value="$availabledrones.{$i}.distanceto.{event.param2} lt $availabledrones.{$index}.distanceto.{event.param2}">
-            <set_value name="$index" exact="$i"/>
-          </do_if>
-        </do_all>
-        <set_value name="$randominterceptors" exact="if this.ship.distanceto.{event.param2} gt this.ship.size * 1.5 then 0 else 3"/>
-        <debug_text filter="general" text="'%1 %2 %3 Launching Missile Defense Drone %4 plus %8 random ones to intercept %6 (start distance %7 ) - from set \n%5'.[player.age,this.name,this.container.name,$availabledrones.{$index},$availabledrones,event.param2,this.ship.distanceto.{event.param2},$randominterceptors]"/>
-        <signal_objects object="$availabledrones.{$index}" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true,$debug_out_all=true]"/>
-        <do_all exact="$randominterceptors">
-          <signal_objects object="$availabledrones.random" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
-        </do_all>
+        <do_if value="$availabledrones.count">
+          <set_value name="$index" exact="1"/>
+          <do_all exact="$availabledrones.count" counter="$i">
+            <do_if value="$availabledrones.{$i}.distanceto.{event.param2} lt $availabledrones.{$index}.distanceto.{event.param2}">
+              <set_value name="$index" exact="$i"/>
+            </do_if>
+          </do_all>
+          <set_value name="$randominterceptors" exact="if this.ship.distanceto.{event.param2} gt this.ship.size * 1.5 then 0 else [ 5 , $availabledrones.count / 3 ].max"/>
+          <debug_text filter="general" text="'%1 %2 %3 Launching Missile Defense Drone %4 plus %8 random ones to intercept %6 (start distance %7 ) - from set \n%5'.[player.age,this.name,this.container.name,$availabledrones.{$index},$availabledrones,event.param2,this.ship.distanceto.{event.param2},$randominterceptors]"/>
+          <signal_objects object="$availabledrones.{$index}" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true,$debug_out_all=true]"/>
+          <do_all exact="$randominterceptors">
+            <signal_objects object="$availabledrones.random" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
+          </do_all>
+        </do_if>
         <add_to_group groupname="$enemies" object="event.param2"/>
         <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies.list"/>
       </actions>
