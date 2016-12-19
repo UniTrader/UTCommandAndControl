@@ -23,6 +23,22 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
         </actions>
       </handler>
       </library>
+      <handler comment="individual recall descision">
+        <conditions>
+          <check_any>
+            <event_object_signalled object="this.ship" param="'travel boost prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
+            <event_object_signalled object="this.ship" param="'travel jump prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
+            <event_object_signalled object="this.ship" param="'travel jump start'"/>
+            <event_object_signalled object="this.ship" param="'travel gate prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
+            <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
+            <!-- Signals/events needed: short before boost and gate passage -->
+          </check_any>
+          <check_value value="not $order? and not $order.$noreturn?"/>
+        </conditions>
+        <actions>
+          <abort_called_scripts resume="return to commander"/>
+        </actions>
+      </handler>
      <handler comment="handler for managing DO commands">
         <conditions>
           <event_object_signalled object="this.ship" param="'execute order'"/>
@@ -72,6 +88,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
         <param name="params" value="$order"/>
         <param name="freedrones" value="$freedrones" comment="Script is supposed to manage this itself. note that its very likely to be interupted while not a member of this group (it usually is when called)"/>
       </run_script>
+      <remove_value name="$order"/>
       <resume label="evaluate retvar"/>
       <!-- ============================ -->
       <label name="return to commander"/>

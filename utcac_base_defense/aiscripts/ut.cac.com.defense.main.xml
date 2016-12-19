@@ -145,22 +145,25 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <conditions>
         <check_any>
           <check_all>
-            <event_object_signalled object="this.ship" param="'travel aborted'"/>
+            <check_any>
+              <event_object_signalled object="this.ship" param="'travel aborted'"/>
+              <event_object_changed_zone object="this.ship"/>
+            </check_any>
             <set_value name="$travel" exact="false"/>
             <check_value value="false" comment="just resetting the Var, no need to interrupt"/>
           </check_all>
-          <event_object_signalled object="this.ship" param="'travel boost prep'"/>
-          <event_object_signalled object="this.ship" param="'travel jump prep'"/>
-          <!--event_object_signalled object="this.ship" param="'travel jump start'"/-->
-          <event_object_signalled object="this.ship" param="'travel gate prep'"/>
+          <check_all>
+            <check_any>
+            <event_object_signalled object="this.ship" param="'travel boost prep'"/>
+            <event_object_signalled object="this.ship" param="'travel jump prep'"/>
+            <event_object_signalled object="this.ship" param="'travel jump start'"/>
+            <event_object_signalled object="this.ship" param="'travel gate prep'"/>
+            </check_any>
+            <set_value name="$travel" exact="false"/>
+            <check_value value="false" comment="just setting the Var, no need to interrupt"/>
+          </check_all>
         </check_any>
       </conditions>
-      <actions>
-        <set_value name="$travel" exact="true"/>
-        <!-- maybe let the Drones decide themselves if and when they want to dock and just prevent undocking new ones??? -->
-        <signal_objects object="this.ship" param="'recall drones'"/>
-        <abort_called_scripts resume="check state"/>
-      </actions>
     </handler>
   </interrupts>
   <attention min="unknown">
