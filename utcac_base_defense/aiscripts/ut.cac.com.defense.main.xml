@@ -297,11 +297,14 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <set_value name="$battlestate" exact="'red'"/>
       </do_if>
       
-      <!-- check if previous enemies are still in sight -->
+      <!-- check if previous enemies are still in sight, and confirm there are enemies in combat range -->
       <do_all exact="$enemies.count" counter="$i" reverse="true">
         <do_if value="this.ship.distanceto.{$enemies.{$i}} gt this.ship.maxradarrange">
           <remove_from_group object="$enemies.{$i}" group="$enemies"/>
         </do_if>
+        <do_elseif value="not $stay_red? and this.ship.distanceto.{$enemies.{$i}} tt this.ship.maxcombatrange.turrets">
+          <set_value name="$stay red"/>
+        </do_elseif>
       </do_all>
       
       <!-- Scan for (new) Enemies -->
@@ -309,7 +312,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <match_distance object="this.ship" max="this.ship.maxcombatrange.turrets"/>
       </find_gravidar_contact>
       
-      <do_if value="not $enemies_add.count">
+      <do_if value="not $enemies_add.count and not $stay_red?">
         <remove_value name="$enemies_add"/>
         <resume label="yellow"/>
       </do_if>
