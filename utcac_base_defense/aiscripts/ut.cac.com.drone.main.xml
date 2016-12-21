@@ -85,9 +85,10 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <resume label="start"/>
       <!-- ============================ -->
       <label name="execute order"/>
+      <remove_from_group group="$freedrones" object="this.ship"/>
       <run_script name="$order.$script" result="$retvar">
         <param name="params" value="$order"/>
-        <param name="freedrones" value="$freedrones" comment="Script is supposed to manage this itself. note that its very likely to be interupted while not a member of this group (it usually is when called)"/>
+        <param name="freedrones" value="$freedrones" comment="Script is supposed to manage this itself. note that its very likely to be interupted while being a member of this group (it is not when called)"/>
       </run_script>
       <remove_value name="$order"/>
       <resume label="evaluate retvar"/>
