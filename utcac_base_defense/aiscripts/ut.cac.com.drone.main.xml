@@ -64,6 +64,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
           </conditions>
         </interrupt>
       </wait>
+      <!-- ============================ -->
       <label name="start"/>
       <add_to_group groupname="$freedrones" object="this.ship"/>
       <join_formation object="this.ship" leader="this.ship.commander"/>
@@ -90,6 +91,18 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       </run_script>
       <remove_value name="$order"/>
       <resume label="evaluate retvar"/>
+      <!-- ============================ -->
+      <label name="evaluate retvar"/>
+      <do_if value="$retvar == 'drone recall'">
+        <!-- evaluate if we can dock in resonable time, 
+        if yes return to commander 
+        if not check if we can dock at another ally and change commander
+        if not then run amok at current position till destroyed -->
+        <resume label="return to commander"/>
+        <resume label="remove commander"/>
+        <resume label="change commander"/>
+      </do_if>
+      <resume label="start"/>
       <!-- ============================ -->
       <label name="return to commander"/>
       <remove_from_group object="this.ship" group="$freedrones"/>
@@ -131,18 +144,6 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <destroy_object object="this.ship"/>
       <return/>
       <!-- ============================ -->
-      <label name="evaluate retvar"/>
-      <do_if value="$retvar == 'drone recall'">
-        <!-- evaluate if we can dock in resonable time, 
-        if yes return to commander 
-        if not check if we can dock at another ally and change commander
-        if not then run amok at current position till destroyed -->
-        <resume label="return to commander"/>
-        <resume label="remove commander"/>
-        <resume label="change commander"/>
-      </do_if>
-        <resume label="start"/>
-      <!-- ============================ -->
     </actions>
   </attention>
   <attention min="unknown">
@@ -150,10 +151,10 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <label name="init"/>
       <label name="start"/>
       <label name="execute order"/>
+      <label name="evaluate retvar"/>
+      <label name="return to commander"/>
       <label name="change commander"/>
       <label name="remove commander"/>
-      <label name="return to commander"/>
-      <label name="evaluate retvar"/>
       <!-- cleanup - drones dont exist OOS -->
       <leave_formation object="this.ship"/>
       <do_if value="this.ship.commander.isoperational">

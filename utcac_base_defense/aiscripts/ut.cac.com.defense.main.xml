@@ -216,6 +216,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <!-- ######################################################################################################################################################### -->
       <label name="green"/>
+      <debug_text filter="general" text="'%1 %2 %3 Battlestate Green'.[player.age,this.name,this.container.name]"/>
       <do_if value="$battlestate != 'green'">
         <set_value name="$battlestate" exact="'green'"/>
         <cease_fire object="this.ship"/>
@@ -229,10 +230,12 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <wait/>
       <!-- what could the DO do when there is nothing else to do? help the Engineer with repairs? -->
+      <!-- order supplies? -->
       
       <resume label="green"/>
       <!-- ######################################################################################################################################################### -->
       <label name="yellow"/>
+      <debug_text filter="general" text="'%1 %2 %3 Battlestate Yellow'.[player.age,this.name,this.container.name]"/>
       <do_if value="$battlestate != 'yellow'">
         <activate_battlestate object="this.ship" state="battlestate_yellow"/>
         <activate_battlestate object="this.ship" state="open_hangar"/>
@@ -284,6 +287,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <resume label="yellow"/>
       <!-- ######################################################################################################################################################### -->
       <label name="red"/>
+      <debug_text filter="general" text="'%1 %2 %3 Battlestate Red'.[player.age,this.name,this.container.name]"/>
       <do_if value="$battlestate != 'red'">
         <activate_battlestate object="this.ship" state="battlestate_red"/>
         <activate_battlestate object="this.ship" state="close_hangar"/>
@@ -346,7 +350,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <resume label="red"/>
       </do_elseif>
       <do_else>
-         <debug_text filter="error" text="'%1 %2 %3 no valid Battlestate saved: %4 - resetting'.[player.age,this.name,this.container.name,@$battlestate]"/>
+        <debug_text filter="error" text="'%1 %2 %3 no valid Battlestate saved: %4 - resetting'.[player.age,this.name,this.container.name,@$battlestate]"/>
         <resume label="init"/>
       </do_else>
     </actions>
