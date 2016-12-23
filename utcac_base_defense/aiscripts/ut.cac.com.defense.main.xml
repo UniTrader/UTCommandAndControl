@@ -96,7 +96,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <!-- ##### Check if Attack was intentional and make attacker Enemy -->
         <do_if value="event.name == 'event_object_attacked' or $battlestate == 'red'">
           <!-- send some drones after the Attacker and go into red alert -->
-          <do_if value="$availabledrones.count">
+          <do_if value="$availabledrones.count and ( event.param.isclass.drone or event.param.isclass.ship_xs or event.param.isclass.ship_s or event.param.isclass.ship_m )">
             <set_value name="$hp" exact="event.param.maxhull + event.param.maxshield"/>
             <do_while value="$availabledrones.count and $hp gt 0">
               <set_value name="$newinterceptor" exact="$availabledrones.random"/>
