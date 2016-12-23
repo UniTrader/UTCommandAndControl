@@ -261,7 +261,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <!-- check if previous enemies are still in sight and if someone entered our Combatrange (switch to red) -->
       <do_all exact="$enemies.count" counter="$i" reverse="true">
-        <do_if value="this.ship.distanceto.{$enemies.{$i}} gt this.ship.maxradarrange">
+        <do_if value="this.ship.sector != $enemies.{$i}.sector or this.ship.distanceto.{$enemies.{$i}} gt this.ship.maxradarrange">
           <remove_from_group object="$enemies.{$i}" group="$enemies"/>
         </do_if>
         <do_elseif value="this.ship.distanceto.{$enemies.{$i}} lt this.ship.maxcombatrange.turrets">
@@ -319,7 +319,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <!-- check if previous enemies are still in sight, and confirm there are enemies in combat range -->
       <do_all exact="$enemies.count" counter="$i" reverse="true">
-        <do_if value="this.ship.distanceto.{$enemies.{$i}} gt this.ship.maxradarrange">
+        <do_if value="this.ship.sector != $enemies.{$i}.sector or this.ship.distanceto.{$enemies.{$i}} gt this.ship.maxradarrange">
           <remove_from_group object="$enemies.{$i}" group="$enemies"/>
         </do_if>
         <do_elseif value="not $stay_red? and this.ship.distanceto.{$enemies.{$i}} lt this.ship.maxcombatrange.turrets">
