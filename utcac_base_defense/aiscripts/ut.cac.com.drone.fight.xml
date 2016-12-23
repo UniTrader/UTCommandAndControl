@@ -16,15 +16,16 @@
   </interrupts>
   <attention min="visible">
     <actions>
-      <add_to_group groupname="$primarytargets" object="$params.target"/>
+      <add_to_group groupname="$primarytargets" object="$params.$target"/>
       <do_if value="@$params.$othertargets == true">
         <find_gravidar_contact groupname="$secondarytargets" functional="true" multiple="true" object="this.ship" maybeattackedby="this.ship">
-          <match_distance object="$params.target" max="700m"/>
+          <match_distance object="$params.$target" max="700m"/>
         </find_gravidar_contact>
       </do_if>
       <do_else>
         <set_value name="$secondarytargets" exact="null"/>
       </do_else>
+      <debug_text filter="general" text="'%1 %2 %3 Interceptor Drone %5 sent against: %6'.[player.age,this.name,this.container.name,this.ship.name,$params.$target]"/>
       <run_script name="'fight.attack.object.fighter'">
         <param name="primarytargets" value="$primarytargets" comment="Group of objects to destroy before moving on to other nearby targets" />
         <param name="secondarytargets" value="$secondarytargets" comment="Group of objects to destroy after primary targets, before moving on to other nearby targets" />
