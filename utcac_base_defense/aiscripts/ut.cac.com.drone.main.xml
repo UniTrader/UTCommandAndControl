@@ -13,7 +13,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
   <init>
   </init>
   <interrupts>
-      <library>
+    <library>
       <handler name="ut_cac_drone_recall_listener" comment="Handler for Listening to Superior for Recall Sginal">
         <conditions>
           <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
@@ -22,33 +22,42 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
           <return value="'drone recall'"/>
         </actions>
       </handler>
-      </library>
-      <handler comment="individual recall descision">
-        <conditions>
-          <check_any>
-            <event_object_signalled object="this.ship" param="'travel boost prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
-            <event_object_signalled object="this.ship" param="'travel jump prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
-            <event_object_signalled object="this.ship" param="'travel jump start'"/>
-            <event_object_signalled object="this.ship" param="'travel gate prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
-            <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
-            <!-- Signals/events needed: short before boost and gate passage -->
-          </check_any>
-          <check_value value="not $order? and not $order.$noreturn?"/>
-        </conditions>
-        <actions>
-          <abort_called_scripts resume="return to commander"/>
-        </actions>
-      </handler>
-     <handler comment="handler for managing DO commands">
-        <conditions>
-          <event_object_signalled object="this.ship" param="'execute order'"/>
-        </conditions>
-        <actions>
-          <remove_from_group object="this.ship" group="$freedrones"/>
-          <set_value name="$order" exact="event.param2"/>
-          <abort_called_scripts resume="execute order"/>
-        </actions>
-      </handler>
+    </library>
+    <handler comment="individual recall descision">
+      <conditions>
+        <check_any>
+          <event_object_signalled object="this.ship" param="'travel boost prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
+          <event_object_signalled object="this.ship" param="'travel jump prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
+          <event_object_signalled object="this.ship" param="'travel jump start'"/>
+          <event_object_signalled object="this.ship" param="'travel gate prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
+          <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
+          <!-- Signals/events needed: short before boost and gate passage -->
+        </check_any>
+        <check_value value="not $order? and not $order.$noreturn?"/>
+      </conditions>
+      <actions>
+        <abort_called_scripts resume="return to commander"/>
+      </actions>
+    </handler>
+    <handler comment="handler for managing DO commands">
+      <conditions>
+        <event_object_signalled object="this.ship" param="'execute order'"/>
+      </conditions>
+      <actions>
+        <remove_from_group object="this.ship" group="$freedrones"/>
+        <set_value name="$order" exact="event.param2"/>
+        <abort_called_scripts resume="execute order"/>
+      </actions>
+    </handler>
+    <handler comment="Handler to check if the Leader is still nearby - if not warp ourselves back for now">
+      <conditions>
+        <event_object_changed_zone object="this.ship.commander"/>
+        <check_value value="this.ship.distanceto.{this.ship.commander} gt this.ship.commander.maxradarrange"/>
+      </conditions>
+      <actions>
+        <destroy_object object="this.ship" explosion="false"/>
+      </actions>
+    </handler>
   </interrupts>
   <attention min="visible">
     <actions>
