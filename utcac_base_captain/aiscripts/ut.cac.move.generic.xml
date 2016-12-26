@@ -335,7 +335,7 @@
           <param name="position" value="$safepos" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
         </run_script>
       </do_if>
-      <!--remove_value name="this.$waypoint"/-->
+      <set_value name="this.$waypoint" exact="this.zone"/>
       <remove_value name="this.$destination"/>
       
       <do_while value="not ( $destination.hascontext.{$targetspace} or $destination == $targetspace )">
@@ -364,12 +364,12 @@
       
       
       <label name="finish"/>
-      <!--remove_value name="this.$waypoint"/-->
+      <set_value name="this.$waypoint" exact="this.zone"/>
       <remove_value name="this.$destination"/>
     </actions>
   </attention>
   <on_abort>
-    <!--remove_value name="this.$waypoint"/-->
+    <set_value name="this.$waypoint" exact="this.zone"/>
     <remove_value name="this.$destination"/>
   </on_abort>
 </aiscript>
