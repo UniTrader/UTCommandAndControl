@@ -186,45 +186,6 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
   </interrupts>
   <attention min="unknown">
     <actions>
-    <do_if value="false" chance="0" comment="for collecting useful Snippets">
-    <!--- ################# -->
-    <!-- Drone Launch taken from Architect Drone Transfer -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'launching Drones for Transfer'"/>
-        <find_object_component groupname="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true"/>
-        <do_if value="this.ship.units.{unitcategory.transport}.count gt 20 and this.ship.availableunits.{unitcategory.transport}.count ge 1">
-          <set_value name="$transferamount" exact="[ (this.ship.units.{unitcategory.transport}.count - 20) , this.ship.availableunits.{unitcategory.transport}.count ].min"/>
-          <do_all exact="$transferamount">
-            <launch_drone name="$drone" object="$dronelaunchbays.random" group="unitcategory.transport" exact="1"/>
-            <wait min="2.5s" max="3.5s"/>
-            <do_if value="$drone.isoperational">
-              <remove_units object="this.ship" macro="$drone.macro" exact="1" unavailable="true"/>
-              <add_units object="$station" macro="$drone.macro" exact="1" unavailable="true"/>
-              <set_object_commander object="$drone" commander="$station"/>
-              <start_script object="$drone.pilot" name="'move.dockat.drone'">
-                <param name="destination" value="$station"/>
-              </start_script>
-            </do_if>
-          </do_all>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$transferamount,$dronelaunchbays.count]"/>
-        </do_if>
-        <do_if value="this.ship.availableunits.{unitcategory.gascollector}.count ge 1">
-          <set_value name="$transferamount" exact="this.ship.availableunits.{unitcategory.gascollector}.count"/>
-          <do_all exact="$transferamount">
-            <launch_drone name="$drone" object="$dronelaunchbays.random" group="unitcategory.gascollector" exact="1"/>
-            <wait min="2.5s" max="3.5s"/>
-            <do_if value="$drone.isoperational">
-              <remove_units object="this.ship" macro="$drone.macro" exact="1" unavailable="true"/>
-              <add_units object="$station" macro="$drone.macro" exact="1" unavailable="true"/>
-              <set_object_commander object="$drone" commander="$station"/>
-              <start_script object="$drone.pilot" name="'move.dockat.drone'">
-                <param name="destination" value="$station"/>
-              </start_script>
-            </do_if>
-          </do_all>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$transferamount,$dronelaunchbays.count]"/>
-        </do_if>
-    <!--- ################# -->
-    </do_if>
       <label name="init"/>
       
       <set_value name="$battlestate" exact="'green'"/>
