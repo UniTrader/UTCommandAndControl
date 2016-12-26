@@ -11,12 +11,16 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
     <param name="freedrones" comment="Drone Managment Group of the DO/Drone Commander - included ones are available for Orders, excluded ones not."/>
   </params>
   <init>
+    <create_group groupname="$commander" comment="group containing the commander so it can be changed without messing up the Events tied to it"/>
+    <do_if value="this.ship.commander.exists">
+      <add_to_group group="$commander" object="this.ship.commander"/>
+    </do_if>
   </init>
   <interrupts>
     <library>
       <handler name="ut_cac_drone_recall_listener" comment="Handler for Listening to Superior for Recall Sginal">
         <conditions>
-          <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
+          <event_object_signalled  group="$commander" param="'recall drones'"/>
         </conditions>
         <actions>
           <return value="'drone recall'"/>
@@ -30,7 +34,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
           <event_object_signalled object="this.ship" param="'travel jump prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
           <event_object_signalled object="this.ship" param="'travel jump start'"/>
           <event_object_signalled object="this.ship" param="'travel gate prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
-          <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
+          <event_object_signalled group="$commander" param="'recall drones'"/>
           <!-- Signals/events needed: short before boost and gate passage -->
         </check_any>
         <check_value value="not $order? and not $order.$noreturn?"/>
@@ -51,13 +55,23 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
     </handler>
     <handler comment="Handler to check if the Leader is still nearby - if not warp ourselves back for now">
       <conditions>
-        <event_object_changed_zone object="this.ship.commander"/>
+        <event_object_changed_zone  group="$commander"/>
         <check_value value="this.ship.distanceto.{this.ship.commander} gt this.ship.commander.maxradarrange"/>
       </conditions>
       <actions>
         <destroy_object object="this.ship" explosion="false"/>
       </actions>
     </handler>
+    <handler comment="update commander group if changed">
+      <conditions>
+        <event_object_commander_set object="this.ship"/>
+      </conditions>
+      <actions>
+        <clear_group group="$commander"/>
+        <do_if value="event.param.exists">
+          <add_to_group group="$commander" object="event.param"/>
+        </do_if>
+      </actions>
   </interrupts>
   <attention min="visible">
     <actions>
@@ -81,9 +95,9 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
         <interrupt>
           <conditions>
             <check_any>
-              <event_object_signalled object="this.ship.commander" param="'recall drones'"/>
-              <event_object_signalled object="this.ship.commander" param="'travel boost prep'"/>
-              <event_object_signalled object="this.ship.commander" param="'jump prep'"/>
+              <event_object_signalled  group="$commander" param="'recall drones'"/>
+              <event_object_signalled  group="$commander" param="'travel boost prep'"/>
+              <event_object_signalled  group="$commander" param="'jump prep'"/>
             </check_any>
           </conditions>
           <actions>
