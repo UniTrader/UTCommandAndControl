@@ -37,6 +37,10 @@ Drone Launching Sub-Script for the DO which is called in Battlestate yellow and 
                 <do_elseif value="$drone.macro.ismacro.{[macro.units_size_drone_missiledrone_dumbfire_mk1_macro,macro.units_size_drone_missiledrone_dumbfire_mk1_macro]}">
                   <set_value name="$pass_group" exact="$attack"/>
                 </do_elseif>
+                <do_else>
+                  <debug_text filter="error" text="'%1 %2 %3 Unknown Drone Macro, not passing any group!!! %4 // %5'.[player.age,this.name,this.container.name,$drone.name,$drone.macro]"/>
+                  <set_value name="$pass_group" exact="null"/>
+                </do_else>
                 <set_object_commander object="$drone" commander="this.ship"/>
                 <start_script object="$drone.pilot" name="'ut.cac.com.drone.main'">
                   <param name="freedrones" value="$pass_group"/>
