@@ -93,11 +93,13 @@
       <run_script name="'ut.cac.move.generic'">
         <param name="destination" value="$zone.sector" />
         <param name="endintargetspace" value="true" />
+        <param name="exitonneworder" value="false" comment="This Script should interrupt, not the called Script!!!"/>
       </run_script>
       <find_asteroid_in_cluster name="$asteroid" cluster="$zone.cluster" refobject="$zone" maxdistance="50km" ware="$ware" />
       <run_script name="'ut.cac.move.generic'">
         <param name="destination" value="if $asteroid.exists then $asteroid else $zone" />
         <param name="endintargetspace" value="true" />
+        <param name="exitonneworder" value="false" comment="This Script should interrupt, not the called Script!!!"/>
       </run_script>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reached Zone where we mine'.[player.age,this.name,this.container.name]"/>
       
