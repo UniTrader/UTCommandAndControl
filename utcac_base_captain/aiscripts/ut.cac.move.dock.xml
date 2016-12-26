@@ -128,6 +128,9 @@ Script to Dock or Park an Object
         <do_if value="not $docking_coordinator.$park_queue?">
           <set_value name="$docking_coordinator.$park_queue" exact="table[{$destination}=[]]"/>
         </do_if>
+        <do_elseif value="not $docking_coordinator.$park_queue.$destination?">
+          <set_value name="$docking_coordinator.$park_queue.$destination" exact="[]"/>
+        </do_elseif>
         <set_value name="$park_queue" exact="$docking_coordinator.$park_queue"/>
         
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sorting into park queue for: %4'.[player.age,this.name,this.container.name,$destination,$park_queue]"/>
