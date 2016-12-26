@@ -15,6 +15,9 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
     <do_if value="this.ship.commander.exists">
       <add_to_group groupname="$commander" object="this.ship.commander"/>
     </do_if>
+    <do_elseif value="this.ship.dronecommander.exists">
+      <add_to_group groupname="$commander" object="this.ship.dronecommander"/>
+    </do_elseif>
   </init>
   <interrupts>
     <library>
@@ -71,6 +74,12 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
         <do_if value="event.param.exists">
           <add_to_group groupname="$commander" object="event.param"/>
         </do_if>
+        <do_elseif value="this.ship.commander.exists">
+          <add_to_group groupname="$commander" object="this.ship.commander"/>
+        </do_elseif>
+        <do_elseif value="this.ship.dronecommander.exists">
+          <add_to_group groupname="$commander" object="this.ship.dronecommander"/>
+        </do_elseif>
       </actions>
     </handler>
   </interrupts>
@@ -96,9 +105,11 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
         <interrupt>
           <conditions>
             <check_any>
-              <event_object_signalled  group="$commander" param="'recall drones'"/>
-              <event_object_signalled  group="$commander" param="'travel boost prep'"/>
-              <event_object_signalled  group="$commander" param="'jump prep'"/>
+              <event_object_signalled group="$commander" param="'recall drones'"/>
+              <event_object_signalled group="$commander" param="'travel boost prep'"/>
+              <event_object_signalled group="$commander" param="'travel jump prep'"/>
+              <event_object_signalled group="$commander" param="'travel jump start'"/>
+              <event_object_signalled group="$commander" param="'travel gate prep'"/>
             </check_any>
           </conditions>
           <actions>
