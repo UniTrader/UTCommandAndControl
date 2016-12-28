@@ -73,12 +73,20 @@
         <check_any>
           <event_object_changed_zone object="@$destination"/>
           <event_object_signalled object="$destination" param="'travel next waypoint'"/>
+          <event_object_changed_zone object="this.ship"/>
         </check_any>
         <check_value value="$targetspace != ( if $destination.pilot.$waypoint? then $destination.pilot.$waypoint else $destination.zone )"/>
       </conditions>
       <actions> 
-        <debug_text filter="general" text="'%1 %2 %3 Object changed Zone - trying to catch up: $targetspace: %4 $destination.pilot.$waypoint: %5 $destination.zone: %6'.[player.age,this.name,this.container.name,$targetspace,@$destination.pilot.$waypoint,$destination.zone]"/>
-        <abort_called_scripts resume="start"/>
+        <do_if value="$destination.zone == this.zone">
+          <!-- Somehow check if there is a movement Step currently in progress before exit-ing? -->
+          <debug_text filter="general" text="'%1 %2 %3 Catchup Sucessful on Zone Change in %4 - exiting'.[player.age,this.name,this.container.name,this.zone.name]"/>
+          <return/>
+        </do_if>
+        <do_if value="event.object == $destination">
+          <debug_text filter="general" text="'%1 %2 %3 Object changed Zone - trying to catch up: $targetspace: %4 $destination.pilot.$waypoint: %5 $destination.zone: %6'.[player.age,this.name,this.container.name,$targetspace,@$destination.pilot.$waypoint,$destination.zone]"/>
+          <abort_called_scripts resume="start"/>
+        </do_if>
       </actions>
     </handler>
     <handler ref="ut_cac_exitonneworder"/>
