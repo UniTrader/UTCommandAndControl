@@ -37,7 +37,7 @@ Drone Launching Sub-Script for the DO which is called in Battlestate yellow and 
         <do_while value="player.age le $exittime and ( 1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count ) lt $ratio and not this.ship.isboostactive">
           <do_all exact="[$dronelaunchbays.count, this.ship.availableunits.{unitcategory.defence}.count].min" counter="$i">
             <do_if value="$dronelaunchbays.{$i}.isoperational">
-              <launch_drone name="$drone" object="$dronelaunchbays.{$i}" group="unitcategory.defence" macro="this.ship.availableunits.{unitcategory.defence}.list" exact="1"/>
+              <launch_drone name="$drone" object="$dronelaunchbays.{$i}" group="unitcategory.defence" macro="this.ship.availableunits.{unitcategory.defence}.list.random" exact="1"/>
               <do_if value="$drone.isoperational">
                 <do_if value="$drone.macro.ismacro.{[macro.units_size_drone_attackdrone_impulse_mk1_macro,macro.units_size_drone_attackdrone_impulse_mk2_macro,macro.units_size_drone_swarm_xen_interceptor_drone_macro]}">
                   <set_value name="$pass_group" exact="$missiledefense"/>
