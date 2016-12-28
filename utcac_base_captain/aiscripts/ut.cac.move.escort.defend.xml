@@ -29,6 +29,7 @@ Intendes as interrupt Script in event of an Attack. will not block Movement of t
     </do_if>
   </init>
   <interrupts>
+    <!-- Taking care that the $escortee is still alive is job of the calling Script via event -->
     <handler>
       <conditions>
         <event_object_target_invalid object="this.ship"/>
@@ -37,17 +38,6 @@ Intendes as interrupt Script in event of an Attack. will not block Movement of t
         <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $escortee: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
         <abort_called_scripts/>
         <resume label="start"/>
-      </actions>
-    </handler>
-    <handler>
-      <!--- destination destroyed - abort Movement and (for now) also print an Error -->
-      <conditions>
-        <event_object_destroyed object="$escortee"/>
-      </conditions>
-      <actions>
-        <debug_text filter="error" text="'%1 %2 %3 Escort Object destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
-        <abort_called_scripts/>
-        <return value="1"/>
       </actions>
     </handler>
     <handler>
