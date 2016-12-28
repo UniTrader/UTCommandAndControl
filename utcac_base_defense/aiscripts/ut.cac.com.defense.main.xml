@@ -69,7 +69,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
     <create_group groupname="$drones_attack" comment="Drones with Heavy armanements, not suited for dogfights"/>
     <create_group groupname="$drones_defense" comment="all remaining drones"/>
     <set_value name="$primarytarget" exact="null"/>
-    <set_value name="$travel" exact="false"/>
+    <set_value name="$droneratio" exact="1.0" comment="ratio of drones which should be launched - depends on Travel preperations (all if no fast travel is planned, 25% in boost prep, 10% in jump prep, 0% when starting jump/boost)"/>
     
   </init>
   <interrupts>
@@ -153,28 +153,39 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
     <handler comment="travel intent signals - set Variables for not launching Drones anymore and send Drone Recall Singals">
       <conditions>
         <check_any>
-          <check_all>
-            <check_any>
-              <event_object_signalled object="this.ship" param="'travel aborted'"/>
-              <event_object_changed_zone object="this.ship"/>
-            </check_any>
-            <set_value name="$travel" exact="false"/>
-            <debug_text filter="general" text="'%1 %2 %3 Exit Travel Mode'.[player.age,this.name,this.container.name]"/>
-            <check_value value="false" comment="just resetting the Var, no need to interrupt"/>
-          </check_all>
-          <check_all>
-            <check_any>
-            <event_object_signalled object="this.ship" param="'travel boost prep'"/>
-            <event_object_signalled object="this.ship" param="'travel jump prep'"/>
-            <event_object_signalled object="this.ship" param="'travel jump start'"/>
-            <event_object_signalled object="this.ship" param="'travel gate prep'"/>
-            </check_any>
-            <set_value name="$travel" exact="true"/>
-            <debug_text filter="general" text="'%1 %2 %3 Enter Travel Mode'.[player.age,this.name,this.container.name]"/>
-            <check_value value="false" comment="just setting the Var, no need to interrupt"/>
-          </check_all>
+          <event_object_signalled object="this.ship" param="'travel aborted'"/>
+          <event_object_signalled object="this.ship" param="'travel boost prep'"/>
+          <event_object_signalled object="this.ship" param="'travel jump prep'"/>
+          <event_object_signalled object="this.ship" param="'travel gate prep'"/>
+          <event_object_signalled object="this.ship" param="'travel jump start'"/>
+          <event_object_signalled object="this.ship" param="'travel boost start'"/>
         </check_any>
       </conditions>
+      <actions>
+        <do_if value="event.param == 'travel aborted'">
+          <set_value name="$droneratio" exact="1.0"/>
+        </do_if>
+        <do_elseif value="event.param == 'travel boost prep'">
+          <set_value name="$droneratio" exact="0.25"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'travel jump prep'">
+          <set_value name="$droneratio" exact="0.1"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'travel gate prep'">
+          <set_value name="$droneratio" exact="0.25"/>
+        </do_elseif>
+        <do_else>
+          <!-- all remaining Travel Signals - stop launching drones -->
+          <set_value name="$droneratio" exact="0.0"/>
+          <signal_objects object="this.ship" param="'recall drones'"/>
+        </do_else>
+        <!-- recall Drones so target ratio is reached -->
+        <do_if value="$droneratio == 0.0"/>
+        <do_elseif value="1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count gt $droneratio">
+          <signal_objects object="this.ship" param="'recall drones'" param2=" $droneratio / ( 1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count )"/>
+        </do_elseif>
+        <abort_called_scripts/>
+      </actions>
     </handler>
   </interrupts>
   <attention min="unknown">
@@ -244,12 +255,13 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <set_value name="$nextenemyscan" min="player.age + 50s" max="player.age + 70s"/>
       
-      <do_if value="$travel == false">
+      <do_if value="$droneratio gt 0.0">
         <run_script name="'ut.cac.com.defense.launchdrones'">
           <!-- param name="exittime" value="$nextenemyscan" comment="only performing passive scans in battlestate yellow - drone script doesnt need to return"/-->
           <param name="missiledefense" value="$drones_missiledefense" comment="drone managment group to pass to the Drones"/>
           <param name="attack" value="$drones_attack" comment="drone managment group to pass to the Drones"/>
           <param name="defense" value="$drones_defense" comment="drone managment group to pass to the Drones"/>
+          <param name="ratio" value="$droneratio" comment="ratio of the total drones to be deployed (from 0.0 to 1.0)"/>
         </run_script>
       </do_if>
       <do_if value="player.age lt $nextenemyscan">
@@ -305,12 +317,13 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       
       <set_value name="$nextenemyscan" min="player.age + 20s" max="player.age + 30s"/>
-      <do_if value="$travel == false">
+      <do_if value="$droneratio gt 0.0">
         <run_script name="'ut.cac.com.defense.launchdrones'">
           <param name="exittime" value="$nextenemyscan" comment="exiting regulary to perform a scan"/>
           <param name="missiledefense" value="$drones_missiledefense" comment="drone managment group to pass to the Drones"/>
           <param name="attack" value="$drones_attack" comment="drone managment group to pass to the Drones"/>
           <param name="defense" value="$drones_defense" comment="drone managment group to pass to the Drones"/>
+          <param name="ratio" value="$droneratio" comment="ratio of the total drones to be deployed (from 0.0 to 1.0)"/>
         </run_script>
       </do_if>
       <do_if value="player.age lt $nextenemyscan">
