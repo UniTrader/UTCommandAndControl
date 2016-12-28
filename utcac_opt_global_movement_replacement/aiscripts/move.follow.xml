@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<diff>
+<add sel="/aiscript/params" pos="after">
+  <init>
+    <set_value name="$object" exact="$target" comment="ut_cac_follow_signalling uses $object as object to follow"/>
+  </init>
+</add>
+<add sel="//interrupts/handler[@comment]/conditions/event_object_changed_zone" pos="after">
+  <check_value value="this.ship.isclass.ship_l or this.ship.isclass.ship_xl" negate="true" comment="L and XL Ships use Follow Signalling instead"/>
+</add>
+<add sel="//interrupts">
+  <handler ref="ut_cac_follow_signalling" comment="Handler for Navigation Signals"/>
+</add>
+</diff>
