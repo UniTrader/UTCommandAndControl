@@ -153,6 +153,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <conditions>
         <check_any>
           <event_object_signalled object="this.ship" param="'travel aborted'"/>
+          <event_object_signalled object="this.ship" param="'travel completed'"/>
           <event_object_signalled object="this.ship" param="'travel boost prep'"/>
           <event_object_signalled object="this.ship" param="'travel jump prep'"/>
           <event_object_signalled object="this.ship" param="'travel gate prep'"/>
@@ -162,7 +163,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </check_any>
       </conditions>
       <actions>
-        <do_if value="event.param == 'travel aborted'">
+        <do_if value="event.param == 'travel aborted' or event.param == 'travel completed'">
           <set_value name="$droneratio" exact="1.0"/>
         </do_if>
         <do_elseif value="event.param == 'travel boost prep'">
