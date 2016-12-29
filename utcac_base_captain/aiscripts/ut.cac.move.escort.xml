@@ -13,7 +13,7 @@ roughly based on the experimental ut.cac.follow.verysimple
     <param name="escortee" default="null" comment="the Object to follow"/>
     <param name="time" default="null" comment="how long the other Object should be followed"/>
     <param name="timeout" default="null" comment="until when the Object should be followed - overrides time"/>
-    <param name="destination" default="null" comment="where the other Object followed to (as Space, since the context is checked)"/>
+    <param name="destination" default="null" comment="where the other Object followed to (as Space, since the context is checked) - Note: Checked on event_object_changed_zone, so suitable for round-trips"/>
     <param name="exitonneworder" default="false" comment="Exit immediately when receiving a new Order. If set to a Number of 2 or greater this is the Number of Orders the this.{$orderlist} has to contain before aborting (since 1 is always this Script)"/>
   </params>
   <init>
@@ -150,6 +150,17 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (seperate in signal handler 2):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
       </actions>
     </handler>
+    <handler comment="For Script Ending when Destination Zone is reached">
+      <conditions>
+        <event_object_changed_zone object="$escortee"/>
+        <check_value value="$destination.exists and $escortee.hascontext.{$destination}"/>
+      </conditions>
+      <actions>
+        <!-- just fake a Escort Timeout so the Ship finishes the last move properly -->
+        <set_value name="$time" exact="0s"/>
+        <set_value name="$timeout" exact="player.age"/>
+      </actions>
+    </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
@@ -160,7 +171,7 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
       </do_if>
       <do_if value="not $timeout">
         <do_if value="$destination">
-          <set_value name="$timeout" exact="player.age + 2400h" comment="follow till Destination is reached, 100 Days should be sufficient"/>
+          <set_value name="$timeout" exact="player.age + 8h" comment="follow till Destination is reached, 8 hour timeout to prevent forever lockups"/>
         </do_if>
         <do_else>
           <set_value name="$timeout" exact="player.age + 3h" comment="follow for 3 hours if no Destination or Time is specified"/>
@@ -207,12 +218,6 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Added us to Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
       </do_if>
       
-      <!-- to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case) -->
-      <do_if value="$destination.exists and $escortee.hascontext.{$destination}" comment="">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Object starts in Destination Zone - setting Var to avoid immediate exit'.[player.age,this.name,this.container.name,$escortee.knownname]"/>
-        <set_value name="$startsindestinationzone"/>
-      </do_if>
-      
       <label name="move" />
       <remove_value name="$follow_position" comment="To clean up Follow Docking Interrupt (lib ut_cac_follow_signalling )"/>
       <do_if value="player.age gt $timeout">
@@ -221,14 +226,6 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
       <do_if value="not $escortee.isoperational">
         <resume label="finish"/>
       </do_if>
-      <do_if value="$destination.exists and $escortee.hascontext.{$destination}">
-        <do_if value="not $startsindestinationzone?" comment="to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case)">
-          <resume label="finish"/>
-        </do_if>
-      </do_if>
-      <do_elseif value="$destination.exists" comment="to prevent immediate exit in case escortee starts in destination Zone (escort is supposed to cover the round-trip in this case)">
-        <remove_value name="$startsindestinationzone"/>
-      </do_elseif>
       <do_if value="$escortee.zone != this.zone">
         <resume label="fly to leader zone"/>
       </do_if>
