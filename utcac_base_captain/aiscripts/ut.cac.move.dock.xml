@@ -145,11 +145,9 @@ Script to Dock or Park an Object
             <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
             <do_all exact="$slots.count" counter="$i">
               <do_if value="$slots.{$i}.component.isoperational and ( ( not $park_queue.{$slots.{$i}.component}? ) or ( not $park_queue.{$slots.{$i}.component}.exists ) or ( not ( $park_queue.{$slots.{$i}.component}.sector == this.sector ) ) )">
+                <set_value name="$park_queue.{$slots.{$i}.component}" exact="this.ship"/>
                 <set_value name="$parkslot" exact="$slots.{$i}"/>
-                <do_if value="$parkslot.component != $destination">
-                  <set_value name="$park_queue.{$parkslot.component}" exact="this.ship"/>
-                  <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
-                </do_if>
+                <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
                 <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sorted into Parkslot: %4 \n%5'.[player.age,this.name,this.container.name,$parkslot,$park_queue]"/>
                 <break/>
               </do_if>
@@ -199,7 +197,7 @@ Script to Dock or Park an Object
         </do_if>
         
         <!-- wait for Unpark Signal from Ship parked and, if common queue is empty, also wait for other Slots just freed up completely -->
-        <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'Unpark Signal 1'" result="$success" />
+        <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'Unark Signal 1'" result="$success" />
         <do_while value="not $success">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for Parking Slot to be freed'.[player.age,this.name,this.container.name]"/>
           <wait max="1min">
@@ -330,16 +328,14 @@ Script to Dock or Park an Object
           <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
         </do_if>
         <do_if value="$parkslot.component.exists">
-          <do_if value="$park_queue.{$parkslot.component} == this.ship and $parkslot.component != $destination">
+          <do_if value="$park_queue.{$parkslot.component} == this.ship">
             <remove_value name="$park_queue.{$parkslot.component}"/>
           </do_if>
         </do_if>
       </do_if>
       <!-- Signal next Ship in Queue to move to Advance -->
       <signal_objects object="$parkslot.component" param="'parking queue update'" param2="$parkslot"/>
-      <do_if value="$parkslot.component != $destination">
-        <signal_objects object="$destination" param="'parking queue update'" param2="$parkslot" delay="1s"/>
-      </do_if>
+      <signal_objects object="$destination" param="'parking queue update'" param2="$parkslot" delay="1s"/>
       
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Parking done'.[player.age,this.name,this.container.name]"/>
@@ -359,7 +355,7 @@ Script to Dock or Park an Object
         <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
       </do_if>
       <do_if value="$parkslot.component.exists">
-        <do_if value="$park_queue.{$parkslot.component} == this.ship and $parkslot.component != $destination">
+        <do_if value="$park_queue.{$parkslot.component} == this.ship">
           <remove_value name="$park_queue.{$parkslot.component}"/>
         </do_if>
       </do_if>
@@ -367,9 +363,7 @@ Script to Dock or Park an Object
     <disconnect_from_trade_location ship="this.ship" />
     <!-- Signal next Ship in Queue to move to Advance -->
     <signal_objects object="$parkslot.component" param="'parking queue update'" param2="$parkslot"/>
-    <do_if value="$parkslot.component != $destination">
-      <signal_objects object="$destination" param="'parking queue update'" param2="$parkslot" delay="1s"/>
-    </do_if>
+    <signal_objects object="$destination" param="'parking queue update'" param2="$parkslot" delay="1s"/>
     <set_avoid_collisions object="this.ship" enabled="true" />
     <!-- ToDo: make parent Order Interruptable again -->
   </on_abort>
