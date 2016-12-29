@@ -267,6 +267,12 @@ ToDo:
         <resume label="jump"/>
       </do_if>
       
+      <!-- start movement to idle Target Pos (to cover Jump Preperations)
+      <move_to object="this.ship" abortpath="true" destination="this.zone">
+        <position space="this.zone" object="this.ship" z="10km"/>
+        <interrupt_after_time time="0s"/>
+      </move_to> -->
+      
       <!-- Signal our Intention to Jump and pass a list where everyone who needs to prepare (like docking Ships) can add himself to and wait a second to make sure everyone does -->
       <do_if value="$leader and $leader_preparegroup">
         <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
@@ -378,7 +384,7 @@ ToDo:
         <interrupt_after_time time="0s"/>
       </jump>
       <move_to object="this.ship" abortpath="false" destination="this.zone">
-        <position space="this.ship" z="10km"/>
+        <position space="this.zone" object="this.ship" z="10km"/>
         <interrupt>
           <conditions>
             <check_any>
