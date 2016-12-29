@@ -75,8 +75,10 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
     <handler comment="Attacked or enemy found - go into battlestate red/yellow">
       <conditions>
         <check_any>
-          <event_object_attacked object="this.ship"/>
-          <check_value value="this.ship.mayattack.{event.param}"/>
+          <check_all>
+            <event_object_attacked object="this.ship"/>
+            <check_value value="this.ship.mayattack.{event.param}"/>
+          </check_all>
           <!-- Event for the specified object being attacked (object = attacked object, param = attacker, param2 = kill method, param3 = attacked component) -->
           <check_all>
             <event_object_enemy_found object="this.ship"/>
