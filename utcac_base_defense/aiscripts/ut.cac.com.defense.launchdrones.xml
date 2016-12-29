@@ -34,7 +34,7 @@ Drone Launching Sub-Script for the DO which is called in Battlestate yellow and 
       <find_object_component name="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="false"/>
       <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Launching Drones, ratio: %4 launchbays: %5'.[player.age,this.name,this.container.name,$ratio,$dronelaunchbays]"/>
       <do_if value=" $dronelaunchbays.count">
-        <do_while value="player.age le $exittime and ( 1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count ) lt $ratio and not this.ship.isboostactive">
+        <do_while value="player.age le $exittime and ( 1.0 - ((this.ship.availableunits.{unitcategory.defence}.count)i / this.ship.units.{unitcategory.defence}.count) ) lt $ratio and not this.ship.isboostactive">
           <do_all exact="[$dronelaunchbays.count, this.ship.availableunits.{unitcategory.defence}.count].min" counter="$i">
             <do_if value="$dronelaunchbays.{$i}.isoperational">
               <launch_drone name="$drone" object="$dronelaunchbays.{$i}" group="unitcategory.defence" macro="this.ship.availableunits.{unitcategory.defence}.list.random" exact="1"/>
