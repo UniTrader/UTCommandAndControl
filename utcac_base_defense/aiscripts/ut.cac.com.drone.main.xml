@@ -21,6 +21,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
   </init>
   <interrupts>
     <library>
+      <!-- ToDo: this one is redundant with the handler next in the Script - decide which is to be used!!! -->
       <handler name="ut_cac_drone_recall_listener" comment="Handler for Listening to Superior for Recall Sginal">
         <conditions>
           <event_object_signalled  group="$commander" param="'recall drones'"/>
@@ -30,17 +31,15 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
         </actions>
       </handler>
     </library>
-    <handler comment="individual recall descision">
+    <handler comment="Recall sent from Commander (maybe merge this with the next handler? hugely overlaps function-wise)">
       <conditions>
         <check_any>
-          <event_object_signalled object="this.ship" param="'travel boost prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
-          <event_object_signalled object="this.ship" param="'travel jump prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
-          <event_object_signalled object="this.ship" param="'travel jump start'"/>
-          <event_object_signalled object="this.ship" param="'travel gate prep'" chance="(this.ship.commander.units.{this.ship.macro.unitcategory}.count - this.ship.commander.availableunits.{this.ship.macro.unitcategory}.count) / ( this.ship.commander.units.{this.ship.macro.unitcategory}.count / 10 )"/>
-          <event_object_signalled group="$commander" param="'recall drones'"/>
+          <event_object_signalled group="$commander" param="'recall drones'"/> <!-- ToDo: this one is redundant with the handler library before - decide which is to be used!!! -->
           <!-- Signals/events needed: short before boost and gate passage -->
         </check_any>
-        <check_value value="not $order? and not $order.$noreturn?"/>
+        <do_if value="true" chance="if event.param2 then event.param2 * 100 else 100" comment="chance decides if this Drone should return if its just a partial recall">
+          <check_value value="not $order? and not $order.$noreturn?"/>
+        </do_if>
       </conditions>
       <actions>
         <abort_called_scripts resume="return to commander"/>
@@ -48,12 +47,24 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
     </handler>
     <handler comment="handler for managing DO commands">
       <conditions>
-        <event_object_signalled object="this.ship" param="'execute order'"/>
+        <check_any>
+          <event_object_signalled object="this.ship" param="'execute order'"/>
+          <event_object_signalled object="this.ship" param="'return formation'"/>
+          <event_object_signalled object="this.ship" param="'return dock'"/>
+        </check_any>
       </conditions>
       <actions>
-        <remove_from_group object="this.ship" group="$freedrones"/>
-        <set_value name="$order" exact="event.param2"/>
-        <abort_called_scripts resume="execute order"/>
+        <do_if value="event.param == 'execute order'">
+          <remove_from_group object="this.ship" group="$freedrones"/>
+          <set_value name="$order" exact="event.param2"/>
+          <abort_called_scripts resume="execute order"/>
+        </do_if>
+        <do_elseif value="event.param == 'return formation'">
+          <abort_called_scripts resume="start"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'return dock'">
+          <abort_called_scripts resume="return to commander"/>
+        </do_elseif>
       </actions>
     </handler>
     <handler comment="Handler to check if the Leader is still nearby - if not warp ourselves back for now">
@@ -124,6 +135,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <run_script name="$order.$script" result="$retvar">
         <param name="params" value="$order"/>
         <param name="freedrones" value="$freedrones" comment="Script is supposed to manage this itself. note that its very likely to be interupted while being a member of this group (it is not when called)"/>
+        <param name="commander" value="$commander" comment="Drone Commander 'group' - managed by main script"/>
       </run_script>
       <remove_value name="$order"/>
       <resume label="evaluate retvar"/>
