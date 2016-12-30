@@ -415,10 +415,12 @@ ToDo:
       
       <!-- Fly forward to not stay still while cooling for the next Jump -->
       <set_value name="this.$mayabortpath" comment="to allow following Scripts to immediately change Destination"/>
+      <do_if value="false">
       <move_to object="this.ship" destination="this.zone" finishonapproach="true" sinceversion="30" commandaction="false" chance="0" comment="ex-post-jump idle. causes issues, wont be used anymore. (was non-public, remove asap)">
         <position space="this.zone" object="this.ship" z="10km"/>
         <interrupt_after_time time="100ms"/>
       </move_to>
+      </do_if>
       
       <!-- all Jump done - remove from wait group and wait till leader continues -->
       <remove_from_group group="$leader_preparegroup" object="this.ship"/>
