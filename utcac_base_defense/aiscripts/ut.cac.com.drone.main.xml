@@ -33,13 +33,14 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
     </library>
     <handler comment="Recall sent from Commander (maybe merge this with the next handler? hugely overlaps function-wise)">
       <conditions>
-        <check_any>
-          <event_object_signalled group="$commander" param="'recall drones'"/> <!-- ToDo: this one is redundant with the handler library before - decide which is to be used!!! -->
-          <!-- Signals/events needed: short before boost and gate passage -->
-        </check_any>
-        <do_if value="true" chance="if event.param2 then event.param2 * 100 else 100" comment="chance decides if this Drone should return if its just a partial recall">
+        <check_all>
+          <check_any>
+            <event_object_signalled group="$commander" param="'recall drones'"/> <!-- ToDo: this one is redundant with the handler library before - decide which is to be used!!! -->
+            <!-- Signals/events needed: short before boost and gate passage -->
+          </check_any>
+          <check_value value="true" chance="if event.param2 then event.param2 * 100 else 100" comment="chance decides if this Drone should return if its just a partial recall"/>
           <check_value value="not $order? and not $order.$noreturn?"/>
-        </do_if>
+        </check_all>
       </conditions>
       <actions>
         <abort_called_scripts resume="return to commander"/>
