@@ -268,7 +268,7 @@ ToDo:
       </do_if>
       
       <!-- start movement to idle Target Pos (to cover Jump Preperations) -->
-      <move_to object="this.ship" abortpath="true" destination="this.zone">
+      <move_to object="this.ship" abortpath="true" destination="this.zone" commandaction="false" >
         <position space="this.zone" object="this.ship" z="10km"/>
         <interrupt_after_time time="0s"/>
       </move_to>
@@ -378,12 +378,12 @@ ToDo:
       <do_if value="not ( this.race == race.xenon or this.race == race.drone)" comment="Computer Races sync the Start perfectly, and a bit earlier than non-computer Races">
         <wait min="100ms" max="2s" profile="inversebell"  sinceversion="30" comment="de-perfect perfect synchromisation"/>
       </do_if>
-      <jump result="$result" object="this.ship" zone="$beacon.zone" ignorefuel="$ignorefuel">
+      <jump result="$result" object="this.ship" zone="$beacon.zone" ignorefuel="$ignorefuel" commandaction="false" >
         <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
         <orientation refobject="$beacon" orientation="look_away"/>
         <interrupt_after_time time="0s"/>
       </jump>
-      <move_to object="this.ship" abortpath="false" destination="this.zone">
+      <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
         <position space="this.zone" object="this.ship" z="10km"/>
         <interrupt>
           <conditions>
@@ -419,7 +419,7 @@ ToDo:
       </transform_position>
       <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" radius="this.ship.size"  max="10km" value="$safeposition"/>
       <set_value name="this.$mayabortpath" comment="to allow following Scripts to immediately change Destination"/>
-      <move_to object="this.ship" destination="this.zone" finishonapproach="true" sinceversion="30">
+      <move_to object="this.ship" destination="this.zone" finishonapproach="true" sinceversion="30" commandaction="false" >
         <position value="$safeposition"/>
         <interrupt_after_time time="100ms"/>
       </move_to>
