@@ -401,9 +401,6 @@ ToDo:
       </move_to>
       <do_if value="$result">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
-        <do_if value="not $beacon_clear?">
-          <activate_battlestate object="this.ship" state="battlestate_red"/>
-        </do_if>
       </do_if>
       <do_else>
         <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7 operational: %8\nPerforming Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational]"/>
