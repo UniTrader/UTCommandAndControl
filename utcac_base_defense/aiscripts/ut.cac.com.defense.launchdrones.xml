@@ -25,14 +25,14 @@ Drone Launching Sub-Script for the DO which is called in Battlestate yellow and 
       </do_if>
       
       <do_if value="( 1.0 -  (( this.ship.availableunits.{unitcategory.defence}.count )f / this.ship.units.{unitcategory.defence}.count) ) ge $ratio">
-        <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Enough Drones already out, $ratio: %4, actual ratio: %5 - returning'.[player.age,this.name,this.container.name,$ratio,1.0 - ((this.ship.availableunits.{unitcategory.defence}.count)f / this.ship.units.{unitcategory.defence}.count)]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Enough Drones already out, $ratio: %4, actual ratio: %5 - returning'.[player.age,this.name,this.container.name,$ratio,1.0 - ((this.ship.availableunits.{unitcategory.defence}.count)f / this.ship.units.{unitcategory.defence}.count)]"/>
         <return/>
       </do_if>
       
       <!-- Start Drones until next Enemy Scan -->
       <!-- find all drone bays, including broken ones, so we can use them when operational (search is only performed once, and at each loop the state of the individual bays is checked) -->
       <find_object_component name="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="false"/>
-      <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Launching Drones, ratio: %4 launchbays: %5'.[player.age,this.name,this.container.name,$ratio,$dronelaunchbays]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Launching Drones, ratio: %4 launchbays: %5'.[player.age,this.name,this.container.name,$ratio,$dronelaunchbays]"/>
       <do_if value=" $dronelaunchbays.count">
         <do_while value="player.age le $exittime and ( 1.0 - ((this.ship.availableunits.{unitcategory.defence}.count)f / this.ship.units.{unitcategory.defence}.count) ) lt $ratio and not this.ship.isboostactive">
           <do_all exact="[$dronelaunchbays.count, this.ship.availableunits.{unitcategory.defence}.count].min" counter="$i">
@@ -52,7 +52,6 @@ Drone Launching Sub-Script for the DO which is called in Battlestate yellow and 
                   <debug_text filter="error" text="'%1 %2 %3 Unknown Drone Macro, not passing any group!!! %4 // %5'.[player.age,this.name,this.container.name,$drone.name,$drone.macro]"/>
                   <set_value name="$pass_group" exact="null"/>
                 </do_else>
-                <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Launched %4 and adding it to Group \n%5'.[player.age,this.name,this.container.name,$drone.name,$pass_group]"/>
                 <set_object_commander object="$drone" commander="this.ship"/>
                 <start_script object="$drone.pilot" name="'ut.cac.com.drone.main'">
                   <param name="freedrones" value="$pass_group"/>
@@ -62,9 +61,11 @@ Drone Launching Sub-Script for the DO which is called in Battlestate yellow and 
           </do_all>
           <wait min="0.5s" max="1s" resume="true"/>
         </do_while>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Done launching Drones'.[player.age,this.name,this.container.name]"/>
       </do_if>
     </actions>
   </attention>
   <on_abort>
+    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 launching Drones aborted'.[player.age,this.name,this.container.name]"/>
   </on_abort>
 </aiscript>
