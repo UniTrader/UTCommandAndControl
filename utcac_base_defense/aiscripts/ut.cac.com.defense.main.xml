@@ -241,7 +241,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <signal_objects object="this.ship" param="'recall drones'"/>
         </do_else>
         <!-- recall Drones so target ratio is reached -->
-        <do_if value="$droneratio == 0.0"/>
+        <do_if value="$droneratio == 1.0 or this.ship.units.{unitcategory.defence}.count == 0" comment="no need to check if all drones should be sent or we have no drones"/>
         <do_elseif value="1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count gt $droneratio">
           <signal_objects object="this.ship" param="'recall drones'" param2=" $droneratio / ( 1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count )"/><!-- signals the ratio of Drones which should be recalled -->
         </do_elseif>
