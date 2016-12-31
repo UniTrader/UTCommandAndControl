@@ -395,12 +395,10 @@ ToDo:
             </check_any>
           </conditions>
           <actions>
-            <stop_moving object="this.ship" immediate="true"/>
             <set_value name="$result" exact="if event.name == 'event_object_jump_completed' then true else false"/>
           </actions>
         </interrupt>
       </move_to>
-      <stop_moving object="this.ship" immediate="true"/>
       <do_if value="$result">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
         <do_if value="not $beacon_clear?">
@@ -418,13 +416,11 @@ ToDo:
       
       <!-- Fly forward to not stay still while cooling for the next Jump -->
       <set_value name="this.$mayabortpath" comment="to allow following Scripts to immediately change Destination"/>
-      <do_if value="false">
-      <move_to object="this.ship" destination="this.zone" finishonapproach="true" sinceversion="30" commandaction="false" chance="0" comment="ex-post-jump idle. causes issues, wont be used anymore. (was non-public, remove asap)">
+      <move_to object="this.ship" destination="this.zone" finishonapproach="true" sinceversion="30" commandaction="false" abortpath="true">
         <position space="this.zone" object="this.ship" z="10km"/>
         <rotation value="this.ship.rotation"/>
         <interrupt_after_time time="0s"/>
       </move_to>
-      </do_if>
       
       <!-- all Jump done - remove from wait group and wait till leader continues -->
       <remove_from_group group="$leader_preparegroup" object="this.ship"/>
