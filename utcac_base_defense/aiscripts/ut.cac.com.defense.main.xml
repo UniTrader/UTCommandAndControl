@@ -179,17 +179,17 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <match_distance object="this.ship" max="this.ship.maxcombatrange.turrets"/>
         </find_gravidar_contact>
         <do_if value="$enemies_g.count">
-          <resume label="red"/>
+          <abort_called_scripts resume="red"/>
         </do_if>
         <!-- Find Enemies in Radar Range (for Battlestate Yellow) -->
         <find_gravidar_contact groupname="$enemies_g" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
           <match_distance object="this.ship" max="this.ship.maxradarrange"/>
         </find_gravidar_contact>
         <do_if value="$enemies_g.count">
-          <resume label="yellow"/>
+          <abort_called_scripts resume="yellow"/>
         </do_if>
         <!-- no Enemies nearby -->
-        <resume label="green"/>
+        <abort_called_scripts resume="green"/>
       </actions>
     </handler>
     <handler comment="Clean up Enemies Group when they cease to be a Threat">
