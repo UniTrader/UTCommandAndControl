@@ -230,6 +230,11 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <event_object_signalled object="this.ship" param="'travel jump start'"/>
           <event_object_signalled object="this.ship" param="'travel boost start'"/>
           <event_object_signalled object="this.ship" param="'travel gate start'"/>
+          <check_all>
+            <!-- events for Docking Drones before starting Travel -->
+            <event_object_docked_at container="this.ship"/>
+            <check_value value="$travel_leader_preparegroup? and this.ship.availableunits.count == this.ship.units.count"/>
+          </check_all>
         </check_any>
       </conditions>
       <actions>
@@ -244,6 +249,9 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </do_elseif>
         <do_elseif value="event.param == 'travel gate prep'">
           <set_value name="$droneratio" exact="0.66"/>
+        </do_elseif>
+        <do_elseif value="event.name == 'event_object_docked_at'">
+          
         </do_elseif>
         <do_else>
           <!-- all remaining Travel Signals - stop launching drones -->
