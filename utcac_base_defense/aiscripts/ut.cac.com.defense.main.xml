@@ -79,12 +79,12 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
             <event_object_attacked object="this.ship"/>
             <!-- Event for the specified object being attacked (object = attacked object, param = attacker, param2 = kill method, param3 = attacked component) -->
             <check_value value="this.ship.mayattack.{event.param}"/>
-            <check_value value="not $enemies_g.indexof.{event_param}"/>
+            <check_value value="not $enemies_g.indexof.{event.param}"/>
           </check_all>
           <check_all>
             <event_object_enemy_found object="this.ship"/>
             <check_value value="this.ship.distanceto.{event.param} lt this.ship.maxradarrange and not event.param.ismasstraffic"/>
-            <check_value value="not $enemies_g.indexof.{event_param}"/>
+            <check_value value="not $enemies_g.indexof.{event.param}"/>
           </check_all>
           <event_object_incoming_missile object="this.ship"/>
           <event_object_signalled object="this.ship" param="'missile drone defense failed'" comment="Not Yet Implemented - will probably be dropped"/>
@@ -117,7 +117,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
             <debug_text filter="general" text="'%1 %2 %3 Missile lauched against us, but no interceptors available - defending using Turrets only'.[player.age,this.name,this.container.name]"/>
           </do_else>
           <add_to_group groupname="$enemies_g" object="event.param2"/>
-          <do_if value="not $enemies_g.indexof.{event_param3}">
+          <do_if value="not $enemies_g.indexof.{event.param3}">
             <set_value name="$attacker" exact="event.param3"/>
           </do_if>
           <do_else>
