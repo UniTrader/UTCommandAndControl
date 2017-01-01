@@ -304,7 +304,7 @@
       <do_else>
         <create_group groupname="$leader_preparegroup"/>
       </do_else>
-      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ $targetzone , $position , if $startpos? then $startpos else this.ship.position, if $startrot? then $startrot else this.ship.rotation ]" param3="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel boost prep'" param2="[ if $leader then $leader else this.ship , $targetzone , $position , if $startpos? then $startpos else this.ship.position, if $startrot? then $startrot else this.ship.rotation ]" param3="$leader_preparegroup"/>
       
       <!-- move to prep pos, BOOST, and end -->
       <do_if value="$startpos?">
@@ -407,7 +407,7 @@
       <label name="boost"/>
       
       <!-- Preperations Done - Tell everyone to start and add ourselves to the blocking group to prevent too fast advancing on the leaders part -->
-      <signal_objects object="this.ship" param="'travel boost start'" param2="[ $targetzone , $targetpos , @$startpos ]" param3="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel boost start'" param2="[ if $leader then $leader else this.ship ,  $targetzone , $targetpos , @$startpos ]" param3="$leader_preparegroup"/>
       <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 START BOOST!\nBlocking Group: %4'.[player.age,this.name,this.container.name,$leader_preparegroup]"/>

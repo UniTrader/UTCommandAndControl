@@ -36,12 +36,12 @@ Labels used:
               </check_all>
               <check_all>
                 <event_object_signalled object="$object" param="'travel jump prep'"/>
-                <check_value value="this.ship.jumpcostto.{event.param2} le $object.jumpcostto.{event.param2}"/><!-- make sure we dont skip needed Jumps on the way... -->
+                <check_value value="this.ship.jumpcostto.{event.param2.{2}} le $object.jumpcostto.{event.param2.{2}}"/><!-- make sure we dont skip needed Jumps on the way... -->
               </check_all>
               <check_all>
                 <event_object_signalled object="$object" param="'travel jump start'"/>
                 <check_value value="not ( this.commandaction.value == commandaction.jumping ) " comment="make sure we really missed the Jump Script"/>
-                <check_value value="this.ship.jumpcostto.{event.param2} le $object.jumpcostto.{event.param2}"/><!-- make sure we dont skip needed Jumps on the way... -->
+                <check_value value="this.ship.jumpcostto.{event.param2} le $object.jumpcostto.{event.param2.{2}}"/><!-- make sure we dont skip needed Jumps on the way... -->
               </check_all>
               <check_all>
                 <event_object_signalled object="$object" param="'travel gate prep'"/>
@@ -73,39 +73,39 @@ Labels used:
           <do_elseif value="event.param == 'travel normal start'">
             <!-- interrupt with regular Travel script -->
             <run_interrupt_script name="'ut.cac.move.to.pos'" abortscripts="true" resume="start">
-              <param name="destination" value="event.param2.{1}"/>
-              <param name="position" value="event.param2.{2}"/>
-              <param name="rotation" value="event.param2.{3}"/>
-              <param name="leader" value="$object"/>
+              <param name="destination" value="event.param2.{2}"/>
+              <param name="position" value="event.param2.{3}"/>
+              <param name="rotation" value="event.param2.{4}"/>
+              <param name="leader" value="event.param2.{1}"/>
               <param name="leader_preparegroup" value="event.param3"/>
             </run_interrupt_script>
           </do_elseif>
           <do_elseif value="event.param == 'travel boost prep'">
             <!-- interrupt with boost script -->
             <run_interrupt_script name="'ut.cac.move.boost'" abortscripts="true" resume="start">
-              <param name="destination" value="event.param2.{1}"/>
-              <param name="position" value="event.param2.{2}"/>
-              <param name="leader_startposition" value="event.param2.{3}"/>
-              <param name="leader_startrotation" value="event.param2.{4}"/>
-              <param name="leader" value="$object"/>
+              <param name="destination" value="event.param2.{2}"/>
+              <param name="position" value="event.param2.{3}"/>
+              <param name="leader_startposition" value="event.param2.{4}"/>
+              <param name="leader_startrotation" value="event.param2.{5}"/>
+              <param name="leader" value="event.param2.{1}"/>
               <param name="leader_preparegroup" value="event.param3"/>
             </run_interrupt_script>
           </do_elseif>
           <do_elseif value="event.param == 'travel jump prep'">
             <!-- interrupt with jump script -->
             <run_interrupt_script name="'ut.cac.move.jump'" abortscripts="true" resume="start">
-              <param name="destination" value="event.param2"/>
+              <param name="destination" value="event.param2.{2}"/>
               <param name="type" value="'object'"/>
-              <param name="leader" value="$object"/>
+              <param name="leader" value="event.param2.{1}"/>
               <param name="leader_preparegroup" value="event.param3"/>
             </run_interrupt_script>
           </do_elseif>
           <do_elseif value="event.param == 'travel jump start'">
             <!-- interrupt with jump script -->
             <run_interrupt_script name="'ut.cac.move.jump'" abortscripts="true" resume="start">
-              <param name="destination" value="event.param2"/>
+              <param name="destination" value="event.param2.{2}"/>
               <param name="type" value="'object'"/>
-              <param name="leader" value="$object"/>
+              <param name="leader" value="event.param2.{1}"/>
               <param name="leader_preparegroup" value="event.param3"/>
               <param name="leader_ready" value="true"/>
             </run_interrupt_script>

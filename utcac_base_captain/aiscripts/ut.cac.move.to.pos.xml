@@ -130,7 +130,7 @@ with a given Rotation or Orientation
       <do_else>
         <create_group groupname="$leader_preparegroup"/>
       </do_else>
-      <signal_objects object="this.ship" param="'travel normal prep'" param2="[$zone, $safepos,$rotation]" param3="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel normal prep'" param2="[ if $leader then $leader else this.ship , $zone, $safepos,$rotation]" param3="$leader_preparegroup"/>
       <wait max="100ms"/>
       <wait max="100ms"/>
       <!-- this Part is currently unused and untested - will be used at a leter Date -->
@@ -148,7 +148,7 @@ with a given Rotation or Orientation
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got final Pos and rotation, starting movement: %4 %5 %6'.[player.age,this.name,this.container.name,$safepos,@$rotation,this.ship.distanceto.{$safepos}]"/>
       
-      <signal_objects object="this.ship" param="'travel normal start'" param2="[$zone, $safepos,$rotation]" param3="$leader_preparegroup"/>
+      <signal_objects object="this.ship" param="'travel normal start'" param2="[ if $leader then $leader else this.ship , $zone, $safepos,$rotation]" param3="$leader_preparegroup"/>
       
       <label name="move"/>
       <!-- Do actual movement -->
