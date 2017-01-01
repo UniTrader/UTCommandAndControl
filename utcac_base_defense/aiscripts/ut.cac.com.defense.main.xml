@@ -178,10 +178,12 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <actions>
         <!-- signal all Drones pursuing Enemies to return, store group for later usage (might not be needed) -->
         <do_all exact="$enemies_g.count" counter="$i">
-          <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return dock'"/>
-          <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
-          <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
-          <remove_value name="$enemies_t.{$enemies_g.{$i}}"/>
+          <do_if value="$enemies_t.{$enemies_g.{$i}}?">
+            <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return dock'"/>
+            <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
+            <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
+            <remove_value name="$enemies_t.{$enemies_g.{$i}}"/>
+          </do_if>
         </do_all>
         <clear_group group="$enemies_g"/>
         <!-- find Enemies in Turret Range (for Battlestate Red) -->
