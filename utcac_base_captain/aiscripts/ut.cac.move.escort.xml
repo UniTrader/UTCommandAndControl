@@ -11,8 +11,8 @@ roughly based on the experimental ut.cac.follow.verysimple
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="escortee" default="null" comment="the Object to follow"/>
-    <param name="time" default="null" comment="how long the other Object should be followed"/>
-    <param name="timeout" default="null" comment="until when the Object should be followed - overrides time"/>
+    <param name="time" default="null" comment="how long the other Object should be followed after Destination is reached - defauts to 3h in case of no Destination and 5 minutes if there is a Destination"/>
+    <param name="timeout" default="null" comment="until when the Object should be followed - overrides time, used internally"/>
     <param name="destination" default="null" comment="where the other Object followed to (as Space, since the context is checked) - Note: Checked on event_object_changed_zone, so suitable for round-trips"/>
     <param name="exitonneworder" default="false" comment="Exit immediately when receiving a new Order. If set to a Number of 2 or greater this is the Number of Orders the this.{$orderlist} has to contain before aborting (since 1 is always this Script)"/>
   </params>
@@ -156,27 +156,37 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
         <check_value value="$destination.exists and $escortee.hascontext.{$destination}"/>
       </conditions>
       <actions>
-        <!-- just fake a Escort Timeout so the Ship finishes the last move properly -->
+        <!-- set timeout Value based on Time, and set time value to 0 so script exits immediately next time (alsoremove Destination to prevent unintentional loops) -->
+        <set_value name="$timeout" exact="player.age + $time"/>
         <set_value name="$time" exact="0s"/>
-        <set_value name="$timeout" exact="player.age"/>
+        <set_value name="$destination" exact="null"/>
+        <set_value name="$params.$timeout" exact="$timeout"/>
+        <set_value name="$params.$time" exact="$time"/>
+        <remove_value name="$params.$destination"/>
       </actions>
     </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
       <label name="init"/>
-      <do_if value="$time and not $timeout">
+      <!-- Calculating Time to Exit -->
+      <!-- Destination is given, but no Time or Timeout - 10h timeout fallback time in case Destination is not reached, and 5 minutes time after Destination is reached -->
+      <do_if value="$destination.exists and not $time and not $timeout">
+        <do_if value="not $ime">
+          <set_value name="$time" exact="5min"/>
+        </do_if>
+        <do_if value="not $timeout">
+          <set_value name="$timeout" exact="player.age + 10h"/>
+        </do_if>
+      </do_if>
+      <!-- no Destination given - if we have a timeout use it directly, otherwise calculate it based on $time -->
+      <do_elseif value="$time and not $timeout">
         <set_value name="$timeout" exact="player.age + $time"/>
         <set_value name="$params.$timeout" exact="$timeout" comment="to keep time consistent in case of restarts when $params changes"/>
-      </do_if>
-      <do_if value="not $timeout">
-        <do_if value="$destination">
-          <set_value name="$timeout" exact="player.age + 8h" comment="follow till Destination is reached, 8 hour timeout to prevent forever lockups"/>
-        </do_if>
-        <do_else>
-          <set_value name="$timeout" exact="player.age + 3h" comment="follow for 3 hours if no Destination or Time is specified"/>
-        </do_else>
-      </do_if>
+      </do_elseif>
+      <do_elseif value="not $timeout">
+        <set_value name="$timeout" exact="player.age + 3h" comment="follow for 3 hours if no Destination or Time is specified"/>
+      </do_elseif>
       
       <!-- check input -->
       <do_if value="not $escortee.isoperational">
