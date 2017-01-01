@@ -361,10 +361,11 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <remove_value name="$enemies_add"/>
         <resume label="yellow"/>
       </do_if>
-      
+      <do_elseif value="$enemies_add.count">
+        <add_to_group groupname="$enemies_g" list="$enemies_add"/>
+        <remove_value name="$enemies_add"/>
+      </do_elseif>
       <remove_value name="$stay_red"/>
-      <add_to_group groupname="$enemies_g" list="$enemies_add"/>
-      <remove_value name="$enemies_add"/>
       
       <!-- if not already in Battlestate now enter it -->
       <debug_text filter="general" text="'%1 %2 %3 Battlestate Red, Target Group:\n%4'.[player.age,this.name,this.container.name,$enemies_g]"/>
