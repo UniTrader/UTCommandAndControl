@@ -72,96 +72,103 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
     </do_if>
   </init>
   <interrupts>
-    <handler comment="Attacked or enemy found - go into battlestate red/yellow">
+    <handler comment="Attacked, enemy found or incoming missile - intercept and go into battlestate red/yellow">
       <conditions>
         <check_any>
           <check_all>
             <event_object_attacked object="this.ship"/>
             <!-- Event for the specified object being attacked (object = attacked object, param = attacker, param2 = kill method, param3 = attacked component) -->
             <check_value value="this.ship.mayattack.{event.param}"/>
+            <check_value value="not $enemies_g.indexof.{event_param}"/>
           </check_all>
           <check_all>
             <event_object_enemy_found object="this.ship"/>
             <check_value value="this.ship.distanceto.{event.param} lt this.ship.maxradarrange and not event.param.ismasstraffic"/>
+            <check_value value="not $enemies_g.indexof.{event_param}"/>
           </check_all>
           <event_object_incoming_missile object="this.ship"/>
+          <event_object_signalled object="this.ship" param="'missile drone defense failed'" comment="Not Yet Implemented - will probably be dropped"/>
           <!-- Event for when a missile is launched at the specified object (object = target object, param = target component, param2 = missile, param3 = missile source) -->
         </check_any>
       </conditions>
       <actions>
-        <set_value name="$attacker" exact="if event.name == 'event_object_incoming_missile' then event.param3 else event.param"/>
-        <add_to_group groupname="$enemies_g" object="$attacker"/>
-        <!-- This Snippet is just because i see a possible memory leak here - <create_group/> alone should be enough -->
-        <do_if value="not $enemies_t.{$attacker}?">
-          <do_if value="global.$unused_groups.{1}?">
-            <set_value name="$newgroup" exact="global.$unused_groups.{1}"/>
-            <remove_value name="global.$unused_groups.{1}"/>
+        <!-- Missile Intercept Code in case a Missile was launched at us (attacker is event.param 3 in this case) -->
+        <do_if value="event.name == 'event_object_incoming_missile'">
+          <!-- rate danger of Missile and add to prio Targets and/or send interceptor Drones -->
+          <!-- for now just send one Interceptor Drone per missile if avialable -->
+          <do_if value="$drones_missiledefense.count">
+            <set_value name="$index" exact="1"/>
+            <do_all exact="$drones_missiledefense.count" counter="$i">
+              <do_if value="$drones_missiledefense.{$i}.distanceto.{event.param2} lt $drones_missiledefense.{$index}.distanceto.{event.param2}">
+                <set_value name="$index" exact="$i"/>
+              </do_if>
+            </do_all>
+            <set_value name="$randominterceptors" exact="if this.ship.distanceto.{event.param2} gt this.ship.size * 1.5 then 0 else [ 10 , $drones_missiledefense.count / 3 ].min"/>
+            <debug_text filter="general" text="'%1 %2 %3 Launching Missile Defense Drone %4 plus %8 random ones to intercept %6 (start distance %7 ) - from set \n%5'.[player.age,this.name,this.container.name,$drones_missiledefense.{$index},$drones_missiledefense,event.param2,this.ship.distanceto.{event.param2},$randominterceptors]"/>
+            <signal_objects object="$drones_missiledefense.{$index}" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true,$debug_out_all=true]"/>
+            <remove_from_group object="$drones_missiledefense.{$index}" group="$drones_missiledefense"/>
+            <do_all exact="$randominterceptors">
+              <set_value name="$newinterceptor" exact="$drones_missiledefense.random"/>
+              <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
+              <remove_from_group object="$newinterceptor" group="$drones_missiledefense"/>
+            </do_all>
           </do_if>
           <do_else>
-            <create_group groupname="$newgroup"/>
+            <debug_text filter="general" text="'%1 %2 %3 Missile lauched against us, but no interceptors available - defending using Turrets only'.[player.age,this.name,this.container.name]"/>
           </do_else>
-          <set_value name="$enemies_t.{$attacker}" exact="$newgroup"/>
+          <add_to_group groupname="$enemies_g" object="event.param2"/>
+          <do_if value="not $enemies_g.indexof.{event_param3}">
+            <set_value name="$attacker" exact="event.param3"/>
+          </do_if>
+          <do_else>
+            <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies_g.list"/>
+          </do_else>
         </do_if>
-        <!-- ##### Check if Attack was intentional and make attacker Enemy -->
-        <do_if value="event.name == 'event_object_attacked'">
-          <!-- send some drones after the Attacker and go into red alert -->
-          <do_if value="$enemies_t.{$attacker}.count le 3 and $drones_defense.count">
-            <do_if value="$attacker.isclass.{[class.drone,class.ship_xs,class.ship_s,class.ship_m]}">
-              <set_value name="$hp" exact="$attacker.maxhull + $attacker.maxshield"/>
-              <!-- subtract DPS of already attacking Drones -->
-              <do_all exact="$enemies_t.{$attacker}.count" counter="$i">
-                <set_value name="$hp" operation="subtract" exact="$enemies_t.{$attacker}.{$i}.dps.all"/>
-              </do_all>
-              <do_while value="$drones_defense.count and $hp gt 0 and $enemies_t.{$attacker}.count le 3">
-                <set_value name="$newinterceptor" exact="$drones_defense.random"/>
-                <set_value name="$hp" operation="subtract" exact="$newinterceptor.dps.all"/>
-                <debug_text filter="general" text="'%1 %2 %3 Launching Interceptor %4 to kill %5'.[player.age,this.name,this.container.name,$newinterceptor,$attacker.name]"/>
-                <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.fight',$target=$attacker,$othertargets=true]"/>
-                <remove_from_group object="$newinterceptor" group="$drones_defense"/>
-                <add_to_group object="$newinterceptor" groupname="$enemies_t.{$attacker}"/>
-              </do_while>
+        <do_else>
+          <set_value name="$attacker" exact="event.param"/>
+        </do_else>
+        <!-- Enemy Intercept Code to Intercept Attackers (who either shot a Missile or shot at us -->
+        <do_if value="$attacker? and this.ship.distanceto.{$attacker} lt this.ship.maxradarrange and this.ship.mayattack.{$attacker}">
+          <add_to_group groupname="$enemies_g" object="$attacker"/>
+          <!-- This Snippet is just because i see a possible memory leak here - <create_group/> alone should be enough -->
+          <do_if value="not $enemies_t.{$attacker}?">
+            <do_if value="global.$unused_groups.{1}?">
+              <set_value name="$newgroup" exact="global.$unused_groups.{1}"/>
+              <remove_value name="global.$unused_groups.{1}"/>
+            </do_if>
+            <do_else>
+              <create_group groupname="$newgroup"/>
+            </do_else>
+            <set_value name="$enemies_t.{$attacker}" exact="$newgroup"/>
+          </do_if>
+          <!-- ##### Check if Attack was intentional and make attacker Enemy -->
+          <do_if value="event.name == 'event_object_attacked' or event.name == 'event_object_incoming_missile'">
+            <!-- send some drones after the Attacker and go into red alert -->
+            <do_if value="$enemies_t.{$attacker}.count le 3 and $drones_defense.count">
+              <do_if value="$attacker.isclass.{[class.drone,class.ship_xs,class.ship_s,class.ship_m]}">
+                <set_value name="$hp" exact="$attacker.maxhull + $attacker.maxshield"/>
+                <!-- subtract DPS of already attacking Drones -->
+                <do_all exact="$enemies_t.{$attacker}.count" counter="$i">
+                  <set_value name="$hp" operation="subtract" exact="$enemies_t.{$attacker}.{$i}.dps.all"/>
+                </do_all>
+                <do_while value="$drones_defense.count and $hp gt 0 and $enemies_t.{$attacker}.count le 3">
+                  <set_value name="$newinterceptor" exact="$drones_defense.random"/>
+                  <set_value name="$hp" operation="subtract" exact="$newinterceptor.dps.all"/>
+                  <debug_text filter="general" text="'%1 %2 %3 Launching Interceptor %4 to kill %5'.[player.age,this.name,this.container.name,$newinterceptor,$attacker.name]"/>
+                  <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.fight',$target=$attacker,$othertargets=true]"/>
+                  <remove_from_group object="$newinterceptor" group="$drones_defense"/>
+                  <add_to_group object="$newinterceptor" groupname="$enemies_t.{$attacker}"/>
+                </do_while>
+              </do_if>
+              <remove_value name="$attacker"/>
+              <abort_called_scripts resume="red"/>
             </do_if>
           </do_if>
-          <abort_called_scripts resume="red"/>
+          <do_else>
+            <remove_value name="$attacker"/>
+            <abort_called_scripts resume="yellow"/>
+          </do_else>
         </do_if>
-        <do_else>
-          <abort_called_scripts resume="yellow"/>
-        </do_else>
-      </actions>
-    </handler>
-    <handler comment="Missile launched against us (or missed by interception Drones) - send (other) interceptors, add missile to turret targets">
-      <conditions>
-        <check_any>
-          <event_object_incoming_missile object="this.ship"/>
-          <!-- Event for when a missile is launched at the specified object (object = target object, param = target component, param2 = missile, param3 = missile source) -->
-          <event_object_signalled object="this.ship" param="'missile drone defense failed'"/>
-        </check_any>
-      </conditions>
-      <actions>
-        <!-- rate danger of Missile and add to prio Targets and/or send interceptor Drones -->
-        <!-- for now just send one Interceptor Drone per missile if avialable -->
-        <do_if value="$drones_missiledefense.count">
-          <set_value name="$index" exact="1"/>
-          <do_all exact="$drones_missiledefense.count" counter="$i">
-            <do_if value="$drones_missiledefense.{$i}.distanceto.{event.param2} lt $drones_missiledefense.{$index}.distanceto.{event.param2}">
-              <set_value name="$index" exact="$i"/>
-            </do_if>
-          </do_all>
-          <set_value name="$randominterceptors" exact="if this.ship.distanceto.{event.param2} gt this.ship.size * 1.5 then 0 else [ 10 , $drones_missiledefense.count / 3 ].min"/>
-          <debug_text filter="general" text="'%1 %2 %3 Launching Missile Defense Drone %4 plus %8 random ones to intercept %6 (start distance %7 ) - from set \n%5'.[player.age,this.name,this.container.name,$drones_missiledefense.{$index},$drones_missiledefense,event.param2,this.ship.distanceto.{event.param2},$randominterceptors]"/>
-          <signal_objects object="$drones_missiledefense.{$index}" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true,$debug_out_all=true]"/>
-          <remove_from_group object="$drones_missiledefense.{$index}" group="$drones_missiledefense"/>
-          <do_all exact="$randominterceptors">
-            <set_value name="$newinterceptor" exact="$drones_missiledefense.random"/>
-            <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
-            <remove_from_group object="$newinterceptor" group="$drones_missiledefense"/>
-          </do_all>
-        </do_if>
-        <do_else>
-          <debug_text filter="general" text="'%1 %2 %3 Missile lauched against us, but no interceptors available - defending using Turrets only'.[player.age,this.name,this.container.name]"/>
-        </do_else>
-        <add_to_group groupname="$enemies_g" object="event.param2"/>
-        <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies_g.list"/>
       </actions>
     </handler>
     <handler comment="Active Scan performed after Sector Changes">
