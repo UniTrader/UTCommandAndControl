@@ -387,6 +387,7 @@ ToDo:
       <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
         <position space="this.zone" object="this.ship" z="20km"/>
         <rotation value="this.ship.rotation"/>
+        <interrupt_after_time time="$jumpdrive.chargetime - 1s"/>
         <interrupt>
           <conditions>
             <check_any>
@@ -399,6 +400,22 @@ ToDo:
           </actions>
         </interrupt>
       </move_to>
+      <stop_moving object="this.ship" immediate="true"/>
+      <do_if value="not $result">
+        <wait>
+          <interrupt>
+            <conditions>
+              <check_any>
+                <event_object_jump_completed object="this.ship"/>
+                <event_object_jump_aborted object="this.ship"/>
+              </check_any>
+            </conditions>
+            <actions>
+              <set_value name="$result" exact="if event.name == 'event_object_jump_completed' then true else false"/>
+            </actions>
+          </interrupt>
+        </wait>
+      </do_if>
       <do_if value="$result">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
       </do_if>
