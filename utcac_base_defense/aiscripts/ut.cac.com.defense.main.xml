@@ -381,20 +381,20 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <do_all exact="$enemies_g.count" counter="$i">
             <!-- send some drones after the Attacker and go into red alert -->
             <do_if value="$drones_defense.count">
-              <do_if value="$enemies.{$i}.isclass.{[class.drone,class.ship_xs,class.ship_s,class.ship_m]}">
-                <set_value name="$hp" exact="$enemies.{$i}.maxhull + $enemies.{$i}.maxshield"/>
+              <do_if value="$enemies_g.{$i}.isclass.{[class.drone,class.ship_xs,class.ship_s,class.ship_m]}">
+                <set_value name="$hp" exact="$enemies_g.{$i}.maxhull + $enemies_g.{$i}.maxshield"/>
                 <!-- subtract DPS of already attacking Drones -->
-                <do_all exact="$enemies_t.{$enemies.{$i}}.count" counter="$i">
-                  <set_value name="$hp" operation="subtract" exact="$enemies_t.{$enemies.{$i}}.{$i}.dps.all"/>
+                <do_all exact="$enemies_t.{$enemies_g.{$i}}.count" counter="$i">
+                  <set_value name="$hp" operation="subtract" exact="$enemies_t.{$enemies_g.{$i}}.{$i}.dps.all"/>
                 </do_all>
                 <set_value name="$sentdrones" exact="0"/>
                 <do_while value="$drones_defense.count and $hp gt 0 and $sentdrones lt ( ($enemies_g.count)i - $i / $drones_defense.count )">
                   <set_value name="$newinterceptor" exact="$drones_defense.random"/>
                   <set_value name="$hp" operation="subtract" exact="$newinterceptor.dps.all"/>
-                  <debug_text filter="general" text="'%1 %2 %3 Launching Preemptive Interceptor %4 to kill %5'.[player.age,this.name,this.container.name,$newinterceptor,$enemies.{$i}.name]"/>
-                  <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.fight',$target=$enemies.{$i},$othertargets=true]"/>
+                  <debug_text filter="general" text="'%1 %2 %3 Launching Preemptive Interceptor %4 to kill %5'.[player.age,this.name,this.container.name,$newinterceptor,$enemies_g.{$i}.name]"/>
+                  <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.fight',$target=$enemies_g.{$i},$othertargets=true]"/>
                   <remove_from_group object="$newinterceptor" group="$drones_defense"/>
-                  <add_to_group object="$newinterceptor" groupname="$enemies_t.{$enemies.{$i}}"/>
+                  <add_to_group object="$newinterceptor" groupname="$enemies_t.{$enemies_g.{$i}}"/>
                 </do_while>
               </do_if>
               <do_else>
