@@ -384,7 +384,7 @@ ToDo:
         <orientation refobject="$beacon" orientation="look_away"/>
         <interrupt_after_time time="0s"/>
       </jump>
-        <set_value name="$interrupted" exact="false" comment="for debugging"/>
+        <set_value name="$interrupted" exact="0" comment="for debugging"/>
       <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
         <position space="this.zone" object="this.ship" z="20km"/>
         <rotation value="this.ship.rotation"/>
@@ -397,8 +397,13 @@ ToDo:
             </check_any>
           </conditions>
           <actions>
-            <set_value name="$result" exact="if event.name == 'event_object_jump_completed' then true else false"/>
-              <set_value name="$interrupted" exact="true" comment="for debugging"/>
+            <do_if value="event.name == 'event_object_jump_completed'">
+              <set_value name="$result" exact="true"/>
+            </do_if>
+            <do_elseif value="event.name == 'event_object_jump_aborted'">
+              <set_value name="$result" exact="false"/>
+            </do_elseif>
+              <set_value name="$interrupted" operation="add" comment="for debugging"/>
           </actions>
         </interrupt>
       </move_to>
@@ -414,8 +419,13 @@ ToDo:
               </check_any>
             </conditions>
             <actions>
-              <set_value name="$result" exact="if event.name == 'event_object_jump_completed' then true else false"/>
-              <set_value name="$interrupted" exact="true" comment="for debugging"/>
+            <do_if value="event.name == 'event_object_jump_completed'">
+              <set_value name="$result" exact="true"/>
+            </do_if>
+            <do_elseif value="event.name == 'event_object_jump_aborted'">
+              <set_value name="$result" exact="false"/>
+            </do_elseif>
+              <set_value name="$interrupted" operation="add" comment="for debugging"/>
             </actions>
           </interrupt>
         </wait>
