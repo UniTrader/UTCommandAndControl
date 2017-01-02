@@ -63,6 +63,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
     <create_group groupname="$drones_missiledefense" comment="most maneuverable Drones"/>
     <create_group groupname="$drones_attack" comment="Drones with Heavy armanements, not suited for dogfights"/>
     <create_group groupname="$drones_defense" comment="all remaining drones"/>
+    <create_group groupname="$alldrones" comment="all drones"/>
     <set_value name="$primarytarget" exact="null"/>
     <set_value name="$droneratio" exact="1.0" comment="ratio of drones which should be launched - depends on Travel preperations (all if no fast travel is planned, 25% in boost prep, 10% in jump prep, 0% when starting jump/boost)"/>
     
@@ -233,9 +234,12 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <event_object_signalled object="this.ship" param="'travel boost start'"/>
           <event_object_signalled object="this.ship" param="'travel gate start'"/>
           <check_all>
-            <!-- events for Docking Drones before starting Travel -->
-            <event_object_docked_at container="this.ship"/>
-            <check_value value="$travel_leader_preparegroup? and this.ship.availableunits.count == this.ship.units.count"/>
+            <!-- events for Docking Drones (or drones being Destroyed) before starting Travel -->
+            <check_any>
+              <event_object_docked group="$alldrones"/>
+              <event_object_destroyed group="$alldrones"/>
+            </check_any>
+            <check_value value="$travel_leader_preparegroup? and $alldrones.count == 0"/>
           </check_all>
         </check_any>
       </conditions>
@@ -245,27 +249,37 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </do_if>
         <do_elseif value="event.param == 'travel boost prep'">
           <set_value name="$droneratio" exact="0.25"/>
+          <set_value name="$travel_leader_preparegroup" exact="event.param3"/>
+          <set_value name="$travel_leader" exact="event.param2.{1}"/>
         </do_elseif>
         <do_elseif value="event.param == 'travel jump prep'">
           <set_value name="$droneratio" exact="0.1"/>
+          <set_value name="$travel_leader_preparegroup" exact="event.param3"/>
+          <set_value name="$travel_leader" exact="event.param2.{1}"/>
         </do_elseif>
         <do_elseif value="event.param == 'travel gate prep'">
           <set_value name="$droneratio" exact="0.66"/>
         </do_elseif>
-        <do_elseif value="event.name == 'event_object_docked_at'">
-          
-        </do_elseif>
-        <do_else>
+        <do_elseif value="event.name == 'event_object_signalled'">
           <!-- all remaining Travel Signals - stop launching drones -->
           <set_value name="$droneratio" exact="0.0"/>
           <signal_objects object="this.ship" param="'recall drones'"/>
-        </do_else>
-        <!-- recall Drones so target ratio is reached -->
-        <do_if value="$droneratio == 1.0 or this.ship.units.{unitcategory.defence}.count == 0" comment="no need to check if all drones should be sent or we have no drones"/>
-        <do_elseif value="1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count gt $droneratio">
-          <signal_objects object="this.ship" param="'recall drones'" param2=" $droneratio / ( 1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count )"/><!-- signals the ratio of Drones which should be recalled -->
         </do_elseif>
-        <abort_called_scripts/>
+        <do_else>
+          <!-- Drones returned/destroyed Event - allow travel to continue -->
+          <remove_from_group group="$travel_leader_preparegroup" object="this"/>
+          <signal_objects object="$travel_leader" param="'preparegroup shrunk'"/>
+          <remove_value name="$travel_leader_preparegroup"/>
+          <remove_value name="$travel_leader"/>
+        </do_else>
+        <do_if value="event.name == 'event_object_signalled'" comment="exclude drones returned event">
+          <!-- recall Drones so target ratio is reached -->
+          <do_if value="$droneratio == 1.0 or this.ship.units.{unitcategory.defence}.count == 0" comment="no need to check if all drones should be sent or we have no drones"/>
+          <do_elseif value="1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count gt $droneratio">
+            <signal_objects object="this.ship" param="'recall drones'" param2=" $droneratio / ( 1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count )"/><!-- signals the ratio of Drones which should be recalled -->
+          </do_elseif>
+          <abort_called_scripts/>
+        </do_if>
       </actions>
     </handler>
   </interrupts>
@@ -346,6 +360,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <param name="missiledefense" value="$drones_missiledefense" comment="drone managment group to pass to the Drones"/>
           <param name="attack" value="$drones_attack" comment="drone managment group to pass to the Drones"/>
           <param name="defense" value="$drones_defense" comment="drone managment group to pass to the Drones"/>
+          <param name="alldrones" value="$alldrones" comment="drone managment group to pass to the Drones"/>
           <param name="ratio" value="$droneratio" comment="ratio of the total drones to be deployed (from 0.0 to 1.0)"/>
         </run_script>
       </do_if>
@@ -415,6 +430,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <param name="missiledefense" value="$drones_missiledefense" comment="drone managment group to pass to the Drones"/>
           <param name="attack" value="$drones_attack" comment="drone managment group to pass to the Drones"/>
           <param name="defense" value="$drones_defense" comment="drone managment group to pass to the Drones"/>
+          <param name="alldrones" value="$alldrones" comment="drone managment group to pass to the Drones"/>
           <param name="ratio" value="$droneratio" comment="ratio of the total drones to be deployed (from 0.0 to 1.0)"/>
         </run_script>
       </do_if>
