@@ -2,6 +2,18 @@
 <aiscript name="ut.cac.orderlist.loop" version="30" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <params/>
   <interrupts>
+    <library>
+      <handler name="ut_cac_exitonneworder" comment="Handler for exiting current Script when a new Order is received">
+        <conditions>
+          <event_object_signalled object="this" param="'new order received'"/>
+          <check_value value="$exitonneworder and this.$orderlist.{$exitonneworder}?"/>
+        </conditions>
+        <actions>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received new Order - Exiting (interrupt case)'.[player.age,this.name,this.container.name]"/>
+          <abort_called_scripts resume="finish"/>
+        </actions>
+      </handler>
+    </library>
     <handler>
       <!-- 
       Signal Handlers for Orderlist Managment
@@ -185,8 +197,11 @@
       <label name="find job"/>
       <do_if value="player.age gt $next_default_order_call">
         <!-- limit looking up default orders to once per minute -->
+        <!-- no outstanding direct orders - first check if a time delayed order may be called, otherwise call defined Default Orders Script to get new ones -->
+        <do_if value="player.age gt this.$ut_cac.$delayedorders_time.{1}">
+          <append_to_list name="this.$orderlist" exact="this.$ut_cac.$delayedorders_order.{1}"/>
+        </do_if>
         <set_value name="$next_default_order_call" exact="player.age + 10s"/>
-        <!-- no outstanding direct orders - call defined Default Orders Script to get new ones -->
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calling Default Orders Script'.[player.age,this.name,this.container.name]"/>
         <run_script name="this.$ut_cac.$defaultorders.$script">
           <param name="params" value="this.$ut_cac.$defaultorders"/>
