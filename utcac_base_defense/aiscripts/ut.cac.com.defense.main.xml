@@ -222,7 +222,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <remove_value name="$enemies_t.{event.object}"/>
       </actions>
     </handler>
-    <handler comment="travel intent signals - set Variables for not launching Drones anymore and send Drone Recall Singals">
+    <handler comment="travel intent signals and Drone Recall - set Variables for not launching Drones anymore and send Drone Recall Singals">
       <conditions>
         <check_any>
           <event_object_signalled object="this.ship" param="'travel aborted'"/>
@@ -241,6 +241,11 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
             </check_any>
             <check_value value="$travel_leader_preparegroup? and $alldrones.count == 0"/>
           </check_all>
+          <!-- approaching last waypoint while in prep for boost travel - recall all drones -->
+          <check_all>
+            <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/>
+            <check_value value="$travel_leader_preparegroup?"/>
+          </check_all>
         </check_any>
       </conditions>
       <actions>
@@ -253,7 +258,8 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <set_value name="$travel_leader" exact="event.param2.{1}"/>
         </do_elseif>
         <do_elseif value="event.param == 'travel jump prep'">
-          <set_value name="$droneratio" exact="0.1"/>
+          <set_value name="$droneratio" exact="0.0"/>
+          <signal_objects object="this.ship" param="'recall drones'"/>
           <set_value name="$travel_leader_preparegroup" exact="event.param3"/>
           <set_value name="$travel_leader" exact="event.param2.{1}"/>
         </do_elseif>
@@ -262,6 +268,11 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </do_elseif>
         <do_elseif value="event.name == 'event_object_signalled'">
           <!-- all remaining Travel Signals - stop launching drones -->
+          <set_value name="$droneratio" exact="0.0"/>
+          <signal_objects object="this.ship" param="'recall drones'"/>
+        </do_elseif>
+        <do_elseif value="event.name == 'event_object_approaching_waypoint'">
+          <!-- last waypoin of boost prep - recall everyone -->
           <set_value name="$droneratio" exact="0.0"/>
           <signal_objects object="this.ship" param="'recall drones'"/>
         </do_elseif>
@@ -274,7 +285,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </do_else>
         <do_if value="event.name == 'event_object_signalled'" comment="exclude drones returned event">
           <!-- recall Drones so target ratio is reached -->
-          <do_if value="$droneratio == 1.0 or this.ship.units.{unitcategory.defence}.count == 0" comment="no need to check if all drones should be sent or we have no drones"/>
+          <do_if value="$droneratio == 1.0 or $droneratio == 0.0 or this.ship.units.{unitcategory.defence}.count == 0" comment="no need to check if all drones should be sent or we have no drones - also complete recal is handled indvidually"/>
           <do_elseif value="1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count gt $droneratio">
             <signal_objects object="this.ship" param="'recall drones'" param2=" $droneratio / ( 1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count )"/><!-- signals the ratio of Drones which should be recalled -->
           </do_elseif>
