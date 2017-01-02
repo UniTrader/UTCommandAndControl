@@ -384,8 +384,8 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
               <do_if value="$enemies_g.{$i}.isclass.{[class.drone,class.ship_xs,class.ship_s,class.ship_m]}">
                 <set_value name="$hp" exact="$enemies_g.{$i}.maxhull + $enemies_g.{$i}.maxshield"/>
                 <!-- subtract DPS of already attacking Drones -->
-                <do_all exact="$enemies_t.{$enemies_g.{$i}}.count" counter="$i">
-                  <set_value name="$hp" operation="subtract" exact="$enemies_t.{$enemies_g.{$i}}.{$i}.dps.all"/>
+                <do_all exact="$enemies_t.{$enemies_g.{$i}}.count" counter="$j">
+                  <set_value name="$hp" operation="subtract" exact="$enemies_t.{$enemies_g.{$i}}.{$j}.dps.all"/>
                 </do_all>
                 <set_value name="$sentdrones" exact="0"/>
                 <do_while value="$drones_defense.count and $hp gt 0 and $sentdrones lt ( ($enemies_g.count)i - $i / $drones_defense.count )">
