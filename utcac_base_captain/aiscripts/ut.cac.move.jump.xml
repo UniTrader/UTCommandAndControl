@@ -384,8 +384,6 @@ ToDo:
         <orientation refobject="$beacon" orientation="look_away"/>
         <interrupt_after_time time="0s"/>
       </jump>
-        <set_value name="$interrupted" exact="0" comment="for debugging"/>
-        <debug_text filter="error" chance="this.isplayerowned * 100" text="'Result 1: %1'.[$result]"/>
       <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
         <position space="this.zone" object="this.ship" z="20km"/>
         <rotation value="this.ship.rotation"/>
@@ -405,7 +403,6 @@ ToDo:
             <do_elseif value="event.name == 'event_object_jump_aborted'">
               <set_value name="$result" exact="false"/>
             </do_elseif>
-              <set_value name="$interrupted" operation="add" comment="for debugging"/>
           </actions>
         </interrupt>
       </move_to>
@@ -429,18 +426,16 @@ ToDo:
              <do_elseif value="event.name == 'event_object_jump_aborted'">
                 <set_value name="$result" exact="false"/>
               </do_elseif>
-              <set_value name="$interrupted" operation="add" comment="for debugging"/>
             </actions>
           </interrupt>
         </wait>
       </do_if>
-        <debug_text filter="error" chance="this.isplayerowned * 100" text="'Result 3: %1'.[$result]"/>
       <do_if value="$result">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
       </do_if>
       <do_else>
         <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7 operational: %8\nPerforming Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational]"/>
-        <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3, interrupted: %4'.[this.zone.name,$beacon.zone.name,$beacon.name,$interrupted]"/>
+        <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3, interrupted: %4'.[this.zone.name,$beacon.zone.name,$beacon.name]"/>
         <warp object="this.ship" zone="$beacon.zone">
           <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
           <orientation refobject="$beacon" orientation="look_away"/>
