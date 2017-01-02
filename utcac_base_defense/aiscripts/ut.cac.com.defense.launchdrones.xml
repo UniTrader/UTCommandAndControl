@@ -25,8 +25,13 @@ Drone Launching Sub-Script for the DO which is called in Battlestate yellow and 
         <set_value name="$ratio" exact="1.0"/>
       </do_if>
       
-      <do_if value="( 1.0 -  (( this.ship.availableunits.{unitcategory.defence}.count )f / this.ship.units.{unitcategory.defence}.count) ) ge $ratio">
-        <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Enough Drones already out, $ratio: %4, actual ratio: %5 - returning'.[player.age,this.name,this.container.name,$ratio,1.0 - ((this.ship.availableunits.{unitcategory.defence}.count)f / this.ship.units.{unitcategory.defence}.count)]"/>
+      <do_if value="this.ship.units.{unitcategory.defence}.count == 0 or ( 1.0 -  (( this.ship.availableunits.{unitcategory.defence}.count )f / this.ship.units.{unitcategory.defence}.count) ) ge $ratio">
+        <do_if value="this.ship.units.{unitcategory.defence}.count != 0">
+          <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 Enough Drones already out, $ratio: %4, actual ratio: %5 - returning'.[player.age,this.name,this.container.name,$ratio,1.0 - ((this.ship.availableunits.{unitcategory.defence}.count)f / this.ship.units.{unitcategory.defence}.count)]"/>
+        </do_if>
+        <do_else>
+          <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 %3 No Drones to launch - returning'.[player.age,this.name,this.container.name]"/>
+        </do_else>
         <return/>
       </do_if>
       
