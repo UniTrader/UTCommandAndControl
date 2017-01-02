@@ -385,6 +385,7 @@ ToDo:
         <interrupt_after_time time="0s"/>
       </jump>
         <set_value name="$interrupted" exact="0" comment="for debugging"/>
+        <debug_text filter="error" chance="this.isplayerowned * 100" text="'Result 1: %1'.[$result]"/>
       <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
         <position space="this.zone" object="this.ship" z="20km"/>
         <rotation value="this.ship.rotation"/>
@@ -408,6 +409,7 @@ ToDo:
         </interrupt>
       </move_to>
       <stop_moving object="this.ship" immediate="true"/>
+        <debug_text filter="error" chance="this.isplayerowned * 100" text="'Result 2: %1'.[$result]"/>
       <do_if value="not $result">
         <wait>
           <interrupt_after_time time="5s"/>
@@ -430,6 +432,7 @@ ToDo:
           </interrupt>
         </wait>
       </do_if>
+        <debug_text filter="error" chance="this.isplayerowned * 100" text="'Result 3: %1'.[$result]"/>
       <do_if value="$result">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
       </do_if>
