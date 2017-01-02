@@ -421,7 +421,8 @@ ToDo:
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
       </do_if>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7 operational: %8\nPerforming Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7 operational: %8\nPerforming Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational]"/>
+        <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3'.[this.zone.name,$beacon.zone.name,$beacon.name]"/>
         <warp object="this.ship" zone="$beacon.zone">
           <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
           <orientation refobject="$beacon" orientation="look_away"/>
