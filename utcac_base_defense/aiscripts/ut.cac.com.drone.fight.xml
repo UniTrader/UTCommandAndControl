@@ -27,11 +27,11 @@
         <set_value name="$secondarytargets" exact="null"/>
       </do_else>
       <leave_formation object="this.ship"/>
-      <debug_text filter="general" text="'%1 %2 %3 Interceptor Drone sent against: %5'.[player.age,this.name,this.container.name,$params.$target]"/>
+      <debug_text filter="general" text="'%1 %2 %3 Interceptor Drone sent against: %4'.[player.age,this.name,this.container.name,$params.$target]"/>
       <run_script name="'fight.attack.object.fighter'">
         <param name="primarytargets" value="$primarytargets" comment="Group of objects to destroy before moving on to other nearby targets" />
         <param name="secondarytargets" value="$secondarytargets" comment="Group of objects to destroy after primary targets, before moving on to other nearby targets" />
-        <param name="pursuedistance" value="this.ship.commander.maxcombatrange.turrets" comment="Distance to pursue/escort (if pursuetargets true or 'escort' provided). Default: 50km" />
+        <param name="pursuedistance" value="this.ship.commander.maxradarrange / 2" comment="Distance to pursue/escort (if pursuetargets true or 'escort' provided). Default: 50km" />
         <param name="pursuetargets" value="false" comment="Pursue the target no matter what. Default: false" />
         <param name="allowothertargets" value="false" comment="Whether the script shall keep running when all primary targets have been destroyed. Default: true" />
       </run_script>
