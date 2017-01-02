@@ -394,11 +394,12 @@ ToDo:
           <conditions>
             <check_any>
               <event_object_jump_completed object="this.ship"/>
+              <event_object_changed_zone object="this.ship" zone="$beacon.zone" comment="workaround because jump_completed doesnt seem to trigger"/>
               <event_object_jump_aborted object="this.ship"/>
             </check_any>
           </conditions>
           <actions>
-            <do_if value="event.name == 'event_object_jump_completed'">
+            <do_if value="event.name == 'event_object_jump_completed' or event.name == 'event_object_changed_zone'">
               <set_value name="$result" exact="true"/>
             </do_if>
             <do_elseif value="event.name == 'event_object_jump_aborted'">
@@ -417,16 +418,17 @@ ToDo:
             <conditions>
               <check_any>
                 <event_object_jump_completed object="this.ship"/>
+                <event_object_changed_zone object="this.ship" zone="$beacon.zone" comment="workaround because jump_completed doesnt seem to trigger"/>
                 <event_object_jump_aborted object="this.ship"/>
               </check_any>
             </conditions>
             <actions>
-            <do_if value="event.name == 'event_object_jump_completed'">
-              <set_value name="$result" exact="true"/>
-            </do_if>
-            <do_elseif value="event.name == 'event_object_jump_aborted'">
-              <set_value name="$result" exact="false"/>
-            </do_elseif>
+              <do_if value="event.name == 'event_object_jump_completed' or event.name == 'event_object_changed_zone'">
+                <set_value name="$result" exact="true"/>
+              </do_if>
+             <do_elseif value="event.name == 'event_object_jump_aborted'">
+                <set_value name="$result" exact="false"/>
+              </do_elseif>
               <set_value name="$interrupted" operation="add" comment="for debugging"/>
             </actions>
           </interrupt>
