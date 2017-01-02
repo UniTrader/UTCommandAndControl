@@ -384,6 +384,7 @@ ToDo:
         <orientation refobject="$beacon" orientation="look_away"/>
         <interrupt_after_time time="0s"/>
       </jump>
+        <set_value name="$interrupted" exact="false" comment="for debugging"/>
       <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
         <position space="this.zone" object="this.ship" z="20km"/>
         <rotation value="this.ship.rotation"/>
@@ -397,6 +398,7 @@ ToDo:
           </conditions>
           <actions>
             <set_value name="$result" exact="if event.name == 'event_object_jump_completed' then true else false"/>
+              <set_value name="$interrupted" exact="true" comment="for debugging"/>
           </actions>
         </interrupt>
       </move_to>
@@ -413,6 +415,7 @@ ToDo:
             </conditions>
             <actions>
               <set_value name="$result" exact="if event.name == 'event_object_jump_completed' then true else false"/>
+              <set_value name="$interrupted" exact="true" comment="for debugging"/>
             </actions>
           </interrupt>
         </wait>
@@ -422,7 +425,7 @@ ToDo:
       </do_if>
       <do_else>
         <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7 operational: %8\nPerforming Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational]"/>
-        <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3'.[this.zone.name,$beacon.zone.name,$beacon.name]"/>
+        <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3, interrupted: %4'.[this.zone.name,$beacon.zone.name,$beacon.name,$interrupted]"/>
         <warp object="this.ship" zone="$beacon.zone">
           <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
           <orientation refobject="$beacon" orientation="look_away"/>
