@@ -134,8 +134,14 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <!-- This Snippet is just because i see a possible memory leak here - <create_group/> alone should be enough -->
           <do_if value="not $enemies_t.{$attacker}?">
             <do_if value="global.$unused_groups.{1}?">
-              <set_value name="$newgroup" exact="global.$unused_groups.{1}"/>
-              <remove_value name="global.$unused_groups.{1}"/>
+              <do_if value="typeof global.$unused_groups.{1} == datatype.group and global.$unused_groups.{1}.count == 0">
+                <set_value name="$newgroup" exact="global.$unused_groups.{1}"/>
+                <remove_value name="global.$unused_groups.{1}"/>
+              </do_if>
+              <do_else>
+                <debug_text filter="error" text="'Group got somehow cleaned up? or has members?\n%1'.[global.$unused_groups]"/>
+                <create_group groupname="$newgroup"/>
+              </do_else>
             </do_if>
             <do_else>
               <create_group groupname="$newgroup"/>
