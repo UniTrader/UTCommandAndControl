@@ -237,10 +237,10 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <event_object_signalled object="this.ship" param="'travel aborted'"/>
           <event_object_signalled object="this.ship" param="'travel completed'"/>
           <event_object_signalled object="this.ship" param="'travel boost prep'"/>
-          <event_object_signalled object="this.ship" param="'travel jump prep'"/>
-          <event_object_signalled object="this.ship" param="'travel gate prep'"/>
-          <event_object_signalled object="this.ship" param="'travel jump start'"/>
           <event_object_signalled object="this.ship" param="'travel boost start'"/>
+          <event_object_signalled object="this.ship" param="'travel jump prep'"/>
+          <event_object_signalled object="this.ship" param="'travel jump start'"/>
+          <event_object_signalled object="this.ship" param="'travel gate prep'"/>
           <event_object_signalled object="this.ship" param="'travel gate start'"/>
           <check_all>
             <!-- events for Docking Drones (or drones being Destroyed) before starting Travel -->
@@ -262,7 +262,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <set_value name="$droneratio" exact="1.0"/>
         </do_if>
         <do_elseif value="event.param == 'travel boost prep'">
-          <set_value name="$droneratio" exact="0.25"/>
+          <set_value name="$droneratio" exact="1.00"/>
           <set_value name="$travel_leader_preparegroup" exact="event.param3"/>
           <set_value name="$travel_leader" exact="event.param2.{1}"/>
         </do_elseif>
@@ -275,13 +275,17 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <do_elseif value="event.param == 'travel gate prep'">
           <set_value name="$droneratio" exact="0.66"/>
         </do_elseif>
+        <do_elseif value="event.param == 'travel gate start'">
+          <set_value name="$droneratio" exact="0.0"/>
+          <signal_objects object="this.ship" param="'recall drones'"/>
+        </do_elseif>
         <do_elseif value="event.name == 'event_object_signalled'">
           <!-- all remaining Travel Signals - stop launching drones -->
           <set_value name="$droneratio" exact="0.0"/>
           <signal_objects object="this.ship" param="'recall drones'"/>
         </do_elseif>
         <do_elseif value="event.name == 'event_object_approaching_waypoint'">
-          <!-- last waypoin of boost prep - recall everyone -->
+          <!-- last waypoint of boost prep - recall everyone -->
           <set_value name="$droneratio" exact="0.0"/>
           <signal_objects object="this.ship" param="'recall drones'"/>
         </do_elseif>
