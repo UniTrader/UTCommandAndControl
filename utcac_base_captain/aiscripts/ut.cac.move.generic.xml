@@ -391,7 +391,7 @@
               <run_script name="'ut.cac.move.jump'" result="$result" >
                 <param name="destination" value="this.$waypoint.zone"/>
               </run_script>
-              <do_if value="not this.ship.hascontext.{this.$waypoint}">
+              <do_if value="not this.ship.hascontext.{this.$waypoint.sector}">
                 <debug_text filter="error" text="'Move Gate - Jump Failed! Destination: %1 / %2 Current Sector/Zone: %3 %4'.[this.$waypoint.name,this.$waypoint.zone.name,this.sector.name,this.zone.name]"/>
               </do_if>
             </do_if>
@@ -402,8 +402,8 @@
               <param name="destination" value="this.$waypoint"/>
               <param name="position" value="position.[0m,0m,0-(this.ship.size + this.$waypoint.size)]" comment="relative to destination! (including its rotation)"/>
             </run_script>
-            <do_if value="not this.ship.hascontext.{this.$waypoint}">
-              <debug_text filter="error" text="'Move Gate - Boost Failed! Destination: %1 Current Sector/Zone: %2 %3'.[this.$waypoint.name,this.sector.name,this.zone.name]"/>
+            <do_if value="not this.ship.hascontext.{this.$waypoint.zone}">
+              <debug_text filter="error" text="'Move Gate - Boost Failed! Destination: %1 / %2 Current Sector/Zone: %3 %4'.[this.$waypoint.name,this.$waypoint.zone.name,this.sector.name,this.zone.name]"/>
             </do_if>
             <remove_value name="$waypointposition"/>
             
@@ -424,8 +424,8 @@
               <run_script name="'ut.cac.move.jump'" result="$result" >
                 <param name="destination" value="this.$waypoint"/>
               </run_script>
-              <do_if value="not this.ship.hascontext.{this.$waypoint}">
-                <debug_text filter="error" text="'Move Zone - Jump Failed! Destination: %1 Current Sector/Zone: %2 %3'.[this.$waypoint.name,this.sector.name,this.zone.name]"/>
+              <do_if value="not this.ship.hascontext.{this.$waypoint.sector}">
+                <debug_text filter="error" text="'Move Zone - Jump Failed! Destination: %1 / %2 Current Sector/Zone: %3 %4'.[this.$waypoint.name,this.$waypoint.sector.name,this.sector.name,this.zone.name]"/>
               </do_if>
             </do_if>
             <resume label="fine movement"/>
