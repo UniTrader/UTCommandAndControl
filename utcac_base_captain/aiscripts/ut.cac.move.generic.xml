@@ -367,6 +367,9 @@
               <run_script name="'ut.cac.move.boost'" sinceversion="30">
                 <param name="destination" value="this.$waypoint"/>
               </run_script>
+              <do_if value="not this.ship.hascontext.{this.$waypoint}">
+                <debug_text filter="error" text="'IC Boost failed! (why did it even happen?) Destination: %1 Current Sector/Zone: %2 %3'.[this.$waypoint.name,this.sector.name,this.zone.name]"/>
+              </do_if>
             </do_if>
             <do_if value="not this.ship.hascontext.{this.$waypoint}" comment="didnt attemt to IC-Boost or IC-Boost failed">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
@@ -374,6 +377,9 @@
               <run_script name="'ut.cac.move.jump'" result="$result" >
                 <param name="destination" value="this.$waypoint"/>
               </run_script>
+              <do_if value="not this.ship.hascontext.{this.$waypoint}">
+                <debug_text filter="error" text="'Jump Failed! Destination: %1 Current Sector/Zone: %2 %3'.[this.$waypoint.name,this.sector.name,this.zone.name]"/>
+              </do_if>
             </do_if>
           </do_if>
           <do_elseif value="this.$waypoint.isclass.gate">
@@ -385,6 +391,9 @@
               <run_script name="'ut.cac.move.jump'" result="$result" >
                 <param name="destination" value="this.$waypoint.zone"/>
               </run_script>
+              <do_if value="not this.ship.hascontext.{this.$waypoint}">
+                <debug_text filter="error" text="'Move Gate - Jump Failed! Destination: %1 / %2 Current Sector/Zone: %3 %4'.[this.$waypoint.name,this.$waypoint.zone.name,this.sector.name,this.zone.name]"/>
+              </do_if>
             </do_if>
             
             <!-- Boost to Gate Position -->
@@ -393,6 +402,9 @@
               <param name="destination" value="this.$waypoint"/>
               <param name="position" value="position.[0m,0m,0-(this.ship.size + this.$waypoint.size)]" comment="relative to destination! (including its rotation)"/>
             </run_script>
+            <do_if value="not this.ship.hascontext.{this.$waypoint}">
+              <debug_text filter="error" text="'Move Gate - Boost Failed! Destination: %1 Current Sector/Zone: %2 %3'.[this.$waypoint.name,this.sector.name,this.zone.name]"/>
+            </do_if>
             <remove_value name="$waypointposition"/>
             
             <!-- Move through Gate -->
@@ -400,6 +412,9 @@
             <run_script name="'ut.cac.move.gate2'">
               <param name="gate" value="this.$waypoint" />
             </run_script>
+            <do_if value="not this.ship.hascontext.{this.$waypoint}">
+              <debug_text filter="error" text="'Move Gate itself Failed! Destination: %1 %2 Current Sector/Zone: %3 %4'.[this.$waypoint.name,this.$waypoint.zone.name,this.sector.name,this.zone.name]"/>
+            </do_if>
           </do_elseif>
           <do_elseif value="this.$waypoint.isclass.zone">
             <!-- next is the Target Zone/Sector - First jump to the closest Beacon (if necesary), then go to Fine Movement for the Destination (with Boosting) -->
@@ -409,6 +424,9 @@
               <run_script name="'ut.cac.move.jump'" result="$result" >
                 <param name="destination" value="this.$waypoint"/>
               </run_script>
+              <do_if value="not this.ship.hascontext.{this.$waypoint}">
+                <debug_text filter="error" text="'Move Zone - Jump Failed! Destination: %1 Current Sector/Zone: %2 %3'.[this.$waypoint.name,this.sector.name,this.zone.name]"/>
+              </do_if>
             </do_if>
             <resume label="fine movement"/>
             <return/>
@@ -447,10 +465,14 @@
       <!-- Final boost to nearby the Destination Object - get safepos a bit in our Direction before to avoid yoyo-effect-->
       <get_safe_pos result="$safepos" zone="if $destination.isclass.zone then $destination else $destination.zone" value="if $position then $position else position.[0m,0m,0m]" radius="this.ship.size" directionobject="this.ship" min="5km"/>
       <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 7km and $destination != $targetspace )">
+        <set_value name="this.$waypoint" exact="$targetspace"/>
         <run_script name="'ut.cac.move.boost'">
           <param name="destination" value="if $destination.hascontext.{$targetspace} then $destination else $targetspace"/>
           <param name="position" value="$safepos" comment="position is treated as position relative to the destination (includes its rotation). Default: safe position on [0,0,0] of destination (Note: boost only moves nearby, not exact)"/>
         </run_script>
+        <do_if value="not this.ship.hascontext.{$targetspace}">
+          <debug_text filter="error" text="'Final boost Failed! Destination: %1 Current Sector/Zone: %2 %3'.[this.$waypoint.name,this.sector.name,this.zone.name]"/>
+        </do_if>
       </do_if>
       <set_value name="this.$waypoint" exact="this.zone"/>
       <remove_value name="this.$destination"/>
