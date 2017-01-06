@@ -685,7 +685,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <set_value name="$playerage_before" exact="player.age"/>
         <wait exact="0s"/>
         <set_value name="$spf" exact="(player.age)f - ($playerage_before)f"/>
-        <set_value name="$waittime" exact="($spf * $spf + ($spf / 4) * 500" comment="( seconds per frame ² + seconds per frame /4 ) * 500 ## Results in roughly 1.7s @60fps and 3.7s@30fps"/>
+        <set_value name="$waittime" exact="($spf * $spf) + ($spf / 4) * 500" comment="( seconds per frame ² + seconds per frame /4 ) * 500 ## Results in roughly 1.7s @60fps and 3.7s@30fps"/>
         <debug_text filter="general" text="'%1 %2 %3 Round Time: %4 playerage before: %5, player.age: %6'.[player.age,this.name,this.container.name,$waittime,$playerage_before,player.age]"/>
         <!-- try to attack Primary Target in every "round"-->
         <do_if value="$primarytarget.isoperational and this.ship.distanceto.{$primarytarget} lt this.ship.maxcombatrange">
