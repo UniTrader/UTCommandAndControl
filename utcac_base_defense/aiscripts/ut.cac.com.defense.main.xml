@@ -326,6 +326,12 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <!-- ######################################################################################################################################################### -->
       <label name="green"/>
+      <do_if value="$namingentity.exists and $namingentity.container != this.container">
+        <!-- old Namingentity moved - clear its Variables -->
+        <set_value name="$namingentity.$namereplacement.$utcac_do_state"/>
+        <set_value name="$namingentity.$namereplacement.$utcac_do_droneratio"/>
+        <signal_objects object="this.container" param="'Object Name Updated'"/>
+      </do_if>
       <set_value name="$namingentity" exact="if this.container.isclass.station then this.container.tradenpc else this.container.controlentity" comment="update of naming entity"/>
       <debug_text filter="general" text="'%1 %2 %3 Battlestate Green, set naming entity to %4'.[player.age,this.name,this.container.name,$namingentity.name]"/>
       <do_if value="$battlestate != 'green'">
@@ -546,6 +552,12 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <!-- ######################################################################################################################################################### -->
       <label name="green"/>
+      <do_if value="$namingentity.exists and $namingentity.container != this.container">
+        <!-- old Namingentity moved - clear its Variables -->
+        <set_value name="$namingentity.$namereplacement.$utcac_do_state"/>
+        <set_value name="$namingentity.$namereplacement.$utcac_do_droneratio"/>
+        <signal_objects object="this.container" param="'Object Name Updated'"/>
+      </do_if>
       <set_value name="$namingentity" exact="if this.container.isclass.station then this.container.tradenpc else this.container.controlentity" comment="update of naming entity"/>
       <debug_text filter="general" text="'%1 %2 %3 OOS Battlestate Green, set naming entity to %4'.[player.age,this.name,this.container.name,$namingentity.name]"/>
       <do_if value="$battlestate != 'green'">
@@ -731,5 +743,10 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
   </attention>
   <on_abort>
     <!-- Script Terminated - set Drones into self-destruct mode and pass them as group via signal, so a replacement DO can recover them -->
+    
+    <!-- remove now unneeded Naming Vars from the Naming Entity -->
+    <set_value name="$namingentity.$namereplacement.$utcac_do_state"/>
+    <set_value name="$namingentity.$namereplacement.$utcac_do_droneratio"/>
+    <signal_objects object="this.container" param="'Object Name Updated'"/>
   </on_abort>
 </aiscript>
