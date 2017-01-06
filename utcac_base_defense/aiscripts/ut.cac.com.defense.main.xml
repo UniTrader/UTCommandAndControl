@@ -301,7 +301,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <remove_value name="$travel_leader"/>
         </do_else>
         <do_if value="$namingentity.$namereplacement?">
-          <set_value name="this.container.pilot.$namereplacement.$utcac_do_droneratio" exact="'%1'.[$droneratio]"/>
+          <set_value name="$namingentity.$namereplacement.$utcac_do_droneratio" exact="'%1'.[$droneratio]"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
         </do_if>
         <debug_text filter="general" text="'%1 %2 %3 Droneratio changed to %4'.[player.age,this.name,this.container.name,$droneratio]"/>
@@ -327,6 +327,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <!-- ######################################################################################################################################################### -->
       <label name="green"/>
+      <set_value name="$namingentity" exact="if $object.isclass.station then $object.tradenpc else $object.controlentity"/>
       <debug_text filter="general" text="'%1 %2 %3 Battlestate Green'.[player.age,this.name,this.container.name]"/>
       <do_if value="$battlestate != 'green'">
         <cease_fire object="this.ship"/>
@@ -338,7 +339,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <leave_formation object="this.ship"/>
         <set_value name="$battlestate" exact="'green'"/>
         <do_if value="$namingentity.$namereplacement?">
-          <set_value name="this.container.pilot.$namereplacement.$utcac_do_state" exact="'\033GG\033X'"/>
+          <set_value name="$namingentity.$namereplacement.$utcac_do_state" exact="'\033GG\033X'"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
         </do_if>
       </do_if>
@@ -385,7 +386,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <activate_battlestate object="this.ship" state="battlestate_yellow"/>
         <set_value name="$battlestate" exact="'yellow'"/>
         <do_if value="$namingentity.$namereplacement?">
-          <set_value name="this.container.pilot.$namereplacement.$utcac_do_state" exact="'\033YY\033X'"/>
+          <set_value name="$namingentity.$namereplacement.$utcac_do_state" exact="'\033YY\033X'"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
         </do_if>
       </do_if>
@@ -484,7 +485,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <activate_battlestate object="this.ship" state="battlestate_red"/>
         <set_value name="$battlestate" exact="'red'"/>
         <do_if value="$namingentity.$namereplacement?">
-          <set_value name="this.container.pilot.$namereplacement.$utcac_do_state" exact="'\033RR\033X'"/>
+          <set_value name="$namingentity.$namereplacement.$utcac_do_state" exact="'\033RR\033X'"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
         </do_if>
       </do_if>
@@ -547,12 +548,13 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       
       <!-- ######################################################################################################################################################### -->
       <label name="green"/>
+      <set_value name="$namingentity" exact="if $object.isclass.station then $object.tradenpc else $object.controlentity"/>
       <debug_text filter="general" text="'%1 %2 %3 OOS Battlestate Green'.[player.age,this.name,this.container.name]"/>
       <do_if value="$battlestate != 'green'">
         <leave_formation object="this.ship"/>
         <set_value name="$battlestate" exact="'green'"/>
         <do_if value="$namingentity.$namereplacement?">
-          <set_value name="this.container.pilot.$namereplacement.$utcac_do_state" exact="'\033GG\033X'"/>
+          <set_value name="$namingentity.$namereplacement.$utcac_do_state" exact="'\033GG\033X'"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
         </do_if>
       </do_if>
@@ -598,7 +600,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <activate_battlestate object="this.ship" state="battlestate_yellow"/>
         <set_value name="$battlestate" exact="'yellow'"/>
         <do_if value="$namingentity.$namereplacement?">
-          <set_value name="this.container.pilot.$namereplacement.$utcac_do_state" exact="'\033YY\033X'"/>
+          <set_value name="$namingentity.$namereplacement.$utcac_do_state" exact="'\033YY\033X'"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
         </do_if>
       </do_if>
@@ -658,7 +660,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </do_if>
         <set_value name="$battlestate" exact="'red'"/>
         <do_if value="$namingentity.$namereplacement?">
-          <set_value name="this.container.pilot.$namereplacement.$utcac_do_state" exact="'\033RR\033X'"/>
+          <set_value name="$namingentity.$namereplacement.$utcac_do_state" exact="'\033RR\033X'"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
         </do_if>
       </do_if>
