@@ -694,11 +694,11 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
             <debug_text filter="general" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (primary; base value: %6 )'.[player.age,this.name,this.container.name,$attackstrength * ($time)i,$primarytarget.name,$attackstrength]"/>
           </do_all>
         <!-- Calculate Damage for Additional Targets - maximum overall Damage is same as Vanilla ( attackstrength * 3 ) but its distributed over more possible Targets (10 instead of 3) -->
-          <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies.count , 10].min"/>
+          <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies_g.count , 10].min"/>
           <set_value name="$DamageMulti" exact="[2.0/$HitVolleys,1.0].min"/>
         </do_if>
         <do_else>
-          <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies.count , 10].min"/>
+          <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies_g.count , 10].min"/>
           <set_value name="$DamageMulti" exact="[3.0/$HitVolleys,1.0].min"/>
         </do_else>
         <set_value name="$MaxTries" exact="20"/>
