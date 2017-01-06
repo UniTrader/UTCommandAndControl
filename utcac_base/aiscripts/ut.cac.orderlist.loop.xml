@@ -123,7 +123,7 @@
           </do_if>
         </do_elseif>
         <!-- continue with next Order - also handles the case of aborting the first Order -->
-        <do_if value="( event.param == 'next order' or ( event.param == 'cancel order' and $order_pos == 1 ) ) and ( if this.$orderlist.{1}.$interruptable? then this.$orderlist.{1}.$interruptable else true )">
+        <do_if value="( event.param == 'next order' or ( event.param == 'cancel order' and @$order_pos == 1 ) ) and ( if this.$orderlist.{1}.$interruptable? then this.$orderlist.{1}.$interruptable else true )">
           <do_if value="this.$ut_cac.$loglevel ge param.ut_cac.loglevel.$ordergiven and this.$orderlist.{1}.$displayname?">
             <do_if value="this.$orderlist.{2}? and this.$orderlist.{2}.$displayname?">
               <write_to_logbook category="general" object="this.container" interaction="guidance" text="{5554203,112}.[param.ut_cac.loglevel.$ordergiven,this.container.name,this.name,this.$orderlist.{1}.$displayname,this.$orderlist.{2}.$displayname]"/>
