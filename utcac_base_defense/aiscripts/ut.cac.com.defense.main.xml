@@ -227,7 +227,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       </conditions>
       <actions>
         <remove_from_group group="$enemies_g" object="event.object"/>
-        <do_if value="typeof $enemies_t.{event.object} == datatype.group">
+        <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
           <signal_objects group="$enemies_t.{event.object}" param="'return formation'"/>
           <!-- store group for later usage - might not be needed -->
           <append_to_list name="global.$unused_groups" exact="$enemies_t.{event.object}"/>
@@ -361,7 +361,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <do_all exact="$enemies_g.count" counter="$i" reverse="true">
         <do_if value="not $enemies_g.{$i}.isoperational or not this.ship.mayattack.{$enemies_g.{$i}} or this.ship.distanceto.{$enemies_g.{$i}} gt this.ship.maxradarrange">
           <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
-          <do_if value="typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+          <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
             <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
             <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
           </do_if>
@@ -458,7 +458,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <do_all exact="$enemies_g.count" counter="$i" reverse="true">
         <do_if value="not $enemies_g.{$i}.isoperational or not this.ship.mayattack.{$enemies_g.{$i}} or this.ship.distanceto.{$enemies_g.{$i}} gt this.ship.maxradarrange">
           <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
-          <do_if value="typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+          <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
             <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
             <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
           </do_if>
@@ -587,7 +587,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <!-- check if previous enemies are still in sight and if someone entered our Combatrange (switch to red) -->
       <do_all exact="$enemies_g.count" counter="$i" reverse="true">
         <do_if value="not $enemies_g.{$i}.isoperational or not this.ship.mayattack.{$enemies_g.{$i}} or this.ship.distanceto.{$enemies_g.{$i}} gt this.ship.maxradarrange">
-          <do_if value="typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+          <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
             <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
             <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
           </do_if>
@@ -676,7 +676,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <!-- check if previous enemies are still in sight, and confirm there are enemies in combat range -->
       <do_all exact="$enemies_g.count" counter="$i" reverse="true">
         <do_if value="not $enemies_g.{$i}.isoperational or not this.ship.mayattack.{$enemies_g.{$i}} or this.ship.distanceto.{$enemies_g.{$i}} gt this.ship.maxradarrange">
-          <do_if value="typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+          <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
             <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
             <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
           </do_if>
