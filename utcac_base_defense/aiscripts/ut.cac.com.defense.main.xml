@@ -710,8 +710,8 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <do_if value="this.ship.distanceto.{$target} lt (this.ship.maxcombatrange.all + $target.size/2.0)">
             <do_all chance="[this.combinedskill, 90].max" comment="chance of succeed">
               <get_attackstrength result="$attackstrength" object="this.ship" target="$enemies_g.{$i}" usedrones="$enemies_g.{$i}.isclass.[class.ship_xs, class.ship_s, class.ship_m]" />
-              <apply_attackstrength object="$enemies_g.{$i}" attacker="this.ship" strength="$attackstrength * ($time)i" result="$ni" comment="not interested in result since Targets are removed from the Group"/>
-              <debug_text filter="general" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (base value: %6 )'.[player.age,this.name,this.container.name,$attackstrength * ($time)i,$enemies_g.{$i}.name,$attackstrength]"/>
+              <apply_attackstrength object="$enemies_g.{$i}" attacker="this.ship" strength="$attackstrength * ($time)i * $DamageMulti" result="$ni" comment="not interested in result since Targets are removed from the Group"/>
+              <debug_text filter="general" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (base value: %6 time: %7 multi: %8 )'.[player.age,this.name,this.container.name,$attackstrength * ($time)i * $DamageMulti,$enemies_g.{$i}.name,$attackstrength,$time,$DamageMulti]"/>
             </do_all>
             <set_value name="$HitVolleys" operation="subtract"/>
           </do_if>
