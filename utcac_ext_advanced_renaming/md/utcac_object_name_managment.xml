@@ -137,12 +137,13 @@
     </cue>
     <library name="RenameActions">
       <actions>
-        <!-- confirm valadity of Object -->
-        <do_if value="$object.exists and if $object.isclass.station then $object.tradenpc.$unformatted_object_name? else $object.controlentity.$unformatted_object_name?">
+        <!-- confirm valadity of Object, saveBlackboard Entity -->
+        <set_value name="$controlentity" exact="if $object.isclass.station then $object.tradenpc else $object.controlentity"/>
+        <do_if value="$object.exists and $controlentity.$unformatted_object_name?">
           <do_if value="$keys? or $nameA? or $nameB? or $cargotype? or $type? or $scriptset? or $debug?">
             <debug_text filter="error" text="'Internally used Vars in Included Actions also used by previous Code: $keys: %1 $nameA: %2 $nameB: %3 $cargotype: %4 $type: %5 $scriptset: %6 $debug: %7 - will be overridden and removed!!'.[@$keys,@$nameA,@$nameB,@$cargotype,@$type,@$scriptset,@$debug]"/>
           </do_if>
-          <set_value name="$nameA" exact="if $object.isclass.station then $object.tradenpc.$unformatted_object_name else $object.controlentity.$unformatted_object_name"/>
+          <set_value name="$nameA" exact="$controlentity.$unformatted_object_name"/>
           <!-- Check if we have a Debug Expression in the Object Name and activate it (if not deactivate when outside Debug Mode)-->
           <!-- DEBUG OFF (Expression will be removed permanently) -->
           <substitute_text text="$nameB" source="$nameA">
@@ -155,12 +156,7 @@
             <set_value name="$object.engineer.$debug" exact="false" chance="$object.engineer.exists * 100"/>
             <set_value name="$object.architect.$debug" exact="false" chance="$object.architect.exists * 100"/>
             <set_value name="$object.boardingnpc.$debug" exact="false" chance="$object.boardingnpc.exists * 100"/>
-            <do_if value="$object.isclass.station">
-              <set_value name="$object.tradenpc.$unformatted_object_name" exact="$nameB"/>
-            </do_if>
-            <do_else>
-              <set_value name="$object.controlentity.$unformatted_object_name" exact="$nameB"/>
-            </do_else>
+            <set_value name="$controlentity.$unformatted_object_name" exact="$nameB"/>
             <set_value name="$nameA" exact="$nameB"/>
           </do_if>
           <!-- DEBUG ON (Expression will stay) -->
@@ -188,12 +184,7 @@
           <set_value name="$debug" exact="'%1\nCUSTOM: (Not seperate from next yet)\nLOCAL:   %2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           <!-- If Language-transfer is desired Save name Var back to local Var now, continue with remaining phrases after that -->
           <do_if value="{5554302,1} == 'yes'">
-            <do_if value="$object.isclass.station">
-              <set_value name="$object.tradenpc.$unformatted_object_name" exact="$nameA"/>
-            </do_if>
-            <do_else>
-              <set_value name="$object.controlentity.$unformatted_object_name" exact="$nameA"/>
-            </do_else>
+            <set_value name="$controlentity.$unformatted_object_name" exact="$nameA"/>
           </do_if>
           <get_text_ids_in_range result="$keys" page="5554301" start="2000" end="3000" factor="2"/>
           <do_all exact="$keys.count" counter="$i" reverse="false">
@@ -204,15 +195,16 @@
           <set_value name="$debug" exact="'%1\nSTATIC:  %2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           
           <!-- Perform Script-Dynamic Replacements ( Marking Key $ ) - no Registration for Automated Update Event, send Signal or Include Actions yourself.-->
-          <!-- (feel free to create and add your own Values to the local table $namereplacement though ;) -->
-          <do_if value="$object.controlentity.$namereplacement?">
-            <set_value name="$keys" exact="$object.controlentity.$namereplacement.keys.list"/>
-            <do_all exact="$keys.count" counter="$i" reverse="false">
-              <substitute_text text="$nameA">
-                <replace string="$keys.{$i}" with="$object.controlentity.$namereplacement.{$keys.{$i}}"/>
-              </substitute_text>
-            </do_all>
+          <!-- (feel free to add your own Values to the local table $namereplacement though ;) -->
+          <do_if value="not $controlentity.$namereplacement?">
+            <set_value name="$controlentity.$namereplacement" exact="table[]"/>
           </do_if>
+          <set_value name="$keys" exact="$controlentity.$namereplacement.keys.list"/>
+          <do_all exact="$keys.count" counter="$i" reverse="false">
+            <substitute_text text="$nameA">
+              <replace string="$keys.{$i}" with="$controlentity.$namereplacement.{$keys.{$i}}"/>
+            </substitute_text>
+          </do_all>
           <set_value name="$debug" exact="'%1\nSCRIPT:  %2'.[$debug,$nameA]" chance="$debug? *100" comment="fill debug output Value"/>
           
           <!-- ========= -->
@@ -271,7 +263,7 @@
           </do_all>
           <!-- Script Set running on this Ship -->
           <do_if value="true" comment="just for better node folding">
-            <do_if value="$object.controlentity.$orderlist?">
+            <do_if value="$controlentity.$orderlist?">
               <set_value name="$scriptset" exact="{5554302,400}"/>
             </do_if>
             <do_else comment="Vanilla or Unknown Script Set">
@@ -505,7 +497,7 @@ else 'null'"/>
               <replace string="'    '" with="' '"/>
               <replace string="'  '" with="' '"/>
             </substitute_text>
-            <set_value name="$object.controlentity.$shortname" exact="$nameB"/>
+            <set_value name="$controlentity.$shortname" exact="$nameB"/>
           </do_if>
           <do_else>
             <do_all exact="$keys.count" counter="$i" reverse="false">
@@ -513,7 +505,7 @@ else 'null'"/>
                 <replace string="readtext.{5554301}.{$keys.{$i}}" with="readtext.{5554301}.{$keys.{$i}+1}"/>
               </substitute_text>
             </do_all>
-            <remove_value name="$object.controlentity.$shortname"/>
+            <remove_value name="$controlentity.$shortname"/>
           </do_else>
           <set_value name="$debug" exact="'%1\nPOSTDYN: %2    %3'.[$debug,$nameA,@$nameB]" chance="$debug? *100" comment="fill debug output Value"/>
           
