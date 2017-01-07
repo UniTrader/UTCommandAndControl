@@ -687,35 +687,41 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <set_value name="$spf" exact="(player.age)f - ($playerage_before)f"/>
         <set_value name="$waittime" exact="($spf * $spf) + ($spf / 4) * 500" comment="( seconds per frame ² + seconds per frame /4 ) * 500 ## Results in roughly 1.7s @60fps and 3.7s@30fps"/>
         <debug_text filter="general" text="'%1 %2 %3 Round Time: %4 playerage before: %5, player.age: %6'.[player.age,this.name,this.container.name,$waittime,$playerage_before,player.age]"/>
+        <!-- create Group of enemies in Range -->
+        <set_value name="$enemies_range" exact="$enemies_g.clone"/>
+        <do_all exact="$enemies_range.count" counter="$i" reverse="true">
+          <do_if value="this.ship.distanceto.{$target} gt ($combatrange + $target.size/2.0)">
+            <remove_from_group object="$enemies_range.{$i}" group="$enemies_range"/>
+          </do_if>
+        </do_all>
+        <do_if value="$enemies_range.count == 0">
+          <resume label="yellow"/>
+        </do_if>
         <!-- try to attack Primary Target in every "round"-->
-        <do_if value="$primarytarget.isoperational and this.ship.distanceto.{$primarytarget} lt this.ship.maxcombatrange">
+        <do_if value="$primarytarget.isoperational and this.ship.distanceto.{$primarytarget} lt $combatrange">
           <do_all chance="[this.combinedskill, 90].max" comment="chance of succeed">
             <get_attackstrength result="$attackstrength" object="this.ship" target="$primarytarget" usedrones="true" />
             <apply_attackstrength object="$primarytarget" attacker="this.ship" strength="$attackstrength * $waittime" result="$ni" comment="not interested in result since Targets are removed from the Group"/>
             <debug_text filter="general" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (primary; base value: %6 time: %7 multi: %8 )'.[player.age,this.name,this.container.name,$attackstrength * $waittime,$primarytarget.name,$attackstrength,$waittime,$DamageMulti]"/>
           </do_all>
         <!-- Calculate Damage for Additional Targets - maximum overall Damage is same as Vanilla ( attackstrength * 3 ) but its distributed over more possible Targets (10 instead of 3) -->
-          <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies_g.count , 10].min"/>
+          <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies_range.count , 10].min"/>
           <set_value name="$DamageMulti" exact="[2.0/$HitVolleys,1.0].min"/>
         </do_if>
         <do_else>
-          <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies_g.count , 10].min"/>
+          <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies_range.count , 10].min"/>
           <set_value name="$DamageMulti" exact="[3.0/$HitVolleys,1.0].min"/>
         </do_else>
-        <set_value name="$MaxTries" exact="20"/>
         <do_while value="$HitVolleys and $MaxTries">
-          <set_value name="$target" exact="$enemies_g.random" />
+          <set_value name="$target" exact="$enemies_range.random" />
           <!-- Get and apply strengths-->
-          <!-- do not attack objects that are too far away, gravidar range can be 50km+ !! -->
           <!-- the possibility of hitting the same Target multiple times is intended -->
-          <do_if value="this.ship.distanceto.{$target} lt (this.ship.maxcombatrange.all + $target.size/2.0)">
-            <do_all chance="[this.combinedskill, 90].max" comment="chance of succeed">
-              <get_attackstrength result="$attackstrength" object="this.ship" target="$target" usedrones="$target.isclass.[class.ship_xs, class.ship_s, class.ship_m]" />
-              <apply_attackstrength object="$target" attacker="this.ship" strength="$attackstrength * $waittime * $DamageMulti" result="$ni" comment="not interested in result since Targets are removed from the Group"/>
-              <debug_text filter="general" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (base value: %6 time: %7 multi: %8 )'.[player.age,this.name,this.container.name,$attackstrength * $waittime * $DamageMulti,$target.name,$attackstrength,$waittime,$DamageMulti]"/>
-            </do_all>
-            <set_value name="$HitVolleys" operation="subtract"/>
-          </do_if>
+          <do_all chance="[this.combinedskill, 90].max" comment="chance of succeed">
+            <get_attackstrength result="$attackstrength" object="this.ship" target="$target" usedrones="$target.isclass.[class.ship_xs, class.ship_s, class.ship_m]" />
+            <apply_attackstrength object="$target" attacker="this.ship" strength="$attackstrength * $waittime * $DamageMulti" result="$ni" comment="not interested in result since Targets are removed from the Group"/>
+            <debug_text filter="general" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (base value: %6 time: %7 multi: %8 )'.[player.age,this.name,this.container.name,$attackstrength * $waittime * $DamageMulti,$target.name,$attackstrength,$waittime,$DamageMulti]"/>
+          </do_all>
+          <set_value name="$HitVolleys" operation="subtract"/>
           <set_value name="$MaxTries" operation="subtract"/>
          </do_while>
          <remove_value name="$ni" comment="as in 'not interested' for required return vars"/>
