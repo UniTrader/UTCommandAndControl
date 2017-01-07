@@ -323,6 +323,17 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <set_value name="$combatrange" exact="this.ship.maxcombatrange.all"/>
       <set_value name="$battlestate" exact="'green'"/>
       
+      <!-- Init Vars if Advanced Renaming is installed -->
+      <do_if value="{5554302,1} != 'ReadText5554302-1'">
+        <set_value name="$namingentity" exact="if this.container.isclass.station then this.container.tradenpc else this.container.controlentity" comment="update of naming entity"/>
+        <do_if value="not $namingentity.$namereplacement?">
+          <set_value name="$namingentity.$namereplacement" exact="table[$utcac_do_droneratio=$droneratio]"/>
+        </do_if>
+        <do_else>
+          <set_value name="$namingentity.$namereplacement.$utcac_do_droneratio" exact="$droneratio"/>
+        </do_else>
+        <signal_objects object="this.container" param="'Object Name Updated'" delay="100ms"/>
+      </do_if>
       
       <!-- ######################################################################################################################################################### -->
       <label name="green"/>
@@ -549,6 +560,17 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <set_value name="$combatrange" exact="this.ship.maxcombatrange.all"/>
       <set_value name="$battlestate" exact="'green'"/>
       
+      <!-- Init Vars if Advanced Renaming is installed -->
+      <do_if value="{5554302,1} != 'ReadText5554302-1'">
+        <set_value name="$namingentity" exact="if this.container.isclass.station then this.container.tradenpc else this.container.controlentity" comment="update of naming entity"/>
+        <do_if value="not $namingentity.$namereplacement?">
+          <set_value name="$namingentity.$namereplacement" exact="table[$utcac_do_droneratio=$droneratio]"/>
+        </do_if>
+        <do_else>
+          <set_value name="$namingentity.$namereplacement.$utcac_do_droneratio" exact="$droneratio"/>
+        </do_else>
+        <signal_objects object="this.container" param="'Object Name Updated'" delay="100ms"/>
+      </do_if>
       
       <!-- ######################################################################################################################################################### -->
       <label name="green"/>
