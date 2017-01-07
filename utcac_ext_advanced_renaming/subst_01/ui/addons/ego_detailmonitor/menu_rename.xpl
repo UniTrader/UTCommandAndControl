@@ -175,7 +175,7 @@ function menu.onShowMenu()
 	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 	
 	-- Mass Renaming Functions
-	setup:addHeaderRow({ReadText(5554302, 1001),""}, nil, {3, 2})
+	setup:addSimpleRow({ReadText(5554302, 1001),Helper.getEmptyCellDescriptor()}, nil, {3, 2})
 	setup:addSimpleRow({ 
 		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1002), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, ReadText(5554302, 1003)),
 		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1004), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, ReadText(5554302, 1005)),
@@ -184,7 +184,46 @@ function menu.onShowMenu()
 		Helper.getEmptyCellDescriptor()
 	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 	
-	
+	-- Expressions Help - Static Info Text
+	if ( ReadText(5554302, 6) == "All" ) or ( ReadText(5554302, 6) == "Static" ) then
+		setup:addSimpleRow({Helper.getEmptyCellDescriptor()}, nil, {5})
+		setup:addHeaderRow({ReadText(5554302, 1100)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1101)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1102)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1103)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1104)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1105)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1106)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1107)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1108)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1109)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1110)}, nil, {5})
+	end
+	-- Expressions Help - Script-Defined Expressions Overview
+	local namereplacement =  GetNPCBlackboard(menu.controlentity, "$namereplacement")
+	if ( ( ReadText(5554302, 6) == "All" ) and namereplacement ) or ( ReadText(5554302, 6) == "Script" ) then
+		setup:addSimpleRow({Helper.getEmptyCellDescriptor()}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1111),ReadText(5554302, 1112)}, nil, {3,2})
+		if namereplacement and table.getn(namereplacement) then
+			local key1 = nil
+			local value1 = nil
+			for key,value in pairs(namereplacement) do
+				if key1 and value1 then
+					setup:addSimpleRow({"$"..key1.." => "..value1,Helper.getEmptyCellDescriptor(),"$"..key.." => "..value}, nil, {2,1,2})
+					key1 = nil
+					value1 = nil
+				else
+					key1 = key
+					value1 = value
+				end
+			end
+			if key1 and value1 then
+				setup:addSimpleRow({"$"..key1.." => "..value1,Helper.getEmptyCellDescriptor()}, nil, {2,3})
+				key1 = nil
+				value1 = nil
+			end
+		end
+	end
 	
 	-- Experimental Faction Icons, not intended to be useable yet..
 	local extensionSettings = GetAllExtensionSettings()
