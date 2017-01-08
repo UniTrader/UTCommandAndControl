@@ -634,35 +634,40 @@
           <!-- either 10% of Cargo Space, or quarter the Value of the current Ship, whichever is less - Building Materials are always bought regardless of this. -->
           <do_if value="$wareslist_buysell.{$i} == 'buy buildingmaterial'">
             <set_value name="$minamount" exact="1" />
+            <!-- check if we can get Build Material from the Homebase -->
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching Homebase for Construction stuff, Ware: %6'.[player.age,this.name,this.container.name,$range.{$j}.knownname,$ware.name]"/>
+            <find_sell_offer result="$selloffer" buyer="$ConstructionVessel" seller="this.container" wares="$ware"/>
           </do_if>
           <do_else>
             <get_object_value result="$shipvalue" object="$entity.container"/>
             <set_value name="$minamount" exact="[ $entity.container.cargo.{$ware}.free / 10 , ( $shipvalue / 4 ) / $price ].min" />
           </do_else>
           
-          <!-- check all Ranges if there is an Offer there -->
-          <do_all exact="$range.count" counter="$j" reverse="false">
-            <do_if value="$range.{$j} != null" comment="ignore empty slots">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching %4 for Sell Offers, Ware: %5, Max Price: %6'.[player.age,this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
-              <do_if value="this.container.istraderestricted">
-                <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
-                  <offeramount min="$minamount"/>
-                  <price max="$price"/>
-                  <match_seller owner="this.owner"/>
-                </find_sell_offer>
+          <do_if value="not $selloffer.available">
+            <!-- check all Ranges if there is an Offer there -->
+            <do_all exact="$range.count" counter="$j" reverse="false">
+              <do_if value="$range.{$j} != null" comment="ignore empty slots">
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching %4 for Sell Offers, Ware: %5, Max Price: %6'.[player.age,this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
+                <do_if value="this.container.istraderestricted">
+                  <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
+                    <offeramount min="$minamount"/>
+                    <price max="$price"/>
+                    <match_seller owner="this.owner"/>
+                  </find_sell_offer>
+                </do_if>
+                <do_else>
+                  <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
+                    <offeramount min="$minamount"/>
+                    <price max="$price"/>
+                  </find_sell_offer>
+                </do_else>
+                <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
+                <do_if value="$selloffer.available">
+                  <break/>
+                </do_if>
               </do_if>
-              <do_else>
-                <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
-                  <offeramount min="$minamount"/>
-                  <price max="$price"/>
-                </find_sell_offer>
-              </do_else>
-              <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
-              <do_if value="$selloffer.available">
-                <break/>
-              </do_if>
-            </do_if>
-          </do_all>
+            </do_all>
+          </do_if>
           
           <do_if value="$selloffer.available">
             <debug_text filter="general" chance="@this.$debug * 100" text="'found sell offer: %1 ( %2 %3 %4 %5 )'.[$selloffer,$selloffer.owner.knownname,$selloffer.owner.zone.knownname,$selloffer.ware,$selloffer.offeramount]"/>
