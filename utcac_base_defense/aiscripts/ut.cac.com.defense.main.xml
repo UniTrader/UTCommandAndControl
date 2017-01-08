@@ -748,7 +748,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies_range.count , 10].min"/>
           <set_value name="$DamageMulti" exact="[3.0/$HitVolleys,1.0].min"/>
         </do_else>
-        <do_while value="$HitVolleys and $MaxTries">
+        <do_while value="$HitVolleys">
           <set_value name="$target" exact="$enemies_range.random" />
           <!-- Get and apply strengths-->
           <!-- the possibility of hitting the same Target multiple times is intended -->
@@ -758,7 +758,6 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
             <debug_text filter="general" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (base value: %6 time: %7 multi: %8 )'.[player.age,this.name,this.container.name,$attackstrength * $waittime * $DamageMulti,$target.name,$attackstrength,$waittime,$DamageMulti]"/>
           </do_all>
           <set_value name="$HitVolleys" operation="subtract"/>
-          <set_value name="$MaxTries" operation="subtract"/>
          </do_while>
          <remove_value name="$ni" comment="as in 'not interested' for required return vars"/>
         <wait exact="($waittime)s" resume="true">
