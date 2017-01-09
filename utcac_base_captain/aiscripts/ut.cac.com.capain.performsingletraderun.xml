@@ -418,12 +418,12 @@
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
         </do_if>
-        <do_if value="$trade.buyer.isoperational">
+        <do_elseif value="$trade.buyer.isoperational">
           <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="0Cr" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
-        </do_if>
+        </do_elseif>
         <do_else>
           <!-- Trade Partner destroyed - continue with next Order -->
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Tradepartner destroyed - aborting (Custom Trade Case because no offer found)'.[player.age,this.name,this.container.name]"/>
