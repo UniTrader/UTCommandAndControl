@@ -710,9 +710,12 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </wait>
         <set_value name="$spf" exact="(player.age)f - ($playerage_before)f"/>
         <set_value name="$waittime" exact="($spf * $spf) + ($spf / 4) * 500" comment="( seconds per frame ² + seconds per frame /10 ) * 600 ## Results in roughly 1.2s @60fps, 2.7s@30fps and 4,5s@20fps"/>
-        <do_if value="$waittime gt 4s" comment="reduce round time if it gets too high (everything above 4s is halved)">
-          <set_value name="$waittime" exact="$waittime/2 + 2s"/>
+        <do_if value="$waittime gt 16s" comment="final round time above 10s - cap it there (see also next do_else)">
+          <set_value name="$waittime" exact="10s"/>
         </do_if>
+        <do_elseif value="$waittime gt 4s" comment="reduce round time if it gets too high (everything above 4s is halved)">
+          <set_value name="$waittime" exact="$waittime/2 + 2s"/>
+        </do_elseif>
         <debug_text filter="general" text="'%1 %2 %3 Round Time: %4 playerage before: %5, player.age: %6'.[player.age,this.name,this.container.name,$waittime,$playerage_before,player.age]"/>
         <!-- create/re-check Group of enemies in Range -->
         <do_if value="$enemies_range?">
