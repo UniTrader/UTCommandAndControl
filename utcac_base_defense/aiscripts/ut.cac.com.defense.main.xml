@@ -315,6 +315,43 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         </do_if>
       </actions>
     </handler>
+    <handler comment="Evaluate Vanilla Signals to change behavior - mapped to my own Config Variables (not passed to subordinates)">
+      <conditions>
+        <check_any>
+          <check_all>
+            <event_object_signalled object="this" param="'attack'" comment="param2 is target, param3 is [$allowothertargets, $checkrelation]"/>
+            <check_value value="not @$permanent" comment="don't accept orders if Hold Fire Mode" />
+          </check_all>
+          <check_all>
+            <event_object_signalled object="this" param="'stop attack'"/>
+            <check_value value="not @$permanent or event.param2 == 'stop permanent'" comment="don't accept orders if Hold Fire Mode" />
+          </check_all>
+        </check_any>
+      </conditions>
+      <actions>
+        <do_if value="event.param == 'attack'">
+          <set_value name="$primarytarget" exact="event.param2"/>
+          <!-- param3 not used yet ( [ $allowothertargets , $checkrelation ] - both always true for this Script ) -->
+        </do_if>
+        <do_elseif value="event.param == 'stop attack'">
+          <!-- if event.param2 = null - just go back to battlestate green -->
+          <do_if value="event.param2 == null">
+            <!-- clear Target Groups and Tables -->
+            <do_all exact="$enemies_g.count" counter="$i" reverse="true">
+              <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+                <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
+                <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
+                <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
+              </do_if>
+              <remove_value name="$enemies_t.{$enemies_g.{$i}}"/>
+              <remove_from_group object="$enemies_g.{$i}" group="$enemies_g"/>
+            </do_all>
+          </do_if>
+          <!-- if event.param2 = permanent - save behaviort -> Change behavior to Missile Defense only (temporary)-->
+          <!-- if event.param2 = stop permanent - revert previous behavior -->
+        </do_elseif>
+      </actions>
+    </handler>
   </interrupts>
   <attention min="visible">
     <actions>
