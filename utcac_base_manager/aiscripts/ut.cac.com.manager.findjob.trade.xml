@@ -635,7 +635,7 @@
           <do_if value="$wareslist_buysell.{$i} == 'buy buildingmaterial'">
             <set_value name="$minamount" exact="1" />
             <!-- check if we can get Build Material from the Homebase -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching Homebase for Construction stuff, Ware: %6'.[player.age,this.name,this.container.name,$range.{$j}.knownname,$ware.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching Homebase for Construction stuff, Ware: %4'.[player.age,this.name,this.container.name,$ware.name]"/>
             <find_sell_offer result="$selloffer" buyer="$ConstructionVessel" seller="this.container" wares="$ware"/>
           </do_if>
           <do_else>
@@ -643,7 +643,7 @@
             <set_value name="$minamount" exact="[ $entity.container.cargo.{$ware}.free / 10 , ( $shipvalue / 4 ) / $price ].min" />
           </do_else>
           
-          <do_if value="not $selloffer.available">
+          <do_if value="not @$selloffer.available">
             <!-- check all Ranges if there is an Offer there -->
             <do_all exact="$range.count" counter="$j" reverse="false">
               <do_if value="$range.{$j} != null" comment="ignore empty slots">
