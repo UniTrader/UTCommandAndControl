@@ -33,8 +33,10 @@
         <set_value name="$miningship" exact="true"/>
       </do_if>
       <do_else>
-        <find_object_component name="$miningturret" object="$entity.ship" macro="macro.turret_medium_ml_macro"/>
-        <do_if value="$miningturret.exists and $entity.ship.units.{unitcategory.orecollector}.count gt 0">
+        <check_object object="$entity.ship" result="$miningturret">
+          <match_summarised_turret macro="macro.turret_medium_ml_macro"/>
+        </check_object>
+        <do_if value="$miningturret and $entity.ship.units.{unitcategory.orecollector}.count gt 0">
           <set_value name="$miningship" exact="true"/>
         </do_if>
       </do_else>
