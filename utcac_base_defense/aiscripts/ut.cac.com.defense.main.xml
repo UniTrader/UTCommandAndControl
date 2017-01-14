@@ -55,6 +55,13 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
 ===>>> ToDo major Points:
 > Ammo Restock (note: add Naming Expression, too)
 
+
+Defensemodes regulate how active the Ship reacts to enemies:
+4 -> shoot everything red in sight
+3 -> shoot everything red in sight after being hit
+2 -> shoot only Targets which hit us (or fired missiles at us)
+1 -> only defend against Incoming Missiles, no shooting Enemies
+0 -> no reaction at all
 -->
 
   <params>
@@ -83,17 +90,24 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <check_all>
             <event_object_attacked object="this.ship"/>
             <!-- Event for the specified object being attacked (object = attacked object, param = attacker, param2 = kill method, param3 = attacked component) -->
+            <check_value value="this.$ut_cac.$defensemode ge 2"/>
             <check_value value="this.ship.mayattack.{event.param}"/>
             <check_value value="not $enemies_g.indexof.{event.param}"/>
           </check_all>
           <check_all>
             <event_object_enemy_found object="this.ship"/>
+            <check_value value="this.$ut_cac.$defensemode ge ( 3 + $battlestate == 'green' )" comment="Defensemode 4 adds all Enemies, Defensemode 3 only when already in Battle"/>
             <check_value value="this.ship.distanceto.{event.param} lt this.ship.maxradarrange and not event.param.ismasstraffic"/>
             <check_value value="not $enemies_g.indexof.{event.param}"/>
           </check_all>
-          <event_object_incoming_missile object="this.ship"/>
-          <event_object_signalled object="this.ship" param="'missile drone defense failed'" comment="Not Yet Implemented - will probably be dropped"/>
-          <!-- Event for when a missile is launched at the specified object (object = target object, param = target component, param2 = missile, param3 = missile source) -->
+          <check_all>
+            <check_any>
+              <!-- Event for when a missile is launched at the specified object (object = target object, param = target component, param2 = missile, param3 = missile source) -->
+              <event_object_incoming_missile object="this.ship"/>
+              <event_object_signalled object="this.ship" param="'missile drone defense failed'" comment="Not Yet Implemented - will probably be dropped"/>
+            </check_any>
+            <check_value value="this.$ut_cac.$defensemode ge 1"/>
+          </check_all>
         </check_any>
       </conditions>
       <actions>
@@ -109,7 +123,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
               </do_if>
             </do_all>
             <set_value name="$randominterceptors" exact="if this.ship.distanceto.{event.param2} gt this.ship.size * 1.5 then 0 else [ 10 , $drones_missiledefense.count / 3 ].min"/>
-            <debug_text filter="general" text="'%1 %2 %3 Launching Missile Defense Drone %4 plus %8 random ones to intercept %6 (start distance %7 ) - from set \n%5'.[player.age,this.name,this.container.name,$drones_missiledefense.{$index},$drones_missiledefense,event.param2,this.ship.distanceto.{event.param2},$randominterceptors]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Launching Missile Defense Drone %4 plus %8 random ones to intercept %6 (start distance %7 ) - from set \n%5'.[player.age,this.name,this.container.name,$drones_missiledefense.{$index},$drones_missiledefense,event.param2,this.ship.distanceto.{event.param2},$randominterceptors]"/>
             <signal_objects object="$drones_missiledefense.{$index}" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true,$debug_out_all=true]"/>
             <remove_from_group object="$drones_missiledefense.{$index}" group="$drones_missiledefense"/>
             <do_all exact="$randominterceptors">
@@ -119,10 +133,10 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
             </do_all>
           </do_if>
           <do_else>
-            <debug_text filter="general" text="'%1 %2 %3 Missile lauched against us, but no interceptors available - defending using Turrets only'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Missile lauched against us, but no interceptors available - defending using Turrets only'.[player.age,this.name,this.container.name]"/>
           </do_else>
           <add_to_group groupname="$enemies_g" object="event.param2"/>
-          <do_if value="not $enemies_g.indexof.{event.param3}">
+          <do_if value="not $enemies_g.indexof.{event.param3} and this.$ut_cac.$defensemode ge 2">
             <set_value name="$attacker" exact="event.param3"/>
           </do_if>
           <do_else>
@@ -166,7 +180,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
                 <do_while value="$drones_defense.count and $hp gt 0 and $enemies_t.{$attacker}.count le 3">
                   <set_value name="$newinterceptor" exact="$drones_defense.random"/>
                   <set_value name="$hp" operation="subtract" exact="$newinterceptor.dps.all"/>
-                  <debug_text filter="general" text="'%1 %2 %3 Launching Interceptor %4 to kill %5'.[player.age,this.name,this.container.name,$newinterceptor,$attacker.name]"/>
+                  <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Launching Interceptor %4 to kill %5'.[player.age,this.name,this.container.name,$newinterceptor,$attacker.name]"/>
                   <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.fight',$target=$attacker,$othertargets=true]"/>
                   <remove_from_group object="$newinterceptor" group="$drones_defense"/>
                   <add_to_group object="$newinterceptor" groupname="$enemies_t.{$attacker}"/>
@@ -186,6 +200,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
     <handler comment="Active Scan performed after Sector Changes">
       <conditions>
         <event_object_changed_sector object="this.ship"/>
+        <check_value value="this.$ut_cac.$defensemode ge 4"/>
       </conditions>
       <actions>
         <!-- signal all Drones pursuing Enemies to return, store group for later usage (might not be needed) -->
@@ -304,7 +319,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <set_value name="$namingentity.$namereplacement.$utcac_do_droneratio" exact="'%1'.[$droneratio]"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
         </do_if>
-        <debug_text filter="general" text="'%1 %2 %3 Droneratio changed to %4'.[player.age,this.name,this.container.name,$droneratio]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Droneratio changed to %4'.[player.age,this.name,this.container.name,$droneratio]"/>
         <do_if value="event.name == 'event_object_signalled'" comment="exclude drones returned event">
           <!-- recall Drones so target ratio is reached -->
           <do_if value="$droneratio == 1.0 or $droneratio == 0.0 or this.ship.units.{unitcategory.defence}.count == 0" comment="no need to check if all drones should be sent or we have no drones - also complete recal is handled indvidually"/>
@@ -320,7 +335,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <check_any>
           <check_all>
             <event_object_signalled object="this" param="'attack'" comment="param2 is target, param3 is [$allowothertargets, $checkrelation]"/>
-            <check_value value="not @$permanent" comment="don't accept orders if Hold Fire Mode" />
+            <check_value value="this.$ut_cac.$defensemode ge 2"/>
           </check_all>
           <check_all>
             <event_object_signalled object="this" param="'stop attack'"/>
@@ -346,9 +361,35 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
               <remove_value name="$enemies_t.{$enemies_g.{$i}}"/>
               <remove_from_group object="$enemies_g.{$i}" group="$enemies_g"/>
             </do_all>
+            <!-- return to battlestate green NOTE: can go back to yellow or red immediately-->
+            <abort_called_scripts resume="green"/>
           </do_if>
-          <!-- if event.param2 = permanent - save behaviort -> Change behavior to Missile Defense only (temporary)-->
+          <!-- if event.param2 = permanent - save behavior -> Change behavior to Missile Defense only (temporary)-->
+          <do_elseif value="event.param2 == 'permanent'">
+            <!-- ToDo: Save current Behavior to temp Var and set Ship to Missile Defense only behavior -->
+            <!-- clear Target Groups and Tables -->
+            <do_all exact="$enemies_g.count" counter="$i" reverse="true">
+              <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+                <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
+                <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
+                <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
+              </do_if>
+              <remove_value name="$enemies_t.{$enemies_g.{$i}}"/>
+              <remove_from_group object="$enemies_g.{$i}" group="$enemies_g"/>
+            </do_all>
+            <do_if value="this.$ut_cac.$defensemode gt 1">
+              <set_value name="$original_mode" exact="this.$ut_cac.$defensemode"/>
+              <set_value name="this.$ut_cac.$defensemode" exact="1"/>
+            </do_if>
+          </do_elseif>
           <!-- if event.param2 = stop permanent - revert previous behavior -->
+          <do_elseif value="event.param2 == 'stop permanent'">
+            <!-- ToDo: Restore previous Behavior from temp Var -->
+            <do_if value="this.$ut_cac.$defensemode == 0">
+              <set_value name="this.$ut_cac.$defensemode" exact="$original_mode"/>
+            </do_if>
+            <remove_value name="$original_mode"/>
+          </do_elseif>
         </do_elseif>
       </actions>
     </handler>
@@ -380,7 +421,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <signal_objects object="this.container" param="'Object Name Updated'"/>
       </do_if>
       <set_value name="$namingentity" exact="if this.container.isclass.station then this.container.tradenpc else this.container.controlentity" comment="update of naming entity"/>
-      <debug_text filter="general" text="'%1 %2 %3 Battlestate Green, set naming entity to %4'.[player.age,this.name,this.container.name,$namingentity.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Battlestate Green, set naming entity to %4'.[player.age,this.name,this.container.name,$namingentity.name]"/>
       <do_if value="$battlestate != 'green'">
         <cease_fire object="this.ship"/>
         <stop_shooting object="this.ship" slot="tag.primary_slot"/>
@@ -406,8 +447,8 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <!-- check if previous enemies are still in sight and if someone entered our Combatrange (switch to red) -->
       <do_all exact="$enemies_g.count" counter="$i" reverse="true">
         <do_if value="not $enemies_g.{$i}.isoperational or not this.ship.mayattack.{$enemies_g.{$i}} or this.ship.distanceto.{$enemies_g.{$i}} gt this.ship.maxradarrange">
-          <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
           <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+            <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
             <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
             <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
           </do_if>
@@ -431,7 +472,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       </do_if>
       
       <!-- if not in Battlestate now enter it -->
-      <debug_text filter="general" text="'%1 %2 %3 Battlestate Yellow, Target Group:\n%4'.[player.age,this.name,this.container.name,$enemies_g]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Battlestate Yellow, Target Group:\n%4'.[player.age,this.name,this.container.name,$enemies_g]"/>
       <do_if value="$battlestate != 'yellow'">
         <set_value name="$combatrange" exact="this.ship.maxcombatrange.all"/>
         <!--activate_battlestate object="this.ship" state="open_hangar"/-->
@@ -476,7 +517,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
                 <do_while value="$drones_defense.count and $hp gt 0 and $sentdrones lt ( ($enemies_g.count)f - $i / $drones_defense.count )">
                   <set_value name="$newinterceptor" exact="$drones_defense.random"/>
                   <set_value name="$hp" operation="subtract" exact="$newinterceptor.dps.all"/>
-                  <debug_text filter="general" text="'%1 %2 %3 Launching Interceptor %4 to kill %5'.[player.age,this.name,this.container.name,$newinterceptor,$enemies_g.{$i}.name]"/>
+                  <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Launching Interceptor %4 to kill %5'.[player.age,this.name,this.container.name,$newinterceptor,$enemies_g.{$i}.name]"/>
                   <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.fight',$target=$enemies_g.{$i},$othertargets=true,$interceptgroup=$enemies_t.{$enemies_g.{$i}}]"/>
                 </do_while>
               </do_if>
@@ -499,8 +540,8 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <!-- check if previous enemies are still in sight, and confirm there are enemies in combat range -->
       <do_all exact="$enemies_g.count" counter="$i" reverse="true">
         <do_if value="not $enemies_g.{$i}.isoperational or not this.ship.mayattack.{$enemies_g.{$i}} or this.ship.distanceto.{$enemies_g.{$i}} gt this.ship.maxradarrange">
-          <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
           <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+            <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
             <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
             <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
           </do_if>
@@ -530,7 +571,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <remove_value name="$stay_red"/>
       
       <!-- if not already in Battlestate now enter it -->
-      <debug_text filter="general" text="'%1 %2 %3 Battlestate Red, Target Group:\n%4'.[player.age,this.name,this.container.name,$enemies_g]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Battlestate Red, Target Group:\n%4'.[player.age,this.name,this.container.name,$enemies_g]"/>
       <do_if value="$battlestate != 'red'">
         <set_value name="$combatrange" exact="this.ship.maxcombatrange.all"/>
         <!--activate_battlestate object="this.ship" state="close_hangar"/-->
@@ -616,7 +657,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <signal_objects object="this.container" param="'Object Name Updated'"/>
       </do_if>
       <set_value name="$namingentity" exact="if this.container.isclass.station then this.container.tradenpc else this.container.controlentity" comment="update of naming entity"/>
-      <debug_text filter="general" text="'%1 %2 %3 OOS Battlestate Green, set naming entity to %4'.[player.age,this.name,this.container.name,$namingentity.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 OOS Battlestate Green, set naming entity to %4'.[player.age,this.name,this.container.name,$namingentity.name]"/>
       <do_if value="$battlestate != 'green'">
         <leave_formation object="this.ship"/>
         <set_value name="$battlestate" exact="'green'"/>
@@ -660,7 +701,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       </do_if>
       
       <!-- if not in Battlestate now enter it -->
-      <debug_text filter="general" text="'%1 %2 %3 OOS Battlestate Yellow, Target Group:\n%4'.[player.age,this.name,this.container.name,$enemies_g]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 OOS Battlestate Yellow, Target Group:\n%4'.[player.age,this.name,this.container.name,$enemies_g]"/>
       <do_if value="$battlestate != 'yellow'">
         <set_value name="$combatrange" exact="this.ship.maxcombatrange.all"/>
         <!--activate_battlestate object="this.ship" state="open_hangar"/-->
@@ -717,7 +758,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
       <remove_value name="$stay_red"/>
       
       <!-- if not already in Battlestate now enter it -->
-      <debug_text filter="general" text="'%1 %2 %3 OOS Battlestate Red, Target Group:\n%4'.[player.age,this.name,this.container.name,$enemies_g]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 OOS Battlestate Red, Target Group:\n%4'.[player.age,this.name,this.container.name,$enemies_g]"/>
       <do_if value="$battlestate != 'red'">
         <set_value name="$combatrange" exact="this.ship.maxcombatrange.all"/>
         <!--activate_battlestate object="this.ship" state="close_hangar"/-->
@@ -742,7 +783,9 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <set_value name="$playerage_before" exact="player.age"/>
         <wait exact="1ms">
           <on_attentionchange>
-            <remove_value name="$enemies_range"/>
+            <do_if value="this.ship.attention ge attention.visible">
+              <remove_value name="$enemies_range"/>
+            </do_if>
           </on_attentionchange>
         </wait>
         <set_value name="$spf" exact="(player.age)f - ($playerage_before)f"/>
@@ -753,7 +796,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
         <do_elseif value="$waittime gt 4s" comment="reduce round time if it gets too high (everything above 4s is halved)">
           <set_value name="$waittime" exact="$waittime/2 + 2s"/>
         </do_elseif>
-        <debug_text filter="general" text="'%1 %2 %3 Round Time: %4 playerage before: %5, player.age: %6'.[player.age,this.name,this.container.name,$waittime,$playerage_before,player.age]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Round Time: %4 playerage before: %5, player.age: %6'.[player.age,this.name,this.container.name,$waittime,$playerage_before,player.age]"/>
         <!-- create/re-check Group of enemies in Range -->
         <do_if value="$enemies_range?">
           <do_all exact="$enemies_range.count" counter="$i" reverse="true">
@@ -781,7 +824,7 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <do_all chance="[this.combinedskill, 90].max" comment="chance of succeed">
             <get_attackstrength result="$attackstrength" object="this.ship" target="$primarytarget" usedrones="true" />
             <apply_attackstrength object="$primarytarget" attacker="this.ship" strength="$attackstrength * $waittime" result="$ni" comment="not interested in result since Targets are removed from the Group"/>
-            <debug_text filter="general" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (primary; base value: %6 time: %7 multi: %8 )'.[player.age,this.name,this.container.name,$attackstrength * $waittime,$primarytarget.name,$attackstrength,$waittime,$DamageMulti]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (primary; base value: %6 time: %7 multi: %8 )'.[player.age,this.name,this.container.name,$attackstrength * $waittime,$primarytarget.name,$attackstrength,$waittime,$DamageMulti]"/>
           </do_all>
         <!-- Calculate Damage for Additional Targets - maximum overall Damage is same as Vanilla ( attackstrength * 3 ) but its distributed over more possible Targets (10 instead of 3) -->
           <set_value name="$HitVolleys" exact="[this.ship.summary.numturrets.operational / 5 , $enemies_range.count , 10].min"/>
@@ -797,15 +840,17 @@ Hack/Fake (Planned; Small/Skill based chance for sucess; will revert immediately
           <!-- the possibility of hitting the same Target multiple times is intended -->
           <do_all chance="[this.combinedskill, 90].max" comment="chance of succeed">
             <get_attackstrength result="$attackstrength" object="this.ship" target="$target" usedrones="$target.isclass.[class.ship_xs, class.ship_s, class.ship_m]" />
-            <apply_attackstrength object="$target" attacker="this.ship" strength="$attackstrength * $waittime * $DamageMulti" result="$ni" comment="not interested in result since Targets are removed from the Group"/>
-            <debug_text filter="general" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (base value: %6 time: %7 multi: %8 )'.[player.age,this.name,this.container.name,$attackstrength * $waittime * $DamageMulti,$target.name,$attackstrength,$waittime,$DamageMulti]"/>
+            <apply_attackstrength object="$target" attacker="this.ship" strength="$attackstrength * $waittime * $DamageMulti" result="$ni" comment="not interested in result since dead Targets are removed from the Group"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Applied Attackstrength: %4 hp to %5 (base value: %6 time: %7 multi: %8 ) - result: %9'.[player.age,this.name,this.container.name,$attackstrength * $waittime * $DamageMulti,$target.name,$attackstrength,$waittime,$DamageMulti,$ni]"/>
           </do_all>
           <set_value name="$HitVolleys" operation="subtract"/>
          </do_while>
          <remove_value name="$ni" comment="as in 'not interested' for required return vars"/>
         <wait exact="($waittime)s" resume="true">
           <on_attentionchange>
-            <remove_value name="$enemies_range"/>
+            <do_if value="this.ship.attention ge attention.visible">
+              <remove_value name="$enemies_range"/>
+            </do_if>
           </on_attentionchange>
         </wait>
       </do_while>
