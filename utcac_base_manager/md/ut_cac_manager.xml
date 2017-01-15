@@ -428,14 +428,15 @@ Rest is shared between all Actor types
                             <owner exact="faction.player"/>
                           </create_platform_actor>
                           <assign_engineer actor="$tmpnpc" object="event.param"/>
-                          <start_script object="$tmpnpc" name="'engineer.ai'"/>
                         </do_if>
                         <do_if value="not event.param.defencenpc.exists">
                           <create_platform_actor name="$tmpnpc" type="entitytype.defencecontrol" dockingbay="$eventparamdock.component" ref="fighter_omicron_lyrae_random">
                             <owner exact="faction.player"/>
                           </create_platform_actor>
                           <assign_defence_manager actor="$tmpnpc" object="event.param"/>
-                          <start_script object="$tmpnpc" name="'ut.cac.com.defense.main'"/><!-- ToDO: check if DO Script is installed and possibly refer to vanilla behavior instead -->
+                          <do_if value="md.UT_CAC_Defense.Main.exists">
+                            <signal_cue_instantly cue="md.UT_CAC_Defense.Main" param="$tmpnpc"/>
+                          </do_if>
                         </do_if>
                         <remove_value name="$eventparamdock"/>
                         <remove_value name="$tmpnpc"/>
