@@ -477,10 +477,11 @@ Rest is shared between all Actor types
         <cue name="NPC_Destroyed">
           <conditions>
             <event_object_destroyed object="$actor"/>
+            <event_object_signalled object="$actor" param="'Cancel UT CAC Dialogue'"/>
           </conditions>
           <!--delay exact="1s" comment="delay as the PlatformActor library may also take care of this"/ currently not included, so commented out -->
           <actions>
-            <debug_text text="'NPC_Destroyed'"/>
+            <debug_text filter="general" chance="@$actor.$debug*100" text="'%1 UT CAC Dialogue canceled, reason: %2'.[$actor.name,event.name]" />
             <cancel_cue cue="Main"/>
           </actions>
         </cue>

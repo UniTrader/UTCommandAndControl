@@ -796,7 +796,8 @@ Which Orders are available depends on entity Type
           </do_elseif>
           <add_player_choice text="{5554103,533}" position="2" section="comm_personal_transfer_selectobject"/>
           <add_player_choice text="{5554103,534}" position="3" section="comm_personal_transfer_fired"/>
-          <add_player_choice text="{5554103,535}" position="4" section="comm_transfer_suspend"/>
+          <add_player_choice text="{5554103,535}" position="4" section="comm_personal_transfer_suspend"/>
+          <add_player_choice text="{5554103,535}" position="5" section="comm_personal_revert"/>
           <add_player_choice_return text="'{5554103,7}'" position="6" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer_selected'">
@@ -809,6 +810,20 @@ Which Orders are available depends on entity Type
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer_suspend'">
           <!-- Kill Job Script, remove assignments like Pilot, controlentity etc., set payment roll to reduced value, set value that Actor is suspended and stay at current location -->
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_revert'">
+          <!-- Revert to vanilla Behavior -->
+          <cancel_conversation actor="$actor"/>
+          <signal_objects object="$actor" param="'Cancel UT CAC Dialogue'"/>
+          <do_if value="$actor.type == entitytype.engineer">
+            <signal_cue_instantly cue="md.NPC_Engineer.OnPlatformPopulation_Staff" param="[$actor,0Cr]"/>
+          </do_if>
+          <do_elseif value="$actor.type == entitytype.architect">
+            <signal_cue_instantly cue="md.NPC_Architect.OnPlatformPopulation_Staff" param="[$actor,0Cr]"/>
+          </do_elseif>
+          <do_else>
+            <signal_cue_instantly cue="md.NPC_Staff.OnPlatformPopulation_Staff" param="[$actor,0Cr]"/>
+          </do_else>
         </do_elseif>
         <!-- #### Slot4: Pester Level Settings #### -->
         <do_elseif value="event.param == 'comm_personal_pester'">
