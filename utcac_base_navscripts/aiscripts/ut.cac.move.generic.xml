@@ -252,7 +252,22 @@
       
       <set_command_action commandaction="commandaction.flyingto" param="$targetspace"/>
       <set_value name="this.$destination" exact="$destination" comment="announce our Destinatio to Folowers to ease Navigation"/>
-      <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
+      <!-- Set Script Expressions for Advanced Renaming -->
+      <do_if value="{5554302,1} != 'ReadText5554302-1' and this.ship.owner == faction.player">
+        <do_if value="not this.$namereplacement?">
+          <set_value name="this.$namereplacement" exact="table[]"/>
+        </do_if>
+        <do_if value="$destination.isclass.{[class.ship,class.station]}">
+          <set_value name="this.$namereplacement.$destination" exact="$destination.zone.name"/>
+        </do_if>
+        <do_else>
+          <set_value name="this.$namereplacement.$destination" exact="$destination.name"/>
+        </do_else>
+        <signal_objects object="this.container" param="'Object Name Updated'" delay="100ms"/>
+      </do_if>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
+      </do_if>
       
       
       <!-- then check if we maybe already have the right Context in which case we can just exit / go to the fine movements -->
