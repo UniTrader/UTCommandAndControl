@@ -84,11 +84,6 @@ ToDo:
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jump Script started with parameters:\n$destination: %4, $type: %5, $ignorefuel: %6, $leader: %7, $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
       
-      <set_command_action commandaction="commandaction.jumping" />
-      <do_if value="this.$ut_cac?">
-        <set_value name="this.$ut_cac.$isactive"/>
-      </do_if>
-      
       <!-- maybe use a light variant which only undocks and cancels boosters, not the other stuff with leaving formations etc. -->
       <!--run_script name="'ut.cac.move.free'" /-->
       <!-- Safe State assumed when calling this Script now for more fluid movement Type switching -->
@@ -266,6 +261,11 @@ ToDo:
       
       <do_if value="not $beacon.exists">
         <debug_text filter="error" text="'%1 %2 %3 Jumping Aborted - no valid beacon Found (should not be possible) $destination: %4'.[player.age,this.name,this.container.name,$destination.knownname]"/>
+      </do_if>
+      
+      <set_command_action commandaction="commandaction.jumping" param="$destination" />
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination Beacon: %4 in %5 // %6'.[player.age,this.name,this.container.name,$beacon.knownname,$beacon.sector.knownname,$beacon.zone.knownname]"/>
