@@ -144,7 +144,12 @@ ToDo:
         <do_if value="$destination.isclass.sector">
           <!-- just passing through the Cluster -->
           <!-- find a random beacon were are no Enemies nearby -->
-          <find_object name="$beacons" space="$destination" class="class.jumpbeacon" knownto="this.owner" checkoperational="true" multiple="true"/>
+          <find_object name="$beacons" space="$destination" knownto="this.owner" checkoperational="true" multiple="true">
+            <match_any>
+              <match class="class.jumpbeacon"/>
+              <match_child class="class.jumpbeacon" checkoperational="true"/>
+            </match_any>
+          </find_object>
           <do_all exact="$beacons.count">
             <set_value name="$beacon" exact="$beacons.random"/>
             <find_object name="$enemy" space="$beacon.zone" knownto="this.owner" >
@@ -159,7 +164,12 @@ ToDo:
           </do_all>
           <!-- we dont know any beacons in the Destination Sector - lock onto a random one -->
           <do_if value="not @$beacon.exists">
-            <find_object name="$beacon" space="$destination" class="class.jumpbeacon" checkoperational="true"/>
+            <find_object name="$beacon" space="$destination" checkoperational="true">
+              <match_any>
+                <match class="class.jumpbeacon"/>
+                <match_child class="class.jumpbeacon" checkoperational="true"/>
+              </match_any>
+            </find_object>
             <set_known object="@$beacon" known="true"/>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
           </do_if>
@@ -169,7 +179,12 @@ ToDo:
         </do_if>
         <do_else>
           <!-- final Cluster on Path - jump to the closest beacon, but also watch for enemies -->
-          <find_object name="$beacons" space="$destination.sector" class="class.jumpbeacon" knownto="this.owner" checkoperational="true" multiple="true"/>
+          <find_object name="$beacons" space="$destination.sector"  knownto="this.owner" checkoperational="true" multiple="true">
+            <match_any>
+              <match class="class.jumpbeacon"/>
+              <match_child class="class.jumpbeacon" checkoperational="true"/>
+            </match_any>
+          </find_object>
           <set_value name="$distance" exact="1e12m"/>
           <do_all exact="$beacons.count" counter="$i">
             <do_if value="$destination.distanceto.{$beacons.{$i}} lt $distance"/>
@@ -192,7 +207,12 @@ ToDo:
           </do_elseif>
           <!-- we dont know any beacons in the Destination Sector - lock onto a random one -->
           <do_if value="not @$beacon.exists">
-            <find_object name="$beacon" space="$destination.sector" class="class.jumpbeacon" checkoperational="true"/>
+            <find_object name="$beacon" space="$destination.sector" class="class.jumpbeacon" checkoperational="true">
+              <match_any>
+                <match class="class.jumpbeacon"/>
+                <match_child class="class.jumpbeacon" checkoperational="true"/>
+              </match_any>
+            </find_object>
             <set_known object="@$beacon" known="true"/>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Final Approach Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
           </do_if>
