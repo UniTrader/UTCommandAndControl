@@ -367,7 +367,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
               <remove_from_group object="$enemies_g.{$i}" group="$enemies_g"/>
             </do_all>
             <!-- return to battlestate green NOTE: can go back to yellow or red immediately-->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Ceasefire Signal received (Vanilla)'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
             <abort_called_scripts resume="green"/>
           </do_if>
           <!-- if event.param2 = permanent - save behavior -> Change behavior to Missile Defense only (temporary)-->
@@ -387,7 +387,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
               <set_value name="$original_mode" exact="this.$ut_cac.$defensemode"/>
               <set_value name="this.$ut_cac.$defensemode" exact="1"/>
             </do_if>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Permanent Ceasefire Signal received (Vanilla)'.[player.age,this.name,this.container.nam2]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Permanent Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
           </do_elseif>
           <!-- if event.param2 = stop permanent - revert previous behavior -->
           <do_elseif value="event.param2 == 'stop permanent'">
@@ -395,7 +395,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
             <do_if value="this.$ut_cac.$defensemode == 0">
               <set_value name="this.$ut_cac.$defensemode" exact="$original_mode"/>
             </do_if>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Stop Permanent Ceasefire Signal received (Vanilla)'.[player.age,this.name,this.container.nam2]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Stop Permanent Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
             <remove_value name="$original_mode"/>
           </do_elseif>
         </do_elseif>
