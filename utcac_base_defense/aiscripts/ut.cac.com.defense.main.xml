@@ -349,10 +349,16 @@ Defensemodes regulate how active the Ship reacts to enemies:
       </conditions>
       <actions>
         <do_if value="event.param == 'attack'">
-          <set_value name="$primarytarget" exact="event.param2"/>
+          <set_value name="$ordered_target" exact="event.param2"/>
           <add_to_group groupname="$enemies_g" object="event.param2"/>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Attack Signal received (Vanilla): %4'.[player.age,this.name,this.container.name,event.param2]"/>
           <!-- param3 not used yet ( [ $allowothertargets , $checkrelation ] - both always true for this Script ) -->
+          <do_if value="this.ship.distanceto.$ordered_target lt $combatrange">
+            <abort_called_scripts resume="red"/>
+          </do_if>
+         <do_elseif value="$battlestate != 'red' and this.ship.distanceto.$ordered_target lt this.ship.maxradarrange">
+            <abort_called_scripts resume="yellow"/>
+          </do_elseif>
         </do_if>
         <do_elseif value="event.param == 'stop attack'">
           <!-- if event.param2 = null - just go back to battlestate green -->
@@ -367,7 +373,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
               <remove_value name="$enemies_t.{$enemies_g.{$i}}"/>
               <remove_from_group object="$enemies_g.{$i}" group="$enemies_g"/>
             </do_all>
-            <set_value name="$primarytarget" exact="null"/>
+            <set_value name="$ordered_target" exact="null"/>
             <!-- return to battlestate green NOTE: can go back to yellow or red immediately-->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
             <abort_called_scripts resume="green"/>
@@ -389,7 +395,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
               <set_value name="$original_mode" exact="this.$ut_cac.$defensemode"/>
               <set_value name="this.$ut_cac.$defensemode" exact="1"/>
             </do_if>
-            <set_value name="$primarytarget" exact="null"/>
+            <set_value name="$ordered_target" exact="null"/>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Permanent Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
           </do_elseif>
           <!-- if event.param2 = stop permanent - revert previous behavior -->
@@ -411,6 +417,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
       
       <set_value name="$combatrange" exact="this.ship.maxcombatrange.all"/>
       <set_value name="$primarytarget" exact="null"/>
+      <set_value name="$ordered_target" exact="null"/>
       
       <!-- Init Vars if Advanced Renaming is installed -->
       <do_if value="{5554302,1} != 'ReadText5554302-1'">
@@ -476,10 +483,12 @@ Defensemodes regulate how active the Ship reacts to enemies:
         <match_distance object="this.ship" max="this.ship.maxradarrange"/>
       </find_gravidar_contact>
       -->
-      
+      <do_if value="$ordered_target.isoperational">
+        <add_to_group groupname="$enemies_g" object="$ordered_target"/>
+      </do_if>
       <!-- Filter Enemies -->
       
-      <do_if value="not $enemies_g.count and not $primarytarget.exists">
+      <do_if value="not $enemies_g.count">
         <resume label="green"/>
       </do_if>
       
@@ -498,9 +507,12 @@ Defensemodes regulate how active the Ship reacts to enemies:
       
       <set_value name="$nextenemyscan" min="player.age + 50s" max="player.age + 70s"/>
       
-      <do_if value="not $primarytarget.isoperational">
-        <set_value name="$primarytarget" exact="$enemies_g.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
+      <do_if value="$ordered_target.isoperational">
+        <set_value name="$primarytarget" exact="$ordered_target"/>
       </do_if>
+      <do_elseif value="not $primarytarget.isoperational">
+        <set_value name="$primarytarget" exact="$enemies_g.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
+      </do_elseif>
       <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies_g.list"/>
       
       <do_if value="$droneratio gt 0.0">
@@ -550,6 +562,9 @@ Defensemodes regulate how active the Ship reacts to enemies:
       <!-- ######################################################################################################################################################### -->
       <label name="red"/>
       <!-- check if previous enemies are still in sight, and confirm there are enemies in combat range -->
+      <do_if value="$ordered_target.isoperational">
+        <add_to_group groupname="$enemies_g" object="$ordered_target"/>
+      </do_if>
       <do_all exact="$enemies_g.count" counter="$i" reverse="true">
         <do_if value="not $enemies_g.{$i}.isoperational or not this.ship.mayattack.{$enemies_g.{$i}} or this.ship.distanceto.{$enemies_g.{$i}} gt this.ship.maxradarrange">
           <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
@@ -599,9 +614,12 @@ Defensemodes regulate how active the Ship reacts to enemies:
       
       <!-- Filter Enemies -->
       
-      <do_if value="not $primarytarget.isoperational">
-        <set_value name="$primarytarget" exact="$enemies_g.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
+      <do_if value="$ordered_target.isoperational">
+        <set_value name="$primarytarget" exact="$ordered_target"/>
       </do_if>
+      <do_elseif value="not $primarytarget.isoperational">
+        <set_value name="$primarytarget" exact="$enemies_g.random"/><!-- ToDo: get proper primary Target (this is just a temp measure to prevent an Error) -->
+      </do_elseif>
       <set_turret_targets object="this.ship" preferredtarget="$primarytarget" target="$enemies_g.list"/>
       
       <do_if value="$droneratio gt 0.0">
@@ -648,6 +666,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
       
       <set_value name="$combatrange" exact="this.ship.maxcombatrange.all"/>
       <set_value name="$primarytarget" exact="null"/>
+      <set_value name="$ordered_target" exact="null"/>
       
       <!-- Init Vars if Advanced Renaming is installed -->
       <do_if value="{5554302,1} != 'ReadText5554302-1'">
