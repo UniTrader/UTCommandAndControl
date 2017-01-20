@@ -367,7 +367,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
               <remove_from_group object="$enemies_g.{$i}" group="$enemies_g"/>
             </do_all>
             <!-- return to battlestate green NOTE: can go back to yellow or red immediately-->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Ceasefire Signal received (Vanilla)'.[player.age,this.name,this.container.nam2]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Ceasefire Signal received (Vanilla)'.[player.age,this.name,this.container.name]"/>
             <abort_called_scripts resume="green"/>
           </do_if>
           <!-- if event.param2 = permanent - save behavior -> Change behavior to Missile Defense only (temporary)-->
@@ -430,7 +430,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
       </do_if>
       <set_value name="$namingentity" exact="if this.container.isclass.station then this.container.tradenpc else this.container.controlentity" comment="update of naming entity"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Battlestate Green, set naming entity to %4'.[player.age,this.name,this.container.name,$namingentity.name]"/>
-      <do_if value="$battlestate != 'green'">
+      <do_if value="@$battlestate != 'green'">
         <cease_fire object="this.ship"/>
         <stop_shooting object="this.ship" slot="tag.primary_slot"/>
         <stop_shooting object="this.ship" slot="tag.secondary_slot"/>
@@ -666,7 +666,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
       </do_if>
       <set_value name="$namingentity" exact="if this.container.isclass.station then this.container.tradenpc else this.container.controlentity" comment="update of naming entity"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 OOS Battlestate Green, set naming entity to %4'.[player.age,this.name,this.container.name,$namingentity.name]"/>
-      <do_if value="$battlestate != 'green'">
+      <do_if value="@$battlestate != 'green'">
         <leave_formation object="this.ship"/>
         <set_value name="$battlestate" exact="'green'"/>
         <do_if value="$namingentity.$namereplacement?">
