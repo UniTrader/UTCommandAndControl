@@ -334,7 +334,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
         </do_if>
       </actions>
     </handler>
-    <handler comment="Evaluate Vanilla Signals to change behavior - mapped to my own Config Variables (not passed to subordinates)">
+    <handler comment="Evaluate Vanilla Signals to change behavior - mapped to my own Config Variables (not passed to subordinates) - might be dropped or optionalised in the future">
       <conditions>
         <check_any>
           <check_all>
@@ -345,6 +345,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
             <event_object_signalled object="this" param="'stop attack'"/>
             <check_value value="not @$permanent or event.param2 == 'stop permanent'" comment="don't accept orders if Hold Fire Mode" />
           </check_all>
+          <event_object_signalled object="this" param="'update config'" />
         </check_any>
       </conditions>
       <actions>
@@ -406,6 +407,14 @@ Defensemodes regulate how active the Ship reacts to enemies:
             </do_if>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Stop Permanent Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
             <remove_value name="$original_mode"/>
+          </do_elseif>
+        </do_elseif>
+        <do_elseif value="event.param == 'update config'">
+          <do_if value="this.$config_attackenemies == 1">
+            <set_value name="this.$ut_cac.$defensemode" exact="4"/>
+          </do_if>
+          <do_elseif value="this.$config_attackenemies == 0">
+            <set_value name="this.$ut_cac.$defensemode" exact="2"/>
           </do_elseif>
         </do_elseif>
       </actions>

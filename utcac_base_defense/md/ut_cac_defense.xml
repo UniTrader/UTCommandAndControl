@@ -243,22 +243,37 @@ Rest is shared between all Actor types
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior_aggressive'">
               <set_value name="$actor.$ut_cac.$defensemode" exact="4"/>
+              <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+                <set_value name="$actor.$config_attackenemies" exact="1"/>
+              </do_if>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior_defense_aggressive'">
               <set_value name="$actor.$ut_cac.$defensemode" exact="3"/>
+              <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+                <set_value name="$actor.$config_attackenemies" exact="1"/>
+              </do_if>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior_defensive'">
               <set_value name="$actor.$ut_cac.$defensemode" exact="2"/>
+              <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+                <set_value name="$actor.$config_attackenemies" exact="0"/>
+              </do_if>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior_missile_defense'">
               <set_value name="$actor.$ut_cac.$defensemode" exact="1"/>
+              <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+                <set_value name="$actor.$config_attackenemies" exact="0"/>
+              </do_if>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior_incative'">
               <set_value name="$actor.$ut_cac.$defensemode" exact="0"/>
+              <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+                <set_value name="$actor.$config_attackenemies" exact="0"/>
+              </do_if>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
           </actions>
