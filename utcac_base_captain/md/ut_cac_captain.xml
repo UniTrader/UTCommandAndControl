@@ -379,8 +379,10 @@ Rest is shared between all Actor types
         </cue>
         <cue name="NPC_Destroyed">
           <conditions>
-            <event_object_destroyed object="$actor"/>
-            <event_object_signalled object="$actor" param="'Cancel UT CAC Dialogue'"/>
+            <check_any>
+              <event_object_destroyed object="$actor"/>
+              <event_object_signalled object="$actor" param="'Cancel UT CAC Dialogue'"/>
+            </check_any>
           </conditions>
           <!--delay exact="1s" comment="delay as the PlatformActor library may also take care of this"/ currently not included, so commented out -->
           <actions>
