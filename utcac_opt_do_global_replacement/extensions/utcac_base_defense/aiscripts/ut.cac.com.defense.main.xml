@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<diff>
+  <add sel="/aiscript/interrupts">
+      <handler comment="Evaluate Vanilla Signals to change behavior - mapped to my own Config Variables (not passed to subordinates)">
+      <conditions>
+        <check_any>
+          <check_all>
+            <event_object_signalled object="this" param="'attack'" comment="param2 is target, param3 is [$allowothertargets, $checkrelation]"/>
+            <check_value value="this.$ut_cac.$defensemode ge 2"/>
+          </check_all>
+          <check_all>
+            <event_object_signalled object="this" param="'stop attack'"/>
+            <check_value value="not @$permanent or event.param2 == 'stop permanent'" comment="don't accept orders if Hold Fire Mode" />
+          </check_all>
+          <event_object_signalled object="this" param="'update config'" />
+        </check_any>
+      </conditions>
+      <actions>
+        <do_if value="event.param == 'attack'">
+          <set_value name="$ordered_target" exact="event.param2"/>
+          <add_to_group groupname="$enemies_g" object="event.param2"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Attack Signal received (Vanilla): %4'.[player.age,this.name,this.container.name,event.param2]"/>
+          <!-- param3 not used yet ( [ $allowothertargets , $checkrelation ] - both always true for this Script ) -->
+          <do_if value="this.ship.distanceto.$ordered_target lt $combatrange">
+            <abort_called_scripts resume="red"/>
+          </do_if>
+         <do_elseif value="$battlestate != 'red' and this.ship.distanceto.$ordered_target lt this.ship.maxradarrange">
+            <abort_called_scripts resume="yellow"/>
+          </do_elseif>
+        </do_if>
+        <do_elseif value="event.param == 'stop attack'">
+          <!-- if event.param2 = null - just go back to battlestate green -->
+          <do_if value="event.param2 == null">
+            <!-- clear Target Groups and Tables -->
+            <do_all exact="$enemies_g.count" counter="$i" reverse="true">
+              <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+                <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
+                <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
+                <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
+              </do_if>
+              <remove_value name="$enemies_t.{$enemies_g.{$i}}"/>
+              <remove_from_group object="$enemies_g.{$i}" group="$enemies_g"/>
+            </do_all>
+            <set_value name="$ordered_target" exact="null"/>
+            <!-- return to battlestate green NOTE: can go back to yellow or red immediately-->
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+            <abort_called_scripts resume="green"/>
+          </do_if>
+          <!-- if event.param2 = permanent - save behavior -> Change behavior to Missile Defense only (temporary)-->
+          <do_elseif value="event.param2 == 'permanent'">
+            <!-- ToDo: Save current Behavior to temp Var and set Ship to Missile Defense only behavior -->
+            <!-- clear Target Groups and Tables -->
+            <do_all exact="$enemies_g.count" counter="$i" reverse="true">
+              <do_if value="$enemies_t.{$enemies_g.{$i}}? and typeof $enemies_t.{$enemies_g.{$i}} == datatype.group">
+                <signal_objects group="$enemies_t.{$enemies_g.{$i}}" param="'return formation'"/>
+                <clear_group group="$enemies_t.{$enemies_g.{$i}}"/>
+                <append_to_list name="global.$unused_groups" exact="$enemies_t.{$enemies_g.{$i}}"/>
+              </do_if>
+              <remove_value name="$enemies_t.{$enemies_g.{$i}}"/>
+              <remove_from_group object="$enemies_g.{$i}" group="$enemies_g"/>
+            </do_all>
+            <do_if value="this.$ut_cac.$defensemode gt 1">
+              <set_value name="$original_mode" exact="this.$ut_cac.$defensemode"/>
+              <set_value name="this.$ut_cac.$defensemode" exact="1"/>
+            </do_if>
+            <set_value name="$ordered_target" exact="null"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Permanent Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+          </do_elseif>
+          <!-- if event.param2 = stop permanent - revert previous behavior -->
+          <do_elseif value="event.param2 == 'stop permanent'">
+            <!-- ToDo: Restore previous Behavior from temp Var -->
+            <do_if value="this.$ut_cac.$defensemode == 0">
+              <set_value name="this.$ut_cac.$defensemode" exact="$original_mode"/>
+            </do_if>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Stop Permanent Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+            <remove_value name="$original_mode"/>
+          </do_elseif>
+        </do_elseif>
+        <do_elseif value="event.param == 'update config'">
+          <do_if value="this.$config_attackenemies == 1">
+            <set_value name="this.$ut_cac.$defensemode" exact="4"/>
+          </do_if>
+          <do_elseif value="this.$config_attackenemies == 0">
+            <set_value name="this.$ut_cac.$defensemode" exact="2"/>
+          </do_elseif>
+        </do_elseif>
+      </actions>
+    </handler>
+  </add>
+</diff>
