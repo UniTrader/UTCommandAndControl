@@ -34,6 +34,7 @@
             <reset_cue cue="this"/>
           </actions>
         </cue>
+        <!-- Payment will be re-worked at a later Date -->
         <!--cue name="Payment" ref="md.UT_CAC_Lib.Payment">
           <param name="actor" value="$actor"/>
         </cue-->
@@ -228,18 +229,18 @@ Rest is shared between all Actor types
                   <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
                 </do_elseif>
               </do_if>
-              <add_player_choice_sub text="'Behavior: %1'.[['Hold Fire','Missile Defense only','Only shoot back','Hold Fire until Attacked','Fire Free'].{$actor.$ut_cac.$defensemode + 1}]" position="2" section="comm_settings_behavior" comment="Change how Aggresively Enemies will be dealt with"/>
-              <add_player_choice_return text="'(Back)'" position="6" />
-              <add_player_choice_return text="'(Back)'" position="close" />
+              <add_player_choice_sub text="{5554103,252}.[{5554103,2521+$actor.$ut_cac.$defensemode}]" position="2" section="comm_settings_behavior" comment="Change how Aggresively Enemies will be dealt with"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
             </do_if>
             <do_elseif value="event.param == 'comm_settings_behavior'">
-              <add_player_choice text="'Shoot everything in Sight'" position="1" section="comm_settings_behavior_aggressive"/>
-              <add_player_choice text="'Only Activate Defense when hit'" position="2" section="comm_settings_behavior_defense_aggressive"/>
-              <add_player_choice text="'Only shoot back when fired at'" position="3" section="comm_settings_behavior_defensive"/>
-              <add_player_choice text="'Missile Defense only'" position="4" section="comm_settings_behavior_missile_defense"/>
-              <add_player_choice text="'No Actions at all'" position="5" section="comm_settings_behavior_incative"/>
-              <add_player_choice_return text="'(Back)'" position="6" />
-              <add_player_choice_return text="'(Back)'" position="close" />
+              <add_player_choice text="{5554103,2521}" position="1" section="comm_settings_behavior_incative" immediate="$actor.$ut_cac.$defensemode == 1"/>
+              <add_player_choice text="{5554103,2522}" position="2" section="comm_settings_behavior_missile_defense" immediate="$actor.$ut_cac.$defensemode == 2"/>
+              <add_player_choice text="{5554103,2523}" position="3" section="comm_settings_behavior_defensive" immediate="$actor.$ut_cac.$defensemode == 3"/>
+              <add_player_choice text="{5554103,2524}" position="4" section="comm_settings_behavior_defense_aggressive" immediate="$actor.$ut_cac.$defensemode == 4"/>
+              <add_player_choice text="{5554103,2525}" position="5" section="comm_settings_behavior_aggressive" immediate="$actor.$ut_cac.$defensemode == 5"/>
+              <add_player_choice_return text="{5554103,7}" position="6" />
+              <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior_aggressive'">
               <set_value name="$actor.$ut_cac.$defensemode" exact="4"/>
