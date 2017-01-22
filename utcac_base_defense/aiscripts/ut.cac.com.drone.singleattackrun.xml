@@ -51,10 +51,12 @@ $params values:
         <set_value name="$flightbehaviour" exact="flightbehaviour.attackrun"/>
         <set_avoid_collisions object="this.ship" enabled="true"/>
       </do_else>
-      <!-- Testing visualisation: add slowcharge effect to Interceptor and Missile (just temporary) -->
-      <set_value name="$visu_effect" exact ="'jump_activation_jumpdrive_slow'"/>
-      <add_effect object="this.ship" effect="$visu_effect"/>
-      <add_effect object="$params.$target" effect="$visu_effect"/>
+      <do_if value="this.$debug">
+        <!-- Testing visualisation: add slowcharge effect to Interceptor and Missile (just temporary) -->
+        <set_value name="$visu_effect" exact ="'jump_activation_jumpdrive_slow'"/>
+        <add_effect object="this.ship" effect="$visu_effect"/>
+        <add_effect object="$params.$target" effect="$visu_effect"/>
+      </do_if>
       <!-- end testing code -->
       <!-- Test Cheat: rotate ship so it points towards missile -->
       <warp object="this.ship" zone="this.zone">
@@ -75,9 +77,11 @@ $params values:
           </actions>
         </interrupt>
       </move_to>
-      <!-- testing code: remove effect again -->
-      <remove_effect object="this.ship" effect="$visu_effect"/>
-      <remove_effect object="$params.$target" effect="$visu_effect"/>
+      <do_if value="$visu_effect?">
+        <!-- testing code: remove effect again -->
+        <remove_effect object="this.ship" effect="$visu_effect"/>
+        <remove_effect object="$params.$target" effect="$visu_effect"/>
+      </do_if>
       <!-- end testing code -->
       <!-- in case we failed signal our DO/Superior -->
       <do_if value="$params.$target.isoperational">
@@ -108,5 +112,10 @@ $params values:
   </attention>
   <on_abort>
     <!-- Script Terminated - set Drones into self-destruct mode and pass them as group via signal, so a replacement DO can recover them -->
+      <do_if value="$visu_effect?">
+        <!-- testing code: remove effect again -->
+        <remove_effect object="this.ship" effect="$visu_effect"/>
+        <remove_effect object="$params.$target" effect="$visu_effect"/>
+      </do_if>
   </on_abort>
 </aiscript>
