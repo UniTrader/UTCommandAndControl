@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_Platform_Commands" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
+  <cues>
+      <cue name="Ship_Docked">
+      <conditions>
+        <event_object_changed_room object="player.entity"/>
+        <check_value value="player.entity.container.isclass.ship and player.controlled != player.primaryship and player.entity.container.owner == faction.player"/>
+      </conditions>
+      <actions>
+        <reset_cue cue="Player_Undocked"/>
+        <!-- Gather Zones in current Sector ans Sectors in current Cluster for regular view check -->
+        <find_zone groupname="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
+        <find_sector groupname="$spaces" space="player.cluster" multiple="true" known="true"/>
+        <set_value name="$tracked_objects" exact="table[]"/>
+      </actions>
+      <cues>
+        <cue name="Update_spaces">
+          <conditions>
+            <event_object_changed_sector object="player.ship"/>
+          </conditions>
+          <actions>
+            <clear_group group="$spaces"/>
+            <find_zone groupname="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
+            <find_sector groupname="$spaces" space="player.cluster" multiple="true" known="true"/>
+          </actions>
+        </cue>
+        <cue name="Check_Player_Hover">
+          <delay exact="200ms"/>
+          <actions>
+            <find_object name="$Objects" space="player.zone" multiple="true">
+              <match_is_in_view_of object="player.entity" vertical="5deg" horizontal="5deg"/>
+              <match_distance object="player.ship" max="player.ship.maxradarrange"/>
+              <match class="class.station" negate="true"/>
+            </find_object>
+            <do_all exact="$Objects.count" counter="$i">
+              <set_value name="$tracked_objects.{$Objects.{$i}}" operation="add" exact="2"/>
+            </do_all>
+            <set_value name="$keys" exact="$tracked_objects.keys.list"/>
+            <set_value name="$highest_focus_object" exact="null"/>
+            <set_value name="$highest_focus_number" exact="null"/>
+            <do_all exact="$keys.count" counter="$i" reverse="true">
+              <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="1"/>
+              <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                <remove_value name="$tracked_objects.{$keys.{$i}}"/>
+              </do_if>
+              <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
+                <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
+                <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
+              </do_elseif>
+            </do_all>
+            <do_if value="$highest_focus_number ge 7">
+              <set_value name="$tracked_objects" exact="table[]"/>
+              <reset_cue cue="this"/>
+              <!-- start conversation -->
+            </do_if>
+            <do_else>
+              <remove_help all="true"/>
+              <do_if value="$highest_focus_number ge 6">
+                <show_help custom="'\033R»»\033Y»\033G»\033X %1 \033G«\033Y«\033R««'.[$highest_focus_object.name]" duration="500ms"/>
+              </do_if>
+              <do_elseif value="$highest_focus_number ge 5">
+                <show_help custom="'\033R›»\033Y»\033G»\033X %1 \033G«\033Y«\033R«‹'.[$highest_focus_object.name]" duration="500ms"/>
+              </do_elseif>
+              <do_elseif value="$highest_focus_number ge 4">
+                <show_help custom="'›\033R›\033Y»\033G»\033X %1 \033G«\033Y«\033R‹\033X‹'.[$highest_focus_object.name]" duration="500ms"/>
+              </do_elseif>
+              <do_elseif value="$highest_focus_number ge 3">
+                <show_help custom="' ›\033Y›\033G»\033X %1 \033G«\033Y‹\033X‹ '.[$highest_focus_object.name]" duration="500ms"/>
+              </do_elseif>
+              <do_elseif value="$highest_focus_number ge 2">
+                <show_help custom="'  ›\033G›\033X %1 \033G‹\033X‹  '.[$highest_focus_object.name]" duration="500ms"/>
+              </do_elseif>
+              <do_elseif value="$highest_focus_number ge 1">
+                <show_help custom="'   › %1 ‹   '.[$highest_focus_object.name]" duration="500ms"/>
+              </do_elseif>
+              <reset_cue cue="this"/>
+            </do_else>
+          </actions>
+        </cue>
+      </cues>
+    </cue>
+    <cue name="Player_Undocked" comment="Player Undocked: stop Platform Scripts and reset cue for player wait until docked again">
+      <conditions>
+        <event_object_changed_room object="player.entity"/>
+        <check_value exact="player.entity.container" value="player.primaryship" comment="Only if player is on his ship"/>
+      </conditions>
+      <actions>
+        <reset_cue cue="Ship_Docked"/>
+      </actions>
+    </cue>
+  </cues>
+</mdscript>
