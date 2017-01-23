@@ -32,19 +32,19 @@
             <set_value name="$loop" operation="subtract"/>
             <do_if value="$loop le 0">
               <set_value name="$loop" exact="6"/>
-              <find_object groupname="$objects" space="player.zone" multiple="true">
-                <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
+              <find_object groupname="$objects" space="player.zone" checkoperational="true" multiple="true">
+                <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                 <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                 <match class="class.station" negate="true"/>
                 <match_size min="200m"/>
               </find_object>
-              <find_station name="$stations" space="player.zone" multiple="true">
-                <match_is_in_view_of object="player.entity" vertical="50deg" horizontal="50deg"/>
+              <find_station name="$stations" space="player.zone" checkoperational="true" multiple="true">
+                <match_is_in_view_of object="player.entity" vertical="60deg" horizontal="60deg"/>
                 <match_distance object="player.ship" max="player.ship.maxradarrange + 5km"/>
               </find_station>
               <do_all exact="$stations.count" counter="$i">
-                <find_object_component groupname="$objects" object="$stations.{$i}" integrated="false" multiple="true">
-                  <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
+                <find_object_component groupname="$objects" object="$stations.{$i}" checkoperational="true" integrated="false" multiple="true">
+                  <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                   <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                   <match_size min="500m"/>
                   <match_any>
@@ -60,7 +60,7 @@
                 </find_object_component>
               </do_all>
               <do_all exact="$objects.count" counter="$i">
-                <set_value name="$tracked_objects.{$objects.{$i}}" operation="add" exact="5"/>
+                <set_value name="$tracked_objects.{$objects.{$i}}" operation="add" exact="if $objects.count == 1 then 5 else 3"/>
               </do_all>
               <clear_group group="$objects"/>
               <set_value name="$keys" exact="$tracked_objects.keys.list"/>
@@ -89,7 +89,7 @@
                   <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                 </check_object>
                 <do_if value="$result">
-                  <set_value name="$tracked_objects.{$keys.{$i}}" operation="add" exact="3"/>
+                  <set_value name="$tracked_objects.{$keys.{$i}}" operation="add" exact="if $keys.count == 1 then 3 else 1"/>
                 </do_if>
                 <do_else>
                   <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
