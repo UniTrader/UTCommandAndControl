@@ -46,13 +46,16 @@
                 <find_object_component groupname="$objects" object="$stations.{$i}" checkoperational="true" integrated="false" multiple="true">
                   <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                   <match_distance object="player.ship" max="player.ship.maxradarrange"/>
-                  <match_size min="500m"/>
                   <match_any>
                     <match class="class.production"/>
-                    <match class="class.storage"/>
                     <match class="class.buildmodule"/>
+                    <match class="class.storage"/>
                     <match class="class.dronelaunchpad"/>
                     <match class="class.radar"/>
+                    <match class="class.destructible">
+                      <match_parent class="class.station"/>
+                      <match_size min="500m"/>
+                    </match>
                   </match_any>
                   <!--match_any negate="true">
                     <match class="class.production"/>
