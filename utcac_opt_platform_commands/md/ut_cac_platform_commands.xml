@@ -11,6 +11,7 @@
         <!-- Gather Zones in current Sector ans Sectors in current Cluster for regular view check -->
         <find_zone groupname="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
         <find_sector groupname="$spaces" space="player.cluster" multiple="true" known="true"/>
+        <create_group groupname="$objects"/>
         <set_value name="$tracked_objects" exact="table[]"/>
       </actions>
       <cues>
@@ -27,27 +28,72 @@
         <cue name="Check_Player_Hover">
           <delay exact="100ms"/>
           <actions>
-            <find_object name="$Objects" space="player.zone" multiple="true">
-              <match_is_in_view_of object="player.entity" vertical="5deg" horizontal="5deg"/>
-              <match_distance object="player.ship" max="player.ship.maxradarrange"/>
-              <match class="class.station" negate="true"/>
-            </find_object>
-            <do_all exact="$Objects.count" counter="$i">
-              <set_value name="$tracked_objects.{$Objects.{$i}}" operation="add" exact="5"/>
-            </do_all>
-            <set_value name="$keys" exact="$tracked_objects.keys.list"/>
-            <set_value name="$highest_focus_object" exact="null"/>
-            <set_value name="$highest_focus_number" exact="null"/>
-            <do_all exact="$keys.count" counter="$i" reverse="true">
-              <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
-              <do_if value="$tracked_objects.{$keys.{$i}} le 0">
-                <remove_value name="$tracked_objects.{$keys.{$i}}"/>
-              </do_if>
-              <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
-                <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
-                <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
-              </do_elseif>
-            </do_all>
+            <clear_group group="$objects"/>
+            <!-- find new Objects every 5 loops -->
+            <set_value name="$loop" operation="subtract"/>
+            <do_if value="$loop le 0">
+              <set_value name="$loop" exact="6"/>
+              <find_object name="$objects" space="player.zone" multiple="true">
+                <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
+                <match_distance object="player.ship" max="player.ship.maxradarrange"/>
+                <match class="class.station" negate="true"/>
+                <match_size min="200m"/>
+              </find_object>
+              <find_station name="$stations" space="player.zone" multiple="true">
+                <match_is_in_view_of object="player.entity" vertical="50deg" horizontal="50deg"/>
+                <match_distance object="player.ship" max="player.ship.maxradarrange + 5km"/>
+              </find_station>
+              <do_all exact="$stations.count" counter="$i">
+                <find_object_component groupname="$objects.{$i}" object="$stations" integrated="false" multiple="true">
+                <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
+                <match_distance object="player.ship" max="player.ship.maxradarrange"/>
+                  <match_any>
+                    <!--match class="class.production"/>
+                    <match class="class.storage"/>
+                    <match class="class.buildmodule"/>
+                    <match class="class.dronelaunchpad"/-->
+                    <match class="class.destructible"/>
+                  </match_any>
+                </find_object_component>
+              </do_all>
+              <do_all exact="$objects.count" counter="$i">
+                <set_value name="$tracked_objects.{$objects.{$i}}" operation="add" exact="5"/>
+              </do_all>
+              <set_value name="$keys" exact="$tracked_objects.keys.list"/>
+              <set_value name="$highest_focus_object" exact="null"/>
+              <set_value name="$highest_focus_number" exact="null"/>
+              <do_all exact="$keys.count" counter="$i" reverse="true">
+                <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
+                <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                  <remove_value name="$tracked_objects.{$keys.{$i}}"/>
+                </do_if>
+                <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
+                  <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
+                  <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
+                </do_elseif>
+              </do_all>
+            </do_if>
+            <!-- else check already known Objects if their Value should be increased or decreased -->
+            <do_else>
+              <set_value name="$keys" exact="$tracked_objects.keys.list"/>
+              <set_value name="$highest_focus_object" exact="null"/>
+              <set_value name="$highest_focus_number" exact="null"/>
+              <do_all exact="$keys.count" counter="$i" reverse="true">
+                <!-- check if in Sight - if yes increase Value by 3, if no decrease by 2 -->
+                <check_object object="$keys.{$i}" result="$result">
+                  <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
+                  <match_distance object="player.ship" max="player.ship.maxradarrange"/>
+                </check_object>
+                <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                  <remove_value name="$tracked_objects.{$keys.{$i}}"/>
+                </do_if>
+                <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
+                  <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
+                  <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
+                </do_elseif>
+              </do_all>
+            
+            </do_else>
             <do_if value="$highest_focus_number ge 40">
               <set_value name="$tracked_objects" exact="table[]"/>
               <reset_cue cue="this"/>
