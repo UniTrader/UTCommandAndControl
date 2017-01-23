@@ -25,7 +25,7 @@
           </actions>
         </cue>
         <cue name="Check_Player_Hover">
-          <delay exact="100ms"/>
+          <delay exact="200ms"/>
           <actions>
             <find_object name="$Objects" space="player.zone" multiple="true">
               <match_is_in_view_of object="player.entity" vertical="5deg" horizontal="5deg"/>
@@ -33,7 +33,7 @@
               <match class="class.station" negate="true"/>
             </find_object>
             <do_all exact="$Objects.count" counter="$i">
-              <set_value name="$tracked_objects.{$Objects.{$i}}" operation="add" exact="2"/>
+              <set_value name="$tracked_objects.{$Objects.{$i}}" operation="add" exact="3"/>
             </do_all>
             <set_value name="$keys" exact="$tracked_objects.keys.list"/>
             <set_value name="$highest_focus_object" exact="null"/>
@@ -65,7 +65,7 @@
                 <show_help custom="'\033M»»\033R»»»\033Y»»»\033G»»\033X\n%1'.[$highest_focus_object.name]" duration="500ms"/>
               </do_elseif>
               <do_elseif value="$highest_focus_number ge 6">
-                <show_help custom="'\033R»»»\033Y»»»\033G»»»\033X»n%1'.[$highest_focus_object.name]" duration="500ms"/>
+                <show_help custom="'\033R»»»\033Y»»»\033G»»»\033X»\n%1'.[$highest_focus_object.name]" duration="500ms"/>
               </do_elseif>
               <do_elseif value="$highest_focus_number ge 5">
                 <show_help custom="'\033R»\033Y»»»\033G»»»\033X»»»n%1'.[$highest_focus_object.name]" duration="500ms"/>
