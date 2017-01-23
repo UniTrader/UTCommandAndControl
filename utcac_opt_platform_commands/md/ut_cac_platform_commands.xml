@@ -28,12 +28,11 @@
         <cue name="Check_Player_Hover">
           <delay exact="100ms"/>
           <actions>
-            <clear_group group="$objects"/>
             <!-- find new Objects every 5 loops -->
             <set_value name="$loop" operation="subtract"/>
             <do_if value="$loop le 0">
               <set_value name="$loop" exact="6"/>
-              <find_object name="$objects" space="player.zone" multiple="true">
+              <find_object groupname="$objects" space="player.zone" multiple="true">
                 <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
                 <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                 <match class="class.station" negate="true"/>
@@ -63,6 +62,7 @@
               <do_all exact="$objects.count" counter="$i">
                 <set_value name="$tracked_objects.{$objects.{$i}}" operation="add" exact="5"/>
               </do_all>
+              <clear_group group="$objects"/>
               <set_value name="$keys" exact="$tracked_objects.keys.list"/>
               <set_value name="$highest_focus_object" exact="null"/>
               <set_value name="$highest_focus_number" exact="null"/>
