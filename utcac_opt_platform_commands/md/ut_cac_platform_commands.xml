@@ -9,8 +9,12 @@
       <actions>
         <reset_cue cue="Player_Undocked"/>
         <!-- Gather Zones in current Sector ans Sectors in current Cluster for regular view check -->
-        <find_zone groupname="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
-        <find_sector groupname="$spaces" space="player.cluster" multiple="true" known="true"/>
+        <find_zone name="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
+        <remove_value name="$spaces.{$spaces.indexof.{player.zone}}"/>
+        <find_sector name="$spaces2" space="player.cluster" multiple="true" known="true"/>
+        <remove_value name="$spaces2.{$spaces2.indexof.{player.sector}}"/>
+        <append_to_list name="$spaces" list="$spaces2"/>
+        <remove_value name="$spaces2"/>
         <create_group groupname="$objects"/>
         <set_value name="$tracked_objects" exact="table[]"/>
       </actions>
@@ -20,11 +24,12 @@
             <event_object_changed_sector object="player.ship"/>
           </conditions>
           <actions>
-            <clear_group group="$spaces"/>
-            <find_zone groupname="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
-            <find_sector groupname="$spaces" space="player.cluster" multiple="true" known="true"/>
-            <remove_from_group group="$spaces" object="player.zone"/>
-            <remove_from_group group="$spaces" object="player.sector"/>
+            <find_zone name="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
+            <remove_value name="$spaces.{$spaces.indexof.{player.zone}}"/>
+            <find_sector name="$spaces2" space="player.cluster" multiple="true" known="true"/>
+            <remove_value name="$spaces2.{$spaces2.indexof.{player.sector}}"/>
+            <append_to_list name="$spaces" list="$spaces2"/>
+            <remove_value name="$spaces2"/>
           </actions>
         </cue>
         <cue name="Check_Player_Hover">
