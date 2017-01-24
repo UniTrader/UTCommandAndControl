@@ -128,7 +128,7 @@
               <reset_cue cue="this"/>
               <!-- start conversation -->
             </do_if>
-            <do_else>
+            <do_elseif value="$highest_focus_object.exists">
               <set_value name="$helptext" exact="''"/>
               <do_if value="$highest_focus_number ge 17">
                 <set_value name="$helptext" exact="$helptext + '\033M'"/>
@@ -178,6 +178,9 @@
               </do_else>
               <remove_help all="true"/>
               <show_help custom="$helptext" duration="500ms" position="8" log="false" silent="$highest_focus_number lt 26"/>
+              <reset_cue cue="this"/>
+            </do_elseif>
+            <do_else>
               <reset_cue cue="this"/>
             </do_else>
           </actions>
