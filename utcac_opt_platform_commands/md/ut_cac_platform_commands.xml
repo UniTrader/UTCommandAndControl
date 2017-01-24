@@ -33,7 +33,7 @@
             <do_if value="$loop le 0">
               <set_value name="$loop" exact="6"/>
               <find_object groupname="$objects" space="player.zone" checkoperational="true" multiple="true">
-                <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
+                <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
                 <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                 <match class="class.station" negate="true"/>
                 <match_size min="200m"/>
@@ -44,7 +44,7 @@
               </find_station>
               <do_all exact="$stations.count" counter="$i">
                 <find_object_component groupname="$objects" object="$stations.{$i}" checkoperational="true" integrated="false" multiple="true">
-                  <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
+                  <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="1odeg"/>
                   <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                   <match_parent class="class.station"/>
                   <match_any>
@@ -63,8 +63,16 @@
                   </match_any-->
                 </find_object_component>
               </do_all>
+              <do_all exact="$spaces.count" counter="$i">
+                <check_object object="$spaces.{$i}" result="$result">
+                  <match_is_in_view_of object="player.entity" vertical="20deg" horizontal="20deg"/>
+                </check_object>
+                <do_if value="$result">
+                  <add_to_group groupname="$objects" object="$spaces.{$i}"/>
+                </do_if>
+              </do_all>
               <do_all exact="$objects.count" counter="$i">
-                <set_value name="$tracked_objects.{$objects.{$i}}" operation="add" exact="if $objects.count == 1 then 5 else 3"/>
+                <set_value name="$tracked_objects.{$objects.{$i}}" operation="add" exact="if $objects.count + $tracked_objects.keys.count == 1 then 5 else 3"/>
               </do_all>
               <clear_group group="$objects"/>
               <set_value name="$keys" exact="$tracked_objects.keys.list"/>
@@ -88,10 +96,17 @@
               <set_value name="$highest_focus_number" exact="null"/>
               <do_all exact="$keys.count" counter="$i" reverse="true">
                 <!-- check if in Sight - if yes increase Value by 3, if no decrease by 2 -->
-                <check_object object="$keys.{$i}" result="$result">
-                  <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
-                  <match_distance object="player.ship" max="player.ship.maxradarrange"/>
-                </check_object>
+                <do_if value="$keys.{$i}.isclass.space">
+                  <check_object object="$keys.{$i}" result="$result">
+                    <match_is_in_view_of object="player.entity" vertical="20deg" horizontal="20deg"/>
+                  </check_object>
+                </do_if>
+                <do_else>
+                  <check_object object="$keys.{$i}" result="$result">
+                    <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
+                    <match_distance object="player.ship" max="player.ship.maxradarrange"/>
+                  </check_object>
+                </do_else>
                 <do_if value="$result">
                   <set_value name="$tracked_objects.{$keys.{$i}}" operation="add" exact="if $keys.count == 1 then 3 else 1"/>
                 </do_if>
@@ -114,118 +129,55 @@
               <!-- start conversation -->
             </do_if>
             <do_else>
-              <remove_help all="true"/>
-              <do_if value="$highest_focus_number ge 37">
-                <show_help custom="'\033M»»»»»»»»»»»»»»»»»»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
+              <set_value name="$helptext" exact="''"/>
+              <do_if value="$highest_focus_number ge 17">
+                <set_value name="$helptext" exact="$helptext + '\033M'"/>
+                <do_all exact="[$highest_focus_number - 16 , 20 ].min">
+                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                </do_all>
               </do_if>
-              <do_elseif value="$highest_focus_number ge 36">
-                <show_help custom="'\033M»»»»»»»»»»»»»»»»»»»\033R»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
+              <do_if value="$highest_focus_number ge 12 and $highest_focus_number lt 36">
+                <set_value name="$helptext" exact="$helptext + '\033R'"/>
+                <do_all exact="[$highest_focus_number - 11 , 5 , 36 - $highest_focus_number].min">
+                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                </do_all>
+              </do_if>
+              <do_if value="$highest_focus_number ge 7 and $highest_focus_number lt 31">
+                <set_value name="$helptext" exact="$helptext + '\033Y'"/>
+                <do_all exact="[$highest_focus_number - 6 , 5 , 31 - $highest_focus_number].min">
+                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                </do_all>
+              </do_if>
+              <do_if value="$highest_focus_number ge 2 and $highest_focus_number lt 26">
+                <set_value name="$helptext" exact="$helptext + '\033G'"/>
+                <do_all exact="[$highest_focus_number - 1 , 5 , 26 - $highest_focus_number].min">
+                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                </do_all>
+              </do_if>
+              <do_if value="$highest_focus_number ge 2 and $highest_focus_number lt 21">
+                <set_value name="$helptext" exact="$helptext + '\033X'"/>
+                <do_all exact="[ 3 , 21 - $highest_focus_number].min">
+                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                </do_all>
+              </do_if>
+              <set_value name="$helptext" exact="$helptext + '\033X %1\n%2%3'"/>
+              <do_if value="$highest_focus_object.isclass.space">
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033U',$highest_focus_object.name]"/>
+              </do_if>
+              <do_elseif value="$highest_focus_object.isplayerowned">
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033G',$highest_focus_object.name]"/>
               </do_elseif>
-              <do_elseif value="$highest_focus_number ge 35">
-                <show_help custom="'\033M»»»»»»»»»»»»»»»»»»\033R»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
+              <do_elseif value="$highest_focus_object.mayattack.{faction.player}">
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033R',$highest_focus_object.name]"/>
               </do_elseif>
-              <do_elseif value="$highest_focus_number ge 34">
-                <show_help custom="'\033M»»»»»»»»»»»»»»»»»\033R»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
+              <do_elseif value="$highest_focus_object.isoperational">
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033C',$highest_focus_object.name]"/>
               </do_elseif>
-              <do_elseif value="$highest_focus_number ge 33">
-                <show_help custom="'\033M»»»»»»»»»»»»»»»»\033R»»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 32">
-                <show_help custom="'\033M»»»»»»»»»»»»»»»\033R»»»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 31">
-                <show_help custom="'\033M»»»»»»»»»»»»»»\033R»»»»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 30">
-                <show_help custom="'\033M»»»»»»»»»»»»»\033R»»»»»»\033Y»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 29">
-                <show_help custom="'\033M»»»»»»»»»»»»\033R»»»»»»\033Y»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 28">
-                <show_help custom="'\033M»»»»»»»»»»»\033R»»»»»»\033Y»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 27">
-                <show_help custom="'\033M»»»»»»»»»»\033R»»»»»»\033Y»»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 26">
-                <show_help custom="'\033M»»»»»»»»»\033R»»»»»»\033Y»»»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 25">
-                <show_help custom="'\033M»»»»»»»»\033R»»»»»»\033Y»»»»»\033G»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 24">
-                <show_help custom="'\033M»»»»»»»\033R»»»»»»\033Y»»»»»\033G»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 23">
-                <show_help custom="'\033M»»»»»»\033R»»»»»»\033Y»»»»»\033G»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 22">
-                <show_help custom="'\033M»»»»»\033R»»»»»»\033Y»»»»»\033G»»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 21">
-                <show_help custom="'\033M»»»»\033R»»»»»»\033Y»»»»»\033G»»»»»\033X %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 20">
-                <show_help custom="'\033M»»»\033R»»»»»»\033Y»»»»»\033G»»»»»\033X» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 19">
-                <show_help custom="'\033M»»\033R»»»»»»\033Y»»»»»\033G»»»»»\033X»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 18">
-                <show_help custom="'\033M»\033R»»»»»»\033Y»»»»»\033G»»»»»\033X»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 17">
-                <show_help custom="'\033R»»»»»»\033Y»»»»»\033G»»»»»\033X»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 16">
-                <show_help custom="'\033R»»»»»\033Y»»»»»\033G»»»»»\033X»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 15">
-                <show_help custom="'\033R»»»»\033Y»»»»»\033G»»»»»\033X»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 14">
-                <show_help custom="'\033R»»»\033Y»»»»»\033G»»»»»\033X»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 13">
-                <show_help custom="'\033R»»\033Y»»»»»\033G»»»»»\033X»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 12">
-                <show_help custom="'\033R»\033Y»»»»»\033G»»»»»\033X»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 11">
-                <show_help custom="'\033Y»»»»»\033G»»»»»\033X»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 10">
-                <show_help custom="'\033Y»»»»\033G»»»»»\033X»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 9">
-                <show_help custom="'\033Y»»»\033G»»»»»\033X»»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 8">
-                <show_help custom="'\033Y»»\033G»»»»»\033X»»»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 7">
-                <show_help custom="'\033Y»\033G»»»»»\033X»»»»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 6">
-                <show_help custom="'\033G»»»»»\033X»»»»»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 5">
-                <show_help custom="'\033G»»»»\033X»»»»»»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 4">
-                <show_help custom="'\033G»»»\033X»»»»»»»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 3">
-                <show_help custom="'\033G»»\033X»»»»»»»»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 2">
-                <show_help custom="'\033G»\033X»»»»»»»»»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms" silent="true"/>
-              </do_elseif>
-              <do_elseif value="$highest_focus_number ge 1">
-                <show_help custom="'»»»»»»»»»»»»»»»»»»»» %1\n%2%3'.[$tracked_objects.keys.count,if $highest_focus_object.isplayerowned then '\033G' else if $highest_focus_object.mayattack.{faction.player} then '\033R' else '\033C',$highest_focus_object.name]" duration="500ms"/>
-              </do_elseif>
+              <do_else>
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'',$highest_focus_object.name]"/>
+              </do_else>
+              <remove_help all="true"/>
+              <show_help custom="$helpstring" duration="500ms" position="8" log="false" silent="$highest_focus_number lt 26"/>
               <reset_cue cue="this"/>
             </do_else>
           </actions>
