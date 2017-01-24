@@ -23,6 +23,8 @@
             <clear_group group="$spaces"/>
             <find_zone groupname="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
             <find_sector groupname="$spaces" space="player.cluster" multiple="true" known="true"/>
+            <remove_from_group group="$spaces" object="player.zone"/>
+            <remove_from_group group="$spaces" object="player.sector"/>
           </actions>
         </cue>
         <cue name="Check_Player_Hover">
@@ -33,18 +35,18 @@
             <do_if value="$loop le 0">
               <set_value name="$loop" exact="6"/>
               <find_object groupname="$objects" space="player.zone" checkoperational="true" multiple="true">
-                <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
+                <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                 <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                 <match class="class.station" negate="true"/>
                 <match_size min="200m"/>
               </find_object>
               <find_station name="$stations" space="player.zone" checkoperational="true" multiple="true">
                 <match_is_in_view_of object="player.entity" vertical="60deg" horizontal="60deg"/>
-                <match_distance object="player.ship" max="player.ship.maxradarrange + 5km"/>
+                <!--match_distance object="player.ship" max="player.ship.maxradarrange + 5km"/-->
               </find_station>
               <do_all exact="$stations.count" counter="$i">
                 <find_object_component groupname="$objects" object="$stations.{$i}" checkoperational="true" integrated="false" multiple="true">
-                  <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="1odeg"/>
+                  <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                   <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                   <match_parent class="class.station"/>
                   <match_any>
@@ -103,7 +105,7 @@
                 </do_if>
                 <do_else>
                   <check_object object="$keys.{$i}" result="$result">
-                    <match_is_in_view_of object="player.entity" vertical="10deg" horizontal="10deg"/>
+                    <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                     <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                   </check_object>
                 </do_else>
