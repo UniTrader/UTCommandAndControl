@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_Platform_Commands" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
   <cues>
-      <cue name="Ship_Docked">
+    <cue name="Ship_Docked">
       <conditions>
         <event_object_changed_room object="player.entity"/>
         <check_value value="player.entity.container.isclass.ship and player.controlled != player.primaryship and player.entity.container.owner == faction.player"/>
@@ -30,6 +30,7 @@
             <remove_value name="$spaces2.{$spaces2.indexof.{player.sector}}"/>
             <append_to_list name="$spaces" list="$spaces2"/>
             <remove_value name="$spaces2"/>
+            <reset_cue cue="this"/>
           </actions>
         </cue>
         <cue name="Check_Player_Hover">
@@ -130,43 +131,43 @@
                   <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
                 </do_elseif>
               </do_all>
-            
             </do_else>
             <do_if value="$highest_focus_number ge 40">
               <set_value name="$selectedobject" exact="$highest_focus_object"/>
               <set_value name="$tracked_objects" exact="table[]"/>
-              <start_conversation conversation="ut_cac_pc" actor="player.computer"/>
+              <!--start_conversation conversation="ut_cac_pc" actor="player.computer"/-->
+              <reset_cue cue="this"/>
               <!-- start conversation -->
             </do_if>
             <do_elseif value="$highest_focus_object.exists">
               <set_value name="$helptext" exact="''"/>
               <do_if value="$highest_focus_number ge 17">
                 <set_value name="$helptext" exact="$helptext + '\033M'"/>
-                <do_all exact="[$highest_focus_number - 16 , 20 ].min">
+                <do_all exact="[$highest_focus_number - 16 , 18 ].min">
                   <set_value name="$helptext" exact="$helptext + '»'"/>
                 </do_all>
               </do_if>
-              <do_if value="$highest_focus_number ge 12 and $highest_focus_number lt 36">
+              <do_if value="$highest_focus_number ge 12 and $highest_focus_number lt 34">
                 <set_value name="$helptext" exact="$helptext + '\033R'"/>
-                <do_all exact="[$highest_focus_number - 11 , 5 , 36 - $highest_focus_number].min">
+                <do_all exact="[$highest_focus_number - 11 , 5 , 34 - $highest_focus_number].min">
                   <set_value name="$helptext" exact="$helptext + '»'"/>
                 </do_all>
               </do_if>
-              <do_if value="$highest_focus_number ge 7 and $highest_focus_number lt 31">
+              <do_if value="$highest_focus_number ge 7 and $highest_focus_number lt 29">
                 <set_value name="$helptext" exact="$helptext + '\033Y'"/>
-                <do_all exact="[$highest_focus_number - 6 , 5 , 31 - $highest_focus_number].min">
+                <do_all exact="[$highest_focus_number - 6 , 5 , 29 - $highest_focus_number].min">
                   <set_value name="$helptext" exact="$helptext + '»'"/>
                 </do_all>
               </do_if>
-              <do_if value="$highest_focus_number ge 2 and $highest_focus_number lt 26">
+              <do_if value="$highest_focus_number ge 2 and $highest_focus_number lt 24">
                 <set_value name="$helptext" exact="$helptext + '\033G'"/>
-                <do_all exact="[$highest_focus_number - 1 , 5 , 26 - $highest_focus_number].min">
+                <do_all exact="[$highest_focus_number - 1 , 5 , 24 - $highest_focus_number].min">
                   <set_value name="$helptext" exact="$helptext + '»'"/>
                 </do_all>
               </do_if>
-              <do_if value="$highest_focus_number ge 1 and $highest_focus_number lt 21">
+              <do_if value="$highest_focus_number ge 1 and $highest_focus_number lt 19">
                 <set_value name="$helptext" exact="$helptext + '\033X'"/>
-                <do_all exact="[21 - $highest_focus_number].min">
+                <do_all exact="[19 - $highest_focus_number].min">
                   <set_value name="$helptext" exact="$helptext + '»'"/>
                 </do_all>
               </do_if>
@@ -186,6 +187,7 @@
               <do_else>
                 <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'',$highest_focus_object.name]"/>
               </do_else>
+              <do_if value="$commandtarget" exact="'%1\n\nCommand Target:\n%2'.[$helptext,$commandtarget.name]"/>
               <remove_help all="true"/>
               <show_help custom="$helptext" duration="500ms" position="8" log="false" silent="$highest_focus_number lt 26"/>
               <reset_cue cue="this"/>
