@@ -172,6 +172,10 @@ ToDo:
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon %4 from set of %5 (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
           </do_else>
         </do_if>
+        <!-- we got a Jumpbeacon directly as Input - Use it -->
+        <do_elseif value="$destination.isclass.jumpbeacon">
+          <set_value name="$beacon" exact="$destination"/>
+        </do_elseif>
         <do_else>
           <!-- final Cluster on Path - jump to the closest beacon, but also watch for enemies -->
           <find_object name="$beacons" space="$destination.sector"  knownto="this.owner" checkoperational="true" multiple="true">
