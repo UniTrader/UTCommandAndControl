@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="command.move.pos" xsi:noNamespaceSchemaLocation="aiscripts.xsd" priority="2" version="2">
+  <!--
+   Wrapper script for explicit order to Move to Position command
+
+   Original ('command.move.wait') by Adrian, shamelessly copied and modified by UniTrader
+
+  -->
+  <params>
+    <param name="destination" default="this.zone" comment="Object or Zone. If highway, will use the exit - defaults to current Zone"/>
+    <param name="position" default="position.[0m,0m,0m]" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>
+    <param name="rotation" default="null" comment="rotation the ship should have - defaults to lookat rotation on final approach"/>
+    <param name="withdraw" default="false"/>
+    <param name="debugchance" default="0"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      <!-- Initial checks -->
+      <label name="start"/>
+      <debug_text text="'command move to %1 and wait'.[$destination.knownname]" chance="$debugchance"/>
+      <!-- Withdraw from battle -->
+      <do_if value="$withdraw">
+        <!-- Command -->
+        <set_command command="command.withdrawbattle"/>
+        <!-- Find enemies -->
+        <find_gravidar_contact object="this.ship" mayattack="this.ship" groupname="$enemies" multiple="true" functional="true">
+          <match_distance object="this.ship" max="this.ship.maxradarrange"/>
+        </find_gravidar_contact>
+        <!--  Try to fly in the oposite direction of the average positions of the enemies -->
+        <do_if value="$enemies.count">
+          <set_value name="$x" exact="0"/>
+          <set_value name="$y" exact="0"/>
+          <set_value name="$z" exact="0"/>
+          <!-- Add all positions -->
+          <do_all exact="$enemies.count" counter="$i">
+            <create_position name="$enemypos" space="this.ship" object="$enemies.{$i}"/>
+            <set_value name="$x" exact="$enemypos.x" operation="add"/>
+            <set_value name="$y" exact="$enemypos.y" operation="add"/>
+            <set_value name="$z" exact="$enemypos.z" operation="add"/>
+          </do_all>
+          <!-- resultpos is the average position of all enemies -->
+          <debug_text text="'x:%1, y:%2, z:%3'.[$x, $y, $z]" chance="$debugchance"/>
+          <create_position name="$resultpos" x="$x / ($enemies.count * 1)" y="$y / ($enemies.count * 1)" z="$z / ($enemies.count * 1)"/>
+          <debug_text text="'resultpos %1'.[$resultpos]" chance="$debugchance"/>
+          <!-- Go in oposite direction of resultpos [x,y,z] -->
+          <set_value name="$maxdistance" exact="35km"/>
+          <set_value name="$distfactor" exact="[$maxdistance / this.ship.distanceto.{$resultpos}, 0.1].max"/>
+          <debug_text text="'dist factor %1, dist %2'.[$distfactor, this.ship.distanceto.{$resultpos}]" chance="$debugchance"/>
+          <!-- Final position in the oposite direction -->
+          <create_position name="$finalpos" x="$resultpos.x * -$distfactor" y="$resultpos.y * -$distfactor" z="$resultpos.z * -$distfactor"/>
+          <debug_text text="'finalpos %1, distfactor %2, dist %3'.[$finalpos, $distfactor, this.ship.distanceto.{$resultpos}]" chance="$debugchance"/>
+          <!-- Stop fire -->
+          <cease_fire object="this.ship" weapontype="all"/>
+          <do_if value="this.ship.defencenpc.exists">
+            <signal_objects object="this.ship.defencenpc" param="'stop attack'" param2="'permanent'" comment="Set Hold Fire Mode"/>
+          </do_if>
+          <debug_text text="'start move. this pos %1, final pos %2'.[this.ship.position, $finalpos]" chance="$debugchance"/>
+          <start_boost object="this.ship"/>
+          <move_to object="this.ship" destination="this.zone" forceposition="false" finishonapproach="true" sinceversion="2">
+            <position object="this.ship" value="$finalpos"/>
+          </move_to>
+          <stop_boost object="this.ship"/>
+          <remove_value name="$enemies"/>
+          <remove_value name="$enemypos"/>
+          <remove_value name="$x"/>
+          <remove_value name="$y"/>
+          <remove_value name="$z"/>
+          <remove_value name="$finalpos"/>
+          <remove_value name="$maxdistance"/>
+          <remove_value name="$distfactor"/>
+        </do_if>
+        <do_else>
+          <debug_text text="'no enemies'" chance="$debugchance"/>
+        </do_else>
+      </do_if>
+      <!-- If no destination is provided, just a wait -->
+      <do_elseif value="$destination">
+        <!-- Command Info -->
+        <do_if value="$destination.isclass.zone">
+          <set_command command="command.movetozone" param="$destination"/>
+        </do_if>
+        <do_else>
+          <set_command command="command.move" param="$destination"/>
+        </do_else>
+        <!-- Move there -->
+        <!-- <t id="1301">Awaiting orders.</t> -->
+        <!-- <t id="1058">We await your new orders, Sir.</t> -->
+        <!-- <speak actor="this" line="[1301,1058].random" comment="" caninterrupt="false" /> -->
+        <do_if value="$destination.zone.isclass.highway">
+          <set_value name="$destination" exact="$destination.zone.exit"/>
+        </do_if>
+        <do_if value="$rotation == null">
+          <create_orientation name="$rotation" refposition="$position" orientation="look_at">
+            <position object="this.ship"/>
+          </create_orientation>
+        </do_if>
+        <run_script name="'move.generic'">
+          <param name="destination" value="$destination"/>
+          <param name="endintargetzone" value="false"/>
+          <param name="position" value="$position"/>
+          <param name="rotation" value="$rotation"/>
+        </run_script>
+      </do_elseif>
+      <!-- Wait for orders -->
+      <set_command command="command.wait"/>
+      <set_command_action commandaction="commandaction.standingby"/>
+      <!-- <t id="1035">(task completed)Task finished, Sir.</t> -->
+      <!-- <t id="1301">Awaiting orders.</t> -->
+      <!-- <t id="1058">We await your new orders, Sir.</t> -->
+      <start_conversation actor="this" conversation="Speak" type="unqueued" convparam="[1035, 1301, 1058].random"/>
+      <stop_moving object="this.ship"/>
+      <stop_boost object="this.ship"/>
+      <wait/>
+    </actions>
+  </attention>
+  <on_abort>
+    <do_if value="$withdraw and this.ship.defencenpc.exists">
+      <signal_objects object="this.ship.defencenpc" param="'stop attack'" param2="'stop permanent'" comment="Set Hold Fire Mode"/>
+    </do_if>
+    <stop_moving object="this.ship"/>
+    <stop_boost object="this.ship"/>
+  </on_abort>
+</aiscript>

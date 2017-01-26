@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="command.escort" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" priority="2" version="2">
+  <!--
+   Wrapper script for follow command
+  -->
+  <params>
+    <param name="target" comment="Object to escort"/>
+    <param name="debugchance" default="0"/>
+  </params>
+  <attention min="unknown">
+    <actions>
+      <!-- Initial checks -->
+      <label name="start"/>
+      <debug_text text="'command escort %1'.[$destination.knownname]" chance="$debugchance"/>
+      <!-- If no target is provided, exit -->
+      <do_if value="$target.exists">
+        <!-- Command Info -->
+        <set_command command="command.follow" param="$target"/>
+        <run_script name="'move.escort.capital'">
+          <param name="target" value="$target"/>
+        </run_script>
+      </do_if>
+    </actions>
+  </attention>
+  <on_abort>
+    <stop_moving object="this.ship"/>
+    <stop_boost object="this.ship"/>
+  </on_abort>
+</aiscript>
