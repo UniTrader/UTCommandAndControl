@@ -233,13 +233,12 @@
               </do_if>
             </do_if>
             <!-- Gates -->
-            <do_elseif value="$selectedobject.isclass.{[class.highwayentrygate,class.highwayexitgate,class.jumpgate]}">
+            <do_elseif value="$selectedobject.isclass.{[class.highwayentrygate,class.highwayexitgate,class.gate]}">
               <!-- add Option to follow the Junctions backwards and Forwards -->
               <do_if value="$selectedobject.isclass.highwayentrygate">
                 <do_if value="$selectedobject.highway.islocalhighway">
                   <set_value name="$waypoints" exact="$selectedobject.highway.junctions"/>
-                    <remove_value name="$waypoints.{1}"/>
-                  <set_value name="$othersidezone" exact="$selectedobject.highway.destination"/>
+                  <remove_value name="$waypoints.{1}"/>
                 </do_if>
                 <set_value name="$othersidezone" exact="$selectedobject.highway.destination"/>
               </do_if>
@@ -258,43 +257,63 @@
               <do_elseif value="$selectedobject.isclass.gate">
                 <set_value name="$othersidezone" exact="$selectedobject.destination"/>
               </do_elseif>
-              <add_player_choice position="4" text="'Fly to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="PC_Move_FlyTo_selected" choiceparam="$othersidezone"/>
-              <do_if value="$waypoints?">
-                <add_player_choice position="5" text="'Follow Tube: %1 Zones'.[$waypoints.count]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="PC_Move_FlyTo_selected" choiceparam="$waypoints"/>
+              <add_player_choice position="4" text="'Fly to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_moveto" choiceparam="$othersidezone"/>
+              <do_if value="$waypoints? and this.ship.pilot.$utcac?">
+                <add_player_choice position="5" text="'Follow Tube: %1 Zones'.[$waypoints.count]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_move_path" choiceparam="$waypoints"/>
               </do_if>
               <!-- Specific Movement Type Orders - only available with UT CAC Movement -->
               <do_if value="@readtext.{5554301,11100} == '$destination'" comment="Check if my Movement Scripts are installed and Active">
-                <add_player_choice position="1" text="'Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="PC_Move_FlyTo_selected" choiceparam="$othersidezone"/>
-                <add_player_choice position="2" text="'Random Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="PC_Move_FlyTo_selected" choiceparam="$othersidezone"/>
-                <add_player_choice position="3" text="'Boost to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="PC_Move_FlyTo_selected" choiceparam="$othersidezone"/>
+                <do_if value="$othersidezone.sector != this.sector and $othersidezone.cluster == this.cluster">
+                  <add_player_choice position="1" text="'Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_jumpto" choiceparam="$othersidezone.sector"/>
+                  <add_player_choice position="2" text="'Random Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_jump_random" choiceparam="$othersidezone.sector"/>
+                  <add_player_choice position="3" text="'Boost to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_boostto" choiceparam="$othersidezone" selectable="false"/>
+                </do_if>
+                <do_elseif value="$othersidezone.sector == this.sector">
+                  <find_object name="$beacon" space="$othersidezone" knownto="faction.player" checkoperational="true">
+                    <match_any>
+                      <match class="class.jumpbeacon"/>
+                      <match_child class="class.jumpbeacon" checkoperational="true"/>
+                    </match_any>
+                  </find_object>
+                  <add_player_choice position="1" text="'Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_jumpto" choiceparam="$beacon" selectable="$beacon.exists"/>
+                  <add_player_choice position="3" text="'Boost to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_boostto" choiceparam="$othersidezone"/>
+                </do_elseif>
               </do_if>
             </do_elseif>
             <!-- Ships -->
             <do_elseif value="$selectedobject.isclass.ship">
-              <add_player_choice position="4" text="'Follow: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
-              <do_if value="$selectedobject.isplayerowned">
-                <add_player_choice position="1" text="'Select as Commandtarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_commandtarget_set" choiceparam="$selectedobject"/>
+              <add_player_choice position="4" text="'Escort: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_ct_so" choiceparam="$selectedobject"/>
+              <add_player_choice position="5" text="'Follow: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_follow_ct_so" choiceparam="$selectedobject"/>
+              <do_if value="$selectedobject.isplayerowned and ( $selctedobject.pilot.$utcac? or $selectedobject.commander == player.primarythip or $selectedobject.commander == null )">
+                <add_player_choice position="3" text="'Select as Commandtarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_commandtarget_select" choiceparam="$selectedobject"/>
                 <do_if value="$commandtarget?">
-                  <add_player_choice position="3" text="'follow %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
+                  <add_player_choice position="1" text="'%1 Escort '.[$commandtarget.name,$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
+                  <add_player_choice position="2" text="'%1 Follow'.[$commandtarget.name,$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
                 </do_if>
                 <do_else>
-                  <add_player_choice position="3" text="'follow me'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
+                  <add_player_choice position="1" text="'Escort me'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
+                  <add_player_choice position="2" text="'Follow me'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
                 </do_else>
-                <add_player_choice position="5" text="'Withdraw: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
+                <add_player_choice position="5" text="'Withdraw: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_so" choiceparam="$selectedobject"/>
               </do_if>
               <do_else>
-                <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
-                <add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
-                <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
-                <add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
+              <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
+              <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
+              <do_if value="@readtext.{5554301,11102} == '$utcac_do_state'" comment="Check if my Movement Scripts are installed and Active">
+                <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
+              </do_if>
+              <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+              <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
               </do_else>
             </do_elseif>
             <do_elseif value="$selectedobject.station?">
-              <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
-              <add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
-              <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
-              <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
-              <add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/>
+              <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
+              <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
+              <do_if value="@readtext.{5554301,11102} == '$utcac_do_state'" comment="Check if my Movement Scripts are installed and Active">
+                <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
+              </do_if>
+              <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+              <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
             </do_elseif>
             <do_if value="$commandtarget?">
               <add_player_choice position="6" text="'Deselect Command Target: %1'.[$commandtarget.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$commandtarget}]" section="ut_cac_pc_commandtarget_unselect"/>
@@ -321,22 +340,89 @@
             </check_any>
           </conditions>
           <actions>
+            <remove_help all="true"/>
             <do_if value="event.name == 'event_conversation_finished'">
             </do_if>
             <do_elseif value="event.name == 'event_conversation_next_section'">
               <do_if value="not $commandtarget?">
                 <set_value name="$commandtarget" exact="player.ship"/>
               </do_if>
-              <do_elseif value="event.param == 'ut_cac_pc_'">
+              <do_elseif value="event.param == 'ut_cac_pc_moveto'">
+                <do_if value="$commandtarget.pilot.$utcac?">
+                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[$selectedobject.name],$destination=$selectedobject,$endintargetspace=true,exitonneworder=true"/>
+                </do_if>
+                <do_else>
+                  <signal_objects object="$commandtarget" param="'fly to pos'" param2="event.param2"/>
+                </do_else>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
-              <do_elseif value="event.param == 'ut_cac_pc_'">
+              <do_elseif value="event.param == 'ut_cac_pc_move_path'">
+                <set_value name="$new_orders" exact="[]"/>
+                <do_all exact="event.param2.count" counter="$i" reverse="false">
+                  <append_to_list name="$new_orders" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{1}.name],$destination=event.param2.{1},$endintargetspace=true,exitonneworder=true]"/>
+                </do_all>
+                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="$new_orders"/>
+                <remove_value name="$new_orders"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
-              <do_elseif value="event.param == 'ut_cac_pc_'">
+              <do_elseif value="event.param == 'ut_cac_pc_jumpto'">
+                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.jump',$displayname='Jump to %1'.[$selectedobject.name],$destination=$selectedobject,$type='auto',exitonneworder=true"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
-              <do_elseif value="event.param == 'ut_cac_pc_'">
+              <do_elseif value="event.param == 'ut_cac_pc_boostto'">
+                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.boost',$displayname='Boost to %1'.[$selectedobject.name],$destination=$selectedobject,exitonneworder=true"/>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_jump_random'">
+                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.jump',$displayname='Random Jump to %1'.[$selectedobject.name],$destination=$selectedobject,$type='random',exitonneworder=true"/>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_escort_ct_so'">
+                <do_if value="$commandtarget.pilot.$utcac">
+                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname='Escort %1'.[$selectedobject.name],$escortee=$selectedobject,exitonneworder=true"/>
+                </do_if>
+                <do_else>
+                  <signal_objects object="$commandtarget" param="'escort'" param2="event.param2"/>
+                </do_else>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_escort_so_ct'">
+                <do_if value="$commandtarget.pilot.$utcac">
+                <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname='Escort %1'.[$commandtarget.name],$escortee=$commandtarget,exitonneworder=true"/>
+                </do_if>
+                <do_else>
+                  <signal_objects object="event.param2" param="'escort'" param2="$commandtarget"/>
+                </do_else>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_follow_ct_so'">
+                <do_if value="$commandtarget.pilot.$utcac">
+                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[$selectedobject.name],$object=$selectedobject,exitonneworder=true"/>
+                </do_if>
+                <do_else>
+                  <signal_objects object="$commandtarget" param="'follow'" param2="event.param2"/>
+                </do_else>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_follow_so_ct'">
+                <do_if value="$commandtarget.pilot.$utcac">
+                <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[$commandtarget.name],$object=$commandtarget,exitonneworder=true"/>
+                </do_if>
+                <do_else>
+                  <signal_objects object="event.param2" param="'follow'" param2="$commandtarget"/>
+                </do_else>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_withdraw_so'">
+                <signal_objects object="$commandtarget" param="'withdraw battle'"/>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_attack'">
+                <signal_objects object="$commandtarget" param="'attack object'" param2="event.param2"/>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_ignoreobject'">
+                <show_help custom="'Not Implemented yet!!!'" duration="3s" position="8" log="false" silent="true" />
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_commandtarget_select'">
