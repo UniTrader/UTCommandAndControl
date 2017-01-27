@@ -490,10 +490,10 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_if>
               <do_elseif value="event.param == 'ut_cac_pc_moveto'">
                 <do_if value="$commandtarget.pilot.$utcac?">
-                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[$selectedobject.name],$destination=$selectedobject,$endintargetspace=true,$exitonneworder=true]"/>
+                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.name],$destination=event.param2,$endintargetspace=true,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
-                  <signal_objects object="$commandtarget" param="'fly to pos'" param2="$selectedobject"/>
+                  <signal_objects object="$commandtarget" param="'fly to pos'" param2="event.param2"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
