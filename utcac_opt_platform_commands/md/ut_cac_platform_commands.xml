@@ -472,7 +472,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_if value="not $commandtarget?">
                 <set_value name="$commandtarget" exact="player.ship"/>
               </do_if>
-              <do_elseif value="event.param == 'ut_cac_pc_move_pos'">
+              <do_if value="event.param == 'ut_cac_pc_move_pos'">
                 <!-- first calculate the Target Pos relative to the Ship in its Coordinate System, then apply Ship Rotation to it to get the Zone Position -->
                 <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="$selectedobject">
                   <position x="0m" y="0m" z="event.param2"/>
@@ -487,7 +487,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <signal_objects object="$commandtarget" param="'fly to pos'" param2="event.param2"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
-              </do_elseif>
+              </do_if>
               <do_elseif value="event.param == 'ut_cac_pc_moveto'">
                 <do_if value="$commandtarget.pilot.$utcac?">
                   <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[$selectedobject.name],$destination=$selectedobject,$endintargetspace=true,$exitonneworder=true]"/>
