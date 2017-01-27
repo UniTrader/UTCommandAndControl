@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_Platform_Commands" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
   <cues>
-    <cue name="Ship_Docked">
+    <cue name="Ship_Docked" namespace="this">
       <conditions>
         <event_object_changed_room object="player.entity"/>
         <check_value value="player.entity.container.isclass.ship and player.controlled != player.primaryship and player.entity.container.owner == faction.player"/>
@@ -19,6 +19,11 @@
         <remove_value name="$spaces2"/>
         <create_group groupname="$objects"/>
         <set_value name="$tracked_objects" exact="table[]"/>
+        <set_value name="$rotations" exact="[
+rotation.[0deg,0deg,0deg],    rotation.[45deg,0deg,0deg],    rotation.[90deg,0deg,0deg],    rotation.[135deg,0deg,0deg],    rotation.[180deg,0deg,0deg],    rotation.[225deg,0deg,0deg],    rotation.[270deg,0deg,0deg],    rotation.[315deg,0deg,0deg],
+rotation.[0deg,45deg,0deg], rotation.[45deg,45deg,0deg], rotation.[90deg,45deg,0deg],  rotation.[135deg,45deg,0deg], rotation.[180deg,45deg,0deg],  rotation.[225deg,45deg,0deg], rotation.[270deg,45deg,0deg], rotation.[315deg,45deg,0deg],
+rotation.[0deg,-45deg,0deg],rotation.[45deg,-45deg,0deg],rotation.[90deg,-45deg,0deg],rotation.[135deg,-45deg,0deg],rotation.[180deg,-45deg,0deg],rotation.[225deg,-45deg,0deg],rotation.[270deg,-45deg,0deg],rotation.[315deg,-45deg,0deg],
+rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
       </actions>
       <cues>
         <cue name="Update_spaces">
@@ -93,14 +98,19 @@
               <set_value name="$highest_focus_object" exact="null"/>
               <set_value name="$highest_focus_number" exact="null"/>
               <do_all exact="$keys.count" counter="$i" reverse="true">
-                <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
-                <do_if value="$tracked_objects.{$keys.{$i}} le 0">
-                  <remove_value name="$tracked_objects.{$keys.{$i}}"/>
+                <do_if value="typeof $keys.{$i} != datatype.rotation">
+                  <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
+                  <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                    <remove_value name="$tracked_objects.{$keys.{$i}}"/>
+                  </do_if>
+                  <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
+                    <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
+                    <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
+                  </do_elseif>
                 </do_if>
-                <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
-                  <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
-                  <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
-                </do_elseif>
+                <do_else>
+                    <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
+                </do_else>
               </do_all>
             </do_if>
             <!-- else check already known Objects if their Value should be increased or decreased -->
@@ -109,33 +119,124 @@
               <set_value name="$highest_focus_object" exact="null"/>
               <set_value name="$highest_focus_number" exact="null"/>
               <do_all exact="$keys.count" counter="$i" reverse="true">
-                <!-- check if in Sight - if yes increase Value by 3, if no decrease by 2 -->
-                <do_if value="$keys.{$i}.isclass.space">
-                  <check_object object="$keys.{$i}" result="$result">
-                    <match_is_in_view_of object="player.entity" vertical="20deg" horizontal="20deg"/>
-                  </check_object>
+                <do_if value="typeof $keys.{$i} != datatype.rotation">
+                  <!-- check if in Sight - if yes increase Value by 3, if no decrease by 2 -->
+                  <do_if value="$keys.{$i}.isclass.space">
+                    <check_object object="$keys.{$i}" result="$result">
+                      <match_is_in_view_of object="player.entity" vertical="20deg" horizontal="20deg"/>
+                    </check_object>
+                  </do_if>
+                  <do_else>
+                    <check_object object="$keys.{$i}" result="$result">
+                      <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
+                      <match_distance object="player.ship" max="player.ship.maxradarrange"/>
+                    </check_object>
+                  </do_else>
+                  <do_if value="$result">
+                    <set_value name="$tracked_objects.{$keys.{$i}}" operation="add" exact="if $keys.count == 1 then 3 else 1"/>
+                  </do_if>
+                  <do_else>
+                    <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
+                  </do_else>
+                  <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                    <remove_value name="$tracked_objects.{$keys.{$i}}"/>
+                  </do_if>
+                  <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
+                    <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
+                    <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
+                  </do_elseif>
                 </do_if>
                 <do_else>
-                  <check_object object="$keys.{$i}" result="$result">
-                    <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
-                    <match_distance object="player.ship" max="player.ship.maxradarrange"/>
-                  </check_object>
+                    <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
                 </do_else>
-                <do_if value="$result">
-                  <set_value name="$tracked_objects.{$keys.{$i}}" operation="add" exact="if $keys.count == 1 then 3 else 1"/>
-                </do_if>
-                <do_else>
-                  <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
-                </do_else>
-                <do_if value="$tracked_objects.{$keys.{$i}} le 0">
-                  <remove_value name="$tracked_objects.{$keys.{$i}}"/>
-                </do_if>
-                <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
-                  <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
-                  <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
-                </do_elseif>
               </do_all>
             </do_else>
+            <!-- check for Rotations -->
+            <do_if value="player.entity.rotation.pitch gt -5deg and player.entity.rotation.pitch lt 5deg">
+              <do_if value="player.entity.rotation.yaw gt -5deg and player.entity.rotation.yaw lt 5deg">
+                <set_value name="$tracked_objects.{$rotations.{1}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_if>
+              <do_elseif value="player.entity.rotation.yaw gt 40deg and player.entity.rotation.yaw lt 50deg">
+                <set_value name="$tracked_objects.{$rotations.{2}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 85deg and player.entity.rotation.yaw lt 95deg">
+                <set_value name="$tracked_objects.{$rotations.{3}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 130deg and player.entity.rotation.yaw lt 140deg">
+                <set_value name="$tracked_objects.{$rotations.{4}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 175deg and player.entity.rotation.yaw lt 185deg">
+                <set_value name="$tracked_objects.{$rotations.{5}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 220deg and player.entity.rotation.yaw lt 230deg">
+                <set_value name="$tracked_objects.{$rotations.{6}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 265deg and player.entity.rotation.yaw lt 275deg">
+                <set_value name="$tracked_objects.{$rotations.{7}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 310deg and player.entity.rotation.yaw lt 320deg">
+                <set_value name="$tracked_objects.{$rotations.{8}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+            </do_if>
+            <do_elseif value="player.entity.rotation.pitch gt 40deg and player.entity.rotation.pitch lt 50deg">
+              <do_if value="player.entity.rotation.yaw gt -5deg and player.entity.rotation.yaw lt 5deg">
+                <set_value name="$tracked_objects.{$rotations.{9}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_if>
+              <do_elseif value="player.entity.rotation.yaw gt 40deg and player.entity.rotation.yaw lt 50deg">
+                <set_value name="$tracked_objects.{$rotations.{10}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 85deg and player.entity.rotation.yaw lt 95deg">
+                <set_value name="$tracked_objects.{$rotations.{11}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 130deg and player.entity.rotation.yaw lt 140deg">
+                <set_value name="$tracked_objects.{$rotations.{12}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 175deg and player.entity.rotation.yaw lt 185deg">
+                <set_value name="$tracked_objects.{$rotations.{13}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 220deg and player.entity.rotation.yaw lt 230deg">
+                <set_value name="$tracked_objects.{$rotations.{14}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 265deg and player.entity.rotation.yaw lt 275deg">
+                <set_value name="$tracked_objects.{$rotations.{15}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 310deg and player.entity.rotation.yaw lt 320deg">
+                <set_value name="$tracked_objects.{$rotations.{16}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+            </do_elseif>
+            <do_elseif value="player.entity.rotation.pitch gt -50deg and player.entity.rotation.pitch lt -40deg">
+              <do_if value="player.entity.rotation.yaw gt -5deg and player.entity.rotation.yaw lt 5deg">
+                <set_value name="$tracked_objects.{$rotations.{17}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_if>
+              <do_elseif value="player.entity.rotation.yaw gt 40deg and player.entity.rotation.yaw lt 50deg">
+                <set_value name="$tracked_objects.{$rotations.{18}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 85deg and player.entity.rotation.yaw lt 95deg">
+                <set_value name="$tracked_objects.{$rotations.{19}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 130deg and player.entity.rotation.yaw lt 140deg">
+                <set_value name="$tracked_objects.{$rotations.{20}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 175deg and player.entity.rotation.yaw lt 185deg">
+                <set_value name="$tracked_objects.{$rotations.{21}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 220deg and player.entity.rotation.yaw lt 230deg">
+                <set_value name="$tracked_objects.{$rotations.{22}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 265deg and player.entity.rotation.yaw lt 275deg">
+                <set_value name="$tracked_objects.{$rotations.{23}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+              <do_elseif value="player.entity.rotation.yaw gt 310deg and player.entity.rotation.yaw lt 320deg">
+                <set_value name="$tracked_objects.{$rotations.{24}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_elseif>
+            </do_elseif>
+            <do_elseif value="player.entity.rotation.pitch ge 84deg">
+              <set_value name="$tracked_objects.{$rotations.{25}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+            </do_elseif>
+            <do_elseif value="player.entity.rotation.pitch le -71deg">
+              <set_value name="$tracked_objects.{$rotations.{26}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+            </do_elseif>
+            <!-- Present Choices or Display Target Info -->
             <do_if value="$highest_focus_number ge 40">
               <set_value name="$selectedobject" exact="$highest_focus_object"/>
               <set_value name="$tracked_objects" exact="table[]"/>
@@ -209,8 +310,16 @@
           </conditions>
           <actions>
             <!-- first sort out which kind of Target it is then present some Options -->
+            <!-- a certain Looking Direction in empty Space - present Move To-Options -->
+            <do_if value="typeof $selectedobject == datatype.rotation">
+              <add_player_choice position="1" text="'Move 5 km in the opposite Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="-5km"/>
+              <add_player_choice position="2" text="'Move 5 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="5km"/>
+              <add_player_choice position="3" text="'Move 15 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="15km"/>
+              <add_player_choice position="4" text="'Move 50 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="50km"/>
+              <add_player_choice position="5" text="'Move 150 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="150km"/>
+            </do_if>
             <!-- Spaces -->
-            <do_if value="$selectedobject.isclass.space">
+            <do_elseif value="$selectedobject.isclass.space">
               <do_if value="$commandtarget?">
                 <remove_help all="true"/>
                 <show_help custom="'Command Target: %1'.[$commandtarget.name]" duration="500ms" position="8" log="false" silent="$highest_focus_number lt 26" />
@@ -234,7 +343,7 @@
                   <add_player_choice position="3" text="'Boost to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_boostto" choiceparam="$selectedobject"/>
                 </do_elseif>
               </do_if>
-            </do_if>
+            </do_elseif>
             <!-- Gates -->
             <do_elseif value="$selectedobject.isclass.{[class.highwayentrygate,class.highwayexitgate,class.gate]}">
               <!-- add Option to follow the Junctions backwards and Forwards -->
@@ -283,6 +392,16 @@
                 </do_elseif>
               </do_if>
             </do_elseif>
+            <!-- Asteroids -->
+            <do_elseif value="$selectedobject.isclass.asteroid">
+              <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
+              <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
+              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my Movement Scripts are installed and Active">
+                <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
+              </do_if>
+              <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+              <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
+            </do_elseif>
             <!-- Ships -->
             <do_elseif value="$selectedobject.isclass.ship">
               <add_player_choice position="4" text="'Escort: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_ct_so" choiceparam="$selectedobject"/>
@@ -309,6 +428,7 @@
               <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
               </do_else>
             </do_elseif>
+            <!-- Stations -->
             <do_elseif value="$selectedobject.station?">
               <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
@@ -350,7 +470,14 @@
               <do_if value="not $commandtarget?">
                 <set_value name="$commandtarget" exact="player.ship"/>
               </do_if>
-              <do_if value="event.param == 'ut_cac_pc_moveto'">
+              <do_elseif value="event.param == 'ut_cac_pc_move_pos'">
+                <!-- first calculate the Target Pos relative to the Ship in its Coordinate System, then apply Ship Rotation to it to get the Zone Position -->
+                <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="$selectedobject">
+                  <position x="0m" y="0m" z="event.param2"/>
+                </transform_position>
+                <transform_position name="$Position" refposition="player.ship.position" refrotation="player.ship.rotation">
+                  <position value="$Position"/>
+                </transform_position>
                 <do_if value="$commandtarget.pilot.$utcac?">
                   <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[$selectedobject.name],$destination=$selectedobject,$endintargetspace=true,$exitonneworder=true]"/>
                 </do_if>
@@ -358,7 +485,16 @@
                   <signal_objects object="$commandtarget" param="'fly to pos'" param2="event.param2"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
-              </do_if>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_moveto'">
+                <do_if value="$commandtarget.pilot.$utcac?">
+                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[$selectedobject.name],$destination=$selectedobject,$endintargetspace=true,$exitonneworder=true]"/>
+                </do_if>
+                <do_else>
+                  <signal_objects object="$commandtarget" param="'fly to pos'" param2="$selectedobject"/>
+                </do_else>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_move_path'">
                 <set_value name="$new_orders" exact="[]"/>
                 <do_all exact="event.param2.count" counter="$i" reverse="false">
@@ -385,7 +521,7 @@
                   <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname='Escort %1'.[$selectedobject.name],$escortee=$selectedobject,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
-                  <signal_objects object="$commandtarget" param="'escort'" param2="event.param2"/>
+                  <signal_objects object="$commandtarget" param="'escort'" param2="$selectedobject"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
@@ -394,7 +530,7 @@
                 <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname='Escort %1'.[$commandtarget.name],$escortee=$commandtarget,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
-                  <signal_objects object="event.param2" param="'escort'" param2="$commandtarget"/>
+                  <signal_objects object="$selectedobject" param="'escort'" param2="$commandtarget"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
@@ -403,7 +539,7 @@
                 <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[$selectedobject.name],$object=$selectedobject,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
-                  <signal_objects object="$commandtarget" param="'follow'" param2="event.param2"/>
+                  <signal_objects object="$commandtarget" param="'follow'" param2="$selectedobject"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
@@ -412,7 +548,7 @@
                 <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[$commandtarget.name],$object=$commandtarget,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
-                  <signal_objects object="event.param2" param="'follow'" param2="$commandtarget"/>
+                  <signal_objects object="$selectedobject" param="'follow'" param2="$commandtarget"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
@@ -421,7 +557,7 @@
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_attack'">
-                <signal_objects object="$commandtarget" param="'attack object'" param2="event.param2"/>
+                <signal_objects object="$commandtarget" param="'attack object'" param2="$selectedobject"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_ignoreobject'">
