@@ -1,0 +1,61 @@
+﻿<?xml version="1.0"?>
+<diff>
+  <!-- remove Skunk & Exit Door -->
+  <remove sel="//connections/connection[@name='ConnectionFor_interiors_rooms_ar_albionskunk']" />
+  <remove sel="//connections/connection[@name='ConnectionFor_interiors_rooms_swa_button_01']" />
+  <remove sel="//connections/connection[@name='ConnectionFor_interiors_rooms_swa_skunk_exit']" />
+  <!-- add some insignificant Item high above the Platform to avoid Player Replacement -->
+  <add sel="//connections">
+    <connection name="ConnectionFor_jeb_in_space" tags="interior">
+      <offset>
+        <position x="0" y="1000" z="0"/>
+      </offset>
+    </connection>
+  </add>
+  <!-- replace Player starting Pos -->
+  <replace sel="//layer/waypoints/waypoint[@name='XU_Waypoint01']/@x">0.0</replace>
+  <replace sel="//layer/waypoints/waypoint[@name='XU_Waypoint01']/@y">1.5</replace>
+  <replace sel="//layer/waypoints/waypoint[@name='XU_Waypoint01']/@z">-1.0</replace>
+  <!-- add Crew Slots for Crew Disembarkment Compatibility (preffered at the previous Position of the Skunk) -->
+  <add sel="//connections">
+    <!-- Lean on the sourrounding Rail -->
+    <connection name="Connection_Player_Crew_01" tags="npc crew stand_leanrail_f">
+      <offset>
+        <position x="-4.7" y="0" z="14.7"/>
+        <rotation yaw="-210" />
+      </offset>
+    </connection>
+    <connection name="Connection_Player_Crew_02" tags="npc crew stand_leanrail_f">
+      <offset>
+        <position x="4.7" y="0" z="14.7"/>
+        <rotation yaw="210" />
+      </offset>
+    </connection>
+    <!-- Sit on the Boxes -->
+    <connection name="Connection_Player_Crew_03" tags="npc crew sit">
+      <offset>
+        <position x="5.1" y="0" z="-7"/>
+        <rotation yaw="270" />
+      </offset>
+    </connection>
+    <!-- on top of the Lift -->
+    <connection name="Connection_Player_Crew_04" tags="npc crew stand">
+      <offset>
+        <position x="2" y="3.6" z="-10"/>
+        <rotation yaw="93" />
+      </offset>
+    </connection>
+    <connection name="Connection_Player_Crew_05" tags="npc crew stand">
+      <offset>
+        <position x="0" y="3.6" z="-7"/>
+        <rotation yaw="158" />
+      </offset>
+    </connection>
+    <connection name="Connection_Player_Crew_06" tags="npc crew stand">
+      <offset>
+        <position x="-3" y="3.6" z="-7"/>
+        <rotation yaw="324" />
+      </offset>
+    </connection>
+  </add>
+</diff>
