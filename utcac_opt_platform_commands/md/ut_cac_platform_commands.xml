@@ -309,9 +309,9 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_else>
                 <set_value name="$commandtarget" exact="player.ship"/>
               </do_else>
-              <add_player_choice position="4" text="'Move to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveyto" choiceparam="$selectedobject"/>
+              <add_player_choice position="4" text="'Move to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
               <!-- Specific Movement Type Orders - only available with UT CAC Movement -->
-              <do_if value="@readtext.{5554301}.{11100} == '$destination'" comment="Check if my Movement Scripts are installed and Active">
+              <do_if value="$selectedobject.pilot.$orderlist?" comment="Check if my Command Queue is installed and Active">
                 <do_if value="$selectedobject.isclass.sector">
                   <add_player_choice position="1" text="'Jump to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_jumpto" choiceparam="$selectedobject"/>
                   <add_player_choice position="2" text="'Random Jump to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_jump_random" choiceparam="$selectedobject"/>
