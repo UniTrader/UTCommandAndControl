@@ -37,11 +37,11 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
           <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="$rotations.{$i}">
             <position value="position.[0m,0m,1000m]"/>
           </transform_position>
-          <add_effect object="player.ship" effect="'scfx_result_bad_01'">
+          <add_effect object="player.ship" effect="'jump_activation_jumpdrive_slow'">
             <position value="$Position"/>
           </add_effect>
         </do_all>
-        <add_effect object="player.ship" effect="'scfx_result_bad_01'"/>
+        <add_effect object="player.ship" effect="'jump_activation_jumpdrive_slow'"/>
       </actions>
       <cues>
         <cue name="Update_spaces">
@@ -617,6 +617,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
       </conditions>
       <actions>
         <reset_cue cue="Ship_Docked"/>
+        <remove_effect object="player.ship" effect="'jump_activation_jumpdrive_slow'"/>
       </actions>
     </cue>
   </cues>
