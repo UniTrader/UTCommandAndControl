@@ -113,7 +113,6 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <clear_group group="$objects"/>
               
               <!-- check for Rotations -->
-              <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
               <do_all exact="$rotations.count - 2" counter="$i" comment="last 2 rotations are accounted for seperately">
                 <do_if value="player.entity.rotation.yaw gt $rotations.{$i}.yaw - 5deg and player.entity.rotation.yaw lt $rotations.{$i}.yaw + 5deg and player.entity.rotation.pitch gt $rotations.{$i}.pitch - 5deg and player.entity.rotation.pitch lt $rotations.{$i}.pitch + 5deg">
                   <set_value name="$tracked_objects.{$rotations.{$i}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
@@ -163,6 +162,9 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <do_if value="typeof $keys.{$i} != datatype.rotation">
                   <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
                   <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                    <do_if value="typeof $keys.{$i} == datatype.rotation">
+                      <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
+                    </do_if>
                     <remove_value name="$tracked_objects.{$keys.{$i}}"/>
                   </do_if>
                   <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
