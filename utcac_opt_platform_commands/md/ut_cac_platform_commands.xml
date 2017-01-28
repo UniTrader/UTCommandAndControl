@@ -201,6 +201,9 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   </do_else>
                 </do_else>
                 <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                  <do_if value="typeof $keys.{$i} == datatype.rotation">
+                    <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
+                  </do_if>
                   <remove_value name="$tracked_objects.{$keys.{$i}}"/>
                 </do_if>
                 <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
