@@ -381,11 +381,11 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <set_value name="$othersidezone" exact="$selectedobject.destination"/>
               </do_elseif>
               <add_player_choice position="4" text="'Fly to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_moveto" choiceparam="$othersidezone"/>
-              <do_if value="$waypoints? and this.ship.pilot.$utcac?">
+              <do_if value="$waypoints? and this.ship.pilot.$orderlist?">
                 <add_player_choice position="5" text="'Follow Tube: %1 Zones'.[$waypoints.count]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_move_path" choiceparam="$waypoints"/>
               </do_if>
               <!-- Specific Movement Type Orders - only available with UT CAC Movement -->
-              <do_if value="@readtext.{5554301}.{11100} == '$destination'" comment="Check if my Movement Scripts are installed and Active">
+              <do_if value="this.ship.pilot.$orderlist?" comment="Check if my Command Queue is active on the current Ship">
                 <do_if value="$othersidezone.sector != this.sector and $othersidezone.cluster == this.cluster">
                   <add_player_choice position="1" text="'Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_jumpto" choiceparam="$othersidezone.sector"/>
                   <add_player_choice position="2" text="'Random Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_jump_random" choiceparam="$othersidezone.sector"/>
@@ -407,7 +407,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <do_elseif value="$selectedobject.isclass.asteroid">
               <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
-              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my Movement Scripts are installed and Active">
+              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my DO Scripts are installed and Active">
                 <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
               <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
@@ -432,7 +432,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_else>
               <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
-              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my Movement Scripts are installed and Active">
+              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my DO Scripts are installed and Active">
                 <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
               <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
@@ -443,7 +443,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <do_elseif value="$selectedobject.station?">
               <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
-              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my Movement Scripts are installed and Active">
+              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my DO Scripts are installed and Active">
                 <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
               <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
