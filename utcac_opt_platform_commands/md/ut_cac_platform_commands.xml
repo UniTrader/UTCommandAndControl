@@ -33,14 +33,14 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
 'Forward Down' , 'Forward Right Down' , 'Right Down', 'Backwards Right Down', 'Backwards Down', 'Backwards Left Down', 'Left Down', 'Forward Left Down',
 'Straight Up', 'Straight Down']"/>
         <!--add markers for Rotations -->
-        <do_all exact="$rotations.count" counter="$i">
+        <!--do_all exact="$rotations.count" counter="$i">
           <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="$rotations.{$i}">
             <position value="position.[0m,0m,1500m]"/>
           </transform_position>
           <add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'">
             <position value="$Position"/>
           </add_effect>
-        </do_all>
+        </do_all-->
       </actions>
       <cues>
         <cue name="Update_spaces">
@@ -127,9 +127,16 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 </do_if>
               </do_all>
               <!-- check for Rotations -->
+              <remove_effect object="player.ship" effect="'jump_activation_jumpdrive_slow'"/>
               <do_all exact="$rotations.count - 2" counter="$i" comment="last 2 rotations are accounted for seperately">
                 <do_if value="player.entity.rotation.yaw gt $rotations.{$i}.yaw - 5deg and player.entity.rotation.yaw lt $rotations.{$i}.yaw + 5deg and player.entity.rotation.pitch gt $rotations.{$i}.pitch - 5deg and player.entity.rotation.pitch lt $rotations.{$i}.pitch + 5deg">
                   <set_value name="$tracked_objects.{$rotations.{$i}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+                  <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="$rotations.{$i}">
+                    <position value="position.[0m,0m,1500m]"/>
+                  </transform_position>
+                  <add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'">
+                    <position value="$Position"/>
+                  </add_effect>
                 </do_if>
                 <do_else>
                   <set_value name="$tracked_objects.{$rotations.{$i}}" operation="subtract" exact="2"/>
@@ -140,6 +147,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_all>
               <do_if value="player.entity.rotation.pitch ge 84deg">
                 <set_value name="$tracked_objects.{$rotations.{25}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+                <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="$rotations.{25}">
+                  <position value="position.[0m,0m,1500m]"/>
+                </transform_position>
+                <add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'">
+                  <position value="$Position"/>
+                </add_effect>
               </do_if>
               <do_else>
                 <set_value name="$tracked_objects.{$rotations.{25}}" operation="subtract" exact="2"/>
@@ -149,6 +162,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_if>
               <do_if value="player.entity.rotation.pitch le -71deg">
                 <set_value name="$tracked_objects.{$rotations.{26}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+                <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="$rotations.{26}">
+                  <position value="position.[0m,0m,1500m]"/>
+                </transform_position>
+                <add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'">
+                  <position value="$Position"/>
+                </add_effect>
               </do_if>
               <do_else>
                 <set_value name="$tracked_objects.{$rotations.{26}}" operation="subtract" exact="2"/>
