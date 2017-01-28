@@ -7,7 +7,11 @@
         <check_value value="player.entity.container.isclass.ship and player.controlled != player.primaryship and player.entity.container.owner == faction.player"/>
       </conditions>
       <actions>
+        <!-- (re-)activate cue to get the event when player undocks -->
         <reset_cue cue="Player_Undocked"/>
+        <!-- set up object tracking vars -->
+        <set_value name="$tracked_objects" exact="table[]"/>
+        <create_group groupname="$objects"/>
         <!-- Gather Zones in current Sector ans Sectors in current Cluster for regular view check -->
         <find_zone name="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
         <remove_value name="$spaces.{$spaces.indexof.{player.zone}}"/>
@@ -17,8 +21,7 @@
           <append_to_list name="$spaces" exact="$spaces2.{$i}"/>
         </do_all>
         <remove_value name="$spaces2"/>
-        <create_group groupname="$objects"/>
-        <set_value name="$tracked_objects" exact="table[]"/>
+        <!-- Set up Rotation Vars -->
         <set_value name="$rotations" exact="[
 rotation.[0deg,0deg,0deg],    rotation.[45deg,0deg,0deg],    rotation.[90deg,0deg,0deg],    rotation.[135deg,0deg,0deg],    rotation.[180deg,0deg,0deg],    rotation.[225deg,0deg,0deg],    rotation.[270deg,0deg,0deg],    rotation.[315deg,0deg,0deg],
 rotation.[0deg,45deg,0deg], rotation.[45deg,45deg,0deg], rotation.[90deg,45deg,0deg],  rotation.[135deg,45deg,0deg], rotation.[180deg,45deg,0deg],  rotation.[225deg,45deg,0deg], rotation.[270deg,45deg,0deg], rotation.[315deg,45deg,0deg],
@@ -29,6 +32,15 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
 'Forward Up' , 'Forward Left Up' , 'Left Up', 'Backwards Left Up', 'Backwards Up', 'Backwards Right Up', 'Right Up', 'Forward Right Up',
 'Forward Down' , 'Forward Left Down' , 'Left Down', 'Backwards Left Down', 'Backwards Down', 'Backwards Right Down', 'Right Down', 'Forward Right Down',
 'Straight Up', 'Straight Down']"/>
+        <!--add markers for Rotations -->
+        <do_all exact="$rotations.count" counter="$i">
+          <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="$rotations.{$i}">
+            <position value="position.[0m,0m,1000m]"/>
+          </transform_position>
+          <add_effect object="player.room" effect="scfx_result_bad_01" >
+            <position exact="$Position"/>
+          </add_effect>
+        </do_all>
       </actions>
       <cues>
         <cue name="Update_spaces">
