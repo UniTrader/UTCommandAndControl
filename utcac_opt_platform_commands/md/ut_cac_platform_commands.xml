@@ -429,7 +429,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <do_elseif value="$selectedobject.isclass.ship">
               <add_player_choice position="4" text="'Escort: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_ct_so" choiceparam="$selectedobject"/>
               <add_player_choice position="5" text="'Follow: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_follow_ct_so" choiceparam="$selectedobject"/>
-              <do_if value="$selectedobject.isplayerowned and ( $selctedobject.pilot.$utcac? or $selectedobject.commander == player.primarythip or $selectedobject.commander == null )">
+              <do_if value="$selectedobject.isplayerowned and ( $selctedobject.pilot.$orderlist? or $selectedobject.commander == player.primarythip or $selectedobject.commander == null )">
                 <add_player_choice position="3" text="'Select as Commandtarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_commandtarget_select" choiceparam="$selectedobject"/>
                 <do_if value="$commandtarget?">
                   <add_player_choice position="1" text="'%1 Escort '.[$commandtarget.name,$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
@@ -501,7 +501,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <transform_position name="$Position" refposition="player.ship.position" refrotation="player.ship.rotation">
                   <position value="$Position"/>
                 </transform_position>
-                <do_if value="$commandtarget.pilot.$utcac?">
+                <do_if value="$commandtarget.pilot.$orderlist?">
                   <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[$selectedobject.name],$destination=$selectedobject,$endintargetspace=true,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
@@ -510,7 +510,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <remove_value name="$commandtarget"/>
               </do_if>
               <do_elseif value="event.param == 'ut_cac_pc_moveto'">
-                <do_if value="$commandtarget.pilot.$utcac?">
+                <do_if value="$commandtarget.pilot.$orderlist?">
                   <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.name],$destination=event.param2,$endintargetspace=true,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
@@ -540,7 +540,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_escort_ct_so'">
-                <do_if value="$commandtarget.pilot.$utcac?">
+                <do_if value="$commandtarget.pilot.$orderlist?">
                   <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname='Escort %1'.[$selectedobject.name],$escortee=$selectedobject,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
@@ -549,7 +549,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_escort_so_ct'">
-                <do_if value="$commandtarget.pilot.$utcac?">
+                <do_if value="$commandtarget.pilot.$orderlist?">
                 <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname='Escort %1'.[$commandtarget.name],$escortee=$commandtarget,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
@@ -558,7 +558,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_follow_ct_so'">
-                <do_if value="$commandtarget.pilot.$utcac?">
+                <do_if value="$commandtarget.pilot.$orderlist?">
                 <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[$selectedobject.name],$object=$selectedobject,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
@@ -567,7 +567,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_follow_so_ct'">
-                <do_if value="$commandtarget.pilot.$utcac?">
+                <do_if value="$commandtarget.pilot.$orderlist?">
                 <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[$commandtarget.name],$object=$commandtarget,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
