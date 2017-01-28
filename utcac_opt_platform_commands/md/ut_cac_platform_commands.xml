@@ -41,7 +41,6 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <position value="$Position"/>
           </add_effect>
         </do_all>
-        <add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
       </actions>
       <cues>
         <cue name="Update_spaces">
@@ -126,10 +125,37 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                     <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
                   </do_elseif>
                 </do_if>
-                <do_else>
-                    <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
-                </do_else>
               </do_all>
+              <!-- check for Rotations -->
+              <do_all exact="$rotations.count - 2" counter="$i" comment="last 2 rotations are accounted for seperately">
+                <do_if value="player.entity.rotation.yaw gt $rotations.{$i}.yaw - 5deg and player.entity.rotation.yaw lt $rotations.{$i}.yaw + 5deg and player.entity.rotation.pitch gt $rotations.{$i}.pitch - 5deg and player.entity.rotation.pitch lt $rotations.{$i}.pitch + 5deg">
+                  <set_value name="$tracked_objects.{$rotations.{$i}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+                </do_if>
+                <do_else>
+                  <set_value name="$tracked_objects.{$rotations.{$i}}" operation="subtract" exact="2"/>
+                </do_else>
+                <do_if value="$tracked_objects.{$rotations.{$i}} le 0">
+                  <remove_value name="$tracked_objects.{$rotations.{$i}}"/>
+                </do_if>
+              </do_all>
+              <do_if value="player.entity.rotation.pitch ge 84deg">
+                <set_value name="$tracked_objects.{$rotations.{25}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_if>
+              <do_else>
+                <set_value name="$tracked_objects.{$rotations.{25}}" operation="subtract" exact="2"/>
+              </do_else>
+              <do_if value="$tracked_objects.{$rotations.{25}} le 0">
+                <remove_value name="$tracked_objects.{$rotations.{25}}"/>
+              </do_if>
+              <do_if value="player.entity.rotation.pitch le -71deg">
+                <set_value name="$tracked_objects.{$rotations.{26}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+              </do_if>
+              <do_else>
+                <set_value name="$tracked_objects.{$rotations.{26}}" operation="subtract" exact="2"/>
+              </do_else>
+              <do_if value="$tracked_objects.{$rotations.{26}} le 0">
+                <remove_value name="$tracked_objects.{$rotations.{26}}"/>
+              </do_if>
             </do_if>
             <!-- else check already known Objects if their Value should be increased or decreased -->
             <do_else>
@@ -158,7 +184,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   </do_else>
                 </do_if>
                 <do_else>
+                  <do_if value="player.entity.rotation.yaw gt $keys.{$i}.yaw - 5deg and player.entity.rotation.yaw lt $keys.{$i}.yaw + 5deg and player.entity.rotation.pitch gt $keys.{$i}.pitch - 5deg and player.entity.rotation.pitch lt $keys.{$i}.pitch + 5deg">
+                    <set_value name="$tracked_objects.{$keys.{$i}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
+                  </do_if>
+                  <do_else>
                     <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
+                  </do_else>
                 </do_else>
                 <do_if value="$tracked_objects.{$keys.{$i}} le 0">
                   <remove_value name="$tracked_objects.{$keys.{$i}}"/>
@@ -169,91 +200,6 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 </do_elseif>
               </do_all>
             </do_else>
-            <!-- check for Rotations -->
-            <do_if value="player.entity.rotation.pitch gt -5deg and player.entity.rotation.pitch lt 5deg">
-              <do_if value="player.entity.rotation.yaw gt -5deg and player.entity.rotation.yaw lt 5deg">
-                <set_value name="$tracked_objects.{$rotations.{1}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_if>
-              <do_elseif value="player.entity.rotation.yaw gt 40deg and player.entity.rotation.yaw lt 50deg">
-                <set_value name="$tracked_objects.{$rotations.{2}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 85deg and player.entity.rotation.yaw lt 95deg">
-                <set_value name="$tracked_objects.{$rotations.{3}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 130deg and player.entity.rotation.yaw lt 140deg">
-                <set_value name="$tracked_objects.{$rotations.{4}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 175deg and player.entity.rotation.yaw lt 185deg">
-                <set_value name="$tracked_objects.{$rotations.{5}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 220deg and player.entity.rotation.yaw lt 230deg">
-                <set_value name="$tracked_objects.{$rotations.{6}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 265deg and player.entity.rotation.yaw lt 275deg">
-                <set_value name="$tracked_objects.{$rotations.{7}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 310deg and player.entity.rotation.yaw lt 320deg">
-                <set_value name="$tracked_objects.{$rotations.{8}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-            </do_if>
-            <do_elseif value="player.entity.rotation.pitch gt 40deg and player.entity.rotation.pitch lt 50deg">
-              <do_if value="player.entity.rotation.yaw gt -5deg and player.entity.rotation.yaw lt 5deg">
-                <set_value name="$tracked_objects.{$rotations.{9}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_if>
-              <do_elseif value="player.entity.rotation.yaw gt 40deg and player.entity.rotation.yaw lt 50deg">
-                <set_value name="$tracked_objects.{$rotations.{10}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 85deg and player.entity.rotation.yaw lt 95deg">
-                <set_value name="$tracked_objects.{$rotations.{11}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 130deg and player.entity.rotation.yaw lt 140deg">
-                <set_value name="$tracked_objects.{$rotations.{12}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 175deg and player.entity.rotation.yaw lt 185deg">
-                <set_value name="$tracked_objects.{$rotations.{13}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 220deg and player.entity.rotation.yaw lt 230deg">
-                <set_value name="$tracked_objects.{$rotations.{14}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 265deg and player.entity.rotation.yaw lt 275deg">
-                <set_value name="$tracked_objects.{$rotations.{15}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 310deg and player.entity.rotation.yaw lt 320deg">
-                <set_value name="$tracked_objects.{$rotations.{16}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-            </do_elseif>
-            <do_elseif value="player.entity.rotation.pitch gt -50deg and player.entity.rotation.pitch lt -40deg">
-              <do_if value="player.entity.rotation.yaw gt -5deg and player.entity.rotation.yaw lt 5deg">
-                <set_value name="$tracked_objects.{$rotations.{17}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_if>
-              <do_elseif value="player.entity.rotation.yaw gt 40deg and player.entity.rotation.yaw lt 50deg">
-                <set_value name="$tracked_objects.{$rotations.{18}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 85deg and player.entity.rotation.yaw lt 95deg">
-                <set_value name="$tracked_objects.{$rotations.{19}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 130deg and player.entity.rotation.yaw lt 140deg">
-                <set_value name="$tracked_objects.{$rotations.{20}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 175deg and player.entity.rotation.yaw lt 185deg">
-                <set_value name="$tracked_objects.{$rotations.{21}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 220deg and player.entity.rotation.yaw lt 230deg">
-                <set_value name="$tracked_objects.{$rotations.{22}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 265deg and player.entity.rotation.yaw lt 275deg">
-                <set_value name="$tracked_objects.{$rotations.{23}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-              <do_elseif value="player.entity.rotation.yaw gt 310deg and player.entity.rotation.yaw lt 320deg">
-                <set_value name="$tracked_objects.{$rotations.{24}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-              </do_elseif>
-            </do_elseif>
-            <do_elseif value="player.entity.rotation.pitch ge 84deg">
-              <set_value name="$tracked_objects.{$rotations.{25}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-            </do_elseif>
-            <do_elseif value="player.entity.rotation.pitch le -71deg">
-              <set_value name="$tracked_objects.{$rotations.{26}}" operation="add" exact="if $keys.count == 1 then 5 else 3"/>
-            </do_elseif>
             <!-- Present Choices or Display Target Info -->
             <do_if value="$highest_focus_number ge 40">
               <set_value name="$selectedobject" exact="$highest_focus_object"/>
