@@ -13,7 +13,7 @@
         <remove_value name="$spaces.{$spaces.indexof.{player.zone}}"/>
         <find_sector name="$spaces2" space="player.cluster" multiple="true" known="true"/>
         <remove_value name="$spaces2.{$spaces2.indexof.{player.sector}}"/>
-        <do_all exact="$spaes2.count" counter="$i">
+        <do_all exact="$spaces2.count" counter="$i">
           <append_to_list name="$spaces" exact="$spaces2.{$i}"/>
         </do_all>
         <remove_value name="$spaces2"/>
@@ -294,7 +294,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_if value="$commandtarget?">
                 <set_value name="$helptext" exact="'%1\n\nCommand Target:\n%2'.[$helptext,$commandtarget.name]"/>
               </do_if>
-                <set_value name="$helptext" exact="'%1\n\nPlayer Rot:\n%2'.[$helptext,player entity.rotation]"/>
+                <set_value name="$helptext" exact="'%1\n\nPlayer Rot:\n%2'.[$helptext,player.entity.rotation]"/>
               <remove_help all="true"/>
               <show_help custom="$helptext" duration="500ms" position="8" log="false" silent="$highest_focus_number lt 26"/>
               <reset_cue cue="this"/>
