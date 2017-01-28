@@ -294,6 +294,13 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             </check_any>
           </conditions>
           <actions>
+            <do_if value="$commandtarget?">
+              <remove_help all="true"/>
+              <show_help custom="'Command Target: %1'.[$commandtarget.name]" duration="3s" position="8" log="false"/>
+            </do_if>
+            <do_else>
+              <set_value name="$commandtarget" exact="player.ship"/>
+            </do_else>
             <!-- first sort out which kind of Target it is then present some Options -->
             <!-- a certain Looking Direction in empty Space - present Move To-Options -->
             <do_if value="typeof $selectedobject == datatype.rotation">
@@ -305,13 +312,6 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             </do_if>
             <!-- Spaces -->
             <do_elseif value="$selectedobject.isclass.space">
-              <do_if value="$commandtarget?">
-                <remove_help all="true"/>
-                <show_help custom="'Command Target: %1'.[$commandtarget.name]" duration="500ms" position="8" log="false" silent="$highest_focus_number lt 26" />
-              </do_if>
-              <do_else>
-                <set_value name="$commandtarget" exact="player.ship"/>
-              </do_else>
               <add_player_choice position="4" text="'Move to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
               <!-- Specific Movement Type Orders - only available with UT CAC Movement -->
               <do_if value="$selectedobject.pilot.$orderlist?" comment="Check if my Command Queue is installed and Active">
