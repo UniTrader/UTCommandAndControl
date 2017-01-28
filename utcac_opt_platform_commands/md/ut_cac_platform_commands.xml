@@ -243,7 +243,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <start_conversation conversation="ut_cac_pc" actor="player.computer"/>
               <!-- start conversation -->
             </do_if>
-            <do_elseif value="$highest_focus_object.exists">
+            <do_elseif value="$highest_focus_object != null">
               <set_value name="$helptext" exact="''"/>
               <do_if value="$highest_focus_number ge 17">
                 <set_value name="$helptext" exact="$helptext + '\033M'"/>
@@ -276,9 +276,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 </do_all>
               </do_if>
               <set_value name="$helptext" exact="$helptext + '\033X %1\n%2%3'"/>
-              <do_if value="$highest_focus_object.isclass.space">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033U',$highest_focus_object.name]"/>
+              <do_if value="typeof $highest_focus_object == datatype.rotation">
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033W',$highest_focus_object.name]"/>
               </do_if>
+              <do_elseif value="$highest_focus_object.isclass.space">
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033U',$highest_focus_object.name]"/>
+              </do_elseif>
               <do_elseif value="$highest_focus_object.isplayerowned">
                 <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033G',$highest_focus_object.name]"/>
               </do_elseif>
