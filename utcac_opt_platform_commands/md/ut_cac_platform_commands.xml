@@ -156,19 +156,17 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <set_value name="$highest_focus_object" exact="null"/>
               <set_value name="$highest_focus_number" exact="null"/>
               <do_all exact="$keys.count" counter="$i" reverse="true">
-                <do_if value="typeof $keys.{$i} != datatype.rotation">
-                  <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
-                  <do_if value="$tracked_objects.{$keys.{$i}} le 0">
-                    <do_if value="typeof $keys.{$i} == datatype.rotation">
-                      <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
-                    </do_if>
-                    <remove_value name="$tracked_objects.{$keys.{$i}}"/>
+                <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
+                <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                  <do_if value="typeof $keys.{$i} == datatype.rotation">
+                    <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
                   </do_if>
-                  <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
-                    <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
-                    <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
-                  </do_elseif>
+                  <remove_value name="$tracked_objects.{$keys.{$i}}"/>
                 </do_if>
+                <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
+                  <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
+                  <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
+                </do_elseif>
               </do_all>
             </do_if>
             <!-- else check already known Objects if their Value should be increased or decreased -->
