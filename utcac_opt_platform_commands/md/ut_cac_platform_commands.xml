@@ -138,17 +138,17 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <do_else>
                     <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
                   </do_else>
-                  <do_if value="$tracked_objects.{$keys.{$i}} le 0">
-                    <remove_value name="$tracked_objects.{$keys.{$i}}"/>
-                  </do_if>
-                  <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
-                    <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
-                    <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
-                  </do_elseif>
                 </do_if>
                 <do_else>
                     <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="2"/>
                 </do_else>
+                <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                  <remove_value name="$tracked_objects.{$keys.{$i}}"/>
+                </do_if>
+                <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
+                  <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
+                  <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
+                </do_elseif>
               </do_all>
             </do_else>
             <!-- check for Rotations -->
