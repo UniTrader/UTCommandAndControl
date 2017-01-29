@@ -255,25 +255,25 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <set_value name="$helptext" exact="$helptext + '»'"/>
                 </do_all>
               </do_if>
-              <set_value name="$helptext" exact="$helptext + '\033X %1\n%2%3'"/>
+              <set_value name="$helptext" exact="$helptext + '%1\n\033X %2\n%3%4'"/>
               <do_if value="typeof $highest_focus_object == datatype.rotation">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033W',$rotation_names.{$rotations.indexof.{$highest_focus_object}}]"/>
+                <set_value name="$helptext" exact="$helptext.['',$tracked_objects.keys.count,'\033W',$rotation_names.{$rotations.indexof.{$highest_focus_object}}]"/>
               </do_if>
               <do_elseif value="$highest_focus_object.isclass.space">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033U',$highest_focus_object.name]"/>
+                <set_value name="$helptext" exact="$helptext.[player.ship.distanceto.{$highest_focus_object},$tracked_objects.keys.count,'\033U',$highest_focus_object.name]"/>
               </do_elseif>
               <do_elseif value="$highest_focus_object.isplayerowned">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033G',$highest_focus_object.name]"/>
+                <set_value name="$helptext" exact="$helptext.[player.ship.distanceto.{$highest_focus_object},$tracked_objects.keys.count,'\033G',$highest_focus_object.name]"/>
               </do_elseif>
               <do_elseif value="$highest_focus_object.mayattack.{faction.player}">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033R',$highest_focus_object.name]"/>
+                <set_value name="$helptext" exact="$helptext.[player.ship.distanceto.{$highest_focus_object},$tracked_objects.keys.count,'\033R',$highest_focus_object.name]"/>
               </do_elseif>
               <do_elseif value="$highest_focus_object.isoperational">
                 <do_if value="$highest_focus_object.isclass.{[class.highwayentrygate,class.highwayexitgate,class.gate]} and $highest_focus_object.highway.islocalhighway">
-                  <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033C',$highest_focus_object.highway.name]"/>
+                  <set_value name="$helptext" exact="$helptext.[player.ship.distanceto.{$highest_focus_object},$tracked_objects.keys.count,'\033C',$highest_focus_object.highway.name]"/>
                 </do_if>
                 <do_else>
-                  <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033C',$highest_focus_object.name]"/>
+                  <set_value name="$helptext" exact="$helptext.[player.ship.distanceto.{$highest_focus_object},$tracked_objects.keys.count,'\033C',$highest_focus_object.name]"/>
                 </do_else>
               </do_elseif>
               <do_else>
@@ -390,7 +390,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <do_elseif value="$selectedobject.isclass.asteroid">
               <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
-              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my DO Scripts are installed and Active">
+              <do_if value="$commandtarget.defencenpc.$utcac?" comment="Check if my DO Scripts are installed and Active">
                 <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
               <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
@@ -410,23 +410,23 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <add_player_choice position="1" text="'Escort me'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
                   <add_player_choice position="2" text="'Follow me'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
                 </do_else>
-                <add_player_choice position="5" text="'Withdraw: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_so" choiceparam="$selectedobject"/>
+                <add_player_choice position="5" text="'Withdraw: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_cp" choiceparam="$selectedobject"/>
               </do_if>
               <do_else>
-              <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
-              <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
-              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my DO Scripts are installed and Active">
-                <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
-              </do_if>
-              <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
-              <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
+                <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
+                <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
+                <do_if value="$commandtarget.defencenpc.$utcac?" comment="Check if my DO Scripts are installed and Active">
+                  <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
+                </do_if>
+                <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+                <add_player_choice position="5" text="'Withdraw this Ship'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_cp" choiceparam="this.ship"/>
               </do_else>
             </do_elseif>
             <!-- Stations -->
             <do_elseif value="$selectedobject.station?">
               <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
-              <do_if value="@readtext.{5554301}.{11102} == '$utcac_do_state'" comment="Check if my DO Scripts are installed and Active">
+              <do_if value="$commandtarget.defencenpc.$utcac?" comment="Check if my DO Scripts are installed and Active">
                 <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
               <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
@@ -549,8 +549,8 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
-              <do_elseif value="event.param == 'ut_cac_pc_withdraw_so'">
-                <signal_objects object="$commandtarget" param="'withdraw battle'"/>
+              <do_elseif value="event.param == 'ut_cac_pc_withdraw_cp'">
+                <signal_objects object="event.param2" param="'withdraw battle'"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_attack'">
