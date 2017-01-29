@@ -265,7 +265,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033R',$highest_focus_object.name]"/>
               </do_elseif>
               <do_elseif value="$highest_focus_object.isoperational">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033C',$highest_focus_object.name]"/>
+                <do_if value="$highest_focus_object.isclass.{[class.highwayentrygate,class.highwayexitgate,class.gate]} and $highest_focus_object.highway.islocalhighway">
+                  <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033C',$highest_focus_object.highway.name]"/>
+                </do_if>
+                <do_else>
+                  <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'\033C',$highest_focus_object.name]"/>
+                </do_else>
               </do_elseif>
               <do_else>
                 <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'',$highest_focus_object.name]"/>
