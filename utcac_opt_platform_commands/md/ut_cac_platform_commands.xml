@@ -388,13 +388,21 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             </do_elseif>
             <!-- Asteroids -->
             <do_elseif value="$selectedobject.isclass.asteroid">
+              <!-- determine if this Ship can mine to grey out Mining Commands -->
+              <do_if value="$commandtarget.units.collect.{$selectedobject.wares.list.{1}}.count">
+                <check_object object="$ships.{$i}" result="$miningship">
+                  <match_summarised_turret macro="macro.turret_medium_ml_macro"/>
+                </check_object>
+              </do_if>
+              <do_else> 
+                <set_value name="$miningship" exact="false"/>
+              </do_else>
               <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
-              <add_player_choice position="2" text="'Mine: %1'.[$selectedobject.wares.list.{1}.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_mine" choiceparam="[$selectedobject.wares.list.{1},$selectedobject.zone]"/>
               <do_if value="$commandtarget.defencenpc.$utcac?" comment="Check if my DO Scripts are installed and Active">
                 <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
               <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
-              <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
+              <add_player_choice position="5" text="'Mine: %1'.[$selectedobject.wares.list.{1}.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_mine" choiceparam="[$selectedobject.wares.list.{1},$selectedobject.zone]" selectable="$miningship"/>
             </do_elseif>
             <!-- Ships -->
             <do_elseif value="$selectedobject.isclass.ship">
@@ -430,6 +438,9 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
               <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+              <do_if value="$selectedobject.station.products.list.indexof.{ware.fuelcells}">
+                <add_player_choice position="5" text="'Refuel'" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_refuel" choiceparam="player.money"/>
+              </do_if>
               <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
             </do_elseif>
             <do_if value="$commandtarget == player.ship">
@@ -563,6 +574,10 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_mine'">
                 <signal_objects object="$commandtarget" param="'start mining'" param2="event.param2"/><!-- Param2:  [$ware,$zone] -->
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_refuel'">
+                <signal_objects object="$commandtarget" param="'refuel'" param2="event.param2"/><!-- Param2:  money for refueling -->
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_commandtarget_select'">
