@@ -49,9 +49,13 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
           </conditions>
           <actions>
             <find_zone name="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
-            <remove_value name="$spaces.{$spaces.indexof.{player.zone}}"/>
+            <do_if value="$spaces.indexof.{player.zone}">
+              <remove_value name="$spaces.{$spaces.indexof.{player.zone}}"/>
+            </do_if>
             <find_sector name="$spaces2" space="player.cluster" multiple="true" known="true"/>
-            <remove_value name="$spaces2.{$spaces2.indexof.{player.sector}}"/>
+            <do_if value="$spaces2.indexof.{player.sector}">
+              <remove_value name="$spaces2.{$spaces2.indexof.{player.sector}}"/>
+            </do_if>
             <do_all exact="$spaces2.count" counter="$i">
               <append_to_list name="$spaces" exact="$spaces2.{$i}"/>
             </do_all>
