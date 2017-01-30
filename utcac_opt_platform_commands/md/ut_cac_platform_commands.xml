@@ -398,9 +398,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <set_value name="$miningship" exact="false"/>
               </do_else>
               <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
-              <do_if value="$commandtarget.defencenpc.$utcac?" comment="Check if my DO Scripts are installed and Active">
-                <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
+              <!--do_if value="global.$utcac.$enemy_priority?" comment="Check if the Global Ignorelist is available">
+                <add_player_choice position="2" text="'Global: Prioritytarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
               </do_if>
+              <do_if value="global.$utcac.$enemy_ignorelist?" comment="Check if the Global Ignorelist is available">
+                <add_player_choice position="3" text="'Global: Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
+              </do_if-->
               <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
               <add_player_choice position="5" text="'Mine: %1'.[$selectedobject.wares.list.{1}.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_mine" choiceparam="[$selectedobject.wares.list.{1},$selectedobject.zone]" selectable="$miningship"/>
             </do_elseif>
@@ -422,10 +425,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_if>
               <do_else>
                 <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
-                <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
-                <do_if value="$commandtarget.defencenpc.$utcac?" comment="Check if my DO Scripts are installed and Active">
-                  <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
-                </do_if>
+              <do_if value="global.$utcac.$enemy_priority?" comment="Check if the Global Ignorelist is available">
+                <add_player_choice position="2" text="'Global: Prioritytarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
+              </do_if>
+              <do_if value="global.$utcac.$enemy_ignorelist?" comment="Check if the Global Ignorelist is available">
+                <add_player_choice position="3" text="'Global: Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
+              </do_if>
                 <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
                 <add_player_choice position="5" text="'Withdraw this Ship'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_cp" choiceparam="this.ship"/>
               </do_else>
@@ -433,9 +438,11 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <!-- Stations -->
             <do_elseif value="$selectedobject.station?">
               <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
-              <!--add_player_choice position="2" text="'Alpha Strike: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
-              <do_if value="$commandtarget.defencenpc.$utcac?" comment="Check if my DO Scripts are installed and Active">
-                <add_player_choice position="3" text="'Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_ignoreobject" choiceparam="$selectedobject"/>
+              <do_if value="global.$utcac.$enemy_priority?" comment="Check if the Global Ignorelist is available">
+                <add_player_choice position="2" text="'Global: Prioritytarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
+              </do_if>
+              <do_if value="global.$utcac.$enemy_ignorelist?" comment="Check if the Global Ignorelist is available">
+                <add_player_choice position="3" text="'Global: Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
               <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
               <do_if value="$selectedobject.station.products.list.indexof.{ware.fuelcells}">
@@ -568,8 +575,17 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <signal_objects object="$commandtarget" param="'attack object'" param2="$selectedobject"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
-              <do_elseif value="event.param == 'ut_cac_pc_ignoreobject'">
-                <show_help custom="'Not Implemented yet!!!'" duration="3s" position="8" log="false" silent="true" />
+              <do_elseif value="event.param == 'ut_cac_pc_global_set_prioritytarget'">
+                <set_value name="global.$utcac.$enemy_priority" exact="$selectedobject"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_global_ignoreobject'">
+                <!-- when updating this list check if all Objects within are operational (instead of relying on a Group) -->
+                <do_all exact="global.$utcac.$enemy_ignorelist.count" counter="$i" reverse="true">
+                  <do_if value="not global.$utcac.$enemy_ignorelist.{$i}.isoperational">
+                    <remove_value name="global.$utcac.$enemy_ignorelist.{$i}"/>
+                  </do_if>
+                </do_all>
+                <append_to_list name="global.$utcac.$enemy_ignorelist" exact="$selectedobject"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_mine'">
@@ -606,6 +622,33 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
         <reset_cue cue="Ship_Docked"/>
         <remove_effect object="event.param2" effect="'jump_activation_jumpdrive_slow'"/>
       </actions>
+    </cue>
+    <cue name="Set_up_Global_Priority_and_Ignorelist">
+      <!-- this is just a temp Measure - Availability of these Values shall finally depend on Build Stage of the Player HQ - when implemented set this cue to be always false and the next to be always true-->
+      <conditions>
+        <event_game_loaded/>
+        <check_value value="@readtext.{5554103}.{252} != 'ReadText5554103-252'"/><!-- Quick and Dirty Check if my DO Script is active in the Background -->
+      </conditions>
+      <actions>
+        <set_value name="global.$utcac" exact="table[]"/>
+        <set_value name="global.$utcac.$enemy_ignorelist" exact="[]"/>
+        <set_value name="global.$utcac.$enemy_priority" exact="null"/>
+      </actions>
+      <cues>
+        <cue name="Remove_Global_Priority_and_Ignorelist">
+          <conditions>
+            <event_game_loaded/>
+            <check_value value="false"/>
+          </conditions>
+          <actions>
+            <remove_value name="global.$utcac.$enemy_ignorelist"/>
+            <remove_value name="global.$utcac.$enemy_priority"/>
+            <do_if value="global.$utcac.keys.count == 0">
+              <remove_value name="global.$utcac"/>
+            </do_if>
+          </actions>
+        </cue>
+      </cues>
     </cue>
   </cues>
 </mdscript>
