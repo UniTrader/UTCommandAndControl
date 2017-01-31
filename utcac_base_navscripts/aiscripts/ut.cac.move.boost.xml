@@ -123,13 +123,17 @@
         <set_value name="$targetzone" exact="$destination"/>
       </do_if>
       <do_elseif value="$destination.isclass.sector">
-        <find_zone name="$targetzone" space="$destination" tempzone="false" priorityzone="true">
+        <set_value name="$targetzone" exact="$destination"/>
+        <!--find_zone name="$targetzone" space="$destination" tempzone="false" priorityzone="true">
             <match class="class.highway" negate="true"/>
             <match_distance object="this.ship" max="this.ship.distanceto.{$destination}"/>
-          </find_zone>
-          <do_if value="not $position">
+          </find_zone-->
+          <create_position_outside_boundingbox name="$position" comment="$destination" distance="0m">
+            <position object="this.ship"/>
+          </create_position_outside_boundingbox>
+          <!--do_if value="not $position">
             <get_safe_pos result="$position" allowyaxis="true" zone="$targetzone" value="position.[0,0,0]" radius="this.ship.size * 2" ignored="this.ship" directionobject="this.zone" min="20km"/>
-          </do_if>
+          </do_if-->
       </do_elseif>
       <do_elseif value="$position">
         <transform_position name="$position" refposition="$destination.position" refrotation="$destination.rotation" >
