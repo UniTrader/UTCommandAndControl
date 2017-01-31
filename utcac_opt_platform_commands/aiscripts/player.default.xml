@@ -4,6 +4,7 @@
     <event_object_signalled object="this.ship" param="'follow'"/>
     <event_object_signalled object="this.ship" param="'escort'"/>
     <event_object_signalled object="this.ship" param="'fly to pos - ut'"/>
+    <event_object_signalled object="this.ship" param="'run script'"/>
   </add>
   <add sel="//interrupts/handler/actions/do_elseif[@value=&quot;event.param == 'withdraw battle'&quot;]" pos="after">
     <do_elseif value="event.param == 'follow'">
@@ -20,6 +21,12 @@
       <run_interrupt_script name="'command.move.pos'" abortscripts="true" resume="init">
         <param name="destination" value="player.ship.zone"/>
         <param name="position" value="event.param2"/>
+      </run_interrupt_script>
+    </do_elseif>
+    <do_elseif value="event.param == 'run script'">
+      <!-- execute UT CAC-Style Script with params-table as only Input -->
+      <run_interrupt_script name="event.param2.$script" abortscripts="true" resume="init">
+        <param name="params" value="event.param2"/>
       </run_interrupt_script>
     </do_elseif>
   </add>
