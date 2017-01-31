@@ -68,7 +68,26 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
           <actions>
             <!-- find new Objects every 5 loops -->
             <set_value name="$loop" operation="subtract"/>
-            <do_if value="$loop le 0">
+            <!-- if player is in conversation dont track anything, just reduce all Values slowly -->
+            <do_if value="player.isinconversation">
+              <set_value name="$keys" exact="$tracked_objects.keys.list"/>
+              <set_value name="$highest_focus_object" exact="null"/>
+              <set_value name="$highest_focus_number" exact="null"/>
+              <do_all exact="$keys.count" counter="$i" reverse="true">
+                <set_value name="$tracked_objects.{$keys.{$i}}" operation="subtract" exact="1"/>
+                <do_if value="$tracked_objects.{$keys.{$i}} le 0">
+                  <do_if value="typeof $keys.{$i} == datatype.rotation">
+                    <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
+                  </do_if>
+                  <remove_value name="$tracked_objects.{$keys.{$i}}"/>
+                </do_if>
+                <do_elseif value="$tracked_objects.{$keys.{$i}} gt $highest_focus_number">
+                  <set_value name="$highest_focus_object" exact="$keys.{$i}"/>
+                  <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
+                </do_elseif>
+              </do_all>
+            </do_if>
+            <do_elseif value="$loop le 0">
               <set_value name="$loop" exact="6"/>
               <find_object groupname="$objects" space="player.zone" multiple="true">
                 <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
@@ -171,7 +190,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <set_value name="$highest_focus_number" exact="$tracked_objects.{$keys.{$i}}"/>
                 </do_elseif>
               </do_all>
-            </do_if>
+            </do_elseif>
             <!-- else check already known Objects if their Value should be increased or decreased -->
             <do_else>
               <set_value name="$keys" exact="$tracked_objects.keys.list"/>
