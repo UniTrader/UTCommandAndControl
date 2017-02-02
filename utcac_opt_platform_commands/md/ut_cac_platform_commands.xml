@@ -89,9 +89,11 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             </do_if>
             <do_elseif value="$loop le 0">
               <set_value name="$loop" exact="6"/>
-              <find_object groupname="$objects" space="player.zone" multiple="true">
+              <find_gravidar_contact name="$objects" object="this.ship" multiple="true">
                 <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                 <match class="class.station" negate="true"/>
+              </find_gravidar_contact>
+              <!--find_object groupname="$objects" space="player.zone" multiple="true">
                 <match_any>
                   <match>
                     <match_size min="200m" max="1000m"/>
@@ -102,7 +104,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                     <match_distance object="player.ship" max="player.ship.maxradarrange * 2"/>
                   </match>
                 </match_any>
-              </find_object>
+              </find_object-->
               <remove_from_group group="$objects" object="player.ship"/>
               <find_station name="$stations" space="player.zone" checkoperational="true" multiple="true">
                 <match_is_in_view_of object="player.entity" vertical="60deg" horizontal="60deg"/>
