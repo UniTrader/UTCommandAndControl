@@ -11,7 +11,6 @@
         <reset_cue cue="Player_Undocked"/>
         <!-- set up object tracking vars -->
         <set_value name="$tracked_objects" exact="table[]"/>
-        <create_group groupname="$objects"/>
         <!-- Gather Zones in current Sector ans Sectors in current Cluster for regular view check -->
         <find_zone name="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
         <remove_value name="$spaces.{$spaces.indexof.{player.zone}}"/>
@@ -104,14 +103,14 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                     <match_distance object="player.ship" max="player.ship.maxradarrange * 2"/>
                   </match>
                 </match_any>
-              </find_object-->
-              <remove_from_group group="$objects" object="player.ship"/>
+              </find_object>
+              <remove_from_group group="$objects" object="player.ship"/-->
               <find_station name="$stations" space="player.zone" checkoperational="true" multiple="true">
                 <match_is_in_view_of object="player.entity" vertical="60deg" horizontal="60deg"/>
                 <!--match_distance object="player.ship" max="player.ship.maxradarrange + 5km"/-->
               </find_station>
               <do_all exact="$stations.count" counter="$i">
-                <find_object_component groupname="$objects" object="$stations.{$i}" checkoperational="true" integrated="false" multiple="true">
+                <find_object_component name="$objects_add" object="$stations.{$i}" checkoperational="true" integrated="false" multiple="true">
                   <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                   <match_distance object="player.ship" max="player.ship.maxradarrange"/>
                   <match_parent class="class.station"/>
@@ -131,19 +130,23 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                     <match class="class.production"/>
                   </match_any-->
                 </find_object_component>
+                <do_all exact="$objects_add.count" counter="$i">
+                  <append_to_list name="$objects" list="$objects_add.{$i}"/>
+                </do_all>
+                <remove_value name="$objects_add"/>
               </do_all>
               <do_all exact="$spaces.count" counter="$i">
                 <check_object object="$spaces.{$i}" result="$result">
                   <match_is_in_view_of object="player.entity" vertical="20deg" horizontal="20deg"/>
                 </check_object>
                 <do_if value="$result">
-                  <add_to_group groupname="$objects" object="$spaces.{$i}"/>
+                  <append_to_list name="$objects" exact="$spaces.{$i}"/>
                 </do_if>
               </do_all>
               <do_all exact="$objects.count" counter="$i">
                 <set_value name="$tracked_objects.{$objects.{$i}}" operation="add" exact="if $objects.count + $tracked_objects.keys.count == 1 then 5 else 3"/>
               </do_all>
-              <clear_group group="$objects"/>
+              <clear_list list="$objects"/>
               
               <!-- check for Rotations -->
               <do_all exact="$rotations.count - 2" counter="$i" comment="last 2 rotations are accounted for seperately">
