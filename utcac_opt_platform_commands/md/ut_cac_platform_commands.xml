@@ -309,7 +309,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 </do_else>
               </do_elseif>
               <do_else>
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'',$highest_focus_object.name]"/>
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},'',$highest_focus_object.name]"/>
               </do_else>
               <do_if value="$commandtarget?">
                 <set_value name="$helptext" exact="'%1\n\n\033GCommand Target:\n%2'.[$helptext,$commandtarget.name]"/>
@@ -443,7 +443,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <do_elseif value="$selectedobject.isclass.ship">
               <add_player_choice position="4" text="'Escort: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_ct_so" choiceparam="$selectedobject"/>
               <add_player_choice position="5" text="'Follow: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_follow_ct_so" choiceparam="$selectedobject"/>
-              <do_if value="$selectedobject.isplayerowned and ( $selectedobject.pilot.$orderlist? or $selectedobject.commander == player.primarytship or $selectedobject.commander == null )">
+              <do_if value="$selectedobject.isplayerowned and ( $selectedobject.pilot.$orderlist? or $selectedobject.commander == player.primaryship or $selectedobject.commander == null )">
                 <add_player_choice position="3" text="'Select as Commandtarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_commandtarget_select" choiceparam="$selectedobject"/>
                 <do_if value="$commandtarget?">
                   <add_player_choice position="1" text="'%1 Escort '.[$commandtarget.name,$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
