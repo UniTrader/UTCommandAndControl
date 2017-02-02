@@ -88,7 +88,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             </do_if>
             <do_elseif value="$loop le 0">
               <set_value name="$loop" exact="6"/>
-              <find_gravidar_contact name="$objects" object="this.ship" multiple="true">
+              <find_gravidar_contact name="$objects" object="player.ship" multiple="true">
                 <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                 <match class="class.station" negate="true"/>
               </find_gravidar_contact>
@@ -396,17 +396,17 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <set_value name="$othersidezone" exact="$selectedobject.destination"/>
               </do_elseif>
               <add_player_choice position="4" text="'Fly to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_moveto" choiceparam="$othersidezone"/>
-              <do_if value="$waypoints? and this.ship.pilot.$orderlist?">
+              <do_if value="$waypoints? and player.ship.pilot.$orderlist?">
                 <add_player_choice position="5" text="'Follow Tube: %1 Zones'.[$waypoints.count]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_move_path" choiceparam="$waypoints"/>
               </do_if>
               <!-- Specific Movement Type Orders - only available with UT CAC Movement -->
               <do_if value="@readtext.{5554301}.{11100} != 'ReadText5554301-11100'" comment="Check if my Navscripts are available">
-                <do_if value="$othersidezone.sector != this.sector and $othersidezone.cluster == this.cluster and $commandtarget.pilot.$orderlist?">
+                <do_if value="$othersidezone.sector != player.sector and $othersidezone.cluster == player.cluster and $commandtarget.pilot.$orderlist?">
                   <add_player_choice position="1" text="'Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname='Jump to %1'.[$othersidezone.sector.name],$destination=$othersidezone.sector,$type='auto',$exitonneworder=true]"/>
                   <add_player_choice position="2" text="'Random Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname='Random Jump to %1'.[$othersidezone.sector.name],$destination=$othersidezone.sector,$type='random',$exitonneworder=true]"/>
                   <add_player_choice position="3" text="'Boost to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.boost',$displayname='Boost to %1'.[$othersidezone.name],$destination=$othersidezone,$exitonneworder=true]" selectable="false"/>
                 </do_if>
-                <do_elseif value="$othersidezone.sector == this.sector">
+                <do_elseif value="$othersidezone.sector == player.sector">
                   <find_object name="$beacon" space="$othersidezone" knownto="faction.player" checkoperational="true">
                     <match_any>
                       <match class="class.jumpbeacon"/>
@@ -464,7 +464,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <add_player_choice position="3" text="'Global: Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
                 <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
-                <add_player_choice position="5" text="'Withdraw this Ship'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_cp" choiceparam="this.ship"/>
+                <add_player_choice position="5" text="'Withdraw this Ship'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_cp" choiceparam="player.ship"/>
               </do_else>
             </do_elseif>
             <!-- Stations -->
@@ -526,7 +526,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <position value="$Position"/>
                 </transform_position>
                 <do_if value="$commandtarget.pilot.$orderlist?">
-                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[$selectedobject.name],$destination=this.zone,$position=$Position,$exitonneworder=true]"/>
+                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[$selectedobject.name],$destination=player.zone,$position=$Position,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
                   <signal_objects object="$commandtarget" param="'fly to pos'" param2="player.ship.zone" param3="$Position"/>
