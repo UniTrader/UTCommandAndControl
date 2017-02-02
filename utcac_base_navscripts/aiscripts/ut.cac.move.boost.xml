@@ -126,18 +126,11 @@
           <create_position_outside_boundingbox name="$position" component="$destination" distance="0m">
             <position object="this.ship"/>
           </create_position_outside_boundingbox>
-          <create_ship name="$targetzone_ship" sector="$destination">
+          <create_object name="$temp_object" macro="macro.props_wps_nav_beacon_macro" sector="$destination">
             <position value="$position"/>
-          </create_ship>
-        <set_value name="$targetzone" exact="$targetzone_ship.zone"/>
+          </create_object>
+        <set_value name="$targetzone" exact="$temp_object.zone"/>
         <set_value name="$position" exact="position.[0m,0m,0m]"/>
-        <!--find_zone name="$targetzone" space="$destination" tempzone="false" priorityzone="true">
-            <match class="class.highway" negate="true"/>
-            <match_distance object="this.ship" max="this.ship.distanceto.{$destination}"/>
-          </find_zone-->
-          <!--do_if value="not $position">
-            <get_safe_pos result="$position" allowyaxis="true" zone="$targetzone" value="position.[0,0,0]" radius="this.ship.size * 2" ignored="this.ship" directionobject="this.zone" min="20km"/>
-          </do_if-->
       </do_elseif>
       <do_elseif value="$position">
         <transform_position name="$position" refposition="$destination.position" refrotation="$destination.rotation" >
@@ -459,8 +452,8 @@
       </do_if>
       <set_avoid_collisions object="this.ship" enabled="true"/>
       <!-- wait till we are almost there - event_approaching_waypoint usually triggers too early, instead wait till 2-5 seconds before estimated arrival  -->
-      <do_if value="@$targetzone_ship.exists">
-        <destroy_object object="$targetzone_ship" explosion="false"/>
+      <do_if value="@$temp_object.exists">
+        <destroy_object object="$temp_object" explosion="false"/>
       </do_if>
       <wait min="$arriving_at - player.age - 5s" max="$arriving_at - player.age - 2s" sinceversion="30" chance="$arriving_at? *100" resume="true"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boost movement done, distance to boost target pos: %4, Blocking Group: %5'.[player.age,this.name,this.container.name,this.ship.distanceto.{$targetpos},$leader_preparegroup]"/>
