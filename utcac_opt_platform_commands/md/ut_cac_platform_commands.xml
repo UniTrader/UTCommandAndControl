@@ -3,7 +3,10 @@
   <cues>
     <cue name="Ship_Docked" namespace="this">
       <conditions>
-        <event_object_changed_room object="player.entity"/>
+        <check_any>
+          <event_object_changed_room object="player.entity"/>
+          <event_object_signalled object="player.primaryship" param="'Restart Platform Commands'"/>
+        </check_any>
         <check_value value="player.entity.container.isclass.ship and player.platform and player.entity.container.owner == faction.player and (@player.entity.container.superior == null or  @player.entity.container.superior == player.primaryship)"/>
       </conditions>
       <actions>
@@ -653,8 +656,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <signal_objects object="player.ship" param="'run script'" param2="table[$script='player.direct.control',$displayname='Direct Player Control']"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
-                <cancel_cue cue="Ship_Docked"/>
-                <cancel_cue cue="Cancel_Target_Selected"/>
+                <reset_cue cue="Ship_Docked"/>
                 <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_commandtarget_select'">

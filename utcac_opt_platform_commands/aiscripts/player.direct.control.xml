@@ -50,6 +50,11 @@
         <do_if value="player.entity.position.y gt $normalpos.y + 0.05m">
           <set_value name="$boost" exact="not $boost"/>
         </do_if>
+        <!-- check if the Player looks backwards -->
+        <do_if value="player.entity.rotation.yaw gt 175deg and player.entity.rotation.yaw lt 185deg and player.entity.rotation.pitch lt 5deg and player.entity.rotation.pitch gt -5deg">
+          <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
+          <return/>
+        </do_if>
         <!-- check if player moved from normalpos and reset pos -->
         <set_player_entity_position>
           <position value="$normalpos"/>
