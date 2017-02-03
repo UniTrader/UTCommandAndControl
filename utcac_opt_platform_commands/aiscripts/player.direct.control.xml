@@ -48,7 +48,7 @@
         <transform_position name="$Position" refposition="player.zone.position" refrotation="player.zone.rotation">
           <position value="$Position"/>
         </transform_position>
-        <do_if value="not $targetpos? or ( ( $Position.x - $targetpos.x ) * ( $Position.x - $targetpos.x ) + ( $Position.y - $targetpos.y ) * ( $Position.y - $targetpos.y ) + ( $Position.z - $targetpos.z ) * ( $Position.z - $targetpos.z ) gt (if $boost then 10km else 1km)">
+        <do_if value="not $targetpos? or (not player.ship.numwaypoints) or ( ( $Position.x - $targetpos.x ) * ( $Position.x - $targetpos.x ) + ( $Position.y - $targetpos.y ) * ( $Position.y - $targetpos.y ) + ( $Position.z - $targetpos.z ) * ( $Position.z - $targetpos.z ) gt (if $boost then 10km else 1km)">
           <set_value name="$targetpos" exact="$Position"/>
           <set_value name="$abortpath" exact="true"/>
         </do_if>
