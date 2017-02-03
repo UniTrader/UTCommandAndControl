@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="player.direct.control" version="30" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+ Routine for Boosting near to Destination (was in move.generic before)
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    
+  </params>
+  <interrupts>
+    <handler comment="Player Undocked - Terminate">
+      <conditions>
+        <event_object_changed_room object="player.entity"/>
+      </conditions>
+      <actions>
+        <resume label="finish"/>
+      </actions>
+    </handler>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <label name="init"/>
+      <!-- set Player to Position with good visibility -->
+      <set_player_entity_position>
+        <position x="0" y="6" z="-7"/>
+      </set_player_entity_position>
+      <!-- wait a second until he falls down -->
+      <wait exact="1s"/>
+      <!-- save Player Pos as normal Pos to restore constantly -->
+      <set_value name="$normalpos" exact="player.entity.position"/>
+      <set_value name="$boost" exact="false"/>
+      
+      
+      <label name="start"/>
+      <do_while value="true">
+        <!-- get Player Looking Direction -->
+        <!-- first get Position in front of Player (relative to Sector) -->
+        <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="player.entity.rotation">
+          <position x="0m" y="0m" z="if $boost then 10km else 1km"/>
+        </transform_position>
+        <transform_position name="$Position" refposition="player.ship.position" refrotation="player.ship.rotation">
+          <position value="$Position"/>
+        </transform_position>
+        <transform_position name="$Position" refposition="player.zone.position" refrotation="player.zone.rotation">
+          <position value="$Position"/>
+        </transform_position>
+        <do_if value="$targetpos? and $Position.distanceto.{$targetpos} gt (if $boost then 10km else 1km)">
+          <set_value name="$targetpos" exact="$Position"/>
+          <set_value name="$abortpath" exact="true"/>
+        </do_if>
+        <do_elseif value="$abortpath?">
+          <set_value name="$targetpos" exact="$Position"/>
+        </do_elseif>
+        <do_if value="$abortpath?">
+          <move_to object="player.ship" destination="player.sector" boost="$boost" abortpath="$abortpath">
+            <position exact="$targetpos"/>
+            <interrupt_after_time time="0s"/>
+          </move_to>
+        </do_if>
+        <remove_value name="$abortpath"/>
+        <wait exact="100ms">
+          <interrupt>
+            <conditions>
+              <check_any>
+                <event_object_approaching_waypoint object="player.ship"/>
+                <event_object_arrived_at_waypoint object="player.ship"/>
+              </check_any>
+            </conditions>
+            <actions>
+              <set_value name="$abortpath" exact="false"/>
+            </actions>
+          </interrupt>
+        </wait>
+        <!-- check if player Jumped, and if toggle boost var and reset pos -->
+        <do_if value="player.entity.position.y gt $normalpos.y + 0.5m">
+          <set_value name="$boost" exact="not $boost"/>
+          <set_player_entity_position>
+            <position value="$normalpos"/>
+          </set_player_entity_position>
+        </do_if>
+        <!-- check if player moved from normalpos and reset pos -->
+        <do_if value="player.entity.position.distanceto.$normalpos gt 0.5m">
+          <set_player_entity_position>
+            <position value="$normalpos"/>
+          </set_player_entity_position>
+        </do_if>
+      </do_while>
+      
+      <label name="finish"/>
+    </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>

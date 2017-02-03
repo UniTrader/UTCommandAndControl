@@ -343,7 +343,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <!-- first sort out which kind of Target it is then present some Options -->
             <!-- a certain Looking Direction in empty Space - present Move To-Options -->
             <do_if value="typeof $selectedobject == datatype.rotation">
-              <add_player_choice position="1" text="'Move 5 km in the opposite Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="-5km"/>
+              <do_if value="$selectedobject == $rotations.{1}">
+                  <add_player_choice position="1" text="'Grab the Stick'" tooltip="'Pun intended'" section="ut_cac_pc_run_script" choiceparam="table[$script='player.direct.control',$displayname='Direct Player Control']"/>
+              </do_if>
+              <do_else>
+                <add_player_choice position="1" text="'Move 5 km in the opposite Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="-5km"/>
+              </do_else>
               <add_player_choice position="2" text="'Move 5 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="5km"/>
               <add_player_choice position="3" text="'Move 15 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="15km"/>
               <add_player_choice position="4" text="'Move 50 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="50km"/>
