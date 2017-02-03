@@ -4,7 +4,7 @@
     <cue name="Ship_Docked" namespace="this">
       <conditions>
         <event_object_changed_room object="player.entity"/>
-        <check_value value="player.entity.container.isclass.ship and player.platform and player.entity.container.owner == faction.player and (payer.entity.container.superior == null or  payer.entity.container.superior == player.primaryship)"/>
+        <check_value value="player.entity.container.isclass.ship and player.platform and player.entity.container.owner == faction.player and (player.entity.container.superior == null or  player.entity.container.superior == player.primaryship)"/>
       </conditions>
       <actions>
         <!-- (re-)activate cue to get the event when player undocks -->
@@ -344,7 +344,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <!-- a certain Looking Direction in empty Space - present Move To-Options -->
             <do_if value="typeof $selectedobject == datatype.rotation">
               <do_if value="$selectedobject == $rotations.{1}">
-                  <add_player_choice position="1" text="'Grab the Stick'" tooltip="'Pun intended'" section="ut_cac_pc_run_script" choiceparam="table[$script='player.direct.control',$displayname='Direct Player Control']"/>
+                  <add_player_choice position="1" text="'Grab the Stick'" tooltip="'Pun intended'" section="ut_cac_pc_direct_control"/>
               </do_if>
               <do_else>
                 <add_player_choice position="1" text="'Move 5 km in the opposite Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="-5km"/>
@@ -641,6 +641,16 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 </do_if>
                 <do_else>
                   <signal_objects object="$commandtarget" param="'run script'" param2="event.param2"/>
+                </do_else>
+                <remove_value name="$commandtarget"/>
+              </do_elseif>
+              <do_elseif value="event.param == 'ut_cac_pc_direct_control'">
+                <!-- Section to perform a UT CAC Orderlist compatible Script without need for Orderlist (will be used if available though) -->
+                <do_if value="player.ship.pilot.$orderlist?">
+                  <signal_objects object="player.ship$commandtarget.pilot" param="'interrupt order'" param2="table[$script='player.direct.control',$displayname='Direct Player Control']"/>
+                </do_if>
+                <do_else>
+                  <signal_objects object="player.ship$commandtarget" param="'run script'" param2="table[$script='player.direct.control',$displayname='Direct Player Control']"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
