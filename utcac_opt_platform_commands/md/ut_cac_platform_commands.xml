@@ -653,6 +653,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <signal_objects object="player.ship" param="'run script'" param2="table[$script='player.direct.control',$displayname='Direct Player Control']"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
+                <cancel_cue cue="Ship_Docked"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_commandtarget_select'">
                 <set_value name="$commandtarget" exact="$selectedobject"/>
@@ -664,11 +665,9 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <debug_text filter="error" text="'Unknown Section/event: %1\nevent.param= %2 event.param2= %3 event.param3= %4'.[event.name,event.param,event.param2,event.param3]"/>
               </do_else>
             </do_elseif>
-            <do_if value="not (event.param == 'ut_cac_pc_direct_control')">
-              <reset_cue cue="this"/>
-              <reset_cue cue="Target_Selected"/>
-              <reset_cue cue="Check_Player_Hover"/>
-            </do_if>
+            <reset_cue cue="this"/>
+            <reset_cue cue="Target_Selected"/>
+            <reset_cue cue="Check_Player_Hover"/>
           </actions>
         </cue>
       </cues>
