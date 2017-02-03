@@ -57,8 +57,9 @@
         </do_elseif>
         <do_if value="$abortpath?">
           <show_help custom="'move to'" duration="1s"/>
-          <move_to object="player.ship" destination="player.sector" boost="$boost" abortpath="$abortpath">
-            <position exact="$targetpos"/>
+          <get_zone_at_position name="$zone" sector="player.sector" value="$targetpos"/>
+          <move_to object="player.ship" destination="if $zone.exists then $zone else player.zone" boost="$boost" abortpath="$abortpath">
+            <position exact="$targetpos" space="player.sector"/>
             <interrupt_after_time time="0s"/>
           </move_to>
         </do_if>
