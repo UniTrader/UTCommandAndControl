@@ -56,6 +56,7 @@
           <set_value name="$targetpos" exact="$Position"/>
         </do_elseif>
         <do_if value="$abortpath?">
+          <show_help custom="'move to'" duration="1s"/>
           <move_to object="player.ship" destination="player.sector" boost="$boost" abortpath="$abortpath">
             <position exact="$targetpos"/>
             <interrupt_after_time time="0s"/>
@@ -76,18 +77,13 @@
           </interrupt>
         </wait>
         <!-- check if player Jumped, and if toggle boost var and reset pos -->
-        <do_if value="player.entity.position.y gt $normalpos.y + 0.5m">
+        <do_if value="player.entity.position.y gt $normalpos.y + 0.05m">
           <set_value name="$boost" exact="not $boost"/>
-          <set_player_entity_position>
-            <position value="$normalpos"/>
-          </set_player_entity_position>
         </do_if>
         <!-- check if player moved from normalpos and reset pos -->
-        <do_if value="player.entity.distanceto.{$normalpos} gt 0.5m">
-          <set_player_entity_position>
-            <position value="$normalpos"/>
-          </set_player_entity_position>
-        </do_if>
+        <set_player_entity_position>
+          <position value="$normalpos"/>
+        </set_player_entity_position>
       </do_while>
       
       <label name="finish"/>
