@@ -219,10 +219,10 @@ end
 
 function menu.getBuildStateText(stage)
 	buildStateText = ""
-	if stage.isScheduled then buildStateText = ReadText(5554202, 104) end
-	if stage.isExtendable then buildStateText = ReadText(5554202, 103) end
-	if stage.isCompleted then buildStateText = ReadText(5554202, 102) end
-	if stage.isBuildingThis then buildStateText = ReadText(5554202, 101) end
+	if stage.isScheduled then buildStateText = ReadText(5554102, 104) end
+	if stage.isExtendable then buildStateText = ReadText(5554102, 103) end
+	if stage.isCompleted then buildStateText = ReadText(5554102, 102) end
+	if stage.isBuildingThis then buildStateText = ReadText(5554102, 101) end
 	return buildStateText
 end
 
