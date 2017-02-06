@@ -30,10 +30,10 @@ rotation.[0deg,45deg,0deg], rotation.[45deg,45deg,0deg], rotation.[90deg,45deg,0
 rotation.[0deg,-45deg,0deg],rotation.[45deg,-45deg,0deg],rotation.[90deg,-45deg,0deg],rotation.[135deg,-45deg,0deg],rotation.[180deg,-45deg,0deg],rotation.[225deg,-45deg,0deg],rotation.[270deg,-45deg,0deg],rotation.[315deg,-45deg,0deg],
 rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
       <set_value name="$rotation_names" exact="[
-'Forward' , 'Forward Right' , 'Right', 'Backwards Right', 'Backwards', 'Backwards Left', 'Left', 'Forward Left',
-'Forward Up' , 'Forward Right Up' , 'Right Up', 'Backwards Right Up', 'Backwards Up', 'Backwards Left Up', 'Left Up', 'Forward Left Up',
-'Forward Down' , 'Forward Right Down' , 'Right Down', 'Backwards Right Down', 'Backwards Down', 'Backwards Left Down', 'Left Down', 'Forward Left Down',
-'Straight Up', 'Straight Down']"/>
+      {5554102,101},{5554102,102},{5554102,103},{5554102,104},{5554102,105},{5554102,106},{5554102,107},5554102,108},
+      {5554102,109},{5554102,110},{5554102,111},{5554102,112},{5554102,113},{5554102,114},{5554102,115},{5554102,116},
+      {5554102,117},{5554102,118},{5554102,119},{5554102,120},{5554102,121},{5554102,122},{5554102,123},{5554102,124},
+      {5554102,125},{5554102,126}]"/>
         <!--add markers for Rotations -->
         <!--do_all exact="$rotations.count" counter="$i">
           <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="$rotations.{$i}">
@@ -262,61 +262,61 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <do_elseif value="$highest_focus_object != null">
               <set_value name="$helptext" exact="''"/>
               <do_if value="$highest_focus_number ge 17">
-                <set_value name="$helptext" exact="$helptext + '\033M'"/>
+                <set_value name="$helptext" exact="$helptext + {5554102,135}"/>
                 <do_all exact="[$highest_focus_number - 16 , 18 ].min">
-                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                  <set_value name="$helptext" exact="$helptext + {5554102,130}"/>
                 </do_all>
               </do_if>
               <do_if value="$highest_focus_number ge 12 and $highest_focus_number lt 34">
-                <set_value name="$helptext" exact="$helptext + '\033R'"/>
+                <set_value name="$helptext" exact="$helptext + {5554102,134}"/>
                 <do_all exact="[$highest_focus_number - 11 , 5 , 34 - $highest_focus_number].min">
-                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                  <set_value name="$helptext" exact="$helptext + {5554102,130}"/>
                 </do_all>
               </do_if>
               <do_if value="$highest_focus_number ge 7 and $highest_focus_number lt 29">
-                <set_value name="$helptext" exact="$helptext + '\033Y'"/>
+                <set_value name="$helptext" exact="$helptext + {5554102,133}"/>
                 <do_all exact="[$highest_focus_number - 6 , 5 , 29 - $highest_focus_number].min">
-                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                  <set_value name="$helptext" exact="$helptext + {5554102,130}"/>
                 </do_all>
               </do_if>
               <do_if value="$highest_focus_number ge 2 and $highest_focus_number lt 24">
-                <set_value name="$helptext" exact="$helptext + '\033G'"/>
+                <set_value name="$helptext" exact="$helptext + {5554102,132}"/>
                 <do_all exact="[$highest_focus_number - 1 , 5 , 24 - $highest_focus_number].min">
-                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                  <set_value name="$helptext" exact="$helptext + {5554102,130}"/>
                 </do_all>
               </do_if>
               <do_if value="$highest_focus_number ge 1 and $highest_focus_number lt 19">
-                <set_value name="$helptext" exact="$helptext + '\033X'"/>
+                <set_value name="$helptext" exact="$helptext + {5554102,131}"/>
                 <do_all exact="[19 - $highest_focus_number].min">
-                  <set_value name="$helptext" exact="$helptext + '»'"/>
+                  <set_value name="$helptext" exact="$helptext + {5554102,130}"/>
                 </do_all>
               </do_if>
-              <set_value name="$helptext" exact="$helptext + '\033X %1\n%2m\n%3%4'"/>
+              <set_value name="$helptext" exact="$helptext + {5554102,136}"/>
               <do_if value="typeof $highest_focus_object == datatype.rotation">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,'« Distance unavailable »','\033W',$rotation_names.{$rotations.indexof.{$highest_focus_object}}]"/>
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,{5554102,137},{5554102,138},$rotation_names.{$rotations.indexof.{$highest_focus_object}}]"/>
               </do_if>
               <do_elseif value="$highest_focus_object.isclass.space">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},'\033U',$highest_focus_object.name]"/>
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},{5554102,139},$highest_focus_object.name]"/>
               </do_elseif>
               <do_elseif value="$highest_focus_object.isplayerowned">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},'\033G',$highest_focus_object.name]"/>
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},{5554102,140},$highest_focus_object.name]"/>
               </do_elseif>
               <do_elseif value="$highest_focus_object.mayattack.{faction.player}">
-                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},'\033R',$highest_focus_object.name]"/>
+                <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},{5554102,141},$highest_focus_object.name]"/>
               </do_elseif>
               <do_elseif value="$highest_focus_object.isoperational">
                 <do_if value="$highest_focus_object.isclass.{[class.highwayentrygate,class.highwayexitgate,class.gate]} and $highest_focus_object.highway.islocalhighway">
-                  <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},'\033C',$highest_focus_object.highway.name]"/>
+                  <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},{5554102,142},$highest_focus_object.highway.name]"/>
                 </do_if>
                 <do_else>
-                  <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},'\033C',$highest_focus_object.name]"/>
+                  <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},{5554102,142},$highest_focus_object.name]"/>
                 </do_else>
               </do_elseif>
               <do_else>
                 <set_value name="$helptext" exact="$helptext.[$tracked_objects.keys.count,player.ship.distanceto.{$highest_focus_object},'',$highest_focus_object.name]"/>
               </do_else>
               <do_if value="$commandtarget?">
-                <set_value name="$helptext" exact="'%1\n\n\033GCommand Target:\n%2'.[$helptext,$commandtarget.name]"/>
+                <set_value name="$helptext" exact="{5554102,143}.[$helptext,$commandtarget.name]"/>
               </do_if>
               <!--set_value name="$helptext" exact="'%1\n\n\033WPlayer Rot:\n%2'.[$helptext,player.entity.rotation]"/-->
               <remove_help all="true"/>
@@ -338,7 +338,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
           <actions>
             <do_if value="$commandtarget?">
               <remove_help all="true"/>
-              <show_help custom="'Command Target: %1'.[$commandtarget.name]" duration="3s" position="8" log="false"/>
+              <show_help custom="{5554102,144}.[$commandtarget.name]" duration="3s" position="8" log="false"/>
             </do_if>
             <do_else>
               <set_value name="$commandtarget" exact="player.ship"/>
@@ -347,25 +347,25 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <!-- a certain Looking Direction in empty Space - present Move To-Options -->
             <do_if value="typeof $selectedobject == datatype.rotation">
               <do_if value="$selectedobject == $rotations.{1}">
-                  <add_player_choice position="1" text="'Grab the Stick'" tooltip="'Pun intended'" section="ut_cac_pc_direct_control"/>
+                  <add_player_choice position="1" text="{5554102,150}" tooltip="{5554102,151}" section="ut_cac_pc_direct_control"/>
               </do_if>
               <do_else>
-                <add_player_choice position="1" text="'Move 5 km in the opposite Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="-5km"/>
+                <add_player_choice position="1" text="{5554102,152}" tooltip="{5554102,157}.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="-5km"/>
               </do_else>
-              <add_player_choice position="2" text="'Move 5 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="5km"/>
-              <add_player_choice position="3" text="'Move 15 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="15km"/>
-              <add_player_choice position="4" text="'Move 50 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="50km"/>
-              <add_player_choice position="5" text="'Move 150 km in this Direction'" tooltip="'Rotation: %1 %2 %3'.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="150km"/>
+              <add_player_choice position="2" text="{5554102,153}" tooltip="{5554102,157}.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="5km"/>
+              <add_player_choice position="3" text="{5554102,154}" tooltip="{5554102,157}.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="15km"/>
+              <add_player_choice position="4" text="{5554102,155}" tooltip="{5554102,157}.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="50km"/>
+              <add_player_choice position="5" text="{5554102,156}" tooltip="{5554102,157}.[$selectedobject.yaw,$selectedobject.pitch,$selectedobject.roll]" section="ut_cac_pc_move_pos" choiceparam="150km"/>
             </do_if>
             <!-- Spaces -->
             <do_elseif value="$selectedobject.isclass.space">
-              <add_player_choice position="4" text="'Move to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+              <add_player_choice position="4" text="{5554102,158}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
               <!-- Specific Movement Type Orders - only available with UT CAC Movement -->
               <do_if value="@readtext.{5554301}.{11100} != 'ReadText5554301-11100'" comment="Check if my Navscripts are available">
                 <do_if value="$selectedobject.isclass.sector">
-                  <add_player_choice position="1" text="'Jump to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname='Jump to %1'.[$selectedobject.name],$destination=$selectedobject,$type='auto',$exitonneworder=true]"/>
-                  <add_player_choice position="2" text="'Random Jump to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname='Random Jump to %1'.[$selectedobject.name],$destination=$selectedobject,$type='random',$exitonneworder=true]"/>
-                  <add_player_choice position="3" text="'Boost to: %1'.[$selectedobject.name]" tooltip="'Distance: %1\n(has to be below 15 Million)'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.boost',$displayname='Boost to %1'.[$selectedobject.name],$destination=$selectedobject,$exitonneworder=true]" selectable="player.ship.distanceto.{$selectedobject} lt 15000000m"/>
+                  <add_player_choice position="1" text="{5554102,159}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,159}.[$selectedobject.name],$destination=$selectedobject,$type='auto',$exitonneworder=true]"/>
+                  <add_player_choice position="2" text="{5554102,160}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,160}.[$selectedobject.name],$destination=$selectedobject,$type='random',$exitonneworder=true]"/>
+                  <add_player_choice position="3" text="{5554102,161}.[$selectedobject.name]" tooltip="{5554102,163}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.boost',$displayname={5554102,161}.[$selectedobject.name],$destination=$selectedobject,$exitonneworder=true]" selectable="player.ship.distanceto.{$selectedobject} lt 15000000m"/>
                 </do_if>
                 <do_elseif value="$selectedobject.isclass.zone">
                   <find_object name="$beacon" space="$selectedobject" knownto="faction.player" checkoperational="true">
@@ -374,8 +374,8 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                       <match_child class="class.jumpbeacon" checkoperational="true"/>
                     </match_any>
                   </find_object>
-                  <add_player_choice position="1" text="'Jump to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname='Jump to %1'.[$selectedobject.name],$destination=$beacon,$type='auto',$exitonneworder=true]" selectable="$beacon.exists"/>
-                  <add_player_choice position="3" text="'Boost to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.boost',$displayname='Boost to %1'.[$selectedobject.name],$destination=$selectedobject,$exitonneworder=true]"/>
+                  <add_player_choice position="1" text="{5554102,159}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,159}.[$selectedobject.name],$destination=$beacon,$type='auto',$exitonneworder=true]" selectable="$beacon.exists"/>
+                  <add_player_choice position="3" text="{5554102,161}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.boost',$displayname={5554102,161}.[$selectedobject.name],$destination=$selectedobject,$exitonneworder=true]"/>
                 </do_elseif>
               </do_if>
             </do_elseif>
@@ -404,16 +404,16 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_elseif value="$selectedobject.isclass.gate">
                 <set_value name="$othersidezone" exact="$selectedobject.destination"/>
               </do_elseif>
-              <add_player_choice position="4" text="'Fly to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_moveto" choiceparam="$othersidezone"/>
+              <add_player_choice position="4" text="{5554102,158}.[$othersidezone.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_moveto" choiceparam="$othersidezone"/>
               <do_if value="$waypoints? and player.ship.pilot.$orderlist?">
-                <add_player_choice position="5" text="'Follow Tube: %1 Zones'.[$waypoints.count]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_move_path" choiceparam="$waypoints"/>
+                <add_player_choice position="5" text="{5554102,164}.[$waypoints.count]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_move_path" choiceparam="$waypoints"/>
               </do_if>
               <!-- Specific Movement Type Orders - only available with UT CAC Movement -->
               <do_if value="@readtext.{5554301}.{11100} != 'ReadText5554301-11100'" comment="Check if my Navscripts are available">
                 <do_if value="$othersidezone.sector != player.sector and $othersidezone.cluster == player.cluster and $commandtarget.pilot.$orderlist?">
-                  <add_player_choice position="1" text="'Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname='Jump to %1'.[$othersidezone.sector.name],$destination=$othersidezone.sector,$type='auto',$exitonneworder=true]"/>
-                  <add_player_choice position="2" text="'Random Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname='Random Jump to %1'.[$othersidezone.sector.name],$destination=$othersidezone.sector,$type='random',$exitonneworder=true]"/>
-                  <add_player_choice position="3" text="'Boost to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.boost',$displayname='Boost to %1'.[$othersidezone.name],$destination=$othersidezone,$exitonneworder=true]" selectable="false"/>
+                  <add_player_choice position="1" text="{5554102,159}.[$othersidezone.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,159}.[$othersidezone.sector.name],$destination=$othersidezone.sector,$type='auto',$exitonneworder=true]"/>
+                  <add_player_choice position="2" text="{5554102,160}.[$othersidezone.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,160}.[$othersidezone.sector.name],$destination=$othersidezone.sector,$type='random',$exitonneworder=true]"/>
+                  <add_player_choice position="3" text="{5554102,161}.[$othersidezone.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.boost',$displayname={5554102,161}.[$othersidezone.name],$destination=$othersidezone,$exitonneworder=true]" selectable="false"/>
                 </do_if>
                 <do_elseif value="$othersidezone.sector == player.sector">
                   <find_object name="$beacon" space="$othersidezone" knownto="faction.player" checkoperational="true">
@@ -422,8 +422,8 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                       <match_child class="class.jumpbeacon" checkoperational="true"/>
                     </match_any>
                   </find_object>
-                  <add_player_choice position="1" text="'Jump to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname='Jump to %1'.[$othersidezone.name],$destination=$beacon,$type='auto',$exitonneworder=true]" selectable="$beacon.exists"/>
-                  <add_player_choice position="3" text="'Boost to: %1'.[$othersidezone.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.boost',$displayname='Boost to %1'.[$othersidezone.name],$destination=$othersidezone,$exitonneworder=true]"/>
+                  <add_player_choice position="1" text="{5554102,159}.[$othersidezone.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,159}.[$othersidezone.name],$destination=$beacon,$type='auto',$exitonneworder=true]" selectable="$beacon.exists"/>
+                  <add_player_choice position="3" text="{5554102,161}.[$othersidezone.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.boost',$displayname={5554102,161}.[$othersidezone.name],$destination=$othersidezone,$exitonneworder=true]"/>
                 </do_elseif>
               </do_if>
             </do_elseif>
@@ -438,66 +438,66 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_else> 
                 <set_value name="$miningship" exact="false"/>
               </do_else>
-              <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
+              <add_player_choice position="1" text="{5554102,165}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <!--do_if value="global.$utcac.$enemy_priority?" comment="Check if the Global Ignorelist is available">
-                <add_player_choice position="2" text="'Global: Prioritytarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
+                <add_player_choice position="2" text="'Global: Prioritytarget: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
               </do_if>
               <do_if value="global.$utcac.$enemy_ignorelist?" comment="Check if the Global Ignorelist is available">
-                <add_player_choice position="3" text="'Global: Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
+                <add_player_choice position="3" text="'Global: Ignore: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
               </do_if-->
-              <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
-              <add_player_choice position="5" text="'Mine: %1'.[$selectedobject.wares.list.{1}.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_mine" choiceparam="[$selectedobject.wares.list.{1},$selectedobject.zone]" selectable="$miningship"/>
+              <add_player_choice position="4" text="{5554102,158}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+              <add_player_choice position="5" text="{5554102,166}.[$selectedobject.wares.list.{1}.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_mine" choiceparam="[$selectedobject.wares.list.{1},$selectedobject.zone]" selectable="$miningship"/>
             </do_elseif>
             <!-- Ships -->
             <do_elseif value="$selectedobject.isclass.ship">
-              <add_player_choice position="4" text="'Escort: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_ct_so" choiceparam="$selectedobject"/>
-              <add_player_choice position="5" text="'Follow: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_follow_ct_so" choiceparam="$selectedobject"/>
+              <add_player_choice position="4" text="{5554102,167}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_ct_so" choiceparam="$selectedobject"/>
+              <add_player_choice position="5" text="{5554102,168}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_follow_ct_so" choiceparam="$selectedobject"/>
               <do_if value="$selectedobject.isplayerowned and ( $selectedobject.pilot.$orderlist? or $selectedobject.commander == player.primaryship or $selectedobject.commander == null )">
-                <add_player_choice position="3" text="'Select as Commandtarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_commandtarget_select" choiceparam="$selectedobject"/>
+                <add_player_choice position="3" text="{5554102,169}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_commandtarget_select" choiceparam="$selectedobject"/>
                 <do_if value="$commandtarget?">
-                  <add_player_choice position="1" text="'%1 Escort '.[$commandtarget.name,$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
-                  <add_player_choice position="2" text="'%1 Follow'.[$commandtarget.name,$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
+                  <add_player_choice position="1" text="{5554102,170}.[$commandtarget.name,$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
+                  <add_player_choice position="2" text="{5554102,171}.[$commandtarget.name,$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
                 </do_if>
                 <do_else>
-                  <add_player_choice position="1" text="'Escort me'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
-                  <add_player_choice position="2" text="'Follow me'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
+                  <add_player_choice position="1" text="{5554102,172}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
+                  <add_player_choice position="2" text="{5554102,173}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_escort_so_ct" choiceparam="$selectedobject"/>
                 </do_else>
-                <add_player_choice position="5" text="'Withdraw: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_cp" choiceparam="$selectedobject"/>
+                <add_player_choice position="5" text="{5554102,174}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_cp" choiceparam="$selectedobject"/>
               </do_if>
               <do_else>
-                <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
+                <add_player_choice position="1" text="{5554102,165}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <do_if value="global.$utcac.$enemy_priority?" comment="Check if the Global Ignorelist is available">
-                <add_player_choice position="2" text="'Global: Prioritytarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
+                <add_player_choice position="2" text="{5554102,175}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
               </do_if>
               <do_if value="global.$utcac.$enemy_ignorelist?" comment="Check if the Global Ignorelist is available">
-                <add_player_choice position="3" text="'Global: Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
+                <add_player_choice position="3" text="{5554102,176}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
-                <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
-                <add_player_choice position="5" text="'Withdraw this Ship'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_cp" choiceparam="player.ship"/>
+                <add_player_choice position="4" text="{5554102,158}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+                <add_player_choice position="5" text="{5554102,177}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_withdraw_cp" choiceparam="player.ship"/>
               </do_else>
             </do_elseif>
             <!-- Stations -->
             <do_elseif value="$selectedobject.station?">
-              <add_player_choice position="1" text="'Attack: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
+              <add_player_choice position="1" text="{5554102,165}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <do_if value="global.$utcac.$enemy_priority?" comment="Check if the Global Ignorelist is available">
-                <add_player_choice position="2" text="'Global: Prioritytarget: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
+                <add_player_choice position="2" text="{5554102,175}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
               </do_if>
               <do_if value="global.$utcac.$enemy_ignorelist?" comment="Check if the Global Ignorelist is available">
-                <add_player_choice position="3" text="'Global: Ignore: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
+                <add_player_choice position="3" text="{5554102,176}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
-              <add_player_choice position="4" text="'Fly to: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+              <add_player_choice position="4" text="{5554102,158}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
               <do_if value="$selectedobject.station.products.list.indexof.{ware.fuelcells}">
-                <add_player_choice position="5" text="'Refuel'" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_refuel" choiceparam="player.money"/>
+                <add_player_choice position="5" text="{5554102,178}" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_refuel" choiceparam="player.money"/>
               </do_if>
-              <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
+              <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
             </do_elseif>
             <do_if value="$commandtarget == player.ship">
               <remove_value name="$commandtarget"/>
             </do_if>
             <do_elseif value="$commandtarget?">
-              <add_player_choice position="6" text="'Deselect Command Target: %1'.[$commandtarget.name]" tooltip="'Distance: %1'.[player.ship.distanceto.{$commandtarget}]" section="ut_cac_pc_commandtarget_unselect"/>
+              <add_player_choice position="6" text="{5554102,179}.[$commandtarget.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$commandtarget}]" section="ut_cac_pc_commandtarget_unselect"/>
             </do_elseif>
-            <add_player_choice_return position="6" text="'(Back)'"/>
+            <add_player_choice_return position="6" text="{5554102,180}"/>
           </actions>
           <cues>
             <cue name="Cancel_Target_Selected">
@@ -535,7 +535,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <position value="$Position"/>
                 </transform_position>
                 <do_if value="$commandtarget.pilot.$orderlist?">
-                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[$selectedobject.name],$destination=player.zone,$position=$Position,$exitonneworder=true]"/>
+                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname={5554102,158}.[$selectedobject.name],$destination=player.zone,$position=$Position,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
                   <signal_objects object="$commandtarget" param="'fly to pos'" param2="player.ship.zone" param3="$Position"/>
@@ -544,7 +544,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_if>
               <do_elseif value="event.param == 'ut_cac_pc_moveto'">
                 <do_if value="$commandtarget.pilot.$orderlist?">
-                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.name],$destination=event.param2,$endintargetspace=true,$exitonneworder=true]"/>
+                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.generic',$displayname={5554102,158}.[event.param2.name],$destination=event.param2,$endintargetspace=true,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
                   <signal_objects object="$commandtarget" param="'fly to pos'" param2="event.param2"/>
@@ -554,27 +554,27 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_elseif value="event.param == 'ut_cac_pc_move_path'">
                 <set_value name="$new_orders" exact="[]"/>
                 <do_all exact="event.param2.count" counter="$i" reverse="false">
-                  <append_to_list name="$new_orders" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{1}.name],$destination=event.param2.{1},$endintargetspace=true,$exitonneworder=true]"/>
+                  <append_to_list name="$new_orders" exact="table[$script='ut.cac.move.generic',$displayname={5554102,158}.[event.param2.{1}.name],$destination=event.param2.{1},$endintargetspace=true,$exitonneworder=true]"/>
                 </do_all>
                 <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="$new_orders"/>
                 <remove_value name="$new_orders"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_jumpto'">
-                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.jump',$displayname='Jump to %1'.[$selectedobject.name],$destination=$selectedobject,$type='auto',$exitonneworder=true]"/>
+                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.jump',$displayname={5554102,159}.[$selectedobject.name],$destination=$selectedobject,$type='auto',$exitonneworder=true]"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_boostto'">
-                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.boost',$displayname='Boost to %1'.[$selectedobject.name],$destination=$selectedobject,$exitonneworder=true]"/>
+                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.boost',$displayname={5554102,161}.[$selectedobject.name],$destination=$selectedobject,$exitonneworder=true]"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_jump_random'">
-                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.jump',$displayname='Random Jump to %1'.[$selectedobject.name],$destination=$selectedobject,$type='random',$exitonneworder=true]"/>
+                <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.jump',$displayname={5554102,160}.[$selectedobject.name],$destination=$selectedobject,$type='random',$exitonneworder=true]"/>
                 <remove_value name="$commandtarget"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_escort_ct_so'">
                 <do_if value="$commandtarget.pilot.$orderlist?">
-                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname='Escort %1'.[$selectedobject.name],$escortee=$selectedobject,$exitonneworder=true]"/>
+                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname={5554102,167}.[$selectedobject.name],$escortee=$selectedobject,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
                   <signal_objects object="$commandtarget" param="'escort'" param2="$selectedobject"/>
@@ -583,7 +583,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_escort_so_ct'">
                 <do_if value="$commandtarget.pilot.$orderlist?">
-                <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname='Escort %1'.[$commandtarget.name],$escortee=$commandtarget,$exitonneworder=true]"/>
+                <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.escort',$displayname={5554102,167}.[$commandtarget.name],$escortee=$commandtarget,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
                   <signal_objects object="$selectedobject" param="'escort'" param2="$commandtarget"/>
@@ -592,7 +592,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_follow_ct_so'">
                 <do_if value="$commandtarget.pilot.$orderlist?">
-                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[$selectedobject.name],$object=$selectedobject,$exitonneworder=true]"/>
+                  <signal_objects object="$commandtarget.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname={5554102,168}.[$selectedobject.name],$object=$selectedobject,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
                   <signal_objects object="$commandtarget" param="'follow'" param2="$selectedobject"/>
@@ -601,7 +601,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_elseif>
               <do_elseif value="event.param == 'ut_cac_pc_follow_so_ct'">
                 <do_if value="$commandtarget.pilot.$orderlist?">
-                <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[$commandtarget.name],$object=$commandtarget,$exitonneworder=true]"/>
+                <signal_objects object="$selectedobject.pilot" param="'interrupt order'" param2="table[$script='ut.cac.move.follow.verysimple',$displayname={5554102,168}.[$commandtarget.name],$object=$commandtarget,$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
                   <signal_objects object="$selectedobject" param="'follow'" param2="$commandtarget"/>
