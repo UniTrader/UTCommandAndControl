@@ -47,9 +47,13 @@
         </move_to>
         <wait exact="100ms"/>
         <!-- check if player Jumped, and if toggle boost var and reset pos -->
-        <do_if value="player.entity.position.y gt $normalpos.y + 0.05m">
+        <do_if value="player.entity.position.y gt $normalpos.y + 0.01m">
           <set_value name="$boost" exact="not $boost"/>
         </do_if>
+        <!-- if player is still falling -set new Pos (workaround for other Platforms)-->
+        <do_elseif value="player.entity.position.y lt $normalpos.y - 0.04m">
+          <set_value name="$normalpos" exact="player.entity.position"/>
+        </do_elseif>
         <!-- check if the Player looks backwards -->
         <do_if value="player.entity.rotation.yaw gt 175deg and player.entity.rotation.yaw lt 185deg and player.entity.rotation.pitch lt 5deg and player.entity.rotation.pitch gt -5deg">
           <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
