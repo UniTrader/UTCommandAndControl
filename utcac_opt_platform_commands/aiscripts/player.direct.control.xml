@@ -20,16 +20,23 @@
   </interrupts>
     <actions>
       <label name="init"/>
-      <!-- set Player to Position with good visibility -->
-      <set_player_entity_position>
-        <position x="0" y="6" z="-7"/>
-      </set_player_entity_position>
+      <!-- get Original Player Pos; set Player to Position with good visibility (first do_if is for bridge mod compatibility)-->
+      <set_value name="$originalpos" exact="player.entity.position"/>
+      <do_if value="player.platform.ismacro.capital_bridge2_wrapper_macro">
+        <set_player_entity_position>
+          <position x="0" y="5" z="27"/>
+        </set_player_entity_position>
+      </do_if>
+      <do_else>
+        <set_player_entity_position>
+          <position x="0" y="6" z="-7"/>
+        </set_player_entity_position>
+      </do_else>
       <!-- wait a second until he falls down -->
       <wait exact="1s"/>
       <!-- save Player Pos as normal Pos to restore constantly -->
       <set_value name="$normalpos" exact="player.entity.position"/>
       <set_value name="$boost" exact="false"/>
-      
       
       <label name="start"/>
       <do_while value="player.platform.exists">
@@ -54,10 +61,10 @@
         <do_elseif value="player.entity.position.y lt $normalpos.y - 0.04m">
           <set_value name="$normalpos" exact="player.entity.position"/>
         </do_elseif>
-        <!-- check if the Player looks backwards -->
-        <do_if value="player.entity.rotation.yaw gt 175deg and player.entity.rotation.yaw lt 185deg and player.entity.rotation.pitch lt 5deg and player.entity.rotation.pitch gt -5deg">
+        <!-- check if the Player stepped backwards to exit -->
+        <do_if value="player.entity.position.z lt $normalpos.z - 0.1m">
           <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
-          <return/>
+          <resume label="finish"/>
         </do_if>
         <!-- check if player moved from normalpos and reset pos -->
         <set_player_entity_position>
@@ -65,7 +72,17 @@
         </set_player_entity_position>
       </do_while>
       <label name="finish"/>
+      <do_if value="player.platform.exists">
+        <set_player_entity_position>
+          <position value="$originalpos"/>
+        </set_player_entity_position>
+      </do_if>
     </actions>
   <on_abort>
+    <do_if value="player.platform.exists">
+      <set_player_entity_position>
+        <position value="$originalpos"/>
+      </set_player_entity_position>
+    </do_if>
   </on_abort>
 </aiscript>
