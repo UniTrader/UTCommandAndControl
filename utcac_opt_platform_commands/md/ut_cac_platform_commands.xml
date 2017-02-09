@@ -96,19 +96,17 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <match class="class.station" negate="true"/>
                 <match_size min="200m"/>
               </find_gravidar_contact>
-              <!--find_object groupname="$objects" space="player.zone" multiple="true">
+              <!-- find and add Objects usually not accounted for -->
+              <find_object name="$objects_add" space="player.zone" multiple="true" known="true">
                 <match_any>
-                  <match>
-                    <match_size min="200m" max="1000m"/>
-                    <match_distance object="player.ship" max="player.ship.maxradarrange"/>
-                  </match>
-                  <match>
-                    <match_size min="1000m"/>
-                    <match_distance object="player.ship" max="player.ship.maxradarrange * 2"/>
-                  </match>
+                  <match class="class.gate"/>
                 </match_any>
               </find_object>
-              <remove_from_group group="$objects" object="player.ship"/-->
+              <do_all exact="$objects_add.count" counter="$i">
+                <append_to_list name="$objects" exact="$objects_add.{$i}"/>
+              </do_all>
+              <remove_value name="$objects_add"/>
+              <!-- find Station Parts -->
               <find_station name="$stations" space="player.zone" checkoperational="true" multiple="true">
                 <match_is_in_view_of object="player.entity" vertical="60deg" horizontal="60deg"/>
                 <!--match_distance object="player.ship" max="player.ship.maxradarrange + 5km"/-->
