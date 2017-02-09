@@ -214,7 +214,10 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                   <do_else>
                     <check_object object="$keys.{$i}" result="$result">
                       <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
-                      <match_distance object="player.ship" max="player.ship.maxradarrange"/>
+                      <match_any>
+                        <match class="class.gate"/>
+                        <match_distance object="player.ship" max="player.ship.maxradarrange"/>
+                      </match_any>
                     </check_object>
                   </do_else>
                   <do_if value="$result">
