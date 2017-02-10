@@ -51,13 +51,13 @@
       <do_while value="player.platform.exists">
         <!-- get Player Looking Direction -->
         <!-- first get Position in front of Player (relative to Sector)- now with 3deg deadzone -->
-        <do_if value="player.entity.rotation.yaw lt 3deg or player.entity.rotation.yaw gt 357deg">
+        <do_if value="player.entity.rotation.yaw lt 3deg and player.entity.rotation.yaw gt -3deg">
           <set_value name="$yaw" exact="0deg"/>
         </do_if>
         <do_else>
           <set_value name="$yaw" exact="player.entity.rotation.yaw"/>
         </do_else>
-        <do_if value="player.entity.rotation.pitch lt 3deg or player.entity.rotation.pitch gt -3deg">
+        <do_if value="player.entity.rotation.pitch lt 3deg and player.entity.rotation.pitch gt -3deg">
           <set_value name="$pitch" exact="0deg"/>
         </do_if>
         <do_else>
@@ -69,7 +69,7 @@
         <transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
           <position value="$position"/>
         </transform_position>
-        <move_to object="player.ship" destination="player.zone" boost="$boost" abortpath="true" avoid="false">
+        <move_to object="player.ship" destination="player.zone" boost="$boost" abortpath="true" avoid="false" reverse="$yaw gt 90deg and $yaw lt 270deg">
           <position value="$position" space="player.zone"/>
           <interrupt_after_time time="0s"/>
         </move_to>
