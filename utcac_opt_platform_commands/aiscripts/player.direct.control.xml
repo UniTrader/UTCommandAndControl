@@ -38,18 +38,34 @@
       <set_value name="$normalpos" exact="position.[player.entity.position.x,player.entity.position.y+0.005m,player.entity.position.z]"/>
       <set_value name="$boost" exact="false"/>
       
+      <!-- create orientation light in front -->
+      <transform_position name="$position" refposition="$normalpos" refrotation="rotation.[0deg,0deg,0deg]">
+        <position x="0m" y="0m" z="3km"/>
+      </transform_position>
+      <add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'">
+        <position value="$position"/>
+      </add_effect>
+      
+      
       <label name="start"/>
       <do_while value="player.platform.exists">
         <!-- get Player Looking Direction -->
         <!-- first get Position in front of Player (relative to Sector) -->
-        <transform_position name="$Position" refposition="position.[0,0,0]" refrotation="player.entity.rotation">
+        <set_value name="$rotation" exact="player.entity.rotation"/>
+        <do_if value="$rotation.yaw lt 3deg or $rotation.yaw gt 357deg">
+          <set_value name="$rotation.yaw" exact="0deg"/>
+        </do_if>
+        <do_if value="$rotation.pitch lt 3deg or $rotation.pitch gt -3deg">
+          <set_value name="$rotation.pitch" exact="0deg"/>
+        </do_if>
+        <transform_position name="$position" refposition="position.[0,0,0]" refrotation="$rotation">
           <position x="0m" y="0m" z="if $boost then 10km else player.ship.size"/>
         </transform_position>
-        <transform_position name="$Position" refposition="player.ship.position" refrotation="player.ship.rotation">
-          <position value="$Position"/>
+        <transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
+          <position value="$position"/>
         </transform_position>
         <move_to object="player.ship" destination="player.zone" boost="$boost" abortpath="true" avoid="false">
-          <position value="$Position" space="player.zone"/>
+          <position value="$position" space="player.zone"/>
           <interrupt_after_time time="0s"/>
         </move_to>
         <wait exact="100ms"/>
@@ -77,6 +93,7 @@
           <position value="$originalpos"/>
         </set_player_entity_position>
         <stop_moving object="this.ship" immediate="true"/>
+        <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
       </do_if>
     </actions>
   <on_abort>
@@ -85,6 +102,7 @@
         <position value="$originalpos"/>
       </set_player_entity_position>
       <stop_moving object="this.ship" immediate="true"/>
+      <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
     </do_if>
   </on_abort>
 </aiscript>
