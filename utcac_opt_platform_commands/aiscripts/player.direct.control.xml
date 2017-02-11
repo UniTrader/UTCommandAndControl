@@ -67,7 +67,7 @@
         <transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
           <position value="$position"/>
         </transform_position>
-        <do_if value="$yaw gt 90deg and $yaw lt -90deg" comment="reverse flight">
+        <do_if value="$rotation.yaw gt 90deg and $rotation.yaw lt -90deg" comment="reverse flight">
           <create_orientation name="$rotation" refobject="player.ship" orientation="look_at">
             <position value="$position"/>
           </create_orientation>
@@ -77,7 +77,7 @@
             <position value="$position"/>
           </create_orientation>
         </do_else>
-        <move_to object="player.ship" destination="player.zone" boost="$boost" abortpath="true" avoid="false" reverse="$yaw gt 90deg or $yaw lt -90deg">
+        <move_to object="player.ship" destination="player.zone" boost="$boost" abortpath="true" avoid="false" reverse="$rotation.yaw gt 90deg or $rotation.yaw lt -90deg">
           <position value="$position" space="player.zone"/>
           <rotation value="$rotation"/>
           <interrupt_after_time time="0s"/>
