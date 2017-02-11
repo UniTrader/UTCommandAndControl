@@ -375,7 +375,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <do_elseif value="$selectedobject.isclass.space">
               <add_player_choice position="4" text="{5554102,158}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
               <!-- Specific Movement Type Orders - only available with UT CAC Movement -->
-              <do_if value="@readtext.{5554301}.{11100} != 'ReadText5554301-11100'" comment="Check if my Navscripts are available">
+              <do_if value="@readtext.{5554301}.{11100} != '=ReadText5554301-11100='" comment="Check if my Navscripts are available">
                 <do_if value="$selectedobject.isclass.sector">
                   <add_player_choice position="1" text="{5554102,159}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,159}.[$selectedobject.name],$destination=$selectedobject,$type='auto',$exitonneworder=true]"/>
                   <add_player_choice position="2" text="{5554102,160}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,160}.[$selectedobject.name],$destination=$selectedobject,$type='random',$exitonneworder=true]"/>
@@ -423,7 +423,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <add_player_choice position="5" text="{5554102,164}.[$waypoints.count]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone}]" section="ut_cac_pc_move_path" choiceparam="$waypoints"/>
               </do_if>
               <!-- Specific Movement Type Orders - only available with UT CAC Movement -->
-              <do_if value="@readtext.{5554301}.{11100} != 'ReadText5554301-11100'" comment="Check if my Navscripts are available">
+              <do_if value="@readtext.{5554301}.{11100} != '=ReadText5554301-11100='" comment="Check if my Navscripts are available">
                 <do_if value="$othersidezone.sector != player.sector and $othersidezone.cluster == player.cluster and $commandtarget.pilot.$orderlist?">
                   <add_player_choice position="1" text="{5554102,159}.[$othersidezone.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,159}.[$othersidezone.sector.name],$destination=$othersidezone.sector,$type='auto',$exitonneworder=true]"/>
                   <add_player_choice position="2" text="{5554102,160}.[$othersidezone.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$othersidezone.sector}]" section="ut_cac_pc_run_script" choiceparam="table[$script='ut.cac.move.jump',$displayname={5554102,160}.[$othersidezone.sector.name],$destination=$othersidezone.sector,$type='random',$exitonneworder=true]"/>
@@ -694,7 +694,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
       <!-- this is just a temp Measure - Availability of these Values shall finally depend on Build Stage of the Player HQ - when implemented set this cue to be always false and the next to be always true-->
       <conditions>
         <event_game_loaded/>
-        <check_value value="@readtext.{5554103}.{252} != 'ReadText5554103-252'"/><!-- Quick and Dirty Check if my DO Script is active in the Background -->
+        <check_value value="@readtext.{5554103}.{252} != '=ReadText5554103-252='"/><!-- Quick and Dirty Check if my DO Script is active in the Background -->
       </conditions>
       <actions>
         <set_value name="global.$utcac" exact="table[]"/>
