@@ -96,14 +96,15 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <match class="class.station" negate="true"/>
                 <match_size min="200m"/>
               </find_gravidar_contact>
-              <!-- find and add Objects usually not accounted for -->
-              <find_object name="$objects_add" space="player.zone" multiple="true" known="true">
-                <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
+              <!-- find and add Objects usually not accounted for- with extra-long range -->
+              <find_object name="$objects_add" space="player.sector" multiple="true" known="true">
                 <match_any>
                   <match class="class.gate"/>
                   <match class="class.highwayentrygate"/>
                   <match class="class.highwayexitgate"/>
                 </match_any>
+                <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
+                <match_distance object="player.ship" max="player.ship.maxradarrange * 3"/>
               </find_object>
               <do_all exact="$objects_add.count" counter="$i">
                 <append_to_list name="$objects" exact="$objects_add.{$i}"/>
