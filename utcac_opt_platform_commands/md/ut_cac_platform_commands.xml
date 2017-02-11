@@ -101,6 +101,8 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
                 <match_any>
                   <match class="class.gate"/>
+                  <match class="class.highwayentrygate"/>
+                  <match class="class.highwayexitgate"/>
                 </match_any>
               </find_object>
               <do_all exact="$objects_add.count" counter="$i">
@@ -207,7 +209,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_all exact="$keys.count" counter="$i" reverse="true">
                 <do_if value="typeof $keys.{$i} != datatype.rotation">
                   <!-- check if in Sight - if yes increase Value by 3, if no decrease by 2 -->
-                  <do_if value="$keys.{$i}.isclass.{[class.space,class.gate]}">
+                  <do_if value="$keys.{$i}.isclass.{[class.space,class.gate,class.highwayentrygate,class.highwayexitgate]}">
                     <check_object object="$keys.{$i}" result="$result">
                       <match_is_in_view_of object="player.entity" vertical="20deg" horizontal="20deg"/>
                     </check_object>
