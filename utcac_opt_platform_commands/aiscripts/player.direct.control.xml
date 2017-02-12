@@ -21,7 +21,7 @@
     <actions>
       <label name="init"/>
       <!-- get Original Player Pos; set Player to Position with good visibility (first do_if is for bridge mod compatibility)-->
-      <set_value name="$originalpos" exact="position.[player.entity.position.x,player.entity.position.y+0.005m,player.entity.position.z]"/>
+      <set_value name="$originalpos" exact="position.[player.entity.position.x,player.entity.position.y+0.05m,player.entity.position.z]"/>
       <do_if value="player.platform.macro.id == 'capital_bridge2_wrapper_macro'">
         <set_player_entity_position>
           <position x="0" y="5" z="27"/>
@@ -84,13 +84,13 @@
         </move_to>
         <wait exact="100ms"/>
         <!-- check if player Jumped, and if toggle boost var and reset pos -->
-        <do_if value="player.entity.position.y gt $normalpos.y + 0.01m">
+        <do_if value="player.entity.position.y gt $normalpos.y + 0.05m">
           <set_value name="$boost" exact="not $boost"/>
         </do_if>
-        <!-- if player is still falling -set new Pos (workaround for other Platforms)-->
-        <do_elseif value="player.entity.position.y lt $normalpos.y - 0.04m">
+        <!-- if player is still falling -set new Pos (workaround for other Platforms) - removed for now -->
+        <!--do_elseif value="player.entity.position.y lt $normalpos.y - 0.04m">
           <set_value name="$normalpos" exact="player.entity.position"/>
-        </do_elseif>
+        </do_elseif-->
         <!-- check if the Player stepped backwards to exit -->
         <do_if value="player.entity.position.z lt $normalpos.z - 0.1m">
           <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
