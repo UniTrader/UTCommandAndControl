@@ -56,7 +56,7 @@
           <set_value name="$rotation" exact="rotation.[0deg,0deg,0deg]"/>
         </do_if>
         <do_elseif value="player.entity.rotation.yaw gt 177deg and player.entity.rotation.yaw lt -177deg and player.entity.rotation.pitch lt 3deg and player.entity.rotation.pitch gt -3deg">
-          <set_value name="$rotation" exact="rotation.[0deg,0deg,0deg]"/>
+          <set_value name="$rotation" exact="rotation.[180deg,0deg,0deg]"/>
         </do_elseif>
         <do_else>
           <set_value name="$rotation" exact="player.entity.rotation"/>
@@ -93,7 +93,6 @@
         </do_elseif-->
         <!-- check if the Player stepped backwards to exit -->
         <do_if value="player.entity.position.z lt $normalpos.z - 0.1m">
-          <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
           <resume label="finish"/>
         </do_if>
         <!-- check if player moved from normalpos and reset pos -->
@@ -109,6 +108,7 @@
         <stop_moving object="this.ship" immediate="true"/>
         <!--set_avoid_collisions object="player.ship" enabled="true"/-->
         <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
+        <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
       </do_if>
     </actions>
   <on_abort>
@@ -119,6 +119,7 @@
       <stop_moving object="this.ship" immediate="true"/>
       <!--set_avoid_collisions object="player.ship" enabled="true"/-->
       <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
+        <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
     </do_if>
   </on_abort>
 </aiscript>
