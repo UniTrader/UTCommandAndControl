@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.orders.findtraderun" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <params>
+    <param name="params" default="null" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priorit)y"/>
+    <param name="range" default="null" comment="List of Spaces where the Ship looks for Offers (opposed to Manager order doesnt matter because its profit-oriented"/>
+    <param name="instantbuylocation" default="null" comment="a Station/object where Wares can be bought instantly, greatly preffered over other Offers (optional) - must be somewhere inside $range!"/>
+    <param name="warelist" default="false" comment="List of Wares to Trade with"/>
+    <param name="legality" default="false" comment="Additional Filter for Warelist to exclude Illegal Wares"/>
+    <param name="minprofit" default="0Cr" comment="Minimum Profit per Trade Run (default 0 Cr, which meas at least dont make a loss) - accounts for Fuel Usage at average price"/>
+    <param name="maxrelativeprice" default="0.999999999" comment="Maximum relative Price for Buy Offers (default: below average)"/>
+    <param name="minrelativeprice" default="1.0" comment="Minimum relative Price for Sell Offers (default: above average)"/>
+    <param name="useshoppinglist" default="false" comment="Append Trades to Shopping List? if not all Trades are returned in Order as List, if yes the Shoppinglist is used and the Ship will receive the correct Trade Orders, too"/>
+  </params>
+  <init>
+    <do_if value="$params">
+      <do_if value="$params.$range?">
+        <set_value name="$range" exact="$params.$range"/>
+      </do_if>
+      <do_if value="$params.$instantbuylocation?">
+        <set_value name="$instantbuylocation" exact="$params.$instantbuylocation"/>
+      </do_if>
+      <do_if value="$params.$warelist?">
+        <set_value name="$warelist" exact="$params.$warelist"/>
+      </do_if>
+      <do_if value="$params.$legality?">
+        <set_value name="$legality" exact="$params.$legality"/>
+      </do_if>
+      <do_if value="$params.$minprofit?">
+        <set_value name="$minprofit" exact="$params.$minprofit"/>
+      </do_if>
+      <do_if value="$params.$maxrelativeprice">
+        <set_value name=".$maxrelativeprice" exact="$params..$maxrelativeprice"/>
+      </do_if>
+      <do_if value="$params.$useshoppinglist?">
+        <set_value name="$useshoppinglist" exact="$params.$useshoppinglist"/>
+      </do_if>
+    </do_if>
+  </init>
+  <attention min="unknown">
+    <actions>
+      <!-- verify input-->
+      <do_if value="not $range">
+        <debug_text filter="error" text="'%1 %2 %3 No Range defined - Aborting'.[player.age,this.name,this.container.name,event.param.knownname]"/>
+        <return value="1"/>
+      </do_if>
+      <!-- if no valid Warelist was passed get one from other sources -->
+      <do_if value="not $warelist or not $warelist.count">
+        <!-- warebasket -->
+        <do_if value="this.ship.warebasket?">
+          <set_value name="$warelist" exact="this.ship.warebasket.list"/>
+        </do_if>
+        <do_else>
+          <set_value name="$cargo_tags" exact="this.ship.cargo.tags"/>
+          <do_if value="$cargo_tags.indexof.{tag.bulk} and $cargo_tags.indexof.{tag.container} and $cargo_tags.indexof.{tag.energy} and $cargo_tags.indexof.{tag.liquid}">
+            <set_value name="$warelist" exact="warebasket.all.list"/>
+          </do_if>
+          <do_elseif value="$cargo_tags.indexof.{tag.container} and $cargo_tags.indexof.{tag.energy}">
+            <set_value name="$warelist" exact="warebasket.container_energy.list"/>
+          </do_elseif>
+          <do_elseif value="$cargo_tags.indexof.{tag.bulk} and $cargo_tags.indexof.{tag.liquid}">
+            <set_value name="$warelist" exact="warebasket.bulk_liquid.list"/>
+          </do_elseif>
+          <do_elseif value="$cargo_tags.indexof.{tag.bulk}">
+            <set_value name="$warelist" exact="warebasket.bulk.list"/>
+          </do_elseif>
+          <do_elseif value="$cargo_tags.indexof.{tag.container}">
+            <set_value name="$warelist" exact="warebasket.container.list"/>
+          </do_elseif>
+          <do_elseif value="$cargo_tags.indexof.{tag.energy}">
+            <set_value name="$warelist" exact="warebasket.energy.list"/>
+          </do_elseif>
+          <do_elseif value="$cargo_tags.indexof.{tag.liquid}">
+            <set_value name="$warelist" exact="warebasket.liquid.list"/>
+          </do_elseif>
+          <remove_value name="$cargo_tags"/>
+        </do_else>
+      </do_if>
+      
+      <!-- look for Buy Offers -->
+      <set_value name="$buyoffers" exact="[]"/>
+      <do_all exact="$range.count" counter="$i">
+        <find_buy_offer result="$buyoffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{i}">
+          <relativeprice max="$maxrelativeprice"/>
+        </find_buy_offer>
+        <do_all exact="$buyoffers_add.count" counter="$j">
+          <append_to_list name="$buyoffers" exact="$buyoffers_add.{$j}"/>
+        </do_all>
+        <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
+      </do_all>
+      
+      <!-- find sell Offers - temporary stored  sorted by Ware-->
+      <set_value name="$selloffers" exact="table[]"/>
+      <do_all exact="$range.count" counter="$i">
+        <find_sell_offer result="$selloffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{i}">
+          <relativeprice min="$minrelativeprice"/>
+        </find_sell_offer>
+        <do_all exact="$buyoffers_add.count" counter="$j">
+          <do_if value="not $buyoffers.{$buyoffers_add.{$j}.ware}?">
+            <set_value name="$buyoffers.{$buyoffers_add.{$j}.ware}?" exact="[{$buyoffers_add.{$j}]"/>
+          </do_if>
+          <do_else>
+            <append_to_list name="$buyoffers.{$buyoffers_add.{$i}}" exact="{$buyoffers_add.{$j}"/>
+          </do_else>
+        </do_all>
+        <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
+      </do_all>
+      
+      <!-- filter buy and sell offers to remove completely unsuitable ones here ###### -->
+      
+      <!-- match best sell and Buy Offers -->
+      <set_value name="$besttrade" exact="[ null , null , 0Cr , 999 , 0Cr]"/>
+      <do_all exact="$buyoffers.count" counter="$i">
+        <do_if value="$buyoffers.{$i}.seller != $instantbuylocation">
+          <get_global_path component="$temp" multiple="true" >
+            <start object="this.ship"/>
+            <end object="$buyoffers.{$i}.seller"/>
+          </get_global_path>
+          <set_value name="$path_to_seller" exact="$temp.count"/>
+          <get_jump_cost result="$jumpcost" ship="this.ship" start="this.ship" end="$buyoffers.{$i}.seller"/>
+        </do_if>
+        <do_else>
+          <set_value name="$path_to_seller" exact="-2"/>
+          <set_value name="$jumpcost" exact="0"/>
+        </do_else>
+        <set_value name="$checkoffers" exact="$selloffers.{$buyoffers.{$i}.ware}"/>
+        <do_all exact="$checkoffers.count" counter="$j">
+          <get_global_path component="$temp" multiple="true" >
+            <start object="$buyoffers.{$i}.seller"/>
+            <end object="$checkoffers.{$j}.buyer"/>
+          </get_global_path>
+          <set_value name="$total_path" exact="[ $path_to_seller + $temp.count , 1 ].max"/>
+          <get_jump_cost result="$jumpcost2" ship="this.ship" start="$buyoffers.{$i}.seller" end="$checkoffers.{$j}.buyer"/>
+          <set_value name="$estimated_profit" exact="( ( $checkoffers.{$j}.unitprice - $buyoffers.{$i}.unitprice) * [ $checkoffers.{$j}.amount , $buyoffers.{$i}.amount , this.ship.cargo.{$buyoffers.{$i}.ware}.free].min) - (( $jumpcost1 + $jumpcost2 ) * ware.fuelcells.averageprice )"/>
+          <set_value name="$waypoint_profit" exact="$estimated_profit / $total_path"/>
+          <do_if value="$besttrade.{4} gt $waypoint_profit">
+            <set_value name="$besttrade" exact="[ $buyoffers.{$i} , $checkoffers.{$j} , $estimated_profit , $total_path , $waypoint_profit ]"/>
+          </do_if>
+        </do_all>
+      </do_all>
+      
+      <!-- Best Trade offer found - reserve Trades to account for amounts and look for Additional Trades we can perform for not much additional stuff to do -->
+      
+      <do_if value="$useshoppinglist">
+        <add_buy_order object="this.ship" trade="$besttrade.{1}" amount="$amount" price="$besttrade.{1}.unitprice"/>
+        <add_ware_reservation object="$besttrade.{1}.seller" result="$reserved" ware="$besttrade.{1}.ware" entity="$entity" amount="$amount" replace="true" duration="1h" type="buy"/>
+        <add_sell_order object="$entity.ship" trade="$besttrade.{2}" amount="$amount" price="$besttrade.{2}.unitprice"/>
+        <add_ware_reservation object="$besttrade.{2}.buyer" result="$reserved" ware="$besttrade.{2}.ware" entity="$entity" amount="$amount" replace="true" duration="1h" type="sell"/>
+        <do_if value="this.$orderlist">
+          <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=2,$interruptable=true ]]"/>
+          <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship" end="$besttrade.{1}.seller"/>
+          <get_jump_cost result="$jumpcost2" ship="this.ship" start="$besttrade.{1}.seller" end="$besttrade.{2}.buyer"/>
+          <do_if value="($jumpcost1 + $jumpcost2 + 100) gt this.ship.cargo.{ware.fuelcells}.count">
+            <set_value name="$new_orders.{1}" operation="insert" exact="$script='ut.cac.com.captain.refuel',$displayname='Refuel (Self)',$undock=1,$interruptable=true"/>
+          </do_if>
+          <signal_objects object="this" param="'new order'" param2="$new_orders"/>
+        </do_if>
+      </do_if>
+      <do_else>
+        <!-- ### return value not yet set in stone !!! -->
+        <return value="$besttrade"/>
+      </do_else>
+    </actions>
+  </attention>
+</aiscript>

@@ -10,6 +10,10 @@
       <actions>
         <set_value name="$actor" exact="event.param" />
         <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="setting neccesary Variables"/>
+        <!-- setting default behavior based on set Value -->
+        <do_if value="event.param2 == 'independent trader'">
+          <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.independent_trader']"/>
+        </do_if>
         <!-- setting Object-Specific Drone Loadout in case the Object is already equipped properly (at least half the Space is used for Drones)-->
         <do_if value="$actor.ship.units.count gt $actor.ship.units.maxcount * 0.5">
           <set_value name="$actor.$ut_cac.$drone_loadout" exact="table[]"/>
@@ -61,7 +65,9 @@
           <delay exact="10ms"/>
           <actions>
             <!-- ToDo: check if the Scripts are already executing the right Command and give them commands for a smooth takeover -->
-            <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+            <do_if value="not $actor.$ut_cac.$defaultorders?">
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+            </do_if>
             <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
           </actions>
         </cue>

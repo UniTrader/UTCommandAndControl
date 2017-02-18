@@ -92,12 +92,6 @@
           <set_value name="$range" exact="[this.sector]"/>
         </do_else>
       </do_else>
-      <!-- Set Ranges - even if they are already set to account for possible changes -->
-      <!-- a List of Spaces works here, too (not just a list of Clusters as the Name suggests) so we can slightly change the behavior of this Script to use UT CAC-Style List-Of-Spaces Ranges -->
-      <set_value name="this.$traderange_sellclusters" exact="$range"/>
-      <set_value name="this.$traderange_buyclusters" exact="$range"/>
-      <!-- prevent searching for Ranages again to prevent our list above to be overridden -->
-      <set_value name="this.$traderange_nexttime" exact="player.age + 1min"/>
       
       <!-- define the Wares we want to trade with -->
       <do_if value="this.$ut_cac.$warebasket?">
@@ -109,6 +103,56 @@
       <do_else>
         <set_value name="$warelist" exact="warebasket.all.list"/>
       </do_else>
+      
+      <!-- check for Illegal Wares and remove them if applicable -->
+      <do_if value="this.$ut_cac.$legality gt 0">
+        <do_all value="$warelist.count" counter="$i" reverse="true">
+          <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
+          <do_if value="$warelist.{$i}.illegal and this.$ut_cac.$legality ge 3">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal'.[$warelist.{$i}]"/>
+            <remove_value name="$warelist.{$i}"/>
+          </do_if>
+          <do_elseif value="not this.zone.policefaction and $warelist.{$i}.illegal and this.$ut_cac.$legality ge 1">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal and current Zone has no policefaction for licenses'.[$warelist.{$i}]"/>
+            <remove_value name="$warelist.{$i}"/>
+          </do_elseif>
+          <do_elseif value="$warelist.{$i}.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac.$legality ge 2">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal in this Zone'.[$warelist.{$i}]"/>
+            <remove_value name="$warelist.{$i}"/>
+          </do_elseif>
+          <do_elseif value="$warelist.{$i}.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac.$legality ge 1">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'not buying %1 because it is illegal in this Zone and we dont have a license'.[$warelist.{$i}]"/>
+            <remove_value name="$warelist.{$i}"/>
+          </do_elseif>
+          <do_elseif value="this.$ut_cac.$legality == 0">
+            <debug_text filter="general" chance="$debug_detailoutput" text="'Buying anything - including %1'.[$warelist.{$i}]"/>
+          </do_elseif>
+          <do_else>
+            <debug_text filter="general" chance="$debug_detailoutput" text="'Buying %1'.[$warelist.{$i}]"/>
+          </do_else>
+        </do_all>
+      </do_if>
+      <do_else>
+        <debug_text filter="general" chance="this.$debug" text="'Not Filtering for illegal Goods, so trading with:\n%1'.[$warelist]"/>
+      </do_else>
+      
+      <!--resume label="vanilla trade" comment="jump forward until the next Block is ready for testing"/-->
+      <run_script name="'ut.cac.orders.findtraderun'">
+        <param name="range" value="this.cluster"/><!-- ToDo: implement Range Setting -->
+        <param name="instantbuylocation" value="if this.ship.parkedat then this.ship.parkedat.station else if this.ship.dockslot then this.ship.dockslot.station else null" comment="Object we are currently docked to"/>
+        <param name="useshoppinglist" value="true"/>
+      </run_script>
+      
+      <return/>
+      <!-- Set Ranges - even if they are already set to account for possible changes -->
+      <!-- a List of Spaces works here, too (not just a list of Clusters as the Name suggests) so we can slightly change the behavior of this Script to use UT CAC-Style List-Of-Spaces Ranges -->
+      <set_value name="this.$traderange_sellclusters" exact="$range"/>
+      <set_value name="this.$traderange_buyclusters" exact="$range"/>
+      <!-- prevent searching for Ranges again to prevent our list above to be overridden -->
+      <set_value name="this.$traderange_nexttime" exact="player.age + 1min"/>
+      
+      <label name="vanilla trade"/>
+      <!-- #### Hook to Vanilla Scripts - to be rewritten ### -->
       
       <run_script name="'trade.findfreetraderun'">
         <param name="warelist" value="$warelist" />
@@ -139,6 +183,7 @@
         <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for better Offers',$order='wait minmax',$mintime=1min,$maxtime=10min,$interruptable=true]"/>
       </do_else>
       
+      <!-- #### End Hook to Vanilla Scripts - to be rewritten ### -->
       
       <return/>
     </actions>
