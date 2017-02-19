@@ -96,8 +96,8 @@
           <relativeprice min="$minrelativeprice"/>
         </find_sell_offer>
         <do_all exact="$selloffers_add.count" counter="$j">
-          <do_if value="not $selloffers.{sellyoffers_add.{$j}.ware}?">
-            <set_value name="$selloffers.{sellyoffers_add.{$j}.ware}" exact="[$selloffers_add.{$j}]"/>
+          <do_if value="not $selloffers.{selloffers_add.{$j}.ware}?">
+            <set_value name="$selloffers.{selloffers_add.{$j}.ware}" exact="[$selloffers_add.{$j}]"/>
           </do_if>
           <do_else>
             <append_to_list name="$selloffers.{$buyoffers_add.{$i}}" exact="$selloffers_add.{$j}"/>
@@ -145,9 +145,9 @@
       
       <do_if value="$useshoppinglist">
         <add_buy_order object="this.ship" trade="$besttrade.{1}" amount="$amount" price="$besttrade.{1}.unitprice"/>
-        <add_ware_reservation object="$besttrade.{1}.seller" result="$reserved" ware="$besttrade.{1}.ware" entity="$entity" amount="$amount" replace="true" duration="1h" type="buy"/>
+        <add_ware_reservation object="$besttrade.{1}.seller" result="$reserved" ware="$besttrade.{1}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="buy"/>
         <add_sell_order object="$entity.ship" trade="$besttrade.{2}" amount="$amount" price="$besttrade.{2}.unitprice"/>
-        <add_ware_reservation object="$besttrade.{2}.buyer" result="$reserved" ware="$besttrade.{2}.ware" entity="$entity" amount="$amount" replace="true" duration="1h" type="sell"/>
+        <add_ware_reservation object="$besttrade.{2}.buyer" result="$reserved" ware="$besttrade.{2}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
         <do_if value="this.$orderlist">
           <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=2,$interruptable=true ]]"/>
           <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship" end="$besttrade.{1}.seller"/>
