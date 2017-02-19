@@ -104,7 +104,7 @@
           </do_else>
         </do_all>
         <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
-        <debug_text filter="general" text="'%1 %2 %3 Found Sell Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,selloffers_add]"/>
+        <debug_text filter="general" text="'%1 %2 %3 Found Sell Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$selloffers_add]"/>
       </do_all>
       
       <!-- filter buy and sell offers to remove completely unsuitable ones here ###### -->
@@ -112,13 +112,13 @@
       <!-- match best sell and Buy Offers -->
       <set_value name="$besttrade" exact="[ null , null , 0Cr , 999 , 0Cr]"/>
       <do_all exact="$buyoffers.count" counter="$i">
-        <do_if value="$buyoffers.{$i}.seller != $instantbuylocation">
+        <do_if value="$buyoffers.{$i}.owner != $instantbuylocation">
           <get_global_path component="$temp" multiple="true" >
             <start object="this.ship"/>
-            <end object="$buyoffers.{$i}.seller"/>
+            <end object="$buyoffers.{$i}.owner"/>
           </get_global_path>
           <set_value name="$path_to_seller" exact="$temp.count"/>
-          <get_jump_cost result="$jumpcost" ship="this.ship" start="this.ship" end="$buyoffers.{$i}.seller"/>
+          <get_jump_cost result="$jumpcost" ship="this.ship" start="this.ship" end="$buyoffers.{$i}.owner"/>
         </do_if>
         <do_else>
           <set_value name="$path_to_seller" exact="-2"/>
@@ -127,11 +127,11 @@
         <set_value name="$checkoffers" exact="$selloffers.{$buyoffers.{$i}.ware}"/>
         <do_all exact="$checkoffers.count" counter="$j">
           <get_global_path component="$temp" multiple="true" >
-            <start object="$buyoffers.{$i}.seller"/>
-            <end object="$checkoffers.{$j}.buyer"/>
+            <start object="$buyoffers.{$i}.owner"/>
+            <end object="$checkoffers.{$j}.owner"/>
           </get_global_path>
           <set_value name="$total_path" exact="[ $path_to_seller + $temp.count , 1 ].max"/>
-          <get_jump_cost result="$jumpcost2" ship="this.ship" start="$buyoffers.{$i}.seller" end="$checkoffers.{$j}.buyer"/>
+          <get_jump_cost result="$jumpcost2" ship="this.ship" start="$buyoffers.{$i}.owner" end="$checkoffers.{$j}.owner"/>
           <set_value name="$estimated_profit" exact="( ( $checkoffers.{$j}.unitprice - $buyoffers.{$i}.unitprice) * [ $checkoffers.{$j}.amount , $buyoffers.{$i}.amount , this.ship.cargo.{$buyoffers.{$i}.ware}.free].min) - (( $jumpcost1 + $jumpcost2 ) * ware.fuelcells.averageprice )"/>
           <set_value name="$waypoint_profit" exact="$estimated_profit / $total_path"/>
           <do_if value="$besttrade.{4} gt $waypoint_profit">
@@ -145,13 +145,13 @@
       
       <do_if value="$useshoppinglist">
         <add_buy_order object="this.ship" trade="$besttrade.{1}" amount="$amount" price="$besttrade.{1}.unitprice"/>
-        <add_ware_reservation object="$besttrade.{1}.seller" result="$reserved" ware="$besttrade.{1}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="buy"/>
+        <add_ware_reservation object="$besttrade.{1}.owner" result="$reserved" ware="$besttrade.{1}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="buy"/>
         <add_sell_order object="$entity.ship" trade="$besttrade.{2}" amount="$amount" price="$besttrade.{2}.unitprice"/>
-        <add_ware_reservation object="$besttrade.{2}.buyer" result="$reserved" ware="$besttrade.{2}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
+        <add_ware_reservation object="$besttrade.{2}.owner" result="$reserved" ware="$besttrade.{2}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
         <do_if value="this.$orderlist">
           <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=2,$interruptable=true ]]"/>
-          <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship" end="$besttrade.{1}.seller"/>
-          <get_jump_cost result="$jumpcost2" ship="this.ship" start="$besttrade.{1}.seller" end="$besttrade.{2}.buyer"/>
+          <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship" end="$besttrade.{1}.owner"/>
+          <get_jump_cost result="$jumpcost2" ship="this.ship" start="$besttrade.{1}.owner" end="$besttrade.{2}.owner"/>
           <do_if value="($jumpcost1 + $jumpcost2 + 100) gt this.ship.cargo.{ware.fuelcells}.count">
             <set_value name="$new_orders.{1}" operation="insert" exact="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Self)',$undock=1,$interruptable=true]"/>
           </do_if>
