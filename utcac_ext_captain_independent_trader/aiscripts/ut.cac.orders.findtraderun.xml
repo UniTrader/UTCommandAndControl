@@ -76,6 +76,8 @@
         </do_else>
       </do_if>
       
+      <set_value name="$timer" exact="player.age"/>
+      
       <!-- look for Buy Offers -->
       <set_value name="$buyoffers" exact="[]"/>
       <do_all exact="$range.count" counter="$i">
@@ -88,6 +90,10 @@
         <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
         <debug_text filter="general" text="'%1 %2 %3 Found Buy Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$buyoffers_add]"/>
       </do_all>
+      
+      <wait exact="1ms"/>
+      <debug_text filter="general" text="'%1 %2 %3 Buy Offer Search Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
+      <set_value name="$timer" exact="player.age"/>
       
       <!-- find sell Offers - temporary stored  sorted by Ware-->
       <set_value name="$selloffers" exact="table[]"/>
@@ -107,7 +113,15 @@
         <debug_text filter="general" text="'%1 %2 %3 Found Sell Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$selloffers_add]"/>
       </do_all>
       
+      <wait exact="1ms"/>
+      <debug_text filter="general" text="'%1 %2 %3 Sell Offer Search Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
+      <set_value name="$timer" exact="player.age"/>
+      
       <!-- filter buy and sell offers to remove completely unsuitable ones here ###### -->
+      
+      <!--<wait exact="1ms"/>
+      <debug_text filter="general" text="'%1 %2 %3 Filter Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
+      <set_value name="$timer" exact="player.age"/>-->
       
       <!-- match best sell and Buy Offers -->
       <set_value name="$besttrade" exact="[ null , null , 0Cr , 999 , 0Cr]"/>
@@ -142,6 +156,11 @@
           </do_all>
         </do_if>
       </do_all>
+      
+      
+      <wait exact="1ms"/>
+      <debug_text filter="general" text="'%1 %2 %3 Match Offers Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
+      <set_value name="$timer" exact="player.age"/>
       
       <!-- Best Trade offer found - reserve Trades to account for amounts and look for Additional Trades we can perform for not much additional stuff to do -->
       
