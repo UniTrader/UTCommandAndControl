@@ -147,13 +147,14 @@
       
       <do_if value="$useshoppinglist">
         <set_value name="$amount" exact="[ $besttrade.{1}.amount , $besttrade.{2}.amount , this.ship.cargo.{$besttrade.{1}.ware}.free ].min"/>
+        <create_trade_offer name="$temptrade" seller="$besttrade.{1}.owner" object="$besttrade.{1}.owner" amount="$amount" ware="$besttrade.{1}.ware" price="$besttrade.{1}.unitprice" playeronly="false"/>
         <add_buy_order object="this.ship" trade="$temptrade" amount="$amount" price="$besttrade.{1}.unitprice"/>
-        <remove_trade_offer tradeoffer="$temptrade"/>
+        <remove_trade_offer tradeoffer="$temptrade" object="$besttrade.{1}.owner"/>
         <add_ware_reservation object="$besttrade.{1}.owner" result="$reserved" ware="$besttrade.{1}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="buy"/>
         
         <create_trade_offer name="$temptrade" buyer="$besttrade.{2}.owner" object="$besttrade.{2}.owner" amount="$amount" ware="$besttrade.{2}.ware" price="$besttrade.{2}.unitprice" playeronly="false"/>
         <add_sell_order object="this.ship" trade="$besttrade.{2}" amount="$amount" price="$besttrade.{2}.unitprice"/>
-        <remove_trade_offer tradeoffer="$temptrade"/>
+        <remove_trade_offer tradeoffer="$temptrade" object="$besttrade.{2}.owner"/>
         <add_ware_reservation object="$besttrade.{2}.owner" result="$reserved" ware="$besttrade.{2}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
         <do_if value="this.$orderlist">
           <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=2,$interruptable=true ]]"/>
