@@ -109,36 +109,36 @@
         <do_all exact="$warelist.count" counter="$i" reverse="true">
           <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
           <do_if value="$warelist.{$i}.illegal and this.$ut_cac.$legality ge 3">
-            <debug_text filter="general" chance="this.$debug" text="'not buying %1 because it is illegal'.[$warelist.{$i}]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'not buying %1 because it is illegal'.[$warelist.{$i}]"/>
             <remove_value name="$warelist.{$i}"/>
           </do_if>
           <do_elseif value="not this.zone.policefaction and $warelist.{$i}.illegal and this.$ut_cac.$legality ge 1">
-            <debug_text filter="general" chance="this.$debug" text="'not buying %1 because it is illegal and current Zone has no policefaction for licenses'.[$warelist.{$i}]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'not buying %1 because it is illegal and current Zone has no policefaction for licenses'.[$warelist.{$i}]"/>
             <remove_value name="$warelist.{$i}"/>
           </do_elseif>
           <do_elseif value="$warelist.{$i}.illegalto.{this.zone.policefaction}.{null} and this.$ut_cac.$legality ge 2">
-            <debug_text filter="general" chance="this.$debug" text="'not buying %1 because it is illegal in this Zone'.[$warelist.{$i}]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'not buying %1 because it is illegal in this Zone'.[$warelist.{$i}]"/>
             <remove_value name="$warelist.{$i}"/>
           </do_elseif>
           <do_elseif value="$warelist.{$i}.illegalto.{this.zone.policefaction}.{this.trueowner} and this.$ut_cac.$legality ge 1">
-            <debug_text filter="general" chance="this.$debug" text="'not buying %1 because it is illegal in this Zone and we dont have a license'.[$warelist.{$i}]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'not buying %1 because it is illegal in this Zone and we dont have a license'.[$warelist.{$i}]"/>
             <remove_value name="$warelist.{$i}"/>
           </do_elseif>
           <do_elseif value="this.$ut_cac.$legality == 0">
-            <debug_text filter="general" chance="this.$debug" text="'Buying anything - including %1'.[$warelist.{$i}]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'Buying anything - including %1'.[$warelist.{$i}]"/>
           </do_elseif>
           <do_else>
-            <debug_text filter="general" chance="this.$debug" text="'Buying %1'.[$warelist.{$i}]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'Buying %1'.[$warelist.{$i}]"/>
           </do_else>
         </do_all>
       </do_if>
       <do_else>
-        <debug_text filter="general" chance="this.$debug" text="'Not Filtering for illegal Goods, so trading with:\n%1'.[$warelist]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'Not Filtering for illegal Goods, so trading with:\n%1'.[$warelist]"/>
       </do_else>
       
       <!--resume label="vanilla trade" comment="jump forward until the next Block is ready for testing"/-->
       <run_script name="'ut.cac.orders.findtraderun'">
-        <param name="range" value="this.cluster"/><!-- ToDo: implement Range Setting -->
+        <param name="range" value="[this.cluster]"/><!-- ToDo: implement Range Setting -->
         <param name="instantbuylocation" value="if this.ship.parkedat then this.ship.parkedat.station else if this.ship.dockslot then this.ship.dockslot.station else null" comment="Object we are currently docked to"/>
         <param name="useshoppinglist" value="true"/>
       </run_script>
