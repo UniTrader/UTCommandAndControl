@@ -79,35 +79,13 @@
       <set_value name="$timer" exact="player.age"/>
       
       <!-- look for Buy Offers -->
-      <set_value name="$buyoffers" exact="[]"/>
-      <do_all exact="$range.count" counter="$i">
-        <find_buy_offer result="$buyoffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{$i}">
-          <relativeprice max="$maxrelativeprice"/>
-        </find_buy_offer>
-        <do_all exact="$buyoffers_add.count" counter="$j">
-          <append_to_list name="$buyoffers" exact="$buyoffers_add.{$j}"/>
-        </do_all>
-        <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
-        <debug_text filter="general" text="'%1 %2 %3 Found Buy Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$buyoffers_add]"/>
-      </do_all>
-      
-      <wait exact="1ms"/>
-      <debug_text filter="general" text="'%1 %2 %3 Buy Offer Search Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
-      <set_value name="$timer" exact="player.age"/>
-      
-      <!-- find sell Offers - temporary stored  sorted by Ware-->
-      <set_value name="$selloffers" exact="table[]"/>
+      <set_value name="$selloffers" exact="[]"/>
       <do_all exact="$range.count" counter="$i">
         <find_sell_offer result="$selloffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{$i}">
-          <relativeprice min="$minrelativeprice"/>
+          <relativeprice max="$maxrelativeprice"/>
         </find_sell_offer>
         <do_all exact="$selloffers_add.count" counter="$j">
-          <do_if value="not $selloffers.{$selloffers_add.{$j}.ware}?">
-            <set_value name="$selloffers.{$selloffers_add.{$j}.ware}" exact="[$selloffers_add.{$j}]"/>
-          </do_if>
-          <do_else>
-            <append_to_list name="$selloffers.{$selloffers_add.{$i}.ware}" exact="$selloffers_add.{$j}"/>
-          </do_else>
+          <append_to_list name="$selloffers" exact="$selloffers_add.{$j}"/>
         </do_all>
         <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
         <debug_text filter="general" text="'%1 %2 %3 Found Sell Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$selloffers_add]"/>
@@ -115,6 +93,28 @@
       
       <wait exact="1ms"/>
       <debug_text filter="general" text="'%1 %2 %3 Sell Offer Search Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
+      <set_value name="$timer" exact="player.age"/>
+      
+      <!-- find sell Offers - temporary stored  sorted by Ware-->
+      <set_value name="$buyoffers" exact="table[]"/>
+      <do_all exact="$range.count" counter="$i">
+        <find_buy_offer result="$buyoffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{$i}">
+          <relativeprice min="$minrelativeprice"/>
+        </find_buy_offer>
+        <do_all exact="$buyoffers_add.count" counter="$j">
+          <do_if value="not $buyoffers.{$buyoffers_add.{$j}.ware}?">
+            <set_value name="$buyoffers.{$buyoffers_add.{$j}.ware}" exact="[$buyoffers_add.{$j}]"/>
+          </do_if>
+          <do_else>
+            <append_to_list name="$buyoffers.{$buyoffers_add.{$i}.ware}" exact="$buyoffers_add.{$j}"/>
+          </do_else>
+        </do_all>
+        <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
+        <debug_text filter="general" text="'%1 %2 %3 Found Buy Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$buyoffers_add]"/>
+      </do_all>
+      
+      <wait exact="1ms"/>
+      <debug_text filter="general" text="'%1 %2 %3 Buy Offer Search Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
       <set_value name="$timer" exact="player.age"/>
       
       <!-- filter buy and sell offers to remove completely unsuitable ones here ###### -->
@@ -125,38 +125,38 @@
       
       <!-- match best sell and Buy Offers -->
       <set_value name="$besttrade" exact="[ null , null , 0Cr , 999 , 0Cr]"/>
-      <do_all exact="$buyoffers.count" counter="$i">
-        <do_if value="$buyoffers.{$i}.owner != $instantbuylocation">
+      <do_all exact="$selloffers.count" counter="$i">
+        <do_if value="$selloffers.{$i}.owner != $instantbuylocation">
           <get_global_path component="$temp" multiple="true" >
             <start object="this.ship"/>
-            <end object="$buyoffers.{$i}.owner"/>
+            <end object="$selloffers.{$i}.owner"/>
           </get_global_path>
           <set_value name="$path_to_seller" exact="$temp.count"/>
-          <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship.sector" end="$buyoffers.{$i}.owner.sector"/>
+          <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship.sector" end="$selloffers.{$i}.owner.sector"/>
         </do_if>
         <do_else>
           <set_value name="$path_to_seller" exact="-2"/>
           <set_value name="$jumpcost" exact="0"/>
         </do_else>
-        <set_value name="$checkoffers" exact="@$selloffers.{$buyoffers.{$i}.ware}"/>
+        <set_value name="$checkoffers" exact="@$buyoffers.{$selloffers.{$i}.ware}"/>
         <do_if value="$checkoffers">
           <do_all exact="$checkoffers.count" counter="$j">
             <get_global_path component="$temp" multiple="true" >
-              <start object="$buyoffers.{$i}.owner"/>
+              <start object="$selloffers.{$i}.owner"/>
               <end object="$checkoffers.{$j}.owner"/>
             </get_global_path>
             <set_value name="$total_path" exact="[ $path_to_seller + $temp.count , 1 ].max"/>
-            <get_jump_cost result="$jumpcost2" ship="this.ship" start="$buyoffers.{$i}.owner.sector" end="$checkoffers.{$j}.owner.sector"/>
-            <set_value name="$estimated_profit" exact="( ( $checkoffers.{$j}.unitprice - $buyoffers.{$i}.unitprice) * [ $checkoffers.{$j}.amount , $buyoffers.{$i}.amount , this.ship.cargo.{$buyoffers.{$i}.ware}.free].min) - (( $jumpcost1 + $jumpcost2 ) * ware.fuelcells.averageprice )"/>
+            <get_jump_cost result="$jumpcost2" ship="this.ship" start="$selloffers.{$i}.owner.sector" end="$checkoffers.{$j}.owner.sector"/>
+            <set_value name="$estimated_profit" exact="( ( $checkoffers.{$j}.unitprice - $selloffers.{$i}.unitprice) * [ $checkoffers.{$j}.amount , $selloffers.{$i}.amount , this.ship.cargo.{$selloffers.{$i}.ware}.free].min) - (( $jumpcost1 + $jumpcost2 ) * ware.fuelcells.averageprice )"/>
             <set_value name="$waypoint_profit" exact="$estimated_profit / $total_path"/>
             <do_if value="$besttrade.{5} lt $waypoint_profit">
-              <set_value name="$besttrade" exact="[ $buyoffers.{$i} , $checkoffers.{$j} , $estimated_profit , $total_path , $waypoint_profit ]"/>
+              <set_value name="$besttrade" exact="[ $selloffers.{$i} , $checkoffers.{$j} , $estimated_profit , $total_path , $waypoint_profit ]"/>
               <debug_text filter="general" text="'%1 %2 %3 Found Trade: \n%4'.[player.age,this.name,this.container.name,$besttrade]"/>
             </do_if>
           </do_all>
         </do_if>
         <wait exact="1ms"/>
-        <debug_text filter="general" text="'%1 %2 %3 Match Offers Tim for offer %5: %4'.[player.age,this.name,this.container.name,player.age - $timer , $buyoffers.{$i}]"/>
+        <debug_text filter="general" text="'%1 %2 %3 Match Offers Tim for offer %5: %4'.[player.age,this.name,this.container.name,player.age - $timer , $selloffers.{$i}]"/>
         <set_value name="$timer" exact="player.age"/>
       </do_all>
       
