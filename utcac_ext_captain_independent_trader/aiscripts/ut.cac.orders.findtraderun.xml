@@ -146,7 +146,7 @@
       <!-- Best Trade offer found - reserve Trades to account for amounts and look for Additional Trades we can perform for not much additional stuff to do -->
       
       <do_if value="$useshoppinglist">
-        <set_value name="$amount" exact="[ $besttrade.{1}.amount , $besttrade.{2}.amount , this.ship.cargo.{$buyoffers.{$i}.ware}.free ].min"/>
+        <set_value name="$amount" exact="[ $besttrade.{1}.amount , $besttrade.{2}.amount , this.ship.cargo.{$besttrade.{1}.ware}.free ].min"/>
         <add_buy_order object="this.ship" trade="$besttrade.{1}" amount="$amount" price="$besttrade.{1}.unitprice"/>
         <add_ware_reservation object="$besttrade.{1}.owner" result="$reserved" ware="$besttrade.{1}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="buy"/>
         <add_sell_order object="this.ship" trade="$besttrade.{2}" amount="$amount" price="$besttrade.{2}.unitprice"/>
