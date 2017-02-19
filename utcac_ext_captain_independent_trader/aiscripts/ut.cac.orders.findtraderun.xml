@@ -79,7 +79,7 @@
       <!-- look for Buy Offers -->
       <set_value name="$buyoffers" exact="[]"/>
       <do_all exact="$range.count" counter="$i">
-        <find_buy_offer result="$buyoffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{i}">
+        <find_buy_offer result="$buyoffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{$i}">
           <relativeprice max="$maxrelativeprice"/>
         </find_buy_offer>
         <do_all exact="$buyoffers_add.count" counter="$j">
@@ -91,7 +91,7 @@
       <!-- find sell Offers - temporary stored  sorted by Ware-->
       <set_value name="$selloffers" exact="table[]"/>
       <do_all exact="$range.count" counter="$i">
-        <find_sell_offer result="$selloffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{i}">
+        <find_sell_offer result="$selloffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{$i}">
           <relativeprice min="$minrelativeprice"/>
         </find_sell_offer>
         <do_all exact="$buyoffers_add.count" counter="$j">
