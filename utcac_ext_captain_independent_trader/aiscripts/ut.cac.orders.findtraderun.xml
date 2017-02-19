@@ -29,7 +29,7 @@
         <set_value name="$minprofit" exact="$params.$minprofit"/>
       </do_if>
       <do_if value="$params.$maxrelativeprice">
-        <set_value name=".$maxrelativeprice" exact="$params..$maxrelativeprice"/>
+        <set_value name="$maxrelativeprice" exact="$params.$maxrelativeprice"/>
       </do_if>
       <do_if value="$params.$useshoppinglist?">
         <set_value name="$useshoppinglist" exact="$params.$useshoppinglist"/>
@@ -96,10 +96,10 @@
         </find_sell_offer>
         <do_all exact="$buyoffers_add.count" counter="$j">
           <do_if value="not $buyoffers.{$buyoffers_add.{$j}.ware}?">
-            <set_value name="$buyoffers.{$buyoffers_add.{$j}.ware}?" exact="[{$buyoffers_add.{$j}]"/>
+            <set_value name="$buyoffers.{$buyoffers_add.{$j}.ware}" exact="[$buyoffers_add.{$j}]"/>
           </do_if>
           <do_else>
-            <append_to_list name="$buyoffers.{$buyoffers_add.{$i}}" exact="{$buyoffers_add.{$j}"/>
+            <append_to_list name="$buyoffers.{$buyoffers_add.{$i}}" exact="$buyoffers_add.{$j}"/>
           </do_else>
         </do_all>
         <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
@@ -150,7 +150,7 @@
           <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship" end="$besttrade.{1}.seller"/>
           <get_jump_cost result="$jumpcost2" ship="this.ship" start="$besttrade.{1}.seller" end="$besttrade.{2}.buyer"/>
           <do_if value="($jumpcost1 + $jumpcost2 + 100) gt this.ship.cargo.{ware.fuelcells}.count">
-            <set_value name="$new_orders.{1}" operation="insert" exact="$script='ut.cac.com.captain.refuel',$displayname='Refuel (Self)',$undock=1,$interruptable=true"/>
+            <set_value name="$new_orders.{1}" operation="insert" exact="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Self)',$undock=1,$interruptable=true]"/>
           </do_if>
           <signal_objects object="this" param="'new order'" param2="$new_orders"/>
         </do_if>
