@@ -50,7 +50,6 @@
            </do_elseif>
           <do_else>
             <debug_text filter="error" text="'%1 %2 %3 Ordered Queue Trade %4 (ware: %5 amount: %6 unitprice: %7 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[player.age,this.name,this.container.name,$trades.{$i},$trades.{$i}.ware,$trades.{$i}.amount,$trades.{$i}.unitprice]"/>
-            <debug_text filter="general" text="'More Details: Seller: %1 Sellerentity: %2 Sellerpassive: %3 Buyer: %4 Buyerentity:%5, Buyerpassive: %6 Owner: %7'.[$trades.{$i}.seller,$trades.{$i}.sellerentity,$trades.{$i}.issellerpassive,$trades.{$i}.buyer,$trades.{$i}.buyerentity,$trades.{$i}.isbuyerpassive,$trades.{$i}.owner]"/>
             <remove_trade_order object="this.ship" trade="$trades.{$i}"/>
           </do_else>
         </do_all>
@@ -248,7 +247,6 @@
         <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Executing Trade, Details:\nWare:%4 Amount:%5 Price:%6 Tradepartner:%7 in %8, this.money:%9'.[player.age,this.name,this.container.name,$trade.ware,$amount,$trade.price,$tradepartner.knownname,$tradepartner.zone.knownname,this.money]"/>
-      <disabled>
       <do_if value="$trade.seller.exists" comment="we want to buy something, look for sell offers">
         <do_if value="not $trade.ismission">
           <set_value name="$tradeoffer" exact="null"/>
@@ -356,8 +354,6 @@
         </do_if>
       </do_else>
       
-      </disabled>
-      
       <!-- tradeoffer found, now transfer cargo -->
       <set_value name="$timeout" exact="player.age + 2h" />
       
@@ -368,7 +364,7 @@
       
       <run_script sinceversion="20" chance="0" name="''"/>
       
-      <do_if value="$direct_trade?">
+      <do_if value="$tradeoffer.available or $tradeoffer == $trade">
         <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
         <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}.count gt 0">
           <set_value name="$unitmacro" exact="$tradepartner.availableunits.{unitcategory.transport}.list.random"/>
@@ -408,8 +404,8 @@
         </do_if>
       </do_if>
       <!-- just transfer the Wares if we didnt find an Offer and its for the Commander -->
-      <do_else>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Performing Trade as Custom Trade'.[player.age,this.name,this.container.name]"/>
+      <do_elseif value="$trade.owner == this.ship.commander">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No offer found - Exchanging Wares'.[player.age,this.name,this.container.name]"/>
         <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
         <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}.count gt 0">
           <set_value name="$unitmacro" exact="$tradepartner.availableunits.{unitcategory.transport}.list.random"/>
@@ -418,12 +414,12 @@
         </do_if>
         <do_if value="$trade.seller.isoperational">
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
-          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="0Cr" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
         </do_if>
         <do_elseif value="$trade.buyer.isoperational">
-          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="0Cr" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
@@ -438,6 +434,10 @@
           <remove_units object="this.ship" macro="$unitmacro" exact="1"/>
           <add_units object="$tradepartner" macro="$unitmacro" exact="1"/>
         </do_if>
+      </do_elseif>
+      <do_else>
+        <debug_text filter="error" text="'%1 %2 %3 Neither Trade Offer available nor Ware Transfer - aborting\nWare: %4 Amount here: %5 Amount Partner: %6\nware:%7 amount:%8'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count,$trade.ware,$amount]"/>
+        <resume label="abort trade"/>
       </do_else>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade finished,\nWare: %4 Amount here: %5 Amount Partner: %6\n$traderesult: %7 ware:%8 amount:%9'.[player.age,this.name,this.container.name,$trade.ware,this.container.cargo.{$trade.ware}.count,$tradepartner.cargo.{$trade.ware}.count,$traderesult,$trade.ware,$amount]"/>
