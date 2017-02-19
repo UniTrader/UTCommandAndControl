@@ -86,6 +86,7 @@
           <append_to_list name="$buyoffers" exact="$buyoffers_add.{$j}"/>
         </do_all>
         <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
+        <debug_text filter="general" text="'%1 %2 %3 Found Buy Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$buyoffers_add]"/>
       </do_all>
       
       <!-- find sell Offers - temporary stored  sorted by Ware-->
@@ -94,15 +95,16 @@
         <find_sell_offer result="$selloffers_add" tradepartner="this.ship" knowntoplayer="this.owner == faction.player" multiple="true" wares="$warelist" space="$range.{$i}">
           <relativeprice min="$minrelativeprice"/>
         </find_sell_offer>
-        <do_all exact="$buyoffers_add.count" counter="$j">
-          <do_if value="not $buyoffers.{$buyoffers_add.{$j}.ware}?">
-            <set_value name="$buyoffers.{$buyoffers_add.{$j}.ware}" exact="[$buyoffers_add.{$j}]"/>
+        <do_all exact="$selloffers_add.count" counter="$j">
+          <do_if value="not $selloffers.{sellyoffers_add.{$j}.ware}?">
+            <set_value name="$selloffers.{sellyoffers_add.{$j}.ware}" exact="[$selloffers_add.{$j}]"/>
           </do_if>
           <do_else>
-            <append_to_list name="$buyoffers.{$buyoffers_add.{$i}}" exact="$buyoffers_add.{$j}"/>
+            <append_to_list name="$selloffers.{$buyoffers_add.{$i}}" exact="$selloffers_add.{$j}"/>
           </do_else>
         </do_all>
         <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
+        <debug_text filter="general" text="'%1 %2 %3 Found Sell Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,selloffers_add]"/>
       </do_all>
       
       <!-- filter buy and sell offers to remove completely unsuitable ones here ###### -->
@@ -134,6 +136,7 @@
           <set_value name="$waypoint_profit" exact="$estimated_profit / $total_path"/>
           <do_if value="$besttrade.{4} gt $waypoint_profit">
             <set_value name="$besttrade" exact="[ $buyoffers.{$i} , $checkoffers.{$j} , $estimated_profit , $total_path , $waypoint_profit ]"/>
+            <debug_text filter="general" text="'%1 %2 %3 Found Trade: %5'.[player.age,this.name,this.container.name,$besttrade]"/>
           </do_if>
         </do_all>
       </do_all>
