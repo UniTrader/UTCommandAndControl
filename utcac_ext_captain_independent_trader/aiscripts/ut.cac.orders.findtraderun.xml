@@ -37,12 +37,20 @@
       <!-- verify input-->
       <do_if value="not $range">
         <debug_text filter="error" text="'%1 %2 %3 No Range defined - Aborting'.[player.age,this.name,this.container.name,event.param.knownname]"/>
-        <return value="0"/>
+        <return>
+          <retval name="buyoffer" value="null" />
+          <retval name="selloffer" value="null" />
+          <retval name="tradelist" value="null" />
+        </return>
       </do_if>
       <!-- if no valid Warelist was passed get one from other sources -->
       <do_if value="not $warelist or not $warelist.count">
         <debug_text filter="error" text="'%1 %2 %3 No Warelist passed - Aborting'.[player.age,this.name,this.container.name,event.param.knownname]"/>
-        <return value="0"/>
+        <return>
+          <retval name="buyoffer" value="null" />
+          <retval name="selloffer" value="null" />
+          <retval name="tradelist" value="null" />
+        </return>
       </do_if>
       
       <set_value name="$timer" exact="player.age"/>
