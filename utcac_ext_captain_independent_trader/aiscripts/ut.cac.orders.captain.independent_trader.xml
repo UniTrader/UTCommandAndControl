@@ -196,7 +196,7 @@
         <!--remove_trade_offer tradeoffer="$temptrade" object="$selloffer.owner"/-->
         <add_ware_reservation object="$selloffer.owner" result="$reserved" ware="$selloffer.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
         <do_if value="this.$orderlist">
-          <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=2,$interruptable=true ]]"/>
+          <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true ]]"/>
           <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship.sector" end="$buyoffer.owner.sector"/>
           <get_jump_cost result="$jumpcost2" ship="this.ship" start="$buyoffer.owner.sector" end="$selloffer.owner.sector"/>
           <do_if value="($jumpcost1 + $jumpcost2 + 100) gt this.ship.cargo.{ware.fuelcells}.count">
@@ -207,7 +207,11 @@
       </do_if>
       <do_else>
         <!-- no Traderun found - for now wait a bit, but in further Versions Explore a bit to get more Trade Offers when trying the next time -->
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for better Offers',$order='wait minmax',$mintime=10min,$maxtime=15min,$interruptable=true]"/>
+        <set_value name="$new_orders" exact="[table[$script='ut.cac.microorder',$displayname='Wait for better Offers',$order='wait minmax',$mintime=10min,$maxtime=15min,$interruptable=true]]"/>
+        <do_if value="this.ship.parkedat">
+          <set_value name="$new_orders.{1}" operation="insert" exact="table[$script='ut.cac.move.undock',$displayname='Undock',$interruptable=false"/>
+        </do_if>
+        <signal_objects object="this" param="'new order'" param2="$new_orders"/>
       </do_else>
       
       <return/>
