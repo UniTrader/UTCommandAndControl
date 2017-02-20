@@ -481,6 +481,21 @@
         </do_if>
         <!-- Relation bonus for the player: Base bonus for the trade itself (max +1 UI value per 4 trades) and price-based bonus (max +1 UI value per 4M Credits) -->
         <add_faction_relation faction="$tradeoffer.buyer.owner" otherfaction="$tradeoffer.seller.owner" value="0.00016LF + (0.00064LF / (4000000Cr)LF * ($price)LF)" />
+        <!-- store Trade Ware in Config Var to prefer frequently traded Wares -->
+        <do_if value="this.$ut_cac">
+          <do_if value="this.$ut_cac.$lasttradewares">
+            <do_if value="this.$ut_cac.$lasttradewares.indexof.{$trade.ware}">
+              <remove_value name="this.$ut_cac.$lasttradewares.this.$ut_cac.$lasttradewares.indexof.{$trade.ware}"/>
+            </do_if>
+            <set_value name="this.$ut_cac.$lasttradewares.{1}" operation="insert" exact="$trade.ware"/>
+          </do_if>
+          <do_if value="this.$ut_cac.$lasttradewares.count gt 7">
+            <resize_list list="this.$ut_cac.$lasttradewares" count="7"/>
+          </do_if>
+        </do_if>
+        <do_else>
+          <set_value name="this.$ut_cac.$lasttradewares" exact="[$trade.ware]"/>
+        </do_else>
       </do_if>
 
       <do_if value="not $tradepartner.isplayerowned and not $tradepartner.hastradesubscription">
