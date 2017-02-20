@@ -127,10 +127,7 @@
       <set_value name="$besttrade" exact="[ null , null , 0Cr , 999 , 0Cr]"/>
       <do_all exact="$selloffers.count" counter="$i">
         <do_if value="$selloffers.{$i}.owner != $instantbuylocation">
-          <get_global_path component="$temp" multiple="true" >
-            <start object="this.ship"/>
-            <end object="$selloffers.{$i}.owner"/>
-          </get_global_path>
+          <get_jump_path component="$temp" multiple="true" start="this.ship.sector" end="$selloffers.{$i}.owner.sector"/>
           <set_value name="$path_to_seller" exact="$temp.count"/>
           <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship.sector" end="$selloffers.{$i}.owner.sector"/>
         </do_if>
@@ -141,10 +138,7 @@
         <set_value name="$checkoffers" exact="@$buyoffers.{$selloffers.{$i}.ware}"/>
         <do_if value="$checkoffers">
           <do_all exact="$checkoffers.count" counter="$j">
-            <get_global_path component="$temp" multiple="true" >
-              <start object="$selloffers.{$i}.owner"/>
-              <end object="$checkoffers.{$j}.owner"/>
-            </get_global_path>
+            <get_jump_path component="$temp" multiple="true" start="$selloffers.{$i}.owner.sector" end="$checkoffers.{$j}.owner.sector"/>
             <set_value name="$total_path" exact="[ $path_to_seller + $temp.count , 1 ].max"/>
             <get_jump_cost result="$jumpcost2" ship="this.ship" start="$selloffers.{$i}.owner.sector" end="$checkoffers.{$j}.owner.sector"/>
             <set_value name="$estimated_profit" exact="( ( $checkoffers.{$j}.unitprice - $selloffers.{$i}.unitprice) * [ $checkoffers.{$j}.amount , $selloffers.{$i}.amount , this.ship.cargo.{$selloffers.{$i}.ware}.free].min) - (( $jumpcost1 + $jumpcost2 ) * ware.fuelcells.averageprice )"/>
