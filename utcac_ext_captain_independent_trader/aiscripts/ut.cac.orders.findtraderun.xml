@@ -126,10 +126,18 @@
       
       <!-- Best Trade offer found - reserve Trades to account for amounts and look for Additional Trades we can perform for not much additional stuff to do -->
       <do_if value="$besttrade.{1}">
-        <return value="$besttrade"/>
+        <return>
+          <retval name="buyoffer" value="$besttrade.{1}" />
+          <retval name="selloffer" value="$besttrade.{2}" />
+          <retval name="tradelist" value="null" />
+        </return>
       </do_if>
       <do_else>
-        <return value="null"/>
+        <return>
+          <retval name="buyoffer" value="null" />
+          <retval name="selloffer" value="null" />
+          <retval name="tradelist" value="null" />
+        </return>
       </do_else>
     </actions>
   </attention>

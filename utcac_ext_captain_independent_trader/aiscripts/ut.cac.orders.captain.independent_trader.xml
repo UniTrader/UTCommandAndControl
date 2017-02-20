@@ -175,26 +175,29 @@
       </do_else>
       
       <!--resume label="vanilla trade" comment="jump forward until the next Block is ready for testing"/-->
-      <run_script name="'ut.cac.orders.findtraderun'" result="$traderun" comment="Return Value: [ $selloffer , $buyoffer , $profit , $waypoints.count , $profit/$waypoint.count ]">
+      <run_script name="'ut.cac.orders.findtraderun'">
         <param name="range" value="[this.cluster]"/><!-- ToDo: implement Range Setting -->
         <param name="instantbuylocation" value="if this.ship.parkedat then this.ship.parkedat.station else if this.ship.dockslot then this.ship.dockslot.station else null" comment="Object we are currently docked to"/>
+        <save_retval name="buyoffer" variable="$buyoffer"/>
+        <save_retval name="selloffer" variable="$selloffer"/>
+        <save_retval name="tradelist" variable="$tradelist" comment="to be implemented: Series of Trades utilizing the Cargo bay better"/>
       </run_script>
       
-      <do_if value="$traderun">
-        <set_value name="$amount" exact="[ $besttrade.{1}.amount , $besttrade.{2}.amount , this.ship.cargo.{$besttrade.{1}.ware}.free ].min"/>
-        <create_trade_offer name="$temptrade" seller="$besttrade.{1}.owner" object="$besttrade.{1}.owner" amount="$amount" ware="$besttrade.{1}.ware" price="$besttrade.{1}.unitprice" playeronly="false"/>
-        <add_buy_order object="this.ship" trade="$temptrade" amount="$amount" price="$besttrade.{1}.unitprice"/>
-        <remove_trade_offer tradeoffer="$temptrade" object="$besttrade.{1}.owner"/>
-        <add_ware_reservation object="$besttrade.{1}.owner" result="$reserved" ware="$besttrade.{1}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="buy"/>
+      <do_if value="$buyoffer and $selloffer">
+        <set_value name="$amount" exact="[ $buyoffer.amount , $selloffer.amount , this.ship.cargo.{$buyoffer.ware}.free ].min"/>
+        <!--create_trade_offer name="$temptrade" seller="$buyoffer.owner" object="$buyoffer.owner" amount="$amount" ware="$buyoffer.ware" price="$buyoffer.unitprice" playeronly="false"/-->
+        <add_buy_order object="this.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
+        <!--remove_trade_offer tradeoffer="$temptrade" object="$buyoffer.owner"/-->
+        <add_ware_reservation object="$buyoffer.owner" result="$reserved" ware="$buyoffer.ware" entity="this" amount="$amount" replace="true" duration="1h" type="buy"/>
         
-        <create_trade_offer name="$temptrade" buyer="$besttrade.{2}.owner" object="$besttrade.{2}.owner" amount="$amount" ware="$besttrade.{2}.ware" price="$besttrade.{2}.unitprice" playeronly="false"/>
-        <add_sell_order object="this.ship" trade="$temptrade" amount="$amount" price="$besttrade.{2}.unitprice"/>
-        <remove_trade_offer tradeoffer="$temptrade" object="$besttrade.{2}.owner"/>
-        <add_ware_reservation object="$besttrade.{2}.owner" result="$reserved" ware="$besttrade.{2}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
+        <!--create_trade_offer name="$temptrade" buyer="$selloffer.owner" object="$selloffer.owner" amount="$amount" ware="$selloffer.ware" price="$selloffer.unitprice" playeronly="false"/-->
+        <add_sell_order object="this.ship" trade="$selloffer" amount="$amount" price="$selloffer.unitprice"/>
+        <!--remove_trade_offer tradeoffer="$temptrade" object="$selloffer.owner"/-->
+        <add_ware_reservation object="$selloffer.owner" result="$reserved" ware="$selloffer.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
         <do_if value="this.$orderlist">
           <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=2,$interruptable=true ]]"/>
-          <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship.sector" end="$besttrade.{1}.owner.sector"/>
-          <get_jump_cost result="$jumpcost2" ship="this.ship" start="$besttrade.{1}.owner.sector" end="$besttrade.{2}.owner.sector"/>
+          <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship.sector" end="$buyoffer.owner.sector"/>
+          <get_jump_cost result="$jumpcost2" ship="this.ship" start="$buyoffer.owner.sector" end="$selloffer.owner.sector"/>
           <do_if value="($jumpcost1 + $jumpcost2 + 100) gt this.ship.cargo.{ware.fuelcells}.count">
             <set_value name="$new_orders.{1}" operation="insert" exact="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Self)',$undock=1,$interruptable=true]"/>
           </do_if>
