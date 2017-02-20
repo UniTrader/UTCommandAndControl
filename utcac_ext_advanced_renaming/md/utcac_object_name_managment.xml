@@ -61,6 +61,7 @@
               <event_object_signalled object="player.galaxy" param="'Subordinates Name Updated - bigships'" comment="for (initial) signalling from lua"/>
               <event_object_signalled object="player.galaxy" param="'Subordinates Name Updated - smallships'" comment="for (initial) signalling from lua"/>
               <event_object_signalled group="$NamedObjectsDynamic" param="'Object Name Updated'" comment="for Update Signalling from other Scripts"/>
+              <event_object_money_updated group="$NamedObjectsDynamic" comment="Name update on account changes"/>
             </check_any>
           </conditions>
           <actions>
@@ -283,6 +284,8 @@
             <replace string="{5554302,119}+'7'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
             <replace string="{5554302,119}+'8'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
             <replace string="{5554302,119}+'9'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
+            <!-- Money-->
+            <replace string="{5554302,123}" with="if $object.container.isclass.ship then $object.pilot.money else $object.tradenpc.money"/>
             <!-- Short Name Variants - doesnt work in XR v4.0, but for future usage -->
             <!--
             <replace string="{5554302,110}" with="$object.commander.zone.shortname"/>
