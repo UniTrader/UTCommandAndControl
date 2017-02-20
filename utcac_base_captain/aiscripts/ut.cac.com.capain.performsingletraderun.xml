@@ -364,7 +364,7 @@
       
       <run_script sinceversion="20" chance="0" name="''"/>
       
-      <do_if value="$tradeoffer.available or $tradeoffer == $trade">
+      <do_if value="$tradeoffer.available">
         <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
         <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}.count gt 0">
           <set_value name="$unitmacro" exact="$tradepartner.availableunits.{unitcategory.transport}.list.random"/>
@@ -403,8 +403,8 @@
           <add_units object="$tradepartner" macro="$unitmacro" exact="1"/>
         </do_if>
       </do_if>
-      <!-- just transfer the Wares if we didnt find an Offer and its for the Commander -->
-      <do_elseif value="$trade.owner == this.ship.commander">
+      <!-- just transfer the Wares if we didnt find an Offer and its for the Commande- orif its a Trade directly from the Shoppinglist -->
+      <do_elseif value="$trade.owner == this.ship.commander or $tradeoffer == $trade">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No offer found - Exchanging Wares'.[player.age,this.name,this.container.name]"/>
         <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
         <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}.count gt 0">
@@ -414,12 +414,12 @@
         </do_if>
         <do_if value="$trade.seller.isoperational">
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
-          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="0Cr" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
         </do_if>
         <do_elseif value="$trade.buyer.isoperational">
-          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="0Cr" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
