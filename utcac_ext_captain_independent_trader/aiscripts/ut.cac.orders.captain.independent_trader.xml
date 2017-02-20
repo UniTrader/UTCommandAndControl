@@ -94,17 +94,55 @@
       </do_else>
       
       <!-- define the Wares we want to trade with -->
-      <do_if value="this.$ut_cac.$warebasket?">
-        <set_value name="$warelist" exact="this.$ut_cac.$warebasket"/>
+      <!-- first get the List of the last Wares we traded with -->
+      <do_if value="this.$ut_cac.$lasttradewares?">
+        <set_value name="$warelist" exact="this.$ut_cac.$lasttradewares.clone"/>
       </do_if>
-      <do_elseif value="this.ship.warebasket.count">
-        <set_value name="$warelist" exact="this.ship.warebasket.list"/>
-      </do_elseif>
       <do_else>
-        <set_value name="$warelist" exact="warebasket.all.list"/>
+        <set_value name="$warelist" exact="[]"/>
       </do_else>
       
-      <!-- check for Illegal Wares and remove them if applicable -->
+      <!-- now fill it with Wares from other Sources to add Variety/a Starting Point(just take a few Samples to fill it to a certain point - Trade Search for everyting takes too long) -->
+      <do_if value="this.$ut_cac.$warebasket?">
+        <set_value name="$warelist_add" exact="this.$ut_cac.$warebasket"/>
+      </do_if>
+      <do_elseif value="this.ship.warebasket.count">
+        <set_value name="$warelist_add" exact="this.ship.warebasket.list"/>
+      </do_elseif>
+      <do_else>
+        <set_value name="$cargo_tags" exact="this.ship.cargo.tags"/>
+        <do_if value="$cargo_tags.indexof.{tag.bulk} and $cargo_tags.indexof.{tag.container} and $cargo_tags.indexof.{tag.energy} and $cargo_tags.indexof.{tag.liquid}">
+          <set_value name="$warelist_add" exact="warebasket.all.list"/>
+        </do_if>
+        <do_elseif value="$cargo_tags.indexof.{tag.container} and $cargo_tags.indexof.{tag.energy}">
+          <set_value name="$warelist_add" exact="warebasket.container_energy.list"/>
+        </do_elseif>
+        <do_elseif value="$cargo_tags.indexof.{tag.bulk} and $cargo_tags.indexof.{tag.liquid}">
+          <set_value name="$warelist_add" exact="warebasket.bulk_liquid.list"/>
+        </do_elseif>
+        <do_elseif value="$cargo_tags.indexof.{tag.bulk}">
+          <set_value name="$warelist_add" exact="warebasket.bulk.list"/>
+        </do_elseif>
+        <do_elseif value="$cargo_tags.indexof.{tag.container}">
+          <set_value name="$warelist_add" exact="warebasket.container.list"/>
+        </do_elseif>
+        <do_elseif value="$cargo_tags.indexof.{tag.energy}">
+          <set_value name="$warelist_add" exact="warebasket.energy.list"/>
+        </do_elseif>
+        <do_elseif value="$cargo_tags.indexof.{tag.liquid}">
+          <set_value name="$warelist_add" exact="warebasket.liquid.list"/>
+        </do_elseif>
+        <remove_value name="$cargo_tags"/>
+      </do_else>
+      <do_while value="$warelist_add.count and $warelist.count lt 10">
+        <set_value name="$index" min="1" max="$warelist_add.count"/>
+        <do_if value="not $warelist.indexof.{$warelist_add.{$index}">
+          <append_to_list name="$warelist" exact="$warelist_add.{$index}"/>
+        </do_if>
+        <remove_value name="$warelist_add.{$index}"/>
+      </do_while>
+      
+      <!-- check for Illegal Wares and remove them if applicable - MOVE THIS PART TO TRADE FILTERS!!! -->
       <do_if value="this.$ut_cac.$legality gt 0">
         <do_all exact="$warelist.count" counter="$i" reverse="true">
           <!-- legality filter - wheter the ware is added to the List depends on the Settings of the Manager -->
@@ -137,11 +175,36 @@
       </do_else>
       
       <!--resume label="vanilla trade" comment="jump forward until the next Block is ready for testing"/-->
-      <run_script name="'ut.cac.orders.findtraderun'">
+      <run_script name="'ut.cac.orders.findtraderun'" result="$traderun" comment="Return Value: [ $selloffer , $buyoffer , $profit , $waypoints.count , $profit/$waypoint.count ]">
         <param name="range" value="[this.cluster]"/><!-- ToDo: implement Range Setting -->
         <param name="instantbuylocation" value="if this.ship.parkedat then this.ship.parkedat.station else if this.ship.dockslot then this.ship.dockslot.station else null" comment="Object we are currently docked to"/>
-        <param name="useshoppinglist" value="true"/>
       </run_script>
+      
+      <do_if value="$traderun">
+        <set_value name="$amount" exact="[ $besttrade.{1}.amount , $besttrade.{2}.amount , this.ship.cargo.{$besttrade.{1}.ware}.free ].min"/>
+        <create_trade_offer name="$temptrade" seller="$besttrade.{1}.owner" object="$besttrade.{1}.owner" amount="$amount" ware="$besttrade.{1}.ware" price="$besttrade.{1}.unitprice" playeronly="false"/>
+        <add_buy_order object="this.ship" trade="$temptrade" amount="$amount" price="$besttrade.{1}.unitprice"/>
+        <remove_trade_offer tradeoffer="$temptrade" object="$besttrade.{1}.owner"/>
+        <add_ware_reservation object="$besttrade.{1}.owner" result="$reserved" ware="$besttrade.{1}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="buy"/>
+        
+        <create_trade_offer name="$temptrade" buyer="$besttrade.{2}.owner" object="$besttrade.{2}.owner" amount="$amount" ware="$besttrade.{2}.ware" price="$besttrade.{2}.unitprice" playeronly="false"/>
+        <add_sell_order object="this.ship" trade="$temptrade" amount="$amount" price="$besttrade.{2}.unitprice"/>
+        <remove_trade_offer tradeoffer="$temptrade" object="$besttrade.{2}.owner"/>
+        <add_ware_reservation object="$besttrade.{2}.owner" result="$reserved" ware="$besttrade.{2}.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
+        <do_if value="this.$orderlist">
+          <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=2,$interruptable=true ]]"/>
+          <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship.sector" end="$besttrade.{1}.owner.sector"/>
+          <get_jump_cost result="$jumpcost2" ship="this.ship" start="$besttrade.{1}.owner.sector" end="$besttrade.{2}.owner.sector"/>
+          <do_if value="($jumpcost1 + $jumpcost2 + 100) gt this.ship.cargo.{ware.fuelcells}.count">
+            <set_value name="$new_orders.{1}" operation="insert" exact="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Self)',$undock=1,$interruptable=true]"/>
+          </do_if>
+          <signal_objects object="this" param="'new order'" param2="$new_orders"/>
+        </do_if>
+      </do_if>
+      <do_else>
+        <!-- no Traderun found - for now wait a bit, but in further Versions Explore a bit to get more Trade Offers when trying the next time -->
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for better Offers',$order='wait minmax',$mintime=10min,$maxtime=15min,$interruptable=true]"/>
+      </do_else>
       
       <return/>
       <!-- Set Ranges - even if they are already set to account for possible changes -->
