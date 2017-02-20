@@ -240,12 +240,8 @@
         <do_if value="this.commanderentity?">
           <transfer_money from="this.commanderentity" to="this" amount="$selloffer.unitprice * $amount - this.money" comment="till the change to add/remove_buy/sell_order is in place"/>
         </do_if>
-        <add_buy_order object="this.ship" trade="$selloffer" amount="$amount" price="0Cr"/>
-        <get_trade_from_shoppinglist result="$shoppinglist" object="this.ship" multiple="true"/>
-        <update_trade trade="$shoppinglist.last" price="$selloffer.unitprice"/>
-        <add_sell_order object="this.ship" trade="$buyoffer" amount="$amount" price="0Cr"/>
-        <get_trade_from_shoppinglist result="$shoppinglist" object="this.ship" multiple="true"/>
-        <update_trade trade="$shoppinglist.last" price="$buyoffer.unitprice"/>
+        <add_buy_order object="this.ship" trade="$selloffer" amount="$amount" price="$selloffer.unitprice"/>
+        <add_sell_order object="this.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
         <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=2,$interruptable=true]  ]"/>
       </do_if>
       <do_elseif value="$buyoffer.available">

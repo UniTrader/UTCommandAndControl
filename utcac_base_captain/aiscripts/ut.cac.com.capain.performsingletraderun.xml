@@ -414,12 +414,12 @@
         </do_if>
         <do_if value="$trade.seller.isoperational">
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
-          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle" usecommandermoney="false">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
         </do_if>
         <do_elseif value="$trade.buyer.isoperational">
-          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle" usecommandermoney="false">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
