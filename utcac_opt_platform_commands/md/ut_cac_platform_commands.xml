@@ -406,11 +406,11 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_elseif value="$selectedobject.isclass.highwayexitgate">
                 <do_if value="$selectedobject.highway.islocalhighway">
                   <set_value name="$waypoints" exact="$selectedobject.highway.junctions"/>
-                  <remove_value name="$waypoints.last"/>
+                  <remove_value name="$waypoints.{$waypoints.count}"/>
                   <!-- reverse Order of junctions to follow tube backwards -->
                   <do_all exact="$waypoints.count">
                     <set_value name="$waypoints.{1}" exact="$waypoints.last" operation="insert"/>
-                    <remove_value name="$waypoints.last"/>
+                    <remove_value name="$waypoints.{$waypoints.count}"/>
                   </do_all>
                 </do_if>
                 <set_value name="$othersidezone" exact="$selectedobject.highway.origin"/>
@@ -500,7 +500,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
                 <add_player_choice position="3" text="{5554102,176}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
               </do_if>
               <add_player_choice position="4" text="{5554102,158}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
-              <do_if value="$selectedobject.station.products.list.indexof.{ware.fuelcells}">
+              <do_if value="@$selectedobject.station.products.list.indexof.{ware.fuelcells}">
                 <add_player_choice position="5" text="{5554102,178}" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_refuel" choiceparam="player.money"/>
               </do_if>
               <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
