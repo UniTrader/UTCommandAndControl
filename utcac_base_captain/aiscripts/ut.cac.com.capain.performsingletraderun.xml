@@ -7,6 +7,7 @@
     <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list ONLY (does not execute any Trade)"/>
     <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
     <param name="command" default="command.trade" comment="command to display when executing this Script ( command.freetrade or command.trade would make sense, depending on context)"/>
+    <param name="usecustomtrade" default="false" comment="always perform a custom trade"/>
   </params>
   <init>
     <!-- first turn $params param into the real params -->
@@ -24,6 +25,9 @@
     </do_if>
     <do_if value="$params.$command?">
       <set_value name="$command" exact="$params.$command"/>
+    </do_if>
+    <do_if value="$params.$usecustomtrade?">
+      <set_value name="$usecustomtrade" exact="$params.$usecustomtrade"/>
     </do_if>
   </init>
   <interrupts>
@@ -364,7 +368,7 @@
       
       <run_script sinceversion="20" chance="0" name="''"/>
       
-      <do_if value="$tradeoffer.available">
+      <do_if value="$tradeoffer.available and not $usecustomtrade">
         <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
         <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}.count gt 0">
           <set_value name="$unitmacro" exact="$tradepartner.availableunits.{unitcategory.transport}.list.random"/>
@@ -404,7 +408,7 @@
         </do_if>
       </do_if>
       <!-- just transfer the Wares if we didnt find an Offer and its for the Commande- orif its a Trade directly from the Shoppinglist -->
-      <do_elseif value="$trade.owner == this.ship.commander or $tradeoffer == $trade">
+      <do_elseif value="$trade.owner == this.ship.commander or $tradeoffer == $trade or $usecustomtrade">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No offer found - Exchanging Wares'.[player.age,this.name,this.container.name]"/>
         <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
         <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}.count gt 0">

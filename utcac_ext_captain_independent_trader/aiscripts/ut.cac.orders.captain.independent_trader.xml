@@ -193,7 +193,7 @@
         <add_ware_reservation object="$selloffer.owner" result="$reserved" ware="$selloffer.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
         
         <do_if value="this.$orderlist">
-          <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$interruptable=true ]]"/>
+          <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$usecustomtrade=true,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$usecustomtrade=true,$interruptable=true ]]"/>
           <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship.sector" end="$buyoffer.owner.sector"/>
           <get_jump_cost result="$jumpcost2" ship="this.ship" start="$buyoffer.owner.sector" end="$selloffer.owner.sector"/>
           <do_if value="($jumpcost1 + $jumpcost2 + 100) gt this.ship.cargo.{ware.fuelcells}.count">
