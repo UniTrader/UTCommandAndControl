@@ -15,7 +15,7 @@
           <set_actor_account actor="$actor"/>
           <set_object_commander object="$actor.ship" commander="$actor.ship" type="$actor.type"/>
           <transfer_money from="player.entity" to="$actor" amount="100000000Cr"/>
-          <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.independent_trader']"/>
+          <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.independent_trader',$displayname='Independent Trader']"/>
           <debug_text filter="error" text="'New Trader %1 started as independent Trader'.[$actor.name]"/>
         </do_if>
         <!-- setting Object-Specific Drone Loadout in case the Object is already equipped properly (at least half the Space is used for Drones)-->
@@ -70,7 +70,7 @@
           <actions>
             <!-- ToDo: check if the Scripts are already executing the right Command and give them commands for a smooth takeover -->
             <do_if value="not $actor.$ut_cac.$defaultorders?">
-              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default',$displayname='Default']"/>
             </do_if>
             <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
           </actions>
@@ -305,7 +305,7 @@ Rest is shared between all Actor types
                 </do_elseif>
               </do_if>
               <add_player_choice_sub text="{5554103,231}" position="1" section="comm_settings_jump" selectable="$actor.skill.navigation gt 3" confidence="( @$actor.$ut_cac.$jumptype == 'random' ) * 1 + ( @$actor.$ut_cac.$jumptype == 'auto' ) * 3 + ( @$actor.$ut_cac.$jumptype == 'beacon' ) * 5" comment="confidence shows current Setting: 0 - not set, beacon: 5, Auto: 3, always Random: 1; Selection is only available when Nav Skill is greater than 3" />
-              <add_player_choice_sub text="'Behavior: %1'" position="2" section="comm_settings_behavior" selectable="not $actor.$ut_cac.$orders_locked?" tooltip="if $actor.$ut_cac.$orders_locked? then $actor.$ut_cac.$orders_locked else ''" comment="Select the main Behavior of this Ship (quick access 2 -2)"/>
+              <add_player_choice_sub text="'Behavior: %1'.[$actor.$ut_cac.$defaultorders.$name]" position="2" section="comm_settings_behavior" selectable="not $actor.$ut_cac.$orders_locked?" tooltip="if $actor.$ut_cac.$orders_locked? then $actor.$ut_cac.$orders_locked else ''" comment="Select the main Behavior of this Ship (quick access 2 -2)"/>
               <add_player_choice_return text="'(Back)'" position="6" />
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_if>
@@ -344,18 +344,18 @@ Rest is shared between all Actor types
               <add_player_choice_return text="'(Back)'" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior_station_trader'">
-              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default',$displayname='Default']"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior_independent_trader'">
               <set_actor_account actor="$actor"/>
               <set_object_commander object="$actor.ship" commander="$actor.ship" type="$actor.type"/>
               <transfer_money from="player.entity" to="$actor" amount="100000000Cr"/>
-              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.independent_trader']"/>
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.independent_trader',$displayname='Independent Trader']"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_behavior_independent_trader_yat'">
-              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.independent_trader_yat']"/>
+              <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.independent_trader_yat',$displayname='Independent Trader (YAT Search)']"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
           </actions>
