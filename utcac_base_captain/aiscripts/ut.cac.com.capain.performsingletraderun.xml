@@ -54,7 +54,6 @@
            </do_elseif>
           <do_else>
             <debug_text filter="error" text="'%1 %2 %3 Ordered Queue Trade %4 (ware: %5 amount: %6 unitprice: %7 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[player.age,this.name,this.container.name,$trades.{$i},$trades.{$i}.ware,$trades.{$i}.amount,$trades.{$i}.unitprice]"/>
-            <update_trade trade="$trades.{$i}" price="0Cr"/>
             <remove_trade_order object="this.ship" trade="$trades.{$i}"/>
           </do_else>
         </do_all>
@@ -419,16 +418,14 @@
         </do_if>
         <do_if value="$trade.seller.isoperational">
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
-          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle" usecommandermoney="false">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
-          <update_trade trade="$trade" price="0Cr"/>
         </do_if>
         <do_elseif value="$trade.buyer.isoperational">
-          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle">
+          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle" usecommandermoney="false">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
-          <update_trade trade="$trade" price="0Cr"/>
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
         </do_elseif>
         <do_else>
@@ -543,7 +540,6 @@
       
       <do_if value="player.age ge $timeout">
         <!-- remove shoppinglist item, exit -->
-        <update_trade trade="$trade" price="0Cr"/>
         <remove_trade_order object="this.ship" trade="$trade"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade Timeout - aborting'.[player.age,this.name,this.container.name]"/>
         <resume label="abort trade"/>
@@ -574,13 +570,11 @@
         <!--do_if value="this.container.commanderentity.exists" comment="teporarily transfer current Money to commander to avoid unneeeded Money Transfers to the Player">
           <set_value name="$money" exact="this.money"/>
           <transfer_money amount="$money" from="this" to="this.container.commanderentity"/>
-          <update_trade trade="$trade" price="0Cr"/>
           <remove_trade_order object="this.ship" trade="$trade"/>
           <transfer_money amount="$money" from="this.container.commanderentity" to="this"/>
         </do_if>
         <do_else-->
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Trade not removed automatically - clearing manually, Trade Data:\n$tradepartner: %4 $ware: %5 $amount: %6 seller: %7 buyer: %8'.[player.age,this.name,this.container.name,$tradepartner,$trade.ware,$amount,$trade.seller,$trade.buyer]"/>
-          <update_trade trade="$trade" price="0Cr"/>
           <remove_trade_order object="this.ship" trade="$trade"/>
         <!--/do_else-->
       </do_if>
@@ -609,7 +603,6 @@
         <transfer_money amount="$trade.price" from="this" to="this.container.commanderentity"/>
       </do_if>
       <do_if value="$trade.exists and not $non_shoppinglist_trade?">
-      <update_trade trade="$trade" price="0Cr"/>
         <remove_trade_order object="this.ship" trade="$trade"/>
       </do_if>
       
