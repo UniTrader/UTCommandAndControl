@@ -106,7 +106,7 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
 	for _,v in ipairs(menu.data.entries) do
-		if not v[4] and not v[6] then
+		if not v[4] and not v[6] or true then
 			setup:addSimpleRow({v[3]}, v, {3})
 		elseif v[4] and v[5] and v[6] and v[7] then
 			local buttonA = Helper.createButton(Helper.createButtonText(v[4], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
