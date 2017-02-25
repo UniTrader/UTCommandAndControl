@@ -224,7 +224,7 @@ Rest is shared between all Actor types
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_genericui'">
-              <set_value name="$genericuiparam" exact="[0,0,'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', [], 'Back',null, null,null, null,null, 'Select', 'comm_settings_range_mod']"/>
+              <set_value name="$genericuiparam" exact="[0,0,'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', [], 'Back',null, 'Toggle Jump','comm_settings_range_toggle_jump', 'Toggle Highway','comm_settings_range_toggle_highway', 'Select (Soon: Remove)', 'comm_settings_range_mod']"/>
               <do_all exact="$actor.$ut_cac.$range.count" counter="$i" reverse="false">
                 <set_value name="$choicetext" exact="'%1. => %2H\033X %3J\033X %4 %5'.[ $i , if $actor.$ut_cac.$range_h.{$i} then '\033Y' else '' , if $actor.$ut_cac.$range_j.{$i} then '\033B' else '' , $actor.$ut_cac.$range.{$i}.name , if $actor.$ut_cac.$range_w.{$i} then ( 'via ' + $actor.$ut_cac.$range_w.{$i} ) else '']"/>
                 <append_to_list name="$genericuiparam.{5}" exact="[$i,true,$choicetext,$i,null]"/>
@@ -264,20 +264,20 @@ Rest is shared between all Actor types
             </do_elseif>
               <!-- Toggle Jump range/Not Jump Range by removing/Adding the Space to the related List (same for highway Range) -->
             <do_elseif value="event.param == 'comm_settings_range_toggle_jump'">
-              <do_if value="$actor.$ut_cac.$range_j.{$slot}">
-                <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="null"/>
+              <do_if value="$actor.$ut_cac.$range_j.{event.param2}">
+                <set_value name="$actor.$ut_cac.$range_j.{event.param2}" exact="null"/>
               </do_if>
               <do_else>
-                <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="$actor.$ut_cac.$range.{$slot}"/>
+                <set_value name="$actor.$ut_cac.$range_j.{event.param2}" exact="$actor.$ut_cac.$range.{$slot}"/>
               </do_else>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_toggle_highway'">
-              <do_if value="$actor.$ut_cac.$range_h.indexof.{$actor.$ut_cac.$range.{$slot}}">
-                <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="null"/>
+              <do_if value="$actor.$ut_cac.$range_h.{event.param2}">
+                <set_value name="$actor.$ut_cac.$range_h.{event.param2}" exact="null"/>
               </do_if>
               <do_else>
-                <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="$actor.$ut_cac.$range.{$slot}"/>
+                <set_value name="$actor.$ut_cac.$range_h.{event.param2}" exact="$actor.$ut_cac.$range.{event.param2}"/>
               </do_else>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
