@@ -118,6 +118,8 @@ function menu.onShowMenu()
 			setup:addSimpleRow({v[3], buttonA}, v, {2,1})
 		else
 			setup:addSimpleRow({v[3]}, v, {3})
+			setup:addSimpleRow({"First Button:", v[4] or "null" ,v[5] or "null"}, v, {1,1,1})
+			setup:addSimpleRow({"Second Button:", v[6] or "null" ,v[7] or "null"}, v, {1,1,1})
 		end
 		--setup:addSimpleRow({v}, v, {3})
 		--	  OP MODE: Select One, Local
