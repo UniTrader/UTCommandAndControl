@@ -8,6 +8,20 @@
 
 -- You break it - you buy another copy of a game for everyone affected lol!
 
+-- Extensions/Changes by UniTrader (parameter-Incompatible with Itaros' Version and therefore using another Name)
+-- 
+-- => Option to define up to 4 Buttons to the bottom of the Menu (including freely defineable position of back button)
+-- => Up to two Quickselect Buttons per Entry, defined per-entry 
+-- => 
+-- 
+-- Thanks for the excellent Template to base this on, Itaros.
+-- Sorry it took me so long to finally make use of it, but i was busy with other stuff.
+
+-- New Param Structure (Planned, NYI):
+-- param == { 0, 0, title(string), instruction_text(string), [selector_rules,..], button_1_text(string), button_1_section(string), button_2_text(string), button_2_section(string), button_3_text(string), button_3_section(string), button_4_text(string), button_4_section(string)}
+-- selector_rules format: [localid(integer),isNotDummy(bool)(NIY, must be true), usertext(string), payload(userdata)?, [deplist(integer, integer,...)]]
+-- button_*_text defines the availability of a bottom Button (not available if null), button_*_section defines its target Section (return if null)
+
 -- param == { 0, 0, [selector_rules,..], operation_mode(integer), title(string), success_subsection(string), instruction_text(string)}
 -- selector_rules format: [localid(integer),isNotDummy(bool)(NIY, must be true), usertext(string), payload(userdata)?, [deplist(integer, integer,...)]?(NIY, must be nil)]
 -- Operation Modes:
@@ -24,7 +38,7 @@
 -- Oh my, too much docs... To the deal ->
 
 local menu = {
-	name = "ita_genericui",
+	name = "ita_genericui_ut_mod",
 	defaultColor = { r = 255, g = 255, b = 255, a = 100 },
 	availColor = { r = 0, g = 192, b = 0, a = 100 },
 	buildingColor = { r = 192, g = 192, b = 0, a = 100 },
@@ -50,19 +64,26 @@ end
 
 function menu.fetch()
 	menu.data = {}
-	local dataset_selector = menu.param[3]
 	menu.data.entries = {}
+	menu.data.mode = false -- not used by me, or at least in a diffrent way. Will be removed when Script is cleaned.
+	-- Title and instructions
+	menu.data.title = menu.param[3]
+	menu.data.instruction_text = menu.param[4]
+	-- Menu Entries
+	local dataset_selector = menu.param[5]
 	--Should be proper tables. If moddev is not good enough to follow instructions I can't get better.
 	menu.data.entries = dataset_selector
-	menu.data.mode = menu.param[4]
-	menu.data.title = menu.param[5]
-	--mode
-	menu.data.mode = menu.param[4]
-	--subsection
-	menu.data.subsection = menu.param[6]
-	--instructions
-	menu.data.instruction_text = menu.param[7]
-	--POSTVALIDATION
+	--Buttons
+	menu.data.button_1_text = menu.param[6]
+	menu.data.button_1_section = menu.param[7]
+	menu.data.button_2_text = menu.param[8]
+	menu.data.button_2_section = menu.param[9]
+	menu.data.button_3_text = menu.param[10]
+	menu.data.button_3_section = menu.param[11]
+	menu.data.button_4_text = menu.param[12]
+	menu.data.button_4_section = menu.param[13]
+	
+	menu.data.subsection = "TO BE REPLACED"
 	if menu.data.instruction_text == nil then menu.data.instruction_text = "" end
 end
 
@@ -86,56 +107,47 @@ function menu.onShowMenu()
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
 	--menu.data.mode = 1 -- testhack
 	for _,v in ipairs(menu.data.entries) do
-		if menu.data.mode == 0 then
-			--OP MODE: Select One, Native
-			setup:addSimpleRow({v[3]}, v, {3})
-		elseif menu.data.mode == 1 then
-			--OP MODE: Select One, Local
-			local selectThisLocalBtn = Helper.createButton(Helper.createButtonText(ReadText(455600, 12), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
-			setup:addSimpleRow({v[3], selectThisLocalBtn}, v, {2,1})
-		end
-		--TODO: More modes
+		setup:addSimpleRow({v[3]}, v, {3})
+		--	  OP MODE: Select One, Local
+		--	local selectThisLocalBtn = Helper.createButton(Helper.createButtonText(ReadText(455600, 12), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
+		--	setup:addSimpleRow({v[3], selectThisLocalBtn}, v, {2,1})
 	end
 	local middesc = setup:createCustomWidthTable({Helper.scaleX(Helper.standardButtonWidth), 0 , 150-10-5}, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445)--{Helper.e_DescWidth}
 	--BOTTOM
 	setup = Helper.createTableSetup(menu)
-	local selectAllButton
-	local selectCurrentButton
-	if menu.data.mode == 2 then
-		selectAllButton = Helper.createButton(Helper.createButtonText(ReadText(455600, 13), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true), nil, nil)
-	else
-		selectAllButton = Helper.getEmptyCellDescriptor()
-	end
-	if menu.data.mode ~= 1 then
-		selectCurrentButton = Helper.createButton(Helper.createButtonText(ReadText(455600, 11), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, nil)
-	else
-		selectCurrentButton = Helper.getEmptyCellDescriptor()
-	end
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		Helper.createButton(Helper.createButtonText(ReadText(455600, 10), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_B", true), nil, nil),
+		if menu.data.button_1_text then 
+			Helper.createButton(Helper.createButtonText(menu.data.button_1_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_B", true), nil, nil)
+		else Helper.getEmptyCellDescriptor(),
 		Helper.getEmptyCellDescriptor(),
+		if menu.data.button_2_text then 
+			Helper.createButton(Helper.createButtonText(menu.data.button_2_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_BACK", true), nil, nil)
+		else Helper.getEmptyCellDescriptor(),
 		Helper.getEmptyCellDescriptor(),
+		if menu.data.button_3_text then 
+			Helper.createButton(Helper.createButtonText(menu.data.button_3_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true), nil, nil)
+		else Helper.getEmptyCellDescriptor(),
 		Helper.getEmptyCellDescriptor(),
-		selectAllButton,
+		if menu.data.button_4_text then 
+			Helper.createButton(Helper.createButtonText(menu.data.button_4_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, nil)
+		else Helper.getEmptyCellDescriptor(),
 		Helper.getEmptyCellDescriptor(),
-		selectCurrentButton,
-		Helper.getEmptyCellDescriptor()
 	}, nil, nil, false, menu.transparent)
-	local bottomdesc = setup:createCustomWidthTable({48, 150, 48, 150, 0, 150, 48, 150, 48}, false, false, true, 2, 1, 0, 550, 0, false)
+	local bottomdesc = setup:createCustomWidthTable({48, 150, 48, 150, 48, 150, 48, 150, 48}, false, false, true, 2, 1, 0, 550, 0, false)
 	--COMMIT
 	menu.toptable, menu.midtable, menu.bottomtable = Helper.displayThreeTableView(menu, topdesc, middesc, bottomdesc, false)
 	--BUTTONS
-	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 2, function () return menu.onCloseElement("back") end)
-	--Helper.setButtonScript(menu, nil, menu.buttontable, 1, 6, menu.buttonSelect)
-	--Selector button(s)
-	if menu.data.mode ~= 1 then
-		Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 8, menu.buttonOK)
-	else
-		for i,v in ipairs(menu.data.entries) do
-			Helper.setButtonScript(menu, nil, menu.midtable, i, 3, function () return menu.buttonSelectLocal(v) end)
-		end
-	end
+	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 2, menu.button1)
+	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 4, menu.button2)
+	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 6, menu.button3)
+	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 8, menu.button4)
+	
+--	   Dynamic per-Entry button template
+--		for i,v in ipairs(menu.data.entries) do
+--			Helper.setButtonScript(menu, nil, menu.midtable, i, 3, function () return menu.buttonSelectLocal(v) end)
+--		end
+	
 	--FINALIZE
 	Helper.releaseDescriptors()
 end
@@ -150,6 +162,46 @@ function menu.buttonOK()
 	if menu.rowDataMap[Helper.currentDefaultTableRow] then
 		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
 		Helper.closeMenuForSubSection(menu, false, menu.data.subsection, selection[4])
+	end
+end
+
+function menu.button1()
+	if menu.rowDataMap[Helper.currentDefaultTableRow] then
+		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
+		Helper.closeMenuForSubSection(menu, false, menu.data.button_1_section, selection[4])
+	end
+	if menu.data.button_1_section == nil then
+	    menu.onCloseElement("back")
+	end
+end
+
+function menu.button2()
+	if menu.rowDataMap[Helper.currentDefaultTableRow] then
+		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
+		Helper.closeMenuForSubSection(menu, false, menu.data.button_2_section, selection[4])
+	end
+	if menu.data.button_2_section == nil then
+	    menu.onCloseElement("back")
+	end
+end
+
+function menu.button3()
+	if menu.rowDataMap[Helper.currentDefaultTableRow] then
+		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
+		Helper.closeMenuForSubSection(menu, false, menu.data.button_3_section, selection[4])
+	end
+	if menu.data.button_3_section == nil then
+	    menu.onCloseElement("back")
+	end
+end
+
+function menu.button4()
+	if menu.rowDataMap[Helper.currentDefaultTableRow] then
+		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
+		Helper.closeMenuForSubSection(menu, false, menu.data.button_4_section, selection[4])
+	end
+	if menu.data.button_4_section == nil then
+	    menu.onCloseElement("back")
 	end
 end
 

@@ -224,12 +224,13 @@ Rest is shared between all Actor types
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_genericui'">
-              <set_value name="$genericuiparam" exact="[0,0,[], 0, 'Range Managment for %1'.[$actor.container.name], 'comm_settings_range_mod', 'Select Range to Modify']"/>
+              <set_value name="$genericuiparam" exact="[0,0,'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', [], 'Back',null, null,null, null,null, 'Select', 'comm_settings_range_mod']"/>
               <do_all exact="$actor.$ut_cac.$range.count" counter="$i" reverse="false">
                 <set_value name="$choicetext" exact="'%1. => %2H\033X %3J\033X %4 %5'.[ $i , if $actor.$ut_cac.$range_h.{$i} then '\033Y' else '' , if $actor.$ut_cac.$range_j.{$i} then '\033B' else '' , $actor.$ut_cac.$range.{$i}.name , if $actor.$ut_cac.$range_w.{$i} then ( 'via ' + $actor.$ut_cac.$range_w.{$i} ) else '']"/>
-                <append_to_list name="$genericuiparam.{3}" exact="[$i,true,$choicetext,$i,null]"/>
+                <append_to_list name="$genericuiparam.{5}" exact="[$i,true,$choicetext,$i,null]"/>
               </do_all>
-              <open_conversation_menu menu="ita_genericui" param="$genericuiparam" />
+              <append_to_list name="$genericuiparam.{5}" exact="[$i,true,'add Space',$i,null]"/>
+              <open_conversation_menu menu="ita_genericui_ut_mod" param="$genericuiparam" />
                <add_conversation_view view="closeupdetailmonitor" /> 
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_mod'">
