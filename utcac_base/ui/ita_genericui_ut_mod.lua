@@ -105,13 +105,13 @@ function menu.onShowMenu()
 	--MIDDLE(DATA)
 	setup = Helper.createTableSetup(menu)
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
-	--menu.data.mode = 1 -- testhack
-	--for _,v in ipairs(menu.data.entries) do
-	--	setup:addSimpleRow({v[3]}, v, {3})
+	menu.data.mode = 1 -- testhack
+	for _,v in ipairs(menu.data.entries) do
+		setup:addSimpleRow({v[3]}, v, {3})
 		--	  OP MODE: Select One, Local
 		--	local selectThisLocalBtn = Helper.createButton(Helper.createButtonText(ReadText(455600, 12), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 		--	setup:addSimpleRow({v[3], selectThisLocalBtn}, v, {2,1})
-	--end
+	end
 	local middesc = setup:createCustomWidthTable({Helper.scaleX(Helper.standardButtonWidth), 0 , 150-10-5}, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445)--{Helper.e_DescWidth}
 	--BOTTOM
 	setup = Helper.createTableSetup(menu)
