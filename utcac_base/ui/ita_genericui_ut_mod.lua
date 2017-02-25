@@ -119,7 +119,7 @@ function menu.onShowMenu()
 			local buttonA = Helper.createButton(Helper.createButtonText(v[6], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 			setup:addSimpleRow({v[3], buttonA}, v, {2,1})
 		else
-			PANIC!!!
+--			PANIC!!!
 		end
 		--	  OP MODE: Select One, Local
 		--	local selectThisLocalBtn = Helper.createButton(Helper.createButtonText(ReadText(455600, 12), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
@@ -170,7 +170,7 @@ function menu.onShowMenu()
 		elseif v[6] and v[7] then
 			Helper.setButtonScript(menu, nil, menu.midtable, i, 3, function () return menu.buttonSelectLocal(v[7],v[1]) end)
 		else
-			PANIC!!!
+--			PANIC!!!
 		end
 	
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 2, menu.button1)
