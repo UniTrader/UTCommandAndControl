@@ -106,20 +106,21 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
 	for _,v in ipairs(menu.data.entries) do
-		if v[4] and v[5] and v[6] and v[7] then
+		if v[4] != nil and v[5] != nil and v[6] != nil and v[7] != nil then
 			local buttonA = Helper.createButton(Helper.createButtonText(v[4], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 			local buttonB = Helper.createButton(Helper.createButtonText(v[6], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 			setup:addSimpleRow({v[3], buttonA, buttonB}, v, {1,1,1})
-		elseif v[4] and v[5] then
+		elseif v[4] != nil and v[5] != nil then
 			local buttonA = Helper.createButton(Helper.createButtonText(v[4], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 			setup:addSimpleRow({v[3], buttonA}, v, {2,1})
-		elseif v[6] and v[7] then
+		elseif v[6] != nil and v[7] != nil then
 			local buttonA = Helper.createButton(Helper.createButtonText(v[6], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 			setup:addSimpleRow({v[3], buttonA}, v, {2,1})
 		else
 			setup:addSimpleRow({v[3]}, v, {3})
 --			PANIC!!!
 		end
+		setup:addSimpleRow({v}, v, {3})
 		--	  OP MODE: Select One, Local
 		--	local selectThisLocalBtn = Helper.createButton(Helper.createButtonText(ReadText(455600, 12), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 		--	setup:addSimpleRow({v[3], selectThisLocalBtn}, v, {2,1})
