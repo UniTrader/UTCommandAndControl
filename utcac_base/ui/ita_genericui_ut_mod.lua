@@ -114,23 +114,32 @@ function menu.onShowMenu()
 	local middesc = setup:createCustomWidthTable({Helper.scaleX(Helper.standardButtonWidth), 0 , 150-10-5}, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445)--{Helper.e_DescWidth}
 	--BOTTOM
 	setup = Helper.createTableSetup(menu)
+	local button1entry
+	local button2entry
+	local button3entry
+	local button4entry
+	if menu.data.button_1_text then 
+		button1entry = Helper.createButton(Helper.createButtonText(menu.data.button_1_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_B", true), nil, nil)
+	else button1entry = Helper.getEmptyCellDescriptor() end
+	if menu.data.button_2_text then 
+		button2entry = Helper.createButton(Helper.createButtonText(menu.data.button_2_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_BACK", true), nil, nil),
+	else button2entry = Helper.getEmptyCellDescriptor() end,
+	if menu.data.button_3_text then 
+		button3entry = Helper.createButton(Helper.createButtonText(menu.data.button_3_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true), nil, nil),
+	else button3entry = Helper.getEmptyCellDescriptor() end,
+	if menu.data.button_4_text then 
+		button4entry = Helper.createButton(Helper.createButtonText(menu.data.button_4_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, nil),
+	else button4entry = Helper.getEmptyCellDescriptor() end,
+	
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		if menu.data.button_1_text then 
-			Helper.createButton(Helper.createButtonText(menu.data.button_1_text or "unused", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_B", true), nil, nil)
-		else Helper.getEmptyCellDescriptor() end,
+		button1entry,
 		Helper.getEmptyCellDescriptor(),
---		if menu.data.button_2_text then 
-			Helper.createButton(Helper.createButtonText(menu.data.button_2_text or "unused", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_BACK", true), nil, nil),
---		else Helper.getEmptyCellDescriptor() end,
+		button2entry,
 		Helper.getEmptyCellDescriptor(),
---		if menu.data.button_3_text then 
-			Helper.createButton(Helper.createButtonText(menu.data.button_3_text or "unused", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true), nil, nil),
---		else Helper.getEmptyCellDescriptor() end,
+		button3entry,
 		Helper.getEmptyCellDescriptor(),
---		if menu.data.button_4_text then 
-			Helper.createButton(Helper.createButtonText(menu.data.button_4_text or "unused", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, nil),
---		else Helper.getEmptyCellDescriptor() end,
+		button4entry,
 		Helper.getEmptyCellDescriptor()
 	}, nil, nil, false, menu.transparent)
 	local bottomdesc = setup:createCustomWidthTable({48, 150, 48, 150, 48, 150, 48, 150, 48}, false, false, true, 2, 1, 0, 550, 0, false)
