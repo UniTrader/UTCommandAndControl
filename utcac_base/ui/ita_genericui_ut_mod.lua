@@ -123,13 +123,13 @@ function menu.onShowMenu()
 	else button1entry = Helper.getEmptyCellDescriptor() end
 	if menu.data.button_2_text then 
 		button2entry = Helper.createButton(Helper.createButtonText(menu.data.button_2_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_BACK", true), nil, nil),
-	else button2entry = Helper.getEmptyCellDescriptor() end,
+	else button2entry = Helper.getEmptyCellDescriptor() end
 	if menu.data.button_3_text then 
 		button3entry = Helper.createButton(Helper.createButtonText(menu.data.button_3_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true), nil, nil),
-	else button3entry = Helper.getEmptyCellDescriptor() end,
+	else button3entry = Helper.getEmptyCellDescriptor() end
 	if menu.data.button_4_text then 
 		button4entry = Helper.createButton(Helper.createButtonText(menu.data.button_4_text, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, nil),
-	else button4entry = Helper.getEmptyCellDescriptor() end,
+	else button4entry = Helper.getEmptyCellDescriptor() end
 	
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
