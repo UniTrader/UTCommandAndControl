@@ -253,7 +253,7 @@ Rest is shared between all Actor types
                 <add_player_choice_return text="{5554103,7}" position="close" />
               </do_if>
               <do_else>
-                <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_set']]"/>
+                <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_add']]"/>
                 <add_conversation_view view="closeupdetailmonitor" />
               </do_else>
             </do_elseif>
@@ -286,9 +286,10 @@ Rest is shared between all Actor types
                 <set_value name="$actor.$ut_cac.$range_w.{$slot}" exact="null"/>
               </do_if>
               <do_else>
-                <set_value name="$actor.$ut_cac.$range.{$slot}" exact="null"/>
-                <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="null"/>
-                <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="null"/>
+                <remove_value name="$actor.$ut_cac.$range.{$slot}"/>
+                <remove_value name="$actor.$ut_cac.$range_j.{$slot}"/>
+                <remove_value name="$actor.$ut_cac.$range_h.{$slot}"/>
+                <remove_value name="$actor.$ut_cac.$range_w.{$slot}"/>
               </do_else>
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
@@ -297,6 +298,13 @@ Rest is shared between all Actor types
               <set_value name="$actor.$ut_cac.$range.{$slot}" exact="event.param2.{3}"/>
               <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
               <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
+              <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_range_add'">
+              <append_to_list name="$actor.$ut_cac.$range.{$slot}" exact="event.param2.{3}"/>
+              <append_to_list name="$actor.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
+              <append_to_list name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
