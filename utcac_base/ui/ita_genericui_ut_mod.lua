@@ -19,7 +19,7 @@
 
 -- New Param Structure (Planned, NYI):
 -- param == { 0, 0, title(string), instruction_text(string), [selector_rules,..], button_1_text(string), button_1_section(string), button_2_text(string), button_2_section(string), button_3_text(string), button_3_section(string), button_4_text(string), button_4_section(string)}
--- selector_rules format: [localid(integer),isNotDummy(bool)(NIY, must be true), usertext(string), payload(userdata)?, [deplist(integer, integer,...)]]
+-- selector_rules format: [localid(integer),isNotDummy(bool)(NIY, must be true), usertext(string), button_A_text(string), button_A_section(string),button_B_text(string), button_B_section(string)]]
 -- button_*_text defines the availability of a bottom Button (not available if null), button_*_section defines its target Section (return if null)
 
 -- param == { 0, 0, [selector_rules,..], operation_mode(integer), title(string), success_subsection(string), instruction_text(string)}
@@ -106,7 +106,21 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
 	for _,v in ipairs(menu.data.entries) do
-		setup:addSimpleRow({v[3]}, v, {3})
+		if not v[4] and not v[6] then
+			setup:addSimpleRow({v[3]}, v, {3})
+		elseif v[4] and v[5] and v[6] and v[7] then
+			local buttonA = Helper.createButton(Helper.createButtonText(v[4], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
+			local buttonB = Helper.createButton(Helper.createButtonText(v[6], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
+			setup:addSimpleRow({v[3], buttonA, buttonB}, v, {1,1,1})
+		elseif v[4] and v[5] then
+			local buttonA = Helper.createButton(Helper.createButtonText(v[4], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
+			setup:addSimpleRow({v[3], buttonA}, v, {2,1})
+		elseif v[6] and v[7] then
+			local buttonA = Helper.createButton(Helper.createButtonText(v[6], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
+			setup:addSimpleRow({v[3], buttonA}, v, {2,1})
+		else
+			PANIC!!!
+		end
 		--	  OP MODE: Select One, Local
 		--	local selectThisLocalBtn = Helper.createButton(Helper.createButtonText(ReadText(455600, 12), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 		--	setup:addSimpleRow({v[3], selectThisLocalBtn}, v, {2,1})
@@ -146,6 +160,19 @@ function menu.onShowMenu()
 	--COMMIT
 	menu.toptable, menu.midtable, menu.bottomtable = Helper.displayThreeTableView(menu, topdesc, middesc, bottomdesc, false)
 	--BUTTONS
+	
+	for i,v in ipairs(menu.data.entries) do
+		if v[4] and v[5] and v[6] and v[7] then
+			Helper.setButtonScript(menu, nil, menu.midtable, i, 2, function () return menu.buttonSelectLocal(v[5],v[1]) end)
+			Helper.setButtonScript(menu, nil, menu.midtable, i, 3, function () return menu.buttonSelectLocal(v[7],v[1]) end)
+		elseif v[4] and v[5] then
+			Helper.setButtonScript(menu, nil, menu.midtable, i, 3, function () return menu.buttonSelectLocal(v[5],v[1]) end)
+		elseif v[6] and v[7] then
+			Helper.setButtonScript(menu, nil, menu.midtable, i, 3, function () return menu.buttonSelectLocal(v[7],v[1]) end)
+		else
+			PANIC!!!
+		end
+	
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 2, menu.button1)
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 4, menu.button2)
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 6, menu.button3)
@@ -162,8 +189,8 @@ end
 
 --menu.updateInterval = 5.0
 
-function menu.buttonSelectLocal(entry)
-	Helper.closeMenuForSubSection(menu, false, menu.data.subsection, entry[4])
+function menu.buttonSelectLocal(section,param)
+	Helper.closeMenuForSubSection(menu, false, section, param)
 end
 
 function menu.buttonOK()
