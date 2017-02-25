@@ -119,6 +119,7 @@ function menu.onShowMenu()
 --			local buttonA = Helper.createButton(Helper.createButtonText(v[6], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 --			setup:addSimpleRow({v[3], buttonA}, v, {2,1})
 		else
+			setup:addSimpleRow({v[3]}, v, {3})
 --			PANIC!!!
 		end
 		--	  OP MODE: Select One, Local
