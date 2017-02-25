@@ -105,7 +105,6 @@ function menu.onShowMenu()
 	--MIDDLE(DATA)
 	setup = Helper.createTableSetup(menu)
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
-	menu.data.mode = 1 -- testhack
 	for _,v in ipairs(menu.data.entries) do
 		setup:addSimpleRow({v[3]}, v, {3})
 		--	  OP MODE: Select One, Local
@@ -117,9 +116,9 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
---		if menu.data.button_1_text then 
-			Helper.createButton(Helper.createButtonText(menu.data.button_1_text or "unused", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_B", true), nil, nil),
---		else Helper.getEmptyCellDescriptor() end,
+		if menu.data.button_1_text then 
+			Helper.createButton(Helper.createButtonText(menu.data.button_1_text or "unused", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_B", true), nil, nil)
+		else Helper.getEmptyCellDescriptor() end,
 		Helper.getEmptyCellDescriptor(),
 --		if menu.data.button_2_text then 
 			Helper.createButton(Helper.createButtonText(menu.data.button_2_text or "unused", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_BACK", true), nil, nil),
