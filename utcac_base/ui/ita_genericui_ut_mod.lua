@@ -160,7 +160,6 @@ function menu.onShowMenu()
 	--COMMIT
 	menu.toptable, menu.midtable, menu.bottomtable = Helper.displayThreeTableView(menu, topdesc, middesc, bottomdesc, false)
 	--BUTTONS
-	
 	for i,v in ipairs(menu.data.entries) do
 		if v[4] and v[5] and v[6] and v[7] then
 			Helper.setButtonScript(menu, nil, menu.midtable, i, 2, function () return menu.buttonSelectLocal(v[5],v[1]) end)
@@ -172,7 +171,7 @@ function menu.onShowMenu()
 		else
 --			PANIC!!!
 		end
-	
+	end
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 2, menu.button1)
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 4, menu.button2)
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 6, menu.button3)
