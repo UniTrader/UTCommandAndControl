@@ -124,7 +124,7 @@ function menu.onShowMenu()
 		--	local selectThisLocalBtn = Helper.createButton(Helper.createButtonText(ReadText(455600, 12), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
 		--	setup:addSimpleRow({v[3], selectThisLocalBtn}, v, {2,1})
 	end
-	local middesc = setup:createCustomWidthTable({1200 - (2x Helper.scaleX(Helper.standardButtonWidth) ), Helper.scaleX(Helper.standardButtonWidth) , Helper.scaleX(Helper.standardButtonWidth)}, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445)--{Helper.e_DescWidth}
+	local middesc = setup:createCustomWidthTable({1200 - (2 * Helper.scaleX(Helper.standardButtonWidth) ), Helper.scaleX(Helper.standardButtonWidth) , Helper.scaleX(Helper.standardButtonWidth)}, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445)--{Helper.e_DescWidth}
 	--BOTTOM
 	setup = Helper.createTableSetup(menu)
 	local button1entry
