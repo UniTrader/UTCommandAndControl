@@ -257,6 +257,47 @@ Rest is shared between all Actor types
                 <add_conversation_view view="closeupdetailmonitor" />
               </do_else>
             </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_range_move_down'">
+                <set_value name="$tmp_range" exact="$actor.$ut_cac.$range.{event.param2}"/>
+                <set_value name="$tmp_range_h" exact="$actor.$ut_cac.$range_h.{event.param2}"/>
+                <set_value name="$tmp_range_j" exact="$actor.$ut_cac.$range_j.{event.param2}"/>
+                <remove_value name="$actor.$ut_cac.$range.{event.param2}"/>
+                <remove_value name="$actor.$ut_cac.$range_h.{event.param2}"/>
+                <remove_value name="$actor.$ut_cac.$range_j.{event.param2}"/>
+                <set_value name="$actor.$ut_cac.$range.{event.param2 + 1}" operation="insert" exact="$tmp_range"/>
+                <set_value name="$actor.$ut_cac.$range_h.{event.param2 + 1}" operation="insert" exact="$tmp_range_h"/>
+                <set_value name="$actor.$ut_cac.$range_j.{event.param2 + 1}" operation="insert" exact="$tmp_range_h"/>
+                <remove_value name="$tmp_range"/>
+                <remove_value name="$tmp_range_h"/>
+                <remove_value name="$tmp_range_j"/>
+                <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_range_change'">
+              <set_value name="$slot" exact="event.param2"/>
+              <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_selectwaypoint']]"/>
+              <add_conversation_view view="closeupdetailmonitor" />
+            </do_elseif>
+            <do_elseif value="event.param == 'comm_settings_range_change_selectwaypoint'">
+              <set_value name="$actor.$ut_cac.$range.{$slot}" exact="event.param2.{3}"/>
+              <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
+              <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
+              <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
+              <do_if value="event.param2.{3}.parent.isclass.galaxy">
+                <set_value name="$tmp" exact="'galaxy'"/>
+              </do_if>
+              <do_elseif value="event.param2.{3}.parent.isclass.cluster">
+                <set_value name="$tmp" exact="'cluster'"/>
+              </do_elseif>
+              <do_elseif value="event.param2.{3}.parent.isclass.sector">
+                <set_value name="$tmp" exact="'sector'"/>
+              </do_elseif>
+              <do_elseif value="event.param2.{3}.parent.isclass.zone">
+                <set_value name="$tmp" exact="'zone'"/>
+              </do_elseif>
+              <open_conversation_menu menu="UTMapMenu" param="[0, 0, $tmp, event.param2.{3}.parent, null, event.param2.{3}, 'selectspace', ['comm_settings_range_set_waypoint']]"/>
+              <remove_value name="$tmp"/>
+              <add_conversation_view view="closeupdetailmonitor" />
+            </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set_waypoint'">
               <set_value name="$actor.$ut_cac.$range_w.{$slot}" exact="event.param2.{3}"/>
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
