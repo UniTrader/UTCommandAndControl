@@ -191,7 +191,7 @@ end
 --menu.updateInterval = 5.0
 
 function menu.buttonSelectLocal(resultlist)
-	DebugError("Button Pressed, resultlist:"..resultlist)
+	DebugError("Button Pressed, resultlist:  "..resultlist[1].."  "resultlist[2])
 	Helper.closeMenuForSubSection(menu, false, resultlist[1], resultlist[2] )
 end
 
