@@ -106,7 +106,7 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
 	if menu.data.instruction_text then
-		setup:addSimpleRow({ Helper.getEmptyCellDescriptor() })
+		setup:addSimpleRow({Helper.getEmptyCellDescriptor()}, nil, {3})
 	end
 	for _,v in ipairs(menu.data.entries) do
 		if ( v[5] and v[6] and v[7] and v[8] ) then
