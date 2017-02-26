@@ -104,7 +104,7 @@ function menu.onShowMenu()
 	local topdesc = setup:createCustomWidthTable({ 0, Helper.scaleX(Helper.e_IconEntrySize) + 37 }, false, true)
 	--MIDDLE(DATA)
 	setup = Helper.createTableSetup(menu)
-	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
+	local descriptionTableHeight = Helper.e_FigureHeight + 30 -- Helper.headerRow2Height
 	for _,v in ipairs(menu.data.entries) do
 		if ( v[5] and v[6] and v[7] and v[8] ) then
 			local buttonA = Helper.createButton(Helper.createButtonText(v[5], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, nil, nil, nil)
