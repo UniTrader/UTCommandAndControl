@@ -18,7 +18,7 @@
 -- Sorry it took me so long to finally make use of it, but i was busy with other stuff.
 
 -- New Param Structure (Planned, NYI):
--- param == { 0, 0, title(string), instruction_text(string), [selector_rules,..], button_1_text(string), button_1_section(string), button_2_text(string), button_2_section(string), button_3_text(string), button_3_section(string), button_4_text(string), button_4_section(string)}
+-- param == { 0, 0, title(string), instruction_text(string), highlighted_line, [selector_rules,..], button_1_text(string), button_1_section(string), button_2_text(string), button_2_section(string), button_3_text(string), button_3_section(string), button_4_text(string), button_4_section(string)}
 -- selector_rules format: [localid(integer),isNotDummy(bool)(NIY, must be true), usertext(string), payload(userdata)?, button_A_text(string), button_A_section(string),button_B_text(string), button_B_section(string)]]
 -- button_*_text defines the availability of a bottom Button (not available if null), button_*_section defines its target Section (return if null)
 
@@ -69,19 +69,21 @@ function menu.fetch()
 	-- Title and instructions
 	menu.data.title = menu.param[3]
 	menu.data.instruction_text = menu.param[4]
+	-- figuring out how to do this currently.. just a placeholder atm
+	menu.data.highlighted_line = menu.param[5]
 	-- Menu Entries
-	local dataset_selector = menu.param[5]
+	local dataset_selector = menu.param[6]
 	--Should be proper tables. If moddev is not good enough to follow instructions I can't get better.
 	menu.data.entries = dataset_selector
 	--Buttons
-	menu.data.button_1_text = menu.param[6]
-	menu.data.button_1_section = menu.param[7]
-	menu.data.button_2_text = menu.param[8]
-	menu.data.button_2_section = menu.param[9]
-	menu.data.button_3_text = menu.param[10]
-	menu.data.button_3_section = menu.param[11]
-	menu.data.button_4_text = menu.param[12]
-	menu.data.button_4_section = menu.param[13]
+	menu.data.button_1_text = menu.param[7]
+	menu.data.button_1_section = menu.param[8]
+	menu.data.button_2_text = menu.param[9]
+	menu.data.button_2_section = menu.param[10]
+	menu.data.button_3_text = menu.param[11]
+	menu.data.button_3_section = menu.param[12]
+	menu.data.button_4_text = menu.param[13]
+	menu.data.button_4_section = menu.param[14]
 	
 	menu.data.subsection = "TO BE REPLACED"
 	if menu.data.instruction_text == nil then menu.data.instruction_text = "" end
