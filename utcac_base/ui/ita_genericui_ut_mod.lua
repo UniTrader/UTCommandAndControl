@@ -164,12 +164,12 @@ function menu.onShowMenu()
 	--BUTTONS
 	for i,v in ipairs(menu.data.entries) do
 		if v[4] and v[5] and v[6] and v[7] then
-			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 2, function () return menu.buttonSelectLocal(v[5],v[1]) end)
-			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 3, function () return menu.buttonSelectLocal(v[7],v[1]) end)
+			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 2, function () return menu.buttonSelectLocal({v[5],v[1]}) end)
+			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 3, function () return menu.buttonSelectLocal({v[7],v[1]}) end)
 		elseif v[4] and v[5] then
-			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 3, function () return menu.buttonSelectLocal(v[5],v[1]) end)
+			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 3, function () return menu.buttonSelectLocal({v[5],v[1]}) end)
 		elseif v[6] and v[7] then
-			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 3, function () return menu.buttonSelectLocal(v[7],v[1]) end)
+			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 3, function () return menu.buttonSelectLocal({v[7],v[1]}) end)
 		else
 --			PANIC!!!
 		end
@@ -190,8 +190,8 @@ end
 
 --menu.updateInterval = 5.0
 
-function menu.buttonSelectLocal(section,param)
-	Helper.closeMenuForSubSection(menu, false, section, param)
+function menu.buttonSelectLocal(resultlist)
+	Helper.closeMenuForSubSection(menu, false, resultlist[1], resultlist[2] )
 end
 
 function menu.buttonOK()
