@@ -491,7 +491,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_else>
             </do_elseif>
             <!-- Stations -->
-            <do_elseif value="$selectedobject.station?">
+            <do_elseif value="$selectedobject.station.isclass.station">
               <add_player_choice position="1" text="{5554102,165}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <do_if value="global.$utcac.$enemy_priority?" comment="Check if the Global Ignorelist is available">
                 <add_player_choice position="2" text="{5554102,175}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
@@ -505,6 +505,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_if>
               <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
             </do_elseif>
+            <do_else>
+              <add_player_choice position="1" text="'Unknown Object Type'" section="null" selectable="false"/>
+              <add_player_choice position="2" text="'Please make a Bugrep'" section="null" selectable="false"/>
+              <add_player_choice position="2" text="'to handle this case properly'" section="null" selectable="false"/>
+              <add_player_choice position="4" text="{5554102,158}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
+            </do_else>
             <do_if value="$commandtarget == player.ship">
               <remove_value name="$commandtarget"/>
             </do_if>
