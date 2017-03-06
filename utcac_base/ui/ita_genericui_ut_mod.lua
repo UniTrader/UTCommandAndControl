@@ -143,10 +143,13 @@ function menu.onShowMenu()
 	setup:addTitleRow({
 		Helper.createFontString(menu.title, false, "left", 255, 255, 255, 100, Helper.headerRow1Font, Helper.headerRow1FontSize, false, Helper.headerRow1Offsetx, Helper.headerRow1Offsety, Helper.headerRow1Height, Helper.headerRow1Width)
 	}, nil, {2})
+	print("Title Row created")
 	setup:addTitleRow({ 
 		Helper.createFontString(menu.data.instruction_text, false, "left", 129, 160, 182, 100, Helper.headerRow2Font, Helper.headerRow2FontSize, false, Helper.headerRow2Offsetx, Helper.headerRow2Offsety, Helper.headerRow2Height, Helper.headerRow1Width)	-- text depends on selection
 	}, nil, {2})
+	print("Instruction Text created")
 	local topdesc = setup:createCustomWidthTable({ 0, Helper.scaleX(Helper.e_IconEntrySize) + 37 }, false, true)
+	print("topdesc created")
 	--MIDDLE(DATA)
 	setup = Helper.createTableSetup(menu)
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
@@ -155,7 +158,9 @@ function menu.onShowMenu()
 		setup:addTitleRow({Helper.getEmptyCellDescriptor()}, nil, {#menu.data.midtable_column_sizes}, false, menu.transparent)
 		row = row + 1
 	end
+	print("Instruction Text Spacer created")
 	for _,rowdef in ipairs(menu.data.midtable_rows) do
+		print("Creating Content for row "..row)
 		-- first create the Row Content and then add it to the menu as the selected type of row
 		rowcontent = {}
 		local column = 1
@@ -168,20 +173,25 @@ function menu.onShowMenu()
 													-- menu.createCell(celldefinition,row,column,height,width)
 			table.insert(rowcontent,menu.CreateCell(rowdef[i+1],row,column,25,cellwidth,menu.data.buttonlist_middle))
 		end
+		print("Row Content created")
 		-- select type of Row 
 		if rowdef[1][1] == "header" then
 -- function setup:addHeaderRow(cells, rowdata, colspans, noscaling, bgColor)
 			setup:addHeaderRow(rowcontent,false,rowdef[1][2],false)
+			print("Header Row created")
 		elseif rowdef[1][1] == "regular" then
 -- function setup:addSimpleRow(cells, rowdata, colspans, noscaling, bgColor)
 			setup:addSimpleRow(rowcontent,rowdef[1],rowdef[1][2],false)
 			--ToDo!!!!: Save Param and Section somewhere to evaluate it when line is selected
+			print("Regular Row Created")
 		elseif rowdef[1][1] == "nonselectable" then
 			-- using header here because simple row is selectable
 			setup:addHeaderRow(rowcontent, false, rowdef[1][2], false, Helper.defaultSimpleBackgroundColor)
+			print("Nonselectable Row created")
 		elseif rowdef[1][1] == "invisible" then
 			-- using header here because simple row is selectable
 			setup:addHeaderRow(rowcontent, false, rowdef[1][2], false, menu.transparent)
+			print("Invisible Row Created")
 		else
 			DebugError("Unknown Row Type in row "..row.." Type: "..rowdef[1].." - filling with empty Row")
 			setup:addHeaderRow({Helper.getEmptyCellDescriptor()}, false, nil , false, menu.transparent)
@@ -190,7 +200,9 @@ function menu.onShowMenu()
 		DebugError("Row "..row.."Created")
 		row = row + 1
 	end
+	print("creating middesc")
 	local middesc = setup:createCustomWidthTable(menu.data.midtable_column_sizes, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445)--{Helper.e_DescWidth}
+	print("middesc created")
 	--BOTTOM
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
