@@ -75,19 +75,26 @@ function menu.fetch()
 	menu.data = {}
 	menu.data.entries = {}
 	
+	DebugError("Menu Fetch:")
+	
 -- Menu in general
 	menu.data.title = menu.param[3]
 	menu.data.instruction_text = menu.param[4]
 	if menu.data.instruction_text == nil then menu.data.instruction_text = "" end
 	menu.data.special_function = menu.param[5]
 	
+	DebugError("Title: "..menu.data.title.." Info: "..menu.data.instruction_text.." Special: "..menu.data.special_function)
+	
 -- Mid-Section definition
 	menu.data.preselected_line = menu.param[6]
 	menu.data.midtable_column_sizes = menu.param[7]
 	menu.data.midtable_rows = menu.param[8]
 	
+	DebugError("Selected: "..menu.data.preselected_line.." Column Sizes: "..menu.data.midtable_column_sizes.." content: "..menu.data.midtable_rows)
+	
 -- Bottom Row
 	menu.data.bottom_row = menu.param[9]
+	DebugError("Bottom Row: "..menu.data.bottom_row)
 	
 	-- just keeping this for reference until finished.
 	if false then
@@ -159,14 +166,14 @@ function menu.onShowMenu()
 		if rowdef[1][1] == "header" then
 -- function setup:addHeaderRow(cells, rowdata, colspans, noscaling, bgColor)
 			setup:addHeaderRow(rowcontent,false,rowdef[1][2],false)
-		elseif rowdef[1] == "regular" then
+		elseif rowdef[1][1] == "regular" then
 -- function setup:addSimpleRow(cells, rowdata, colspans, noscaling, bgColor)
 			setup:addSimpleRow(rowcontent,rowdef[1],rowdef[1][2],false)
 			--ToDo!!!!: Save Param and Section somewhere to evaluate it when line is selected
-		elseif rowdef[1] == "nonselectable" then
+		elseif rowdef[1][1] == "nonselectable" then
 			-- using header here because simple row is selectable
 			setup:addHeaderRow(rowcontent, false, rowdef[1][2], false, Helper.defaultSimpleBackgroundColor)
-		elseif rowdef[1] == "invisible" then
+		elseif rowdef[1][1] == "invisible" then
 			-- using header here because simple row is selectable
 			setup:addHeaderRow(rowcontent, false, rowdef[1][2], false, menu.transparent)
 		else
@@ -174,6 +181,7 @@ function menu.onShowMenu()
 			setup:addHeaderRow({Helper.getEmptyCellDescriptor()}, false, nil , false, menu.transparent)
 			-- error and add an empty row
 		end
+		DebugError("Row "..row.."Created")
 		row = row + 1
 	end
 	local middesc = setup:createCustomWidthTable(menu.data.midtable_column_sizes, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445)--{Helper.e_DescWidth}
