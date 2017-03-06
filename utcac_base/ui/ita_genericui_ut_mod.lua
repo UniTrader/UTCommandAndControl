@@ -246,6 +246,10 @@ function menu.createCell(celldefinition,row,column,height,width,buttonlist)
 			-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
 			table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
 		end
+		local hotkey
+		if celldefinition[4] then 
+			hotkey = Helper.createButtonHotkey(celldefinition[4], true) 
+		end
 		return Helper.createButton(
 				Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), 
 				nil, 
@@ -256,7 +260,7 @@ function menu.createCell(celldefinition,row,column,height,width,buttonlist)
 				width, 
 				height, 
 				nil, 
-				if celldefinition[4] ~= nil then Helper.createButtonHotkey(celldefinition[4], true) else nil end, 
+				hotkey, 
 				nil, 
 				nil)
 	elseif celldefinition[1] == "statusbar" then
