@@ -224,12 +224,22 @@ Rest is shared between all Actor types
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_genericui'">
-              <set_value name="$genericuiparam" exact="[0,0,'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', 'placehoder for highlighted option', [], 'Back',null, 'Toggle Jump','comm_settings_range_toggle_jump', 'Toggle Highway','comm_settings_range_toggle_highway', 'Select (Soon: Remove)', 'comm_settings_range_mod']"/>
+              <set_value name="$genericuiparam" exact="
+[0,0,'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', null ,
+'placehoder for highlighted line' , [ 25 , 25 , 25 , 670 , 150 , 150 , 150 ]
+ [] ,
+ [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'Toggle Jump' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true ] , 
+    [ 'button' ,  'Toggle Highway' , 'comm_settings_range_toggle_highway' , 'INPUT_STATE_DETAILMONITOR_Y' , true ] , [ 'button' , 'Select (Soon: Remove)', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]"/>
               <do_all exact="$actor.$ut_cac.$range.count" counter="$i" reverse="false">
                 <set_value name="$choicetext" exact="'%1. => %2H\033X %3J\033X %4 %5'.[ $i , if $actor.$ut_cac.$range_h.{$i} then '\033Y' else '' , if $actor.$ut_cac.$range_j.{$i} then '\033B' else '' , $actor.$ut_cac.$range.{$i}.name , if $actor.$ut_cac.$range_w.{$i} then ( 'via ' + $actor.$ut_cac.$range_w.{$i} ) else '']"/>
-                <append_to_list name="$genericuiparam.{5}" exact="[$i,true,$choicetext,$i,if $i lt $actor.$ut_cac.$range.count then 'V Move Down V' else null,'comm_settings_range_move_down' , 'Change','comm_settings_range_change']"/>
+                <append_to_list name="$genericuiparam.{7}" exact="[$i,true,$choicetext,$i,if $i lt $actor.$ut_cac.$range.count then 'V Move Down V' else null,'comm_settings_range_move_down' , 'Change','comm_settings_range_change']"/>
+                <append_to_list name="$genericuiparam.{7}" exact="
+[ [ 'nonselectable' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] ] , 
+   [ 'text' , $i + '.' ] , [ 'button' , if $actor.$ut_cac.$range_h.{$i} then '\033YH' else 'H' , 'comm_settings_range_toggle_highway' , null  , true , $i  ] , [ 'button' , if $actor.$ut_cac.$range_h.{$i} then '\033BJ' else 'J' , 'comm_settings_range_toggle_jump' , null  , true , $i ] ,
+   [ 'text' ,  $actor.$ut_cac.$range.{$i}.name + ( if $actor.$ut_cac.$range_w.{$i} then ( 'via ' + $actor.$ut_cac.$range_w.{$i} ) else '' ) ] , 
+   [ 'button' , 'V Move Down V' , 'comm_settings_range_move_down' , null , true , $i ] , [ 'button' , 'Change' , 'comm_settings_range_change' , null , true , $i ] , [ 'button' , if $actor.$ut_cac.$range_w.{$i} then 'Set Waypoint' else 'Change Waypoint' , 'comm_settings_range_change_waypoint' , null , true , $i] ]
+"/>
               </do_all>
-              <append_to_list name="$genericuiparam.{5}" exact="[$genericuiparam.{5}.count + 1,true,'add Space',$genericuiparam.{5}.count + 1, null,null , 'ADD »»','comm_settings_range_add_select']"/><!---->
               <open_conversation_menu menu="ita_genericui_ut_mod" param="$genericuiparam" />
                <add_conversation_view view="closeupdetailmonitor" /> 
             </do_elseif>
@@ -274,28 +284,11 @@ Rest is shared between all Actor types
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_change'">
               <set_value name="$slot" exact="event.param2"/>
-              <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_selectwaypoint']]"/>
+              <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_set']]"/>
               <add_conversation_view view="closeupdetailmonitor" />
             </do_elseif>
-            <do_elseif value="event.param == 'comm_settings_range_change_selectwaypoint'">
-              <set_value name="$actor.$ut_cac.$range.{$slot}" exact="event.param2.{3}"/>
-              <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
-              <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
-              <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
-              <do_if value="event.param2.{3}.parent.isclass.galaxy">
-                <set_value name="$tmp" exact="'galaxy'"/>
-              </do_if>
-              <do_elseif value="event.param2.{3}.parent.isclass.cluster">
-                <set_value name="$tmp" exact="'cluster'"/>
-              </do_elseif>
-              <do_elseif value="event.param2.{3}.parent.isclass.sector">
-                <set_value name="$tmp" exact="'sector'"/>
-              </do_elseif>
-              <do_elseif value="event.param2.{3}.parent.isclass.zone">
-                <set_value name="$tmp" exact="'zone'"/>
-              </do_elseif>
-              <open_conversation_menu menu="UTMapMenu" param="[0, 0, $tmp, event.param2.{3}.parent, null, event.param2.{3}, 'selectspace', ['comm_settings_range_set_waypoint']]"/>
-              <remove_value name="$tmp"/>
+            <do_elseif value="event.param == 'comm_settings_range_change_waypoint'">
+              <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_set_waypoint']]"/>
               <add_conversation_view view="closeupdetailmonitor" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set_waypoint'">
