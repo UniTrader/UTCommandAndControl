@@ -31,7 +31,7 @@
 -- First Entry is the Type as String, the next Entries depend on its Type:
 -- { 'header' , {combined_cells} }
 -- { 'regular' , {combined_cells} [,section [,param [,keepvisible [,notsubsection ]]]] }
--- { 'nonselectable' , {combined_cells}}
+-- { 'nonselectable' , {combined_cells} }
 -- { 'invisible' , {combined_cells} }
 --
 -- Cell definition:
@@ -241,7 +241,12 @@ function menu.createCell(celldefinition,row,column,height,width,buttonlist)
 		return celldefinition[2]
 	elseif celldefinition[1] == "button" then
 -- { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] }
-		button1entry = Helper.createButton(
+		-- Fill List with all Button Scripts to assign so i dont have to loop over the whole list twice
+		if celldefinition[5] then
+			-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
+			table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
+		end
+		return Helper.createButton(
 				Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), 
 				nil, 
 				false,
@@ -254,14 +259,9 @@ function menu.createCell(celldefinition,row,column,height,width,buttonlist)
 				if celldefinition[4] then Helper.createButtonHotkey(celldefinition[4], true) else nil end, 
 				nil, 
 				nil)
-		-- Fill List with all Button Scripts to assign so i dont have to loop over the whole list twice
-		if celldefinition[5] then
-			-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
-			table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
-		end
 	elseif celldefinition[1] == "statusbar" then
 -- { 'statusbar' , fillpercent , red , green , blue , alpha }
-		Helper.createIcon(
+		return Helper.createIcon(
 			"solid", 
 			noscaling, 
 			celldefinition[3], 
