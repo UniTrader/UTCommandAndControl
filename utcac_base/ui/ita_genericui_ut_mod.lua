@@ -75,7 +75,7 @@ function menu.fetch()
 	menu.data = {}
 	menu.data.entries = {}
 	
-	DebugError("Menu Fetch:")
+	DebugError("Lua Menu Fetch:")
 	
 -- Menu in general
 	menu.data.title = menu.param[3]
@@ -83,18 +83,24 @@ function menu.fetch()
 	if menu.data.instruction_text == nil then menu.data.instruction_text = "" end
 	menu.data.special_function = menu.param[5]
 	
-	DebugError("Title: "..(menu.data.title or "nil").." Info: "..(menu.data.instruction_text or "nil").." Special: "..(print(menu.data.special_function) or "nil"))
+	print("Title: "..(menu.data.title or "nil").." Info: "..(menu.data.instruction_text or "nil").." Special: ")
+	print(menu.data.special_function)
 	
 -- Mid-Section definition
 	menu.data.preselected_line = menu.param[6]
 	menu.data.midtable_column_sizes = menu.param[7]
 	menu.data.midtable_rows = menu.param[8]
 	
-	DebugError("Selected: "..(menu.data.preselected_line or "nil").." Column Sizes: "..(print(menu.data.midtable_column_sizes) or "nil").." content: "..(print(menu.data.midtable_rows) or "nil"))
+	print("Selected: "..(menu.data.preselected_line or "nil").." Column Sizes: "
+	print(menu.data.midtable_column_sizes)
+	print("content: ")
+	print(menu.data.midtable_rows)
 	
 -- Bottom Row
 	menu.data.bottom_row = menu.param[9]
-	DebugError("Bottom Row: "..(print(menu.data.bottom_row) or "nil"))
+	
+	print("Bottom Row: ")
+	print(menu.data.bottom_row)
 	
 	-- just keeping this for reference until finished.
 	if false then
