@@ -124,7 +124,7 @@ function menu.fetch()
 	menu.data.button_4_text = menu.param[13]
 	menu.data.button_4_section = menu.param[14]
 	
-	-- List for all Buttons to assign - set up by CreateCell and used in onShowMenu at the end
+	-- List for all Buttons to assign - set up by menu.CreateCell and used in onShowMenu at the end
 	menu.data.buttonlist_middle = {}
 	menu.data.buttonlist_bottom = {}
 	
@@ -170,8 +170,8 @@ function menu.onShowMenu()
 				cellwidth = cellwidth+menu.data.midtable_column_sizes[j]
 			end
 			column=column+rowdef[1][2][i]
-													-- CreateCell(celldefinition,row,column,height,width)
-			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,25,cellwidth,menu.data.buttonlist_middle))
+													-- menu.createCell(celldefinition,row,column,height,width)
+			table.insert(rowcontent,menu.CreateCell(rowdef[i+1],row,column,25,cellwidth,menu.data.buttonlist_middle))
 		end
 		print("Row Content created")
 		-- select type of Row 
@@ -207,13 +207,13 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[1],row,2,25,150,menu.data.buttonlist_bottom),
+		menu.CreateCell(menu.data.bottom_row[1],row,2,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[2],row,4,25,150,menu.data.buttonlist_bottom),
+		menu.CreateCell(menu.data.bottom_row[2],row,4,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[3],row,6,25,150,menu.data.buttonlist_bottom),
+		menu.CreateCell(menu.data.bottom_row[3],row,6,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[4],row,8,25,150,menu.data.buttonlist_bottom),
+		menu.CreateCell(menu.data.bottom_row[4],row,8,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor()
 	}, nil, nil, false, menu.transparent)
 	local bottomdesc = setup:createCustomWidthTable({48, 150, 48, 150, 48, 150, 48, 150, 48}, false, false, true, 2, 1, 0, 550, 0, false)
@@ -259,7 +259,7 @@ end
 
 --menu.updateInterval = 5.0
 
-local function CreateCell(celldefinition,row,column,height,width,buttonlist)
+function menu.createCell(celldefinition,row,column,height,width,buttonlist)
 	if celldefinition == nil then
 		return Helper.getEmptyCellDescriptor()
 	elseif celldefinition[1] == "text" then
