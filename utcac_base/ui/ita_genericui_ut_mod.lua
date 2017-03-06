@@ -83,18 +83,18 @@ function menu.fetch()
 	if menu.data.instruction_text == nil then menu.data.instruction_text = "" end
 	menu.data.special_function = menu.param[5]
 	
-	DebugError("Title: "..menu.data.title or "nil".." Info: "..menu.data.instruction_text or "nil".." Special: "..menu.data.special_function or "nil")
+	DebugError("Title: "..(menu.data.title or "nil").." Info: "..(menu.data.instruction_text or "nil").." Special: "..(print(menu.data.special_function) or "nil"))
 	
 -- Mid-Section definition
 	menu.data.preselected_line = menu.param[6]
 	menu.data.midtable_column_sizes = menu.param[7]
 	menu.data.midtable_rows = menu.param[8]
 	
-	DebugError("Selected: "..menu.data.preselected_line or "nil".." Column Sizes: "..menu.data.midtable_column_sizes or "nil".." content: "..menu.data.midtable_rows or "nil")
+	DebugError("Selected: "..(menu.data.preselected_line or "nil").." Column Sizes: "..(print(menu.data.midtable_column_sizes) or "nil").." content: "..(print(menu.data.midtable_rows) or "nil"))
 	
 -- Bottom Row
 	menu.data.bottom_row = menu.param[9]
-	DebugError("Bottom Row: "..menu.data.bottom_row or "nil")
+	DebugError("Bottom Row: "..(print(menu.data.bottom_row) or "nil"))
 	
 	-- just keeping this for reference until finished.
 	if false then
