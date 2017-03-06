@@ -152,7 +152,7 @@ function menu.onShowMenu()
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
 	local row = 1
 	if menu.data.instruction_text then
-		setup:addTitleRow({Helper.getEmptyCellDescriptor()}, nil, {3}, false, menu.transparent)
+		setup:addTitleRow({Helper.getEmptyCellDescriptor()}, nil, {#menu.data.midtable_column_sizes}, false, menu.transparent)
 		row = row + 1
 	end
 	for _,rowdef in ipairs(menu.data.midtable_rows) do
