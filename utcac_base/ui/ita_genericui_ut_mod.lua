@@ -93,7 +93,7 @@ function menu.fetch()
 	
 	print("Selected: "..(menu.data.preselected_line or "nil").." Column Sizes: ")
 	print(menu.data.midtable_column_sizes)
-	print("content: ")
+	print("content: - "..#menu.data.midtable_rows.."entries")
 	print(menu.data.midtable_rows)
 	
 -- Bottom Row
