@@ -91,7 +91,7 @@ function menu.fetch()
 	menu.data.midtable_column_sizes = menu.param[7]
 	menu.data.midtable_rows = menu.param[8]
 	
-	print("Selected: "..(menu.data.preselected_line or "nil").." Column Sizes: "
+	print("Selected: "..(menu.data.preselected_line or "nil").." Column Sizes: ")
 	print(menu.data.midtable_column_sizes)
 	print("content: ")
 	print(menu.data.midtable_rows)
