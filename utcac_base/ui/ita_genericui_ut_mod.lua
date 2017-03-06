@@ -256,7 +256,7 @@ function menu.createCell(celldefinition,row,column,height,width,buttonlist)
 				width, 
 				height, 
 				nil, 
-				if celldefinition[4] then Helper.createButtonHotkey(celldefinition[4], true) else nil end, 
+				if celldefinition[4] ~= nil then Helper.createButtonHotkey(celldefinition[4], true) else nil end, 
 				nil, 
 				nil)
 	elseif celldefinition[1] == "statusbar" then
