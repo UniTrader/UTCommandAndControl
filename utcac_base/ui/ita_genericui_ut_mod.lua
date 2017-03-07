@@ -99,11 +99,13 @@ function menu.fetch()
 	for i, v in pairs(menu.data.midtable_column_sizes) do
 		if value == -1 then
 			index = i
+			print("Found -1 Entry in column "..index.."will set it to remaining width of")
 		else
 			totalwidth = totalwidth + v + 4 -- 4 is the spacing between columns; the last one is omited by pre-setting the totalwitdth to -4
 		end
 	end
-	if not ( index == nil ) then
+	if index then
+		print((1200 - totalwidth).."pixels - Totalwidth="..totalwidth)
 		menu.data.midtable_column_sizes[index] = 1200 - totalwidth
 	end
 	
