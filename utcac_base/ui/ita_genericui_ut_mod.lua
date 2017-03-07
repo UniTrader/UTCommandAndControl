@@ -162,7 +162,7 @@ function menu.onShowMenu()
 					true, 
 					0, 
 					0, 
-					width, 
+					width / 1.4, 
 					height, 
 					nil, 
 					hotkey, 
