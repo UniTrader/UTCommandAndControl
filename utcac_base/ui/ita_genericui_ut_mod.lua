@@ -97,7 +97,7 @@ function menu.fetch()
 	local index = nil
 	local totalwidth = -5 -- set to -5 to have 1 pixel tolerance to the 1200 pixel limit and to omit one spacer between columns with a size of 4 (added for each column in the loop following)
 	for i, v in pairs(menu.data.midtable_column_sizes) do
-		if value == -1 then
+		if v == -1 then
 			index = i
 			print("Found -1 Entry in column "..index.."will set it to remaining width of")
 		else
