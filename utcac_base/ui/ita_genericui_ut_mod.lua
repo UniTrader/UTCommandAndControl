@@ -139,7 +139,6 @@ function menu.onShowMenu()
 	
 	local function CreateCell(celldefinition,row,column,height,width,buttonlist)
 		print("createCell called for a "..celldefinition[1].." Cell")
-		print(buttonlist)
 		if celldefinition == nil then
 			return Helper.getEmptyCellDescriptor()
 		elseif celldefinition[1] == "text" then
@@ -223,11 +222,10 @@ function menu.onShowMenu()
 		for i = 1,#rowdef-1 do
 			local cellwidth = 0
 			for j = column,column+rowdef[1][2][i] do
-				cellwidth = cellwidth+menu.data.midtable_column_sizes[j]
+				cellwidth = cellwidth+menu.data.midtable_column_sizes[j] or 0
 			end
 			column=column+rowdef[1][2][i]
 													-- menu.createCell(celldefinition,row,column,height,width)
-			print(menu.data.buttonlist_middle)
 			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,25,cellwidth,menu.data.buttonlist_middle))
 		end
 		print("Row Content created")
