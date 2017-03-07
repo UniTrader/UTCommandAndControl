@@ -26,6 +26,8 @@
 -- nil -- nothing
 -- {'editbox','initialtext'} 
 -- {'scrollbar',min_display_value,min_possible_value,initial_value,max_possible_value,max_display_value[,step_value]}
+--
+--midtable_column_sizes are the Sizes of the midtable columns. you can set ONE Value to -1 which will set the Size of it that the Line is completely filled. (undefined behavior if its more than one entry)
 -- 
 -- Line Properties:
 -- First Entry is the Type as String, the next Entries depend on its Type:
@@ -187,6 +189,22 @@ function menu.onShowMenu()
 		end
 		DebugError("Cell Definition didnt return in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
 		return Helper.getEmptyCellDescriptor()
+	end
+	
+	-- Calculate Dynamic Row Size if we have a dynamic (-1) Entry
+	if true then
+		local index = nil
+		local totalwidth = -5 -- set to -5 to have 1 pixel tolerance to the 1200 pixel limit and to omit one spacer between columns with a size of 4 (added for each column in the loop following)
+		for i, v in pairs(menu.data.midtable_column_sizes) do
+			if value == -1 then
+				index = i
+			else
+				totalwidth = totalwidth + v + 4 -- 4 is the spacing between columns; the last one is omited by pre-setting the totalwitdth to -4
+			end
+		end
+		if not ( index == nil ) then
+			menu.data.midtable_column_sizes[index] = 1200 - totalwidth
+		end
 	end
 	
 	--FETCHING
