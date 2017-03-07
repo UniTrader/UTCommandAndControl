@@ -234,7 +234,7 @@ Rest is shared between all Actor types
               <do_all exact="$actor.$ut_cac.$range.count" counter="$i" reverse="false">
                 <set_value name="$choicetext" exact="'%1. => %2H\033X %3J\033X %4 %5'.[ $i , if $actor.$ut_cac.$range_h.{$i} then '\033Y' else '' , if $actor.$ut_cac.$range_j.{$i} then '\033B' else '' , $actor.$ut_cac.$range.{$i}.name , if $actor.$ut_cac.$range_w.{$i} then ( 'via ' + $actor.$ut_cac.$range_w.{$i} ) else '']"/>
                 <!--append_to_list name="$genericuiparam.{8}" exact="[$i,true,$choicetext,$i,if $i lt $actor.$ut_cac.$range.count then 'V Move Down V' else null,'comm_settings_range_move_down' , 'Change','comm_settings_range_change']"/-->
-                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'nonselectable' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] ] , 
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] ] , 
 [ 'text' , $i + '.' ] , [ 'button' , if $actor.$ut_cac.$range_h.{$i} then '\033YH' else 'H' , 'comm_settings_range_toggle_highway' , null  , true , $i  ] , [ 'button' , if $actor.$ut_cac.$range_h.{$i} then '\033BJ' else 'J' , 'comm_settings_range_toggle_jump' , null  , true , $i ] ,
 [ 'text' ,  $actor.$ut_cac.$range.{$i}.name + ( if $actor.$ut_cac.$range_w.{$i} then ( 'via ' + $actor.$ut_cac.$range_w.{$i} ) else '' ) ] ,
 [ 'button' , 'V Move Down V' , 'comm_settings_range_move_down' , null , true , $i ] , [ 'button' , 'Change' , 'comm_settings_range_change' , null , true , $i ] , [ 'button' , if $actor.$ut_cac.$range_w.{$i} then 'Set Waypoint' else 'Change Waypoint' , 'comm_settings_range_change_waypoint' , null , true , $i]
