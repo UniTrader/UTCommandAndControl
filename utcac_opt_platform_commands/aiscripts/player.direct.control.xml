@@ -7,7 +7,7 @@
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
   </params>
- <interrupts>
+  <interrupts>
     <handler comment="Player Undocked - Terminate">
       <conditions>
         <event_object_changed_room object="player.entity"/>
@@ -17,7 +17,6 @@
         <resume label="finish"/>
       </actions>
     </handler>
-   
   </interrupts>
     <actions>
       <label name="init"/>
@@ -25,7 +24,7 @@
       <set_value name="$originalpos" exact="position.[player.entity.position.x,player.entity.position.y+0.05m,player.entity.position.z]"/>
       <do_if value="player.platform.macro.id == 'capital_bridge2_wrapper_macro'">
         <set_player_entity_position>
-          <position x="0" y="5" z="25"/>
+          <position x="0" y="5" z="27"/>
         </set_player_entity_position>
       </do_if>
       <do_else>
@@ -35,14 +34,13 @@
       </do_else>
       <!-- wait a second until he falls down -->
       <wait exact="1s"/>
-      <!-- save Player Pos as normal Pos to restore constantly -->
+      <!-- save Player Pos as normal Pos to compare pos to for position-based triggers -->
       <set_value name="$normalpos" exact="position.[player.entity.position.x,player.entity.position.y+0.005m,player.entity.position.z]"/>
       <set_value name="$boost" exact="false"/>
-	  
       
       <!-- create orientation light in front -->
       <transform_position name="$position" refposition="$normalpos" refrotation="rotation.[0deg,0deg,0deg]">
-        <position x="0m" y="0m" z="2.5km"/>
+        <position x="0m" y="0m" z="2km"/>
       </transform_position>
       <add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'">
         <position value="$position"/>
@@ -50,171 +48,67 @@
       
       
       <label name="start"/>
-      <set_avoid_collisions object="player.ship" enabled="false"/><!-- this one makes fly-through problems with Stations, so deactivated for now -->
-      <do_while value="player.platform.exists ">
+      <!--set_avoid_collisions object="player.ship" enabled="false"/--><!-- this one makes fly-through problems with Stations, so deactivated for now -->
+      <do_while value="player.platform.exists">
         <!-- get Player Looking Direction -->
         <!-- first get Position in front of Player (relative to Sector)- now with 3deg deadzone -->
-		
-        <do_if value="player.entity.rotation.yaw lt 2deg and player.entity.rotation.yaw gt -2deg and player.entity.rotation.pitch lt 2deg and player.entity.rotation.pitch gt -2deg ">
+        <do_if value="player.entity.rotation.yaw lt 3deg and player.entity.rotation.yaw gt -3deg and player.entity.rotation.pitch lt 3deg and player.entity.rotation.pitch gt -3deg">
           <set_value name="$rotation" exact="rotation.[0deg,0deg,0deg]"/>
         </do_if>
-        <do_elseif value="player.entity.rotation.yaw gt 178deg and player.entity.rotation.yaw lt -178deg and player.entity.rotation.pitch gt 2deg and player.entity.rotation.pitch lt -2deg ">
+        <do_elseif value="player.entity.rotation.yaw gt 177deg and player.entity.rotation.yaw lt -177deg and player.entity.rotation.pitch lt 3deg and player.entity.rotation.pitch gt -3deg">
           <set_value name="$rotation" exact="rotation.[180deg,0deg,0deg]"/>
         </do_elseif>
-		<do_else>
-		<set_value name="$rotation" exact="player.entity.rotation"/>
+        <do_else>
+          <set_value name="$rotation" exact="player.entity.rotation"/>
         </do_else>
-		 <!-- check if player Jumped, and if toggle boost var and reset pos -->
-        <do_if value="player.entity.position.y gt $normalpos.y + 1.02m and player.entity.position.z gt $normalpos.z + 0.5m">
+        <transform_position name="$position" refposition="position.[0,0,0]" refrotation="$rotation">
+          <position x="0m" y="0m" z="if $boost then 10km else player.ship.size"/>
+        </transform_position>
+        <transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
+          <position value="$position"/>
+        </transform_position>
+        <do_if value="$rotation.yaw gt 90deg and $rotation.yaw lt -90deg" comment="reverse flight">
+          <create_orientation name="$rotation" refobject="player.ship" orientation="look_at">
+            <position value="$position"/>
+          </create_orientation>
+        </do_if>
+        <do_else>
+          <create_orientation name="$rotation" refobject="player.ship" orientation="look_away">
+            <position value="$position"/>
+          </create_orientation>
+        </do_else>
+        <move_to object="player.ship" destination="player.zone" boost="$boost" abortpath="true" avoid="false" reverse="$rotation.yaw gt 90deg or $rotation.yaw lt -90deg">
+          <position value="$position" space="player.zone"/>
+          <rotation value="$rotation"/>
+          <interrupt_after_time time="0s"/>
+        </move_to>
+        <wait exact="100ms"/>
+        <!-- check if player Jumped, and if toggle boost var and reset pos -->
+        <do_if value="player.entity.position.y gt $normalpos.y + 0.05m">
           <set_value name="$boost" exact="not $boost"/>
         </do_if>
         <!-- if player is still falling -set new Pos (workaround for other Platforms) - removed for now -->
         <!--do_elseif value="player.entity.position.y lt $normalpos.y - 0.04m">
           <set_value name="$normalpos" exact="player.entity.position"/>
         </do_elseif-->
-		
-		<!--Bewegungseinschraenkung-->
-		<do_if value="player.entity.position.x gt $normalpos.x + 0.01m and player.entity.position.z gt $normalpos.z + 0.5m or player.entity.position.x lt $normalpos.x - 0.01m and player.entity.position.z gt $normalpos.z + 0.5m">
-			<set_player_entity_position>
-				<position x="0.01" y="player.entity.position.y" z="player.entity.position.z" />
-			</set_player_entity_position>
-		</do_if>
-		<do_if value="player.entity.position.x gt $normalpos.x + 0.01m and player.entity.position.z lt $normalpos.z - 0.5m or player.entity.position.x lt $normalpos.x - 0.01m and player.entity.position.z lt $normalpos.z - 0.5m">
-			<set_player_entity_position>
-				<position x="0.01" y="player.entity.position.y" z="player.entity.position.z" />
-			</set_player_entity_position>
-		</do_if>
-		<do_if value="player.entity.position.x gt $normalpos.x + 0.6m and player.entity.position.z lt $normalpos.z + 0.5m ">
-			<set_player_entity_position>
-				<position x="0.6" y="player.entity.position.y" z="player.entity.position.z" />
-			</set_player_entity_position>
-		</do_if>
-		<do_if value="player.entity.position.x lt $normalpos.x - 0.6m and player.entity.position.z lt $normalpos.z + 0.5m">
-			<set_player_entity_position>
-				<position x="- 0.6" y="player.entity.position.y" z="player.entity.position.z" />
-			</set_player_entity_position>
-		</do_if>
-		<do_if value="player.entity.position.z lt $normalpos.z - 0.6m">
-			<set_player_entity_position>
-				<position x="player.entity.position.x" y="player.entity.position.y" z="$normalpos.z - 0.6" />
-			</set_player_entity_position>
-		</do_if>
-		
-		<do_if value="player.entity.position.z gt $normalpos.z + 0.5m "> <!--langsam fliegen mit boost -->
-			<transform_position name="$position" refposition="position.[0,0,0]" refrotation="$rotation">
-				<position  z="if $boost then 1km else 50m"/>
-			</transform_position>
-			<transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
-				<position value="$position"/>
-			</transform_position>
-		</do_if>
-		<do_if value="player.entity.position.z gt $normalpos.z + 1.0m "> <!--halbe kraft fliegen mit boost -->
-			<transform_position name="$position" refposition="position.[0,0,0]" refrotation="$rotation">
-				<position  z="if $boost then 2km else 200m"/>
-			</transform_position>
-			<transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
-				<position value="$position"/>
-			</transform_position>
-		</do_if>
-		<do_if value="player.entity.position.z gt $normalpos.z + 2.0m"> <!--volle kraft  mit boost-->
-			<transform_position name="$position" refposition="position.[0,0,0]" refrotation="$rotation">
-				<position  z="if $boost then 5km else 500m"/>
-			</transform_position>
-			<transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
-				<position value="$position"/>
-			</transform_position>
-		</do_if>
-		
-		<do_if value="player.entity.position.z lt $normalpos.z - 0.5m "> <!--rueckwaerts ohne boost-->
-			<transform_position name="$position" refposition="position.[0,0,0]" refrotation="$rotation">
-				<position  z=" - 100m"/>
-			</transform_position>
-			<transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
-				<position value="$position"/>
-			</transform_position>
-		</do_if>
-		
-		<do_if value="player.entity.position.x lt $normalpos.x - 0.5m and player.entity.position.z lt $normalpos.z + 0.5m and player.entity.position.z gt $normalpos.z - 0.5m"> <!--strafen links-->
-			<transform_position name="$position" refposition="position.[0,0,0]" refrotation="$rotation">
-				<position x=" - 100m"/>
-			</transform_position>
-			<transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
-				<position value="$position"/>
-			</transform_position>
-		</do_if>
-		<do_if value="player.entity.position.x gt $normalpos.x + 0.5m and player.entity.position.z lt $normalpos.z + 0.5m and player.entity.position.z gt $normalpos.z - 0.5m " > <!--strafen rechts -->
-			<transform_position name="$position" refposition="position.[0,0,0]" refrotation="$rotation">
-				<position x="100m" />
-			</transform_position>
-			<transform_position name="$position" refposition="player.ship.position" refrotation="player.ship.rotation">
-				<position value="$position"/>
-			</transform_position>
-		</do_if>
-		
-        <do_if value="player.entity.position.z lt $normalpos.z - 0.5m " > <!--schiffsaurichtung nach manoever-->
-           <create_orientation name="$rotation" refobject="player.ship" orientation="look_at"> 
-            <position value="$position"/>
-          </create_orientation>
-		</do_if>
-       <do_else>
-          <create_orientation name="$rotation" refobject="player.ship" orientation="look_away">
-            <position value="$position"/>
-          </create_orientation>
-       </do_else> 
-		<do_if value="player.entity.position.z gt $normalpos.z + 0.5m"> <!-- vorwaertsflug mit boost-->
-			<move_to object="player.ship" destination="player.zone" boost="$boost" abortpath="true" avoid="false">
-				<position value="$position" space="player.zone"/>
-				<rotation value="$rotation"/>
-				<interrupt_after_time time="0s"/>
-			</move_to>
-			<remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>	
-			<transform_position name="$position" refposition="$normalpos" refrotation="rotation.[0deg,0deg,0deg]">
-				<position x="0m" y="0m" z="2.0km"/>
-			</transform_position>
-			<add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'">
-				<position value="$position"/>
-			</add_effect>
-		</do_if>
-		<do_if value="player.entity.position.z lt $normalpos.z - 0.5m ">  <!-- rueckwaertsflug ohne boost -->
-			<move_to object="player.ship" destination="player.zone" abortpath="true" avoid="false" reverse="true" >
-				<position value="$position" space="player.zone"/>
-				<rotation value="$rotation"/>
-				<interrupt_after_time time="0s"/>
-			</move_to>
-			<remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>	
-			<transform_position name="$position" refposition="$normalpos" refrotation="rotation.[0deg,0deg,0deg]">
-				<position x="0m" y="0m" z="2.0km"/>
-			</transform_position>
-			<add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'">
-				<position value="$position"/>
-			</add_effect>
-		</do_if>
-		<do_if value="player.entity.position.x lt $normalpos.x - 0.5m and player.entity.position.z lt $normalpos.z + 0.5m and player.entity.position.z gt $normalpos.z - 0.5m or player.entity.position.x gt $normalpos.x + 0.5m and player.entity.position.z lt $normalpos.z + 0.5m and player.entity.position.z gt $normalpos.z - 0.5m"> <!--strafen links und rechts-->
-			<move_strafe object="player.ship" destination="player.zone" abortpath="true" avoid="false" >
-				<position value="$position" space="player.zone"/>
-				<interrupt_after_time time="0s"/>
-			</move_strafe>
-			<remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>	
-			<transform_position name="$position" refposition="$normalpos" refrotation="rotation.[0deg,0deg,0deg]">
-				<position x="0m" y="0m" z="2.0km"/>
-			</transform_position>
-			<add_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'">
-				<position value="$position"/>
-			</add_effect>
-		</do_if>
-				
-		<wait exact="100ms"/>
-		<!--label="finish"-->
-               	
-	</do_while>
+        <!-- check if the Player stepped backwards to exit -->
+        <do_elseif value="player.entity.position.z lt $normalpos.z - 0.1m">
+          <resume label="finish"/>
+        </do_elseif>
+        <!-- check if player moved from normalpos and reset pos -->
+        <do_elseif value="player.entity.distanceto.{$normalpos} gt 0.15m">
+          <set_player_entity_position>
+            <position value="$normalpos"/>
+          </set_player_entity_position>
+        </do_elseif>
+      </do_while>
       <label name="finish"/>
       <do_if value="player.platform.exists">
         <set_player_entity_position>
           <position value="$originalpos"/>
         </set_player_entity_position>
-		<set_value name="$direct_control" exact="false"/>
         <stop_moving object="this.ship" immediate="true"/>
-        <set_avoid_collisions object="player.ship" enabled="true"/>
+        <!--set_avoid_collisions object="player.ship" enabled="true"/-->
         <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
         <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
       </do_if>
@@ -224,11 +118,10 @@
       <set_player_entity_position>
         <position value="$originalpos"/>
       </set_player_entity_position>
-	  
-	  <stop_moving object="this.ship" immediate="true"/>
-      <set_avoid_collisions object="player.ship" enabled="true"/>
+      <stop_moving object="this.ship" immediate="true"/>
+      <!--set_avoid_collisions object="player.ship" enabled="true"/-->
       <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
-	  <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
+        <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
     </do_if>
   </on_abort>
 </aiscript>

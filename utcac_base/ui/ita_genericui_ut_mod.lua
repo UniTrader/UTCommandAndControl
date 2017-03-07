@@ -289,7 +289,7 @@ function menu.onShowMenu()
 		CreateCell(menu.data.bottom_row[4],row,8,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor()
 	}, nil, nil, false, menu.transparent)
-	local bottomdesc = setup:createCustomWidthTable({48, 210, 48, 210, 48, 210, 48, 210, 48}, false, false, true, 2, 1, 0, 550, 0, false)
+	local bottomdesc = setup:createCustomWidthTable({48, 150, 48, 150, 48, 150, 48, 150, 48}, false, false, true, 2, 1, 0, 550, 0, false)
 	--COMMIT
 	menu.toptable, menu.midtable, menu.bottomtable = Helper.displayThreeTableView(menu, topdesc, middesc, bottomdesc, false)
 	--BUTTONS
