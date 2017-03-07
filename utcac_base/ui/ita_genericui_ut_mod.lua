@@ -136,7 +136,7 @@ function menu.onShowMenu()
 	
 	-- Set up CreateCell Function
 	
-	local function createCell(celldefinition,row,column,height,width,buttonlist)
+	local function CreateCell(celldefinition,row,column,height,width,buttonlist)
 		print("createCell called for a "..celldefinition[1].." Cell")
 		if celldefinition == nil then
 			return Helper.getEmptyCellDescriptor()
