@@ -162,7 +162,7 @@ function menu.onShowMenu()
 					true, 
 					0, 
 					0, 
-					width / 1.4, 
+					( width / 1.4 ) + 1,  -- returned Buttons are 40% too wide, reducing value to get a fitting button
 					height, 
 					nil, 
 					hotkey, 
