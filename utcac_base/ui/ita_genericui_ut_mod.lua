@@ -124,7 +124,7 @@ function menu.fetch()
 	menu.data.button_4_text = menu.param[13]
 	menu.data.button_4_section = menu.param[14]
 	
-	-- List for all Buttons to assign - set up by menu.CreateCell and used in onShowMenu at the end
+	-- List for all Buttons to assign - set up by CreateCell and used in onShowMenu at the end
 	menu.data.buttonlist_middle = {}
 	menu.data.buttonlist_bottom = {}
 	
@@ -133,7 +133,61 @@ function menu.fetch()
 end
 
 function menu.onShowMenu()
-
+	
+	-- Set up CreateCell Function
+	
+	local function createCell(celldefinition,row,column,height,width,buttonlist)
+		print("createCell called for a "..celldefinition[1].." Cell")
+		if celldefinition == nil then
+			return Helper.getEmptyCellDescriptor()
+		elseif celldefinition[1] == "text" then
+	-- { 'text' , 'Text' }
+			return celldefinition[2]
+		elseif celldefinition[1] == "button" then
+	-- { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] }
+			-- Fill List with all Button Scripts to assign so i dont have to loop over the whole list twice
+			if celldefinition[5] then
+				-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
+				table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
+			end
+			local hotkey
+			if celldefinition[4] then 
+				hotkey = Helper.createButtonHotkey(celldefinition[4], true) 
+			end
+			return Helper.createButton(
+					Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), 
+					nil, 
+					false,
+					true, 
+					0, 
+					0, 
+					width, 
+					height, 
+					nil, 
+					hotkey, 
+					nil, 
+					nil)
+		elseif celldefinition[1] == "statusbar" then
+	-- { 'statusbar' , fillpercent , red , green , blue , alpha }
+		return Helper.createIcon(
+				"solid", 
+				noscaling, 
+				celldefinition[3], 
+				celldefinition[4],
+				celldefinition[5],
+				celldefinition[6], 
+				0, 
+				0, 
+				height, 
+				celldefinition[3] * width / 100)
+		else
+			DebugError("unknown Cell Definition in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
+			return Helper.getEmptyCellDescriptor()
+		end
+		DebugError("Cell Definition didnt return in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
+		return Helper.getEmptyCellDescriptor()
+	end
+	
 	--FETCHING
 	menu.fetch()
 	--UI DATA
@@ -171,7 +225,7 @@ function menu.onShowMenu()
 			end
 			column=column+rowdef[1][2][i]
 													-- menu.createCell(celldefinition,row,column,height,width)
-			table.insert(rowcontent,menu.CreateCell(rowdef[i+1],row,column,25,cellwidth,menu.data.buttonlist_middle))
+			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,25,cellwidth,menu.data.buttonlist_middle))
 		end
 		print("Row Content created")
 		-- select type of Row 
@@ -207,13 +261,13 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		menu.CreateCell(menu.data.bottom_row[1],row,2,25,150,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[1],row,2,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		menu.CreateCell(menu.data.bottom_row[2],row,4,25,150,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[2],row,4,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		menu.CreateCell(menu.data.bottom_row[3],row,6,25,150,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[3],row,6,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		menu.CreateCell(menu.data.bottom_row[4],row,8,25,150,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[4],row,8,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor()
 	}, nil, nil, false, menu.transparent)
 	local bottomdesc = setup:createCustomWidthTable({48, 150, 48, 150, 48, 150, 48, 150, 48}, false, false, true, 2, 1, 0, 550, 0, false)
