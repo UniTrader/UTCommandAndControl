@@ -102,6 +102,11 @@ function menu.fetch()
 	print("Bottom Row: ")
 	print(menu.data.bottom_row)
 	
+	
+	-- List for all Buttons to assign - set up by CreateCell and used in onShowMenu at the end
+	menu.data.buttonlist_middle = {}
+	menu.data.buttonlist_bottom = {}
+	
 	-- just keeping this for reference until finished.
 	if false then
 	menu.data.mode = false -- not used by me, or at least in a diffrent way. Will be removed when Script is cleaned.
@@ -123,10 +128,6 @@ function menu.fetch()
 	menu.data.button_3_section = menu.param[12]
 	menu.data.button_4_text = menu.param[13]
 	menu.data.button_4_section = menu.param[14]
-	
-	-- List for all Buttons to assign - set up by CreateCell and used in onShowMenu at the end
-	menu.data.buttonlist_middle = {}
-	menu.data.buttonlist_bottom = {}
 	
 	menu.data.subsection = "TO BE REPLACED"
 	end
