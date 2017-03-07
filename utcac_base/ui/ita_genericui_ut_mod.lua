@@ -275,13 +275,13 @@ function menu.onShowMenu()
 	--COMMIT
 	menu.toptable, menu.midtable, menu.bottomtable = Helper.displayThreeTableView(menu, topdesc, middesc, bottomdesc, false)
 	--BUTTONS
-	for i in menu.data.buttonlist_middle do
+	for _,v in ipairs(menu.data.buttonlist_middle) do
 		-- Buttonlist Entry: {row,column,next_section,param,keepvisible,notsubsection}																	section,			param,			keepvisible,	notsubsection
-		Helper.setButtonScript(menu, nil, menu.midtable, menu.data.buttonlist_middle[i][1], menu.data.buttonlist_middle[i][2], function () return menu.buttonSelect(menu.data.buttonlist_middle[i][3],menu.data.buttonlist_middle[i][4],menu.data.buttonlist_middle[i][5],menu.data.buttonlist_middle[i][6]) end)
+		Helper.setButtonScript(menu, nil, menu.midtable, v[1], v[2], function () return menu.buttonSelect(v[3],v[4],v[5],v[6]) end)
 	end
-	for i in menu.data.buttonlist_bottom do
+	for _,v in ipairs(menu.data.buttonlist_bottom) do
 		-- Buttonlist Entry: {row,column,next_section,param,keepvisible,notsubsection}																	section,			param,			keepvisible,	notsubsection
-		Helper.setButtonScript(menu, nil, menu.bottomtable, menu.data.buttonlist_bottom[i][1], menu.data.buttonlist_bottom[i][2], function () return menu.buttonSelect(menu.data.buttonlist_bottom[i][3],menu.data.buttonlist_bottom[i][4],menu.data.buttonlist_bottom[i][5],menu.data.buttonlist_bottom[i][6]) end)
+		Helper.setButtonScript(menu, nil, menu.bottomtable, v[1], v[2], function () return menu.buttonSelect(v[3],v[4],v[5],v[6]) end)
 	end
 	
 	if false then
