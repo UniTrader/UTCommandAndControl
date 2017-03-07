@@ -95,7 +95,7 @@ function menu.fetch()
 	
 	-- Calculate Dynamic Row Size if we have a dynamic (-1) Entry
 	local index = nil
-	local totalwidth = -5 -- set to -5 to have 1 pixel tolerance to the 1200 pixel limit and to omit one spacer between columns with a size of 4 (added for each column in the loop following)
+	local totalwidth = -6 -- set to -6 to have 2 pixel tolerance to the 1200 pixel limit and to omit one spacer between columns with a size of 4 (added for each column in the loop following)
 	for i, v in pairs(menu.data.midtable_column_sizes) do
 		if v == -1 then
 			index = i
