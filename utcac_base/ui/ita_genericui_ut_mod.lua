@@ -222,7 +222,7 @@ function menu.onShowMenu()
 		for i = 1,#rowdef-1 do
 			local cellwidth = 0
 			for j = column,column+rowdef[1][2][i] do
-				cellwidth = cellwidth+menu.data.midtable_column_sizes[j] or 0
+				cellwidth = cellwidth+ ( menu.data.midtable_column_sizes[j] or 0 )
 			end
 			column=column+rowdef[1][2][i]
 													-- menu.createCell(celldefinition,row,column,height,width)
