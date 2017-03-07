@@ -93,6 +93,20 @@ function menu.fetch()
 	menu.data.midtable_column_sizes = menu.param[7]
 	menu.data.midtable_rows = menu.param[8]
 	
+	-- Calculate Dynamic Row Size if we have a dynamic (-1) Entry
+	local index = nil
+	local totalwidth = -5 -- set to -5 to have 1 pixel tolerance to the 1200 pixel limit and to omit one spacer between columns with a size of 4 (added for each column in the loop following)
+	for i, v in pairs(menu.data.midtable_column_sizes) do
+		if value == -1 then
+			index = i
+		else
+			totalwidth = totalwidth + v + 4 -- 4 is the spacing between columns; the last one is omited by pre-setting the totalwitdth to -4
+		end
+	end
+	if not ( index == nil ) then
+		menu.data.midtable_column_sizes[index] = 1200 - totalwidth
+	end
+	
 	print("Selected: "..(menu.data.preselected_line or "nil").." Column Sizes: ")
 	print(menu.data.midtable_column_sizes)
 	print("content: - "..#menu.data.midtable_rows.."entries")
@@ -189,22 +203,6 @@ function menu.onShowMenu()
 		end
 		DebugError("Cell Definition didnt return in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
 		return Helper.getEmptyCellDescriptor()
-	end
-	
-	-- Calculate Dynamic Row Size if we have a dynamic (-1) Entry
-	if true then
-		local index = nil
-		local totalwidth = -5 -- set to -5 to have 1 pixel tolerance to the 1200 pixel limit and to omit one spacer between columns with a size of 4 (added for each column in the loop following)
-		for i, v in pairs(menu.data.midtable_column_sizes) do
-			if value == -1 then
-				index = i
-			else
-				totalwidth = totalwidth + v + 4 -- 4 is the spacing between columns; the last one is omited by pre-setting the totalwitdth to -4
-			end
-		end
-		if not ( index == nil ) then
-			menu.data.midtable_column_sizes[index] = 1200 - totalwidth
-		end
 	end
 	
 	--FETCHING
