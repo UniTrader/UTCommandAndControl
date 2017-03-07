@@ -104,8 +104,8 @@ function menu.fetch()
 		end
 	end
 	if index then
-		print("Found -1 Entry in column "..index.." will set it to remaining width of "..(1196 - totalwidth).."pixels - Totalwidth="..totalwidth)
-		menu.data.midtable_column_sizes[index] = 1196 - totalwidth
+		print("Found -1 Entry in column "..index.." will set it to remaining width of "..(1195 - totalwidth).."pixels - Totalwidth="..totalwidth)
+		menu.data.midtable_column_sizes[index] = 1195 - totalwidth
 		totalwidth = totalwidth + menu.data.midtable_column_sizes[index]
 	end
 	
