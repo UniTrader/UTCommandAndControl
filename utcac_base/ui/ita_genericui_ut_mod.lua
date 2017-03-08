@@ -158,8 +158,9 @@ function menu.onShowMenu()
 	
 	-- Set up CreateCell Function
 	local function CreateCell(celldefinition,row,column,height,width,buttonlist)
-		print("createCell called for a "..(celldefinition[1] or "nil").." Cell")
+		if celldefinition then print("createCell called for a "..celldefinition[1].." Cell") end
 		if celldefinition == nil then
+			print("createCell called for an empty Cell")
 			return Helper.getEmptyCellDescriptor()
 		elseif celldefinition[1] == "text" then
 	-- { 'text' , 'Text' }
