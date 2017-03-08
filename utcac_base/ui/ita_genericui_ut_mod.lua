@@ -171,10 +171,6 @@ function menu.onShowMenu()
 				-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
 				table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
 			end
-			local hotkey
-			if celldefinition[4] then 
-				hotkey = Helper.createButtonHotkey(celldefinition[4], true) 
-			end
 			return Helper.createButton(
 					Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), 
 					nil, 
@@ -185,7 +181,7 @@ function menu.onShowMenu()
 					( width / 1.3933 ) + 1,  -- returned Buttons are 40% too wide, reducing value to get a fitting button
 					height, 
 					nil, 
-					hotkey, 
+					celldefinition[4] and Helper.createButtonHotkey(celldefinition[4], true) or nil, 
 					nil, 
 					nil)
 		elseif celldefinition[1] == "statusbar" then
