@@ -396,16 +396,22 @@ function menu.buttonSelect(section,param,keepvisible,notsubsection)
 	-- use rowdata Values if there are no Values passed by the Button itself
 	if menu.rowDataMap[Helper.currentDefaultTableRow] or false then
 		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
+		DebugError("Button Pressed")
+		print("rowDataMap Values: 3: "..(selection[3] or "nil").." 4: "..(selection[4] or "nil").." 5: "..(selection[5] or "nil").." 6: "..(selection[6] or "nil"))
 		if not section then
+			print("replacing section "..(section or "nil").." with "..(selection[3] or "nil"))
 			section = selection[3]
 		end
 		if not param then
+			print("replacing param "..(param or "nil").." with "..(selection[4] or "nil"))
 			param = selection[4]
 		end
 		if not keepvisible then
+			print("replacing keepvisible "..(keepvisible or "nil").." with "..(selection[5] or "nil"))
 			keepvisible = selection[5]
 		end
 		if not notsubsection then
+			print("replacing notsubsection "..(notsubsection or "nil").." with "..(selection[6] or "nil"))
 			notsubsection = selection[6]
 		end
 	end
