@@ -280,24 +280,26 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[1],row,2,25,150,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[1],1,2,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[2],row,4,25,150,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[2],1,4,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[3],row,6,25,150,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[3],1,6,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[4],row,8,25,150,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[4],1,8,25,150,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor()
-	}, nil, nil, false, menu.transparent)
-	local bottomdesc = setup:createCustomWidthTable({48, 210, 48, 210, 48, 210, 48, 210, 48}, false, false, true, 2, 1, 0, 550, 0, false)
+	}, nil, nil, false, menu.transparent)(columnwidths,                                                              columnwidthpercent, borderenabled, taborder, fixedrows, offsetx, offsety, height, toprow, selectedrow, selectedcol, wraparound)
+	local bottomdesc = setup:createCustomWidthTable({48, 190, 48, 190, 48, 190, 48, 190, 48}, false,                     false,                true,           2,            1,           0,       550,    0,            false)
 	--COMMIT
 	menu.toptable, menu.midtable, menu.bottomtable = Helper.displayThreeTableView(menu, topdesc, middesc, bottomdesc, false)
 	--BUTTONS
 	for _,v in ipairs(menu.data.buttonlist_middle) do
+		print("Assigned middle button in row "..v[1].." column "..v[2].." to point to section "..v[3])
 		-- Buttonlist Entry: {row,column,next_section,param,keepvisible,notsubsection}																	section,			param,			keepvisible,	notsubsection
 		Helper.setButtonScript(menu, nil, menu.midtable, v[1], v[2], function () return menu.buttonSelect(v[3],v[4],v[5],v[6]) end)
 	end
 	for _,v in ipairs(menu.data.buttonlist_bottom) do
+		print("Assigned bottom button in row "..v[1].." column "..v[2].." to point to section "..v[3])
 		-- Buttonlist Entry: {row,column,next_section,param,keepvisible,notsubsection}																	section,			param,			keepvisible,	notsubsection
 		Helper.setButtonScript(menu, nil, menu.bottomtable, v[1], v[2], function () return menu.buttonSelect(v[3],v[4],v[5],v[6]) end)
 	end
