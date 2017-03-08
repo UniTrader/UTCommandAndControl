@@ -242,7 +242,7 @@ function menu.onShowMenu()
 				cellwidth = cellwidth+ ( menu.data.midtable_column_sizes[j] or 0 )
 			end
 													-- menu.createCell(celldefinition,row,column,height,width)
-			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,25,cellwidth,menu.data.buttonlist_middle))
+			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,35,cellwidth,menu.data.buttonlist_middle))
 			column=column+rowdef[1][2][i]
 		end
 		print("Row Content created")
