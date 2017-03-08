@@ -228,16 +228,16 @@ Rest is shared between all Actor types
 [0,0,'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', null ,
 'placehoder for highlighted line' , [ 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,
  [] ,
- [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'Toggle Jump' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true ] , 
-    [ 'button' ,  'Toggle Highway' , 'comm_settings_range_toggle_highway' , 'INPUT_STATE_DETAILMONITOR_Y' , true ] , [ 'button' , 'Select (Soon: Remove)', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
+ [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'Toggle Jump' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
+    [ 'button' ,  'Toggle Highway' , 'comm_settings_range_toggle_highway' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Select (Soon: Remove)', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
 ] ]"/>
               <do_all exact="$actor.$ut_cac.$range.count" counter="$i" reverse="false">
                 <set_value name="$choicetext" exact="'%1. => %2H\033X %3J\033X %4 %5'.[ $i , if $actor.$ut_cac.$range_h.{$i} then '\033Y' else '' , if $actor.$ut_cac.$range_j.{$i} then '\033B' else '' , $actor.$ut_cac.$range.{$i}.name , if $actor.$ut_cac.$range_w.{$i} then ( ' via ' + $actor.$ut_cac.$range_w.{$i}.name ) else '']"/>
                 <!--append_to_list name="$genericuiparam.{8}" exact="[$i,true,$choicetext,$i,if $i lt $actor.$ut_cac.$range.count then 'V Move Down V' else null,'comm_settings_range_move_down' , 'Change','comm_settings_range_change']"/-->
-                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] ] , 
-[ 'text' , $i + '.' ] , [ 'button' , if $actor.$ut_cac.$range_j.{$i} then '\033BJ' else 'J' , 'comm_settings_range_toggle_jump' , null  , true , $i ] , [ 'button' , if $actor.$ut_cac.$range_h.{$i} then '\033GH' else 'H' , 'comm_settings_range_toggle_highway' , null  , true , $i  ] ,
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] , null , $i] , 
+[ 'text' , $i + '.' ] , [ 'button' , if $actor.$ut_cac.$range_j.{$i} then '\033BJ' else 'J' , 'comm_settings_range_toggle_jump' , null , true , $i , true ] , [ 'button' , if $actor.$ut_cac.$range_h.{$i} then '\033GH' else 'H' , 'comm_settings_range_toggle_highway' , null  , true , $i , true ] ,
 [ 'text' ,  $actor.$ut_cac.$range.{$i}.name + ( if $actor.$ut_cac.$range_w.{$i} then ( 'via ' + $actor.$ut_cac.$range_w.{$i} ) else '' ) ] ,
-[ 'button' , 'Move Down' , 'comm_settings_range_move_down' , null , true , $i ] , [ 'button' , 'Change' , 'comm_settings_range_change' , null , true , $i ] , [ 'button' , if $actor.$ut_cac.$range_w.{$i} then 'Mod Waypoint' else 'Set Waypoint' , 'comm_settings_range_change_waypoint' , null , true , $i]
+[ 'button' , 'Move Down' , 'comm_settings_range_move_down' , null , true , $i , true ] , [ 'button' , 'Change' , 'comm_settings_range_change' , null , true , $i ] , [ 'button' , if $actor.$ut_cac.$range_w.{$i} then 'Mod Waypoint' else 'Set Waypoint' , 'comm_settings_range_change_waypoint' , null , true , $i]
 ]"/>
               </do_all>
               <!-- remove last move down Entry -->
