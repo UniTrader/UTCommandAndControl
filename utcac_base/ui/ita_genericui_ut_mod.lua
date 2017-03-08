@@ -238,7 +238,7 @@ function menu.onShowMenu()
 		print("Creating Content for row "..row)
 		-- first create the Row Content and then add it to the menu as the selected type of row
 		rowcontent = {}
-		local column = 1
+		local column = 0
 		for i = 1,#rowdef-1 do
 			local cellwidth = 0
 			for j = column,column+rowdef[1][2][i]-1 do
