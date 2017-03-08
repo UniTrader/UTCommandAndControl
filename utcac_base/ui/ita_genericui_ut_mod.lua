@@ -237,9 +237,9 @@ function menu.onShowMenu()
 		rowcontent = {}
 		local column = 1
 		for i = 1,#rowdef-1 do
-			local cellwidth = 0
+			local cellwidth = -4
 			for j = column,column+rowdef[1][2][i]-1 do
-				cellwidth = cellwidth+ ( menu.data.midtable_column_sizes[j] or 0 )
+				cellwidth = cellwidth + ( menu.data.midtable_column_sizes[j] or 0 ) + 4
 			end
 													-- menu.createCell(celldefinition,row,column,height,width)
 			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,35,cellwidth,menu.data.buttonlist_middle))
