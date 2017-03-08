@@ -175,11 +175,11 @@ function menu.onShowMenu()
 			return Helper.createButton(
 					Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), 
 					nil, 
-					false,
+					true,
 					true, 
 					0, 
 					0, 
-					( width / 1.3933 ) + 1,  -- returned Buttons are 40% too wide, reducing value to get a fitting button
+					width,
 					height, 
 					nil, 
 					celldefinition[4] and Helper.createButtonHotkey(celldefinition[4], true) or nil, 
