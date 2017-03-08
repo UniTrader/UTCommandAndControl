@@ -394,7 +394,7 @@ function menu.buttonSelect(section,param,keepvisible,notsubsection)
 	end
 	
 	-- use rowdata Values if there are no Values passed by the Button itself
-	if menu.rowDataMap[Helper.currentDefaultTableRow] then
+	if menu.rowDataMap[Helper.currentDefaultTableRow] or false then
 		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
 		if not section then
 			section = selection[3]
