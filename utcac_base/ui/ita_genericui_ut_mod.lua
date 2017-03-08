@@ -279,13 +279,13 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[1],1,2,25,210,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[1],1,2,35,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[2],1,4,25,210,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[2],1,4,35,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[3],1,6,25,210,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[3],1,6,35,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[4],1,8,25,210,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[4],1,8,35,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor()
 	}, nil, nil, false, menu.transparent)
 	local bottomdesc = setup:createCustomWidthTable({48, 150, 48, 150, 48, 150, 48, 150, 48}, false, false, true, 2, 1, 0, 550, 0, false)
