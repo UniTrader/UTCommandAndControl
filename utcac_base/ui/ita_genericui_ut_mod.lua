@@ -100,7 +100,7 @@ function menu.fetch()
 		if v == -1 then
 			index = i
 		else
-			totalwidth = totalwidth + v + 4 -- 4 is the spacing between columns; the last one is omited by pre-setting the totalwitdth to -4
+			totalwidth = totalwidth + v + 4 -- 4 is the spacing between columns
 		end
 	end
 	if index then
@@ -108,6 +108,8 @@ function menu.fetch()
 		menu.data.midtable_column_sizes[index] = 1194 - totalwidth
 		totalwidth = totalwidth + menu.data.midtable_column_sizes[index]
 	end
+	if totalwidth > 1200 then
+		DebugError("Totalwidth of Table greater 1200 ("..totalwidth..") - will probably not display")
 	
 	print("Selected: "..(menu.data.preselected_line or "nil").." Total Width: "..totalwidth.." Column count:"..#menu.data.midtable_column_sizes.." Sizes: ")
 	print(menu.data.midtable_column_sizes)
@@ -154,7 +156,6 @@ end
 function menu.onShowMenu()
 	
 	-- Set up CreateCell Function
-	
 	local function CreateCell(celldefinition,row,column,height,width,buttonlist)
 		print("createCell called for a "..celldefinition[1].." Cell")
 		if celldefinition == nil then
