@@ -234,15 +234,15 @@ function menu.onShowMenu()
 		print("Creating Content for row "..row)
 		-- first create the Row Content and then add it to the menu as the selected type of row
 		rowcontent = {}
-		local column = 0
+		local column = 1
 		for i = 1,#rowdef-1 do
 			local cellwidth = 0
-			for j = column+1,column+rowdef[1][2][i] do
+			for j = column,column+rowdef[1][2][i]-1 do
 				cellwidth = cellwidth+ ( menu.data.midtable_column_sizes[j] or 0 )
 			end
-			column=column+rowdef[1][2][i]
 													-- menu.createCell(celldefinition,row,column,height,width)
 			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,25,cellwidth,menu.data.buttonlist_middle))
+			column=column+rowdef[1][2][i]
 		end
 		print("Row Content created")
 		-- select type of Row 
