@@ -173,9 +173,9 @@ function menu.onShowMenu()
 				table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
 			end
 			return Helper.createButton(
-					Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize * 1.4 , 255, 255, 255, 100), 
+					Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), 
 					nil, 
-					true,
+					false,
 					true, 
 					0, 
 					0, 
