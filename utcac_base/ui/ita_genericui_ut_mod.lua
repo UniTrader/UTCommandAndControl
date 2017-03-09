@@ -16,7 +16,7 @@
 -- New Param Structure (Planned, NYI):
 -- Multi-line for better overview:
 -- param == { 0, 0, 'title', 'instruction_text', {special_function} or null ,
--- preselected_line, {midtable_column_sizes} ,
+-- {preselected_cell}, {midtable_column_sizes} ,
 -- { { { line_properties_A } , {cell_A1} , {cell_A2} , ... } ,
 --   { { line_properties_B } , {cell_B1} , {cell_B2} , ... } ,
 --   ... },
@@ -27,7 +27,10 @@
 -- {'editbox','initialtext'} 
 -- {'scrollbar',min_display_value,min_possible_value,initial_value,max_possible_value,max_display_value[,step_value]}
 --
---midtable_column_sizes are the Sizes of the midtable columns. you can set ONE Value to -1 which will set the Size of it that the Line is completely filled. (undefined behavior if its more than one entry)
+-- preselected_cell:
+-- { row , column [, menu_part ] } (per default the middle Table will be selected)
+--
+--	midtable_column_sizes are the Sizes of the midtable columns. you can set ONE Value to -1 which will set the Size of it that the Line is completely filled. (undefined behavior if its more than one entry)
 -- 
 -- Line Properties:
 -- First Entry is the Type as String, the next Entries depend on its Type:
@@ -89,7 +92,9 @@ function menu.fetch()
 	print(menu.data.special_function)
 	
 -- Mid-Section definition
-	menu.data.preselected_line = menu.param[6]
+	menu.data.preselected_row = menu.param[6][1]
+	menu.data.preselected_column = menu.param[6][2]
+	--ToDo: Implement Section
 	menu.data.midtable_column_sizes = menu.param[7]
 	menu.data.midtable_rows = menu.param[8]
 	
@@ -112,7 +117,7 @@ function menu.fetch()
 		DebugError("Totalwidth of Table greater than 1200 ("..totalwidth..") - will probably not display")
 	end
 	
-	print("Selected: "..(menu.data.preselected_line or "nil").." Total Width: "..totalwidth.." Column count:"..#menu.data.midtable_column_sizes.." Sizes: ")
+	print("Selected: "..(menu.data.preselected_row or "nil").."/"..(menu.data.preselected_column or "nil").." Total Width: "..totalwidth.." Column count:"..#menu.data.midtable_column_sizes.." Sizes: ")
 	print(menu.data.midtable_column_sizes)
 	print("content: - "..#menu.data.midtable_rows.."entries")
 	print(menu.data.midtable_rows)
@@ -273,7 +278,7 @@ function menu.onShowMenu()
 		row = row + 1
 	end
 	print("creating middesc")
-	local middesc = setup:createCustomWidthTable(menu.data.midtable_column_sizes, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445)--{Helper.e_DescWidth}
+	local middesc = setup:createCustomWidthTable(menu.data.midtable_column_sizes, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445, nil, nil, menu.data.preselected_row,menu.data.preselected_column)--{Helper.e_DescWidth}
 	print("middesc created")
 	--BOTTOM
 	setup = Helper.createTableSetup(menu)
