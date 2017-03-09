@@ -242,12 +242,12 @@ function menu.onShowMenu()
 		rowcontent = {}
 		local column = 1
 		for i = 1,#rowdef-1 do
-			local cellwidth = -4
+			local cellwidth = -5
 			for j = column,column+rowdef[1][2][i]-1 do
-				cellwidth = cellwidth + ( menu.data.midtable_column_sizes[j] or 0 ) + 4
+				cellwidth = cellwidth + ( menu.data.midtable_column_sizes[j] or 0 ) + 5
 			end
 													-- menu.createCell(celldefinition,row,column,height,width)
-			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,35,cellwidth,menu.data.buttonlist_middle))
+			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,36,cellwidth,menu.data.buttonlist_middle))
 			column=column+rowdef[1][2][i]
 		end
 		print("Row Content created")
@@ -284,13 +284,13 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[1],1,2,35,210,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[1],1,2,36,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[2],1,4,35,210,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[2],1,4,36,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[3],1,6,35,210,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[3],1,6,36,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[4],1,8,35,210,menu.data.buttonlist_bottom),
+		CreateCell(menu.data.bottom_row[4],1,8,36,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor()
 	}, nil, nil, false, menu.transparent)
 	local bottomdesc = setup:createCustomWidthTable({48, 150, 48, 150, 48, 150, 48, 150, 48}, false, false, true, 2, 1, 0, 550, 0, false)
@@ -337,57 +337,6 @@ function menu.onShowMenu()
 end
 
 --menu.updateInterval = 5.0
-
-function menu.createCell(celldefinition,row,column,height,width,buttonlist)
-	if celldefinition == nil then
-		return Helper.getEmptyCellDescriptor()
-	elseif celldefinition[1] == "text" then
--- { 'text' , 'Text' }
-		return celldefinition[2]
-	elseif celldefinition[1] == "button" then
--- { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] }
-		-- Fill List with all Button Scripts to assign so i dont have to loop over the whole list twice
-		if celldefinition[5] then
-			-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
-			table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
-		end
-		local hotkey
-		if celldefinition[4] then 
-			hotkey = Helper.createButtonHotkey(celldefinition[4], true) 
-		end
-		return Helper.createButton(
-				Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), 
-				nil, 
-				false,
-				true, 
-				0, 
-				0, 
-				width, 
-				height, 
-				nil, 
-				hotkey, 
-				nil, 
-				nil)
-	elseif celldefinition[1] == "statusbar" then
--- { 'statusbar' , fillpercent , red , green , blue , alpha }
-		return Helper.createIcon(
-			"solid", 
-			noscaling, 
-			celldefinition[3], 
-			celldefinition[4],
-			celldefinition[5],
-			celldefinition[6], 
-			0, 
-			0, 
-			height, 
-			celldefinition[3] * width / 100)
-	else
-		DebugError("unknown Cell Definition in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
-		return Helper.getEmptyCellDescriptor()
-	end
-	DebugError("Cell Definition didnt return in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
-	return Helper.getEmptyCellDescriptor()
-end
 
 function menu.buttonSelect(section,param,keepvisible,notsubsection)
 	-- use slider/editbox Value to return if no param is specified
