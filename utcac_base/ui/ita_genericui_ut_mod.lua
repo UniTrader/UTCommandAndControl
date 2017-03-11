@@ -92,8 +92,14 @@ function menu.fetch()
 	print(menu.data.special_function)
 	
 -- Mid-Section definition
-	menu.data.preselected_row = menu.param[6][1] or nil
-	menu.data.preselected_column = menu.param[6][2] or nil
+	if menu.param[6] then
+		menu.data.preselected_row = menu.param[6][1] or nil
+		menu.data.preselected_column = menu.param[6][2] or nil
+	else
+		menu.data.preselected_row = nil
+		menu.data.preselected_column = nil
+	end
+		
 	--ToDo: Implement Section
 	menu.data.midtable_column_sizes = menu.param[7]
 	menu.data.midtable_rows = menu.param[8]
