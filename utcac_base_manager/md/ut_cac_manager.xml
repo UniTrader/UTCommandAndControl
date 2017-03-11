@@ -327,20 +327,21 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               <do_if value="event.param2">
                 <do_if value="$actor.$ut_cac.$range_w.{event.param2}">
                   <set_value name="$actor.$ut_cac.$range_w.{event.param2}" exact="null"/>
+                  <set_value name="$selectedcell" exact="[event.param2,null]"/>
                 </do_if>
                 <do_else>
                   <remove_value name="$actor.$ut_cac.$range.{event.param2}"/>
                   <remove_value name="$actor.$ut_cac.$range_j.{event.param2}"/>
                   <remove_value name="$actor.$ut_cac.$range_h.{event.param2}"/>
                   <remove_value name="$actor.$ut_cac.$range_w.{event.param2}"/>
+                  <do_if value="event.param2  == $actor.$ut_cac.$range.count">
+                    <set_value name="$selectedcell" exact="[event.param2-1,null]"/>
+                  </do_if>
+                  <do_else>
+                    <set_value name="$selectedcell" exact="[event.param2,null]"/>
+                  </do_else>
                 </do_else>
                 <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
-                <do_if value="event.param2  == $actor.$ut_cac.$range.count">
-                  <set_value name="$selectedcell" exact="[event.param2-1,null]"/>
-                </do_if>
-                <do_else>
-                  <set_value name="$selectedcell" exact="[event.param2,null]"/>
-                </do_else>
               </do_if>
               <do_else>
                 <set_value name="$selectedcell" exact="[$actor.$ut_cac.$range.count + 1,5]"/>
