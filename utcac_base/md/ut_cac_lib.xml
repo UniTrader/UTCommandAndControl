@@ -292,6 +292,47 @@
         <set_value name="$removal_message" exact="[]"/>
         <set_value name="$baserange" exact="$actor.$ut_cac.$range"/>
         <!-- Checking Count Limit of Ranges to be apporiate for Manager Level -->
+        
+        <set_value name="$rangecost" exact="param.ut_cac.rangecost"/>
+        <!-- apply radar Bonus for all Radar Components -->
+        <find_object_component name="$radars" object="$actor.station" class="class.radar" multiple="true"/>
+        <set_value name="$rangepoints" exact="($rangecost.$freepoints + $actor.skill.navigation * $rangecost.$points_per_star) * ( 1 + $radars.count * $rangecost.$radarbonus )"/>
+        <set_value name="$totalrangepoints" exact="$rangepoints"/>
+        
+        
+        <!-- doing two passes here - first validating Ranges and nulling wrong entries, then removing null entries - removign them immediately would skip checking a few -->
+        <do_all exact="$baserange.count" counter="$i" reverse="false">
+          <do_if value="$baserange.{$i}.exists">
+            <do_if value="$baserange.{$i}.isclass.{$rangecost.list}">
+              <do_if value="$rangepoints gt $rangecost.{$baserange.{$i}.class}">
+                <set_value name="$rangepoints" operation="subtract" exact="$rangecost.{$baserange.{$i}.class}"/>
+              </do_if>
+              <do_else>
+               <append_to_list name="$removal_message" exact="'%1 removed - not enough Range Points remaining (%2 of %3)'.[$baserange.{$i}.name,$rangepoints,$rangecost.{$baserange.{$i}.class}]"/>
+               <set_value name="$actor.$ut_cac.$range.{$i}" exact="null"/>
+              </do_else>
+            </do_if>
+            <do_else>
+              <append_to_list name="$removal_message" exact="'%1 removed - not of recognized Range Class (%2)'.[$baserange.{$i}.name,$baserange.{$i}.class]"/>
+              <set_value name="$actor.$ut_cac.$range.{$i}" exact="null"/>
+            </do_else>
+          </do_if>
+          <do_else>
+            <append_to_list name="$removal_message" exact="'%1 removed - does not exist'.[$baserange.{$i}.name]"/>
+            <set_value name="$actor.$ut_cac.$range.{$i}" exact="null"/>
+          </do_else>
+        </do_all>
+        <do_all exact="$baserange.count" counter="$i" reverse="true">
+          <do_if value="$baserange.{$i} == null">
+            <remove_value name="$baserange.{$i}"/>
+            <remove_value name="$actor.$ut_cac.$range_j.{$i}"/>
+            <remove_value name="$actor.$ut_cac.$range_h.{$i}"/>
+            <remove_value name="$actor.$ut_cac.$range_w.{$i}"/>
+          </do_if>
+        </do_all>
+        
+        
+        
         <!--set_value name="$rangepoints" exact="$actor.skill.navigation * param.ut_cac.rangeprices.$points_per_star + ( if $actor.$ut_cac.$experience ge param.ut_cac.experience.{6} then  param.ut_cac.rangeprices.$sixth_star_points else 0 )"/-->
         <do_if value="false">
         <set_value name="$gatecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}"/>
@@ -386,21 +427,6 @@
         </do_if>
         <remove_value name="$removal_message"/>
         <remove_value name="$baserange"/>
-        <remove_value name="$gatecount"/>
-        <remove_value name="$galaxycount"/>
-        <remove_value name="$clustercount"/>
-        <remove_value name="$sectorcount"/>
-        <remove_value name="$zonecount"/>
-        <remove_value name="$entrycount"/>
-        <remove_value name="$baserange"/>
-        <remove_value name="$range"/>
-        <remove_value name="$range_w"/>
-        <remove_value name="$endsector"/>
-        <remove_value name="$waypoints"/>
-        <remove_value name="$verified"/>
-        <remove_value name="$beacon"/>
-        <remove_value name="$zone"/>
-        <remove_value name="$range_waypoint"/>
       </actions>
     </library>
     

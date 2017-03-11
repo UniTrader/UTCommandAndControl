@@ -224,7 +224,7 @@ Rest is shared between all Actor types
               <add_player_choice_return text="{5554103,7}" position="close" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_genericui'">
-              <resize_list list="$actor.$ut_cac.$range_w" count="$actor.$ut_cac.$range.count"/>
+              <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
               <set_value name="$genericuiparam" exact="
 [ 0 , 0 ,
 'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', null ,
@@ -233,6 +233,8 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
  [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
     [ 'button' ,  'Remove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Old Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
 ] ]"/>
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 1 , 1 , 1 , 1 ] , null , $i] ,
+[ 'text' , '' ] , [ 'text' , 'Available Points for Ranges // Used Points:' ] , [ 'text' , $rangepoints ] [ 'text' , $totalrangepoints ] ,[ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  255 ] ]"/>
               <do_all exact="$actor.$ut_cac.$range.count" counter="$i" reverse="false">
                 <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] , null , $i] , 
 [ 'text' , $i + '.' ] , [ 'button' , if $actor.$ut_cac.$range_j.{$i} then '\033BJ' else 'J' , 'comm_settings_range_toggle_jump' , null , true , $i , true ] , [ 'button' , if $actor.$ut_cac.$range_h.{$i} then '\033GH' else 'H' , 'comm_settings_range_toggle_highway' , null  , true , $i , true ] ,
@@ -256,7 +258,7 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               <do_else>
                 <set_value name="$actor.$ut_cac.$range_j.{event.param2}" exact="$actor.$ut_cac.$range.{event.param2}"/>
               </do_else>
-              <set_value name="$selectedcell" exact="[event.param2,2]"/>
+              <set_value name="$selectedcell" exact="[event.param2+1,2]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_toggle_highway'">
@@ -266,7 +268,7 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               <do_else>
                 <set_value name="$actor.$ut_cac.$range_h.{event.param2}" exact="$actor.$ut_cac.$range.{event.param2}"/>
               </do_else>
-              <set_value name="$selectedcell" exact="[event.param2,3]"/>
+              <set_value name="$selectedcell" exact="[event.param2+1,3]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_move_down'">
@@ -283,10 +285,10 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
                 <remove_value name="$tmp_range_h"/>
                 <remove_value name="$tmp_range_j"/>
                 <do_if value="event.param2 + 1 == $actor.$ut_cac.$range.count">
-                  <set_value name="$selectedcell" exact="[event.param2,5]"/>
+                  <set_value name="$selectedcell" exact="[event.param2+1,5]"/>
                 </do_if>
                 <do_else>
-                  <set_value name="$selectedcell" exact="[event.param2+1,5]"/>
+                  <set_value name="$selectedcell" exact="[event.param2+2,5]"/>
                 </do_else>
                 <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
@@ -308,8 +310,7 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
                 <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
                 <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
                 </do_else>
-              <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
-              <set_value name="$selectedcell" exact="[$slot,6]"/>
+              <set_value name="$selectedcell" exact="[$slot+1,6]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_change_waypoint'">
@@ -319,15 +320,14 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set_waypoint'">
               <set_value name="$actor.$ut_cac.$range_w.{$slot}" exact="event.param2.{3}"/>
-              <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
-              <set_value name="$selectedcell" exact="[$slot,7]"/>
+              <set_value name="$selectedcell" exact="[$slot + 1,7]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_remove'">
               <do_if value="event.param2">
                 <do_if value="$actor.$ut_cac.$range_w.{event.param2}">
                   <set_value name="$actor.$ut_cac.$range_w.{event.param2}" exact="null"/>
-                  <set_value name="$selectedcell" exact="[event.param2,null]"/>
+                  <set_value name="$selectedcell" exact="[event.param2+1,null]"/>
                 </do_if>
                 <do_else>
                   <remove_value name="$actor.$ut_cac.$range.{event.param2}"/>
@@ -335,16 +335,15 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
                   <remove_value name="$actor.$ut_cac.$range_h.{event.param2}"/>
                   <remove_value name="$actor.$ut_cac.$range_w.{event.param2}"/>
                   <do_if value="event.param2  == $actor.$ut_cac.$range.count">
-                    <set_value name="$selectedcell" exact="[event.param2-1,null]"/>
+                    <set_value name="$selectedcell" exact="[event.param2,null]"/>
                   </do_if>
                   <do_else>
-                    <set_value name="$selectedcell" exact="[event.param2,null]"/>
+                    <set_value name="$selectedcell" exact="[event.param2+1,null]"/>
                   </do_else>
                 </do_else>
-                <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
               </do_if>
               <do_else>
-                <set_value name="$selectedcell" exact="[$actor.$ut_cac.$range.count + 1,5]"/>
+                <set_value name="$selectedcell" exact="[$actor.$ut_cac.$range.count + 2,5]"/>
               </do_else>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
