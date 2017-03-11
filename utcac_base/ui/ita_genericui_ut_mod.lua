@@ -92,8 +92,8 @@ function menu.fetch()
 	print(menu.data.special_function)
 	
 -- Mid-Section definition
-	menu.data.preselected_row = menu.param[6][1]
-	menu.data.preselected_column = menu.param[6][2]
+	menu.data.preselected_row = menu.param[6][1] or nil
+	menu.data.preselected_column = menu.param[6][2] or nil
 	--ToDo: Implement Section
 	menu.data.midtable_column_sizes = menu.param[7]
 	menu.data.midtable_rows = menu.param[8]
@@ -280,7 +280,7 @@ function menu.onShowMenu()
 		row = row + 1
 	end
 	print("creating middesc")
-	local middesc = setup:createCustomWidthTable(menu.data.midtable_column_sizes, false, true, true, 1, 0, 0, Helper.tableOffsety + ( menu.data.instruction_text and Helper.headerRow2Height or 0 - Helper.headerRow2Height/2 ) + Helper.headerRow2Offsetx , 650 - ( menu.data.instruction_text and Helper.headerRow2Height or 0 ), nil, nil, menu.data.preselected_row or nil,menu.data.preselected_column or nil)--{Helper.e_DescWidth}
+	local middesc = setup:createCustomWidthTable(menu.data.midtable_column_sizes, false, true, true, 1, 0, 0, Helper.tableOffsety + ( menu.data.instruction_text and Helper.headerRow2Height or 0 - Helper.headerRow2Height/2 ) + Helper.headerRow2Offsetx , 650 - ( menu.data.instruction_text and Helper.headerRow2Height or 0 ), nil, nil, menu.data.preselected_row,menu.data.preselected_column)--{Helper.e_DescWidth}
 	print("middesc created")
 	--BOTTOM
 	setup = Helper.createTableSetup(menu)
