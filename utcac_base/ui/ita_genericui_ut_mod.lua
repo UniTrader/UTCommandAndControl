@@ -111,11 +111,11 @@ function menu.fetch()
 		end
 	end
 	if index then
-		print("Found -1 Entry in column "..index.." will set it to remaining width of "..(1194 - totalwidth).."pixels - Totalwidth="..totalwidth)
-		menu.data.midtable_column_sizes[index] = 1194 - totalwidth
+		print("Found -1 Entry in column "..index.." will set it to remaining width of "..(maxwidth - 6 - totalwidth).."pixels - Totalwidth="..totalwidth)
+		menu.data.midtable_column_sizes[index] = maxwidth - 6 - totalwidth
 		totalwidth = totalwidth + menu.data.midtable_column_sizes[index]
 	end
-	if totalwidth > 1200 then
+	if totalwidth > maxwidth then
 		DebugError("Totalwidth of Table greater than 1200 ("..totalwidth..") - will probably not display")
 	end
 	
