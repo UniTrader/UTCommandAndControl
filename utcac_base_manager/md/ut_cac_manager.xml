@@ -226,9 +226,9 @@ Rest is shared between all Actor types
             <do_elseif value="event.param == 'comm_settings_range_genericui'">
               <resize_list list="$actor.$ut_cac.$range_w" count="$actor.$ut_cac.$range.count"/>
               <set_value name="$genericuiparam" exact="
-[if @event.param3.{1} then event.param3.{1} else 0 , if @event.param3.{2} then event.param3.{2} else 0 ,
+[ 0 , 0 ,
 'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', null ,
-[ if @event.param3.{2} then event.param3.{2} else null , null  ] , [ if $actor.$ut_cac.$range.count ge 10 then 50 else 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,
+if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.count ge 10 then 50 else 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,
  [] ,
  [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
     [ 'button' ,  'Remove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Old Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
@@ -245,6 +245,7 @@ Rest is shared between all Actor types
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 3 ] ] , 
 [ 'text' , '#' ] , [ 'text' , 'Add new Range Setting' ] , [ 'button' , 'Select Space' , 'comm_settings_range_change' , null , true , $actor.$ut_cac.$range.count + 1 ]
 ]"/>
+              <remove_value name="$selectedcell"/>
               <open_conversation_menu menu="ita_genericui_ut_mod" param="$genericuiparam" />
                <add_conversation_view view="closeupdetailmonitor" /> 
             </do_elseif>
@@ -255,6 +256,7 @@ Rest is shared between all Actor types
               <do_else>
                 <set_value name="$actor.$ut_cac.$range_j.{event.param2}" exact="$actor.$ut_cac.$range.{event.param2}"/>
               </do_else>
+              <set_value name="$selectedcell" exact="[event.param2,2]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_toggle_highway'">
@@ -264,6 +266,7 @@ Rest is shared between all Actor types
               <do_else>
                 <set_value name="$actor.$ut_cac.$range_h.{event.param2}" exact="$actor.$ut_cac.$range.{event.param2}"/>
               </do_else>
+              <set_value name="$selectedcell" exact="[event.param2,3]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_move_down'">
@@ -279,6 +282,7 @@ Rest is shared between all Actor types
                 <remove_value name="$tmp_range"/>
                 <remove_value name="$tmp_range_h"/>
                 <remove_value name="$tmp_range_j"/>
+              <set_value name="$selectedcell" exact="[event.param2+1,5]"/>
                 <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_change'">
@@ -300,6 +304,7 @@ Rest is shared between all Actor types
                 <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
                 </do_else>
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
+              <set_value name="$selectedcell" exact="[$slot,6]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_change_waypoint'">
@@ -310,6 +315,7 @@ Rest is shared between all Actor types
             <do_elseif value="event.param == 'comm_settings_range_set_waypoint'">
               <set_value name="$actor.$ut_cac.$range_w.{$slot}" exact="event.param2.{3}"/>
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
+              <set_value name="$selectedcell" exact="[$slot,7]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_remove'">
