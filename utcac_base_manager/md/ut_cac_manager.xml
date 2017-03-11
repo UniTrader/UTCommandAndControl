@@ -324,21 +324,26 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_remove'">
-              <do_if value="$actor.$ut_cac.$range_w.{event.param2}">
-                <set_value name="$actor.$ut_cac.$range_w.{event.param2}" exact="null"/>
+              <do_if value="event.param2 le $actor.$ut_cac.$range.count">
+                <do_if value="$actor.$ut_cac.$range_w.{event.param2}">
+                  <set_value name="$actor.$ut_cac.$range_w.{event.param2}" exact="null"/>
+                </do_if>
+                <do_else>
+                  <remove_value name="$actor.$ut_cac.$range.{event.param2}"/>
+                  <remove_value name="$actor.$ut_cac.$range_j.{event.param2}"/>
+                  <remove_value name="$actor.$ut_cac.$range_h.{event.param2}"/>
+                  <remove_value name="$actor.$ut_cac.$range_w.{event.param2}"/>
+                </do_else>
+                <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
+                <do_if value="event.param2  == $actor.$ut_cac.$range.count">
+                  <set_value name="$selectedcell" exact="[event.param2-1,null]"/>
+                </do_if>
+                <do_else>
+                  <set_value name="$selectedcell" exact="[event.param2,null]"/>
+                </do_else>
               </do_if>
               <do_else>
-                <remove_value name="$actor.$ut_cac.$range.{event.param2}"/>
-                <remove_value name="$actor.$ut_cac.$range_j.{event.param2}"/>
-                <remove_value name="$actor.$ut_cac.$range_h.{event.param2}"/>
-                <remove_value name="$actor.$ut_cac.$range_w.{event.param2}"/>
-              </do_else>
-              <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
-              <do_if value="event.param2  == $actor.$ut_cac.$range.count">
-                <set_value name="$selectedcell" exact="[event.param2-1,null]"/>
-              </do_if>
-              <do_else>
-                <set_value name="$selectedcell" exact="[event.param2,null]"/>
+                <set_value name="$selectedcell" exact="[event.param2,5]"/>
               </do_else>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
