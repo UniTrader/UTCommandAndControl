@@ -287,9 +287,16 @@ Rest is shared between all Actor types
               <add_conversation_view view="closeupdetailmonitor" />
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set'">
-              <set_value name="$actor.$ut_cac.$range.{$slot}" exact="event.param2.{3}"/>
-              <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
-              <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
+              <do_if value="$slot gt $actor.$ut_cac.$range.count">
+                <append_to_list name="$actor.$ut_cac.$range" exact="event.param2.{3}"/>
+                <append_to_list name="$actor.$ut_cac.$range_j" exact="event.param2.{3}"/>
+                <append_to_list name="$actor.$ut_cac.$range_h" exact="event.param2.{3}"/>
+              </do_if>
+              <do_else>
+                <set_value name="$actor.$ut_cac.$range.{$slot}" exact="event.param2.{3}"/>
+                <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
+                <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
+                </do_else>
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
