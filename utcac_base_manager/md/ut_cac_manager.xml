@@ -282,7 +282,12 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
                 <remove_value name="$tmp_range"/>
                 <remove_value name="$tmp_range_h"/>
                 <remove_value name="$tmp_range_j"/>
-              <set_value name="$selectedcell" exact="[event.param2+1,5]"/>
+                <do_if value="event.param2 + 1 == $actor.$ut_cac.$range.count">
+                  <set_value name="$selectedcell" exact="[event.param2,5]"/>
+                </do_if>
+                <do_else>
+                  <set_value name="$selectedcell" exact="[event.param2+1,5]"/>
+                </do_else>
                 <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_change'">
