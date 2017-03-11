@@ -233,10 +233,10 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
 	local row = 1
-	if menu.data.instruction_text then
-		setup:addTitleRow({Helper.getEmptyCellDescriptor()}, nil, {#menu.data.midtable_column_sizes}, false, menu.transparent)
-		row = row + 1
-	end
+--	if menu.data.instruction_text then
+--		setup:addTitleRow({Helper.getEmptyCellDescriptor()}, nil, {#menu.data.midtable_column_sizes}, false, menu.transparent)
+--		row = row + 1
+--	end
 	print("Instruction Text Spacer created")
 	for _,rowdef in ipairs(menu.data.midtable_rows) do
 		print("Creating Content for row "..row)
@@ -280,7 +280,7 @@ function menu.onShowMenu()
 		row = row + 1
 	end
 	print("creating middesc")
-	local middesc = setup:createCustomWidthTable(menu.data.midtable_column_sizes, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, 445, nil, nil, menu.data.preselected_row,menu.data.preselected_column)--{Helper.e_DescWidth}
+	local middesc = setup:createCustomWidthTable(menu.data.midtable_column_sizes, false, true, true, 1, 0, 0, Helper.tableOffsety - Helper.headerRow2Height/2 + Helper.headerRow2Offsetx, + ( menu.data.instruction_text and Helper.headerRow2Height or 0 ), 445, nil, nil, menu.data.preselected_row,menu.data.preselected_column)--{Helper.e_DescWidth}
 	print("middesc created")
 	--BOTTOM
 	setup = Helper.createTableSetup(menu)
