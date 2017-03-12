@@ -202,7 +202,7 @@ function menu.onShowMenu()
 	-- { 'statusbar' , fillpercent , red , green , blue , alpha }
 		return Helper.createIcon(
 				"solid", 
-				noscaling, 
+				true, 
 				celldefinition[3], 
 				celldefinition[4],
 				celldefinition[5],
