@@ -7,6 +7,7 @@
 --		  - "selectsector", param: { returnsection }
 --		  - "selectcluster", param: { returnsection }
 --		  - "selectspace", param: { returnsection }
+--		  - "selectspaceorstation", param: { returnsection }
 --		  - "selectobject", param: { returnsection }
 --		  - "selectposition", param: { returnsection }
 
@@ -415,7 +416,7 @@ function menu.buttonPlotCourse()
 	end
 end
 
-function menu.buttonSelectspace()
+function menu.buttonSelectspaceorstation()
 	C.RemoveHoloMap(menu.holomap)
 	menu.holomap = 0
 	table.remove(menu.history)
@@ -1571,8 +1572,8 @@ function menu.createChildList(isfirsttime)
 	-- button table
 	Helper.setButtonScript(menu, nil, menu.buttontable, 2, 2, function () return menu.onCloseElement("back") end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 2, 4, function () return menu.buttonNavigation("back", nil, 0) end)
-	if menu.mode == "selectspace" then
-		Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspace)
+	if menu.mode == "selectspace" or menu.mode == "selectspaceorstation" then
+		Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspaceorstation)
 	elseif menu.componenttype == "sector" then
 		Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonPlotCourse)
 	else
@@ -1764,16 +1765,21 @@ function menu.onRowChanged(row, rowdata)
 				elseif menu.componenttype == "container" then
 					-- DETAILS
 					local active = (not menu.mode) and IsInfoUnlockedForPlayer(menu.selectedcomponent, "name") and CanViewLiveData(menu.selectedcomponent)
+					if menu.mode == "selectspaceorstation" and ffi.string(C.GetComponentClass(menu.selectedcomponent)) == "station" then
+						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
+						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3102), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
+						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspaceorstation)
+					end
 					Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)
 					SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 2961), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, active, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, active and ReadText(1026, 3206) or nil), 2, 9)
 					Helper.setButtonScript(menu, nil, menu.buttontable, 2, 9, menu.buttonDetails)
 				elseif menu.componenttype == "sector" then
 					-- PLOT COURSE or SELECT SPACE
 					local active = ((not menu.mode) and (not IsSameComponent(menu.selectedcomponent, GetComponentData(menu.playership, "zoneid")))) or (menu.mode == "selectposition")
-					if menu.mode == "selectspace" then
+					if menu.mode == "selectspace" or menu.mode == "selectspaceorstation" then
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
 						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3102), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
-						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspace)
+						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspaceorstation)
 					else
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
 						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(menu.mode == "selectposition" and ReadText(1001, 2821) or (IsSameComponent(GetActiveGuidanceMissionComponent(), menu.selectedcomponent) and ReadText(1001, 1110) or ReadText(1001, 1109)), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, active, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true), nil, active and ReadText(1026, 3208) or nil), 2, 7)
@@ -1786,10 +1792,10 @@ function menu.onRowChanged(row, rowdata)
 					Helper.setButtonScript(menu, nil, menu.buttontable, 2, 9, menu.mode == "selectzone" and menu.buttonDetails or function () return menu.buttonNavigation("child", ConvertIDTo64Bit(menu.selectedcomponent), 0) end)
 				elseif menu.componenttype == "cluster" then
 					-- SELECT SPACE
-					if menu.mode == "selectspace" then
+					if menu.mode == "selectspace" or menu.mode == "selectspaceorstation" then
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
 						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3102), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
-						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspace)
+						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspaceorstation)
 					end
 					-- DETAILS
 					Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)
@@ -1797,10 +1803,10 @@ function menu.onRowChanged(row, rowdata)
 					Helper.setButtonScript(menu, nil, menu.buttontable, 2, 9, menu.mode == "selectsector" and menu.buttonDetails or function () return menu.buttonNavigation("child", ConvertIDTo64Bit(menu.selectedcomponent), 0) end)
 				elseif menu.componenttype == "galaxy" then
 					-- SELECT SPACE
-					if menu.mode == "selectspace" then
+					if menu.mode == "selectspace" or menu.mode == "selectspaceorstation" then
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
 						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3102), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
-						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspace)
+						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspaceorstation)
 					end
 					-- DETAILS
 					Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)
