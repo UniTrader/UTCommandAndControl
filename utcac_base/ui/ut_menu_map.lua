@@ -1744,9 +1744,15 @@ function menu.onRowChanged(row, rowdata)
 							local commander = GetCommander(menu.selectedcomponent)
 							active = active and pilot and (not blackboard_shiptrader_docking) and (not blackboard_ship_parking) and (not isdocked) and (not isdocking) and ((not commander) or IsSameComponent(commander, menu.playership))
 						end
-						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
-						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(neworder and ReadText(1002, 2020) or ReadText(1001, 3216), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, active, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true), nil, active and (neworder and "" or ReadText(1026, 3205)) or (neworder and ReadText(1026, 20004) or nil)), 2, 7)
-						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, neworder and menu.buttonNewOrder or menu.buttonComm)
+						if menu.mode == "selectspaceorstation" then
+							Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
+							SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3102), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
+							Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspaceorstation)
+						else
+							Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
+							SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(neworder and ReadText(1002, 2020) or ReadText(1001, 3216), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, active, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true), nil, active and (neworder and "" or ReadText(1026, 3205)) or (neworder and ReadText(1026, 20004) or nil)), 2, 7)
+							Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, neworder and menu.buttonNewOrder or menu.buttonComm)
+						end
 						-- DETAILS
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)
 						local activate = false
@@ -1765,11 +1771,6 @@ function menu.onRowChanged(row, rowdata)
 				elseif menu.componenttype == "container" then
 					-- DETAILS
 					local active = (not menu.mode) and IsInfoUnlockedForPlayer(menu.selectedcomponent, "name") and CanViewLiveData(menu.selectedcomponent)
-					if menu.mode == "selectspaceorstation" and ffi.string(C.GetComponentClass(menu.selectedcomponent)) == "station" then
-						Helper.removeButtonScripts(menu, menu.buttontable, 2, 7)
-						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3102), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
-						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonSelectspaceorstation)
-					end
 					Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)
 					SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 2961), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, active, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, active and ReadText(1026, 3206) or nil), 2, 9)
 					Helper.setButtonScript(menu, nil, menu.buttontable, 2, 9, menu.buttonDetails)
