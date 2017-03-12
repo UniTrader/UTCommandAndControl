@@ -210,7 +210,7 @@ function menu.onShowMenu()
 				0, 
 				0, 
 				height, 
-				celldefinition[3] * width / 100)
+				celldefinition[2] * width / 100)
 		else
 			DebugError("unknown Cell Definition in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
 			return Helper.getEmptyCellDescriptor()
