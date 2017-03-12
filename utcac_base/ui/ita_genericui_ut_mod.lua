@@ -173,10 +173,18 @@ function menu.onShowMenu()
 	local function CreateCell(celldefinition,row,column,height,width,buttonlist)
 		if celldefinition then print("createCell called for a "..celldefinition[1].." Cell") end
 		if celldefinition == nil then
+			if row == menu.data.preselected_row and column == menu.data.preselected_column then
+				DebugError("Preselected Cell is an empty Cell: Row "..row.." Column "..j.." - removing column")
+				menu.data.preselected_column = nil
+			end
 			print("createCell called for an empty Cell")
 			return Helper.getEmptyCellDescriptor()
 		elseif celldefinition[1] == "text" then
 	-- { 'text' , 'Text' }
+			if row == menu.data.preselected_row and column == menu.data.preselected_column then
+				DebugError("Preselected Cell is a Text Cell: Row "..row.." Column "..j.." - removing column")
+				menu.data.preselected_column = nil
+			end
 			return celldefinition[2]
 		elseif celldefinition[1] == "button" then
 	-- { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] }
@@ -199,6 +207,10 @@ function menu.onShowMenu()
 					nil, 
 					nil)
 		elseif celldefinition[1] == "statusbar" then
+			if row == menu.data.preselected_row and column == menu.data.preselected_column then
+				DebugError("Preselected Cell is a Statusbar Cell: Row "..row.." Column "..j.." - removing column")
+				menu.data.preselected_column = nil
+			end
 	-- { 'statusbar' , fillpercent , red , green , blue , alpha }
 		return Helper.createIcon(
 				"solid", 
@@ -212,6 +224,10 @@ function menu.onShowMenu()
 				height, 
 				celldefinition[2] * width / 100)
 		else
+			if row == menu.data.preselected_row and column == menu.data.preselected_column then
+				DebugError("Preselected Cell is an unknown type of Cell: Row "..row.." Column "..j.." - removing column")
+				menu.data.preselected_column = nil
+			end
 			DebugError("unknown Cell Definition in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
 			return Helper.getEmptyCellDescriptor()
 		end
@@ -252,6 +268,11 @@ function menu.onShowMenu()
 		for i = 1,#rowdef-1 do
 			local cellwidth = -5
 			for j = column,column+rowdef[1][2][i]-1 do
+				-- checking if we have a non-selettable cell pre-selectend and if yes nil that selection
+				if row == menu.data.preselected_row and j == menu.data.preselected_column and cellwidth > 0 then
+					DebugError("Preselected Cell is part of a spanned Cell: Row "..row.." Column "..j.." - removing column")
+					menu.data.preselected_column = nil
+				end
 				cellwidth = cellwidth + ( menu.data.midtable_column_sizes[j] or 0 ) + 5
 			end
 													-- menu.createCell(celldefinition,row,column,height,width)
@@ -263,6 +284,11 @@ function menu.onShowMenu()
 		if rowdef[1][1] == "header" then
 -- function setup:addHeaderRow(cells, rowdata, colspans, noscaling, bgColor)
 			setup:addHeaderRow(rowcontent,false,rowdef[1][2],false)
+			if row == menu.data.preselected_row  then
+				DebugError("Preselected Cell is in a nonselectable Header Row: Row "..row.." - removing selection")
+				menu.data.preselected_row = nil
+				menu.data.preselected_column = nil
+			end
 			print("Header Row created")
 		elseif rowdef[1][1] == "regular" then
 -- function setup:addSimpleRow(cells, rowdata, colspans, noscaling, bgColor)
@@ -271,13 +297,28 @@ function menu.onShowMenu()
 			print("Regular Row Created")
 		elseif rowdef[1][1] == "nonselectable" then
 			-- using header here because simple row is selectable
+			if row == menu.data.preselected_row  then
+				DebugError("Preselected Cell is in a nonselectable Row: Row "..row.." - removing selection")
+				menu.data.preselected_row = nil
+				menu.data.preselected_column = nil
+			end
 			setup:addHeaderRow(rowcontent, false, rowdef[1][2], false, Helper.defaultSimpleBackgroundColor)
 			print("Nonselectable Row created")
 		elseif rowdef[1][1] == "invisible" then
 			-- using header here because simple row is selectable
+			if row == menu.data.preselected_row  then
+				DebugError("Preselected Cell is in a nonselectable Invisible Row: Row "..row.." - removing selection")
+				menu.data.preselected_row = nil
+				menu.data.preselected_column = nil
+			end
 			setup:addHeaderRow(rowcontent, false, rowdef[1][2], false, menu.transparent)
 			print("Invisible Row Created")
 		else
+			if row == menu.data.preselected_row  then
+				DebugError("Preselected Cell is in an empty Row: Row "..row.." - removing selection")
+				menu.data.preselected_row = nil
+				menu.data.preselected_column = nil
+			end
 			DebugError("Unknown Row Type in row "..row.." Type: "..rowdef[1].." - filling with empty Row")
 			setup:addHeaderRow({Helper.getEmptyCellDescriptor()}, false, nil , false, menu.transparent)
 			-- error and add an empty row
