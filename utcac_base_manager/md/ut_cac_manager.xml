@@ -225,6 +225,9 @@ Rest is shared between all Actor types
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_genericui'">
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
+              <do_if value="$selectedcell.[1] gt $actor.$ut_cac.$range.count + 1">
+                <set_value name="$selectedcell.[1]" exact="$actor.$ut_cac.$range.count + 1"/>
+              </do_if>
               <set_value name="$genericuiparam" exact="
 [ 0 , 0 ,
 'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', null ,
