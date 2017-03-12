@@ -1187,7 +1187,7 @@ function menu.createChildList(isfirsttime)
 	-- included stations
 	if #stations > 0 then
 		for i, station in ipairs(stations) do
-			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or (menu.mode == "selectobject" and GetComponentData(station, "owner") ~= "player") then
+			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or (menu.mode == "selectobject" and GetComponentData(station, "owner") ~= "player") or (menu.mode == "selectspaceorstation" ) then
 				displayedstations = true
 				lines = lines + 1
 				local islastchild = false
