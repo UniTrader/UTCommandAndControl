@@ -1,4 +1,8 @@
-﻿
+﻿-- Generif UI by UniTrader, based on Original work by Itaros.
+-- Script was so heavily modified though that even Itaros himself couldnt recognize it anymore :P
+-- His work was really helpful and Inspirational though so i am gladly keeping the
+-- Original Copyright Notice:
+-- ==============================================================
 -- Generic UI Script by Itaros. By using this you are bound to keep credit
 -- and send vegan pancakes my way every time you copy it.
 -- But, honestly, why do you need to copy it? It is from a LIBRARY mod already.
@@ -8,29 +12,28 @@
 
 -- You break it - you buy another copy of a game for everyone affected lol!
 
--- Extensions/Changes by UniTrader (parameter-Incompatible with Itaros' Version and therefore using another Name)
-
-
-
+-- ==============================================================
+--
 ---------------------------------------------------------------
--- New Param Structure (Planned, NYI):
+-- New Param Structure:
 -- Multi-line for better overview:
 -- param == { 0, 0, 'title', 'instruction_text', {special_function} or null ,
--- {preselected_cell}, {midtable_column_sizes} ,
+-- {preselected_cell} or nil, {midtable_column_sizes} ,
 -- { { { line_properties_A } , {cell_A1} , {cell_A2} , ... } ,
 --   { { line_properties_B } , {cell_B1} , {cell_B2} , ... } ,
 --   ... },
 -- { {cell_bottom1} , {cell_bottom2} , {cell_bottom3} , {cell_bottom4} }
 --
--- Special Functions:
+-- Special Functions Not Yet Implemented (and might never make it):
 -- nil -- nothing
 -- {'editbox','initialtext'} 
 -- {'scrollbar',min_display_value,min_possible_value,initial_value,max_possible_value,max_display_value[,step_value]}
 --
 -- preselected_cell:
--- { row , column [, menu_part ] } (per default the middle Table will be selected)
+-- { row , column } (nil values also ok)
 --
---	midtable_column_sizes are the Sizes of the midtable columns. you can set ONE Value to -1 which will set the Size of it that the Line is completely filled. (undefined behavior if its more than one entry)
+-- midtable_column_sizes are the Sizes of the midtable columns. 
+-- you can set ONE Value to -1 which will set the Size of it that the Line is completely filled. (undefined behavior if its more than one entry)
 -- 
 -- Line Properties:
 -- First Entry is the Type as String, the next Entries depend on its Type:
@@ -48,11 +51,28 @@
 -- Note: Priority of passed Values for Buttons: Self > Editbox/scrollbar > Selected Line
 -- Note2: Omited next section means a return to previous Section (as in a back button)
 --
+-- Example usage (multi-line for overview):
+-- <open_conversation_menu menu="ut_genericui" param="
+-- [ 0 , 0 , 'Genericui Menu', 'HOT FOOD AND COOL DRINKS', null , null , [ -1 , 150 , 150 , 150 , 200 ] , [
+-- [ [ 'header' , [ 4 , 1 ] ] , [ 'text' , 'Recommendations of the House' ] , [ 'text' , 'HOTNESS' ]] ,
+-- [ [ 'regular' , [ 2 , 1 , 1 , 1 ] , null , 'pancakes'] , [ 'text' , 'Pancakes' ] ,  [ 'button' , 'Small' , 'select_size_small' , null , true , 'pancakes'  ] ,  [ 'button' , 'BIG' , 'select_size_big' , null , true , 'pancakes'  ] ,  [ 'statusbar' , 95 , 255 , 0 , 0 ,  100 ]  ],
+-- [ [ 'regular' , [ 1 , 1 , 1 , 1 , 1 ] , null , 'pizza'] , [ 'text' , 'Pizza' ] ,  [ 'button' , 'Small' , 'select_size_small' , null , true , 'pizza'  ] ,  [ 'button' , 'Medium' , 'select_size_medium' , null , true , 'pizza'  ] ,  [ 'button' , 'BIG' , 'select_size_big' , null , true , 'pizza'  ] ,  [ 'statusbar' , 90 , 255 , 0 , 0 ,  100 ]  ] ,
+-- [ [ 'regular' , [ 3 , 1 , 1 ] , null , 'core'] , [ 'text' , 'A part from the Core of the Planet' ] ,  [ 'button' , 'Small' , 'select_size_small' , null , true , 'core'  ] , [ 'statusbar' , 500 , 255 , 0 , 0 ,  100 ]  ],
+-- [ [ 'invisible', [ 5 ] ] , null ] ,
+-- [ [ 'header' , [ 4 , 1 ] ] , [ 'text' , 'Drinks' ] , [ 'text' , 'COOLNESS' ]] ,
+-- [ [ 'regular' , [ 3 , 1 , 1 ] , null , 'cola'] , [ 'text' , 'Cola' ] ,  [ 'button' , 'one Glass' , 'select_size_any' , null , true , 'cola'  ] , [ 'statusbar' , 75 , 0 , 0 , 255 ,  100 ]  ],
+-- [ [ 'regular' , [ 3 , 1 , 1 ] , null , 'beer'] , [ 'text' , 'Beer' ] ,  [ 'button' , 'one Glass' , 'select_size_any' , null , true , 'beer'  ] , [ 'statusbar' , 70 , 0 , 0 , 255 ,  100 ]  ],
+-- [ [ 'regular' , [ 3 , 1 , 1 ] , null , 'LN'] , [ 'text' , 'Liquid Nitrogen' ] ,  [ 'button' , 'one Bucket' , 'select_size_any' , null , true , 'LN'  ] , [ 'statusbar' , 100 , 0 , 0 , 255 ,  100 ]  ],
+-- [ [ 'regular' , [ 3 , 1 , 1 ] , null , 'LH'] , [ 'text' , 'Liquid Hydrogen' ] ,  [ 'button' , 'one Bucket' , 'select_size_any' , null , true , 'LH'  ] , [ 'statusbar' , 273 , 0 , 0 , 255 ,  100 ]  ],
+-- ] , [ 
+-- [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'Classic Select small', 'select_size_small' , 'INPUT_STATE_DETAILMONITOR_BACK' , true ] , 
+-- [ 'button' , 'Classic Select Med', 'select_size_medium' , 'INPUT_STATE_DETAILMONITOR_Y' , true ] , [ 'button' , 'Classic Select BIG', 'select_size_big' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
+-- ] ]"/>
 --
 --------------------------------------------------------------------------------------------------------
 
 local menu = {
-	name = "ita_genericui_ut_mod",
+	name = "ut_genericui",
 	defaultColor = { r = 255, g = 255, b = 255, a = 100 },
 	availColor = { r = 0, g = 192, b = 0, a = 100 },
 	buildingColor = { r = 192, g = 192, b = 0, a = 100 },
@@ -80,7 +100,7 @@ function menu.fetch()
 	menu.data = {}
 	menu.data.entries = {}
 	
-	DebugError("Lua Menu Fetch:")
+	--DebugError("Lua Menu Fetch:")
 	
 -- Menu in general
 	menu.data.title = menu.param[3]
@@ -88,8 +108,8 @@ function menu.fetch()
 	if menu.data.instruction_text == nil then menu.data.instruction_text = "" end
 	menu.data.special_function = menu.param[5]
 	
-	print("Title: "..(menu.data.title or "nil").." Info: "..(menu.data.instruction_text or "nil").." Special: ")
-	print(menu.data.special_function)
+	--print("Title: "..(menu.data.title or "nil").." Info: "..(menu.data.instruction_text or "nil").." Special: ")
+	--print(menu.data.special_function)
 	
 -- Mid-Section definition
 	if menu.param[6] then
@@ -100,7 +120,6 @@ function menu.fetch()
 		menu.data.preselected_column = nil
 	end
 		
-	--ToDo: Implement Section
 	menu.data.midtable_column_sizes = menu.param[7]
 	menu.data.midtable_rows = menu.param[8]
 	
@@ -117,7 +136,7 @@ function menu.fetch()
 		end
 	end
 	if index then
-		print("Found -1 Entry in column "..index.." will set it to remaining width of "..(maxwidth - 6 - totalwidth).."pixels - Totalwidth="..totalwidth)
+		--print("Found -1 Entry in column "..index.." will set it to remaining width of "..(maxwidth - 6 - totalwidth).."pixels - Totalwidth="..totalwidth)
 		menu.data.midtable_column_sizes[index] = maxwidth - 6 - totalwidth
 		totalwidth = totalwidth + menu.data.midtable_column_sizes[index]
 	end
@@ -125,59 +144,35 @@ function menu.fetch()
 		DebugError("Totalwidth of Table greater than 1200 ("..totalwidth..") - will probably not display")
 	end
 	
-	print("Selected: "..(menu.data.preselected_row or "nil").."/"..(menu.data.preselected_column or "nil").." Total Width: "..totalwidth.." Column count:"..#menu.data.midtable_column_sizes.." Sizes: ")
-	print(menu.data.midtable_column_sizes)
-	print("content: - "..#menu.data.midtable_rows.."entries")
-	print(menu.data.midtable_rows)
+	--print("Selected: "..(menu.data.preselected_row or "nil").."/"..(menu.data.preselected_column or "nil").." Total Width: "..totalwidth.." Column count:"..#menu.data.midtable_column_sizes.." Sizes: ")
+	--print(menu.data.midtable_column_sizes)
+	--print("content: - "..#menu.data.midtable_rows.."entries")
+	--print(menu.data.midtable_rows)
 	
 -- Bottom Row
 	menu.data.bottom_row = menu.param[9]
 	
-	print("Bottom Row: ")
-	print(menu.data.bottom_row)
+	--print("Bottom Row: ")
+	--print(menu.data.bottom_row)
 	
 	
 	-- List for all Buttons to assign - set up by CreateCell and used in onShowMenu at the end
 	menu.data.buttonlist_middle = {}
 	menu.data.buttonlist_bottom = {}
 	
-	-- just keeping this for reference until finished.
-	if false then
-	menu.data.mode = false -- not used by me, or at least in a diffrent way. Will be removed when Script is cleaned.
-	-- Title and instructions
-	menu.data.title = menu.param[3]
-	menu.data.instruction_text = menu.param[4]
-	-- figuring out how to do this currently.. just a placeholder atm
-	menu.data.highlighted_line = menu.param[5]
-	-- Menu Entries
-	local dataset_selector = menu.param[6]
-	--Should be proper tables. If moddev is not good enough to follow instructions I can't get better.
-	menu.data.entries = dataset_selector
-	--Buttons
-	menu.data.button_1_text = menu.param[7]
-	menu.data.button_1_section = menu.param[8]
-	menu.data.button_2_text = menu.param[9]
-	menu.data.button_2_section = menu.param[10]
-	menu.data.button_3_text = menu.param[11]
-	menu.data.button_3_section = menu.param[12]
-	menu.data.button_4_text = menu.param[13]
-	menu.data.button_4_section = menu.param[14]
-	
-	menu.data.subsection = "TO BE REPLACED"
-	end
 end
 
 function menu.onShowMenu()
 	
 	-- Set up CreateCell Function
 	local function CreateCell(celldefinition,row,column,height,width,buttonlist)
-		if celldefinition then print("createCell called for a "..celldefinition[1].." Cell") end
+		--if celldefinition then print("createCell called for a "..celldefinition[1].." Cell") end
 		if celldefinition == nil then
 			if row == menu.data.preselected_row and column == menu.data.preselected_column then
 				DebugError("Preselected Cell is an empty Cell: Row "..row.." Column "..j.." - removing column")
 				menu.data.preselected_column = nil
 			end
-			print("createCell called for an empty Cell")
+			--print("createCell called for an empty Cell")
 			return Helper.getEmptyCellDescriptor()
 		elseif celldefinition[1] == "text" then
 	-- { 'text' , 'Text' }
@@ -244,24 +239,19 @@ function menu.onShowMenu()
 	setup:addTitleRow({
 		Helper.createFontString(menu.title, false, "left", 255, 255, 255, 100, Helper.headerRow1Font, Helper.headerRow1FontSize, false, Helper.headerRow1Offsetx, Helper.headerRow1Offsety, Helper.headerRow1Height, Helper.headerRow1Width)
 	}, nil, {2})
-	print("Title Row created")
+	--print("Title Row created")
 	setup:addTitleRow({ 
 		Helper.createFontString(menu.data.instruction_text, false, "left", 129, 160, 182, 100, Helper.headerRow2Font, Helper.headerRow2FontSize, false, Helper.headerRow2Offsetx, Helper.headerRow2Offsety, Helper.headerRow2Height, Helper.headerRow1Width)	-- text depends on selection
 	}, nil, {2})
-	print("Instruction Text created")
+	--print("Instruction Text created")
 	local topdesc = setup:createCustomWidthTable({ 0, Helper.scaleX(Helper.e_IconEntrySize) + 37 }, false, true)
-	print("topdesc created")
+	--print("topdesc created")
 	--MIDDLE(DATA)
 	setup = Helper.createTableSetup(menu)
 	local descriptionTableHeight = Helper.e_FigureHeight + 30 - Helper.headerRow2Height
 	local row = 1
---	if menu.data.instruction_text then
---		setup:addTitleRow({Helper.getEmptyCellDescriptor()}, nil, {#menu.data.midtable_column_sizes}, false, menu.transparent)
---		row = row + 1
---	end
-	print("Instruction Text Spacer created")
 	for _,rowdef in ipairs(menu.data.midtable_rows) do
-		print("Creating Content for row "..row)
+		--print("Creating Content for row "..row)
 		-- first create the Row Content and then add it to the menu as the selected type of row
 		rowcontent = {}
 		local column = 1
@@ -279,7 +269,7 @@ function menu.onShowMenu()
 			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,36,cellwidth,menu.data.buttonlist_middle))
 			column=column+rowdef[1][2][i]
 		end
-		print("Row Content created")
+		--print("Row Content created")
 		-- select type of Row 
 		if rowdef[1][1] == "header" then
 -- function setup:addHeaderRow(cells, rowdata, colspans, noscaling, bgColor)
@@ -289,12 +279,12 @@ function menu.onShowMenu()
 				menu.data.preselected_row = nil
 				menu.data.preselected_column = nil
 			end
-			print("Header Row created")
+			--print("Header Row created")
 		elseif rowdef[1][1] == "regular" then
 -- function setup:addSimpleRow(cells, rowdata, colspans, noscaling, bgColor)
 			setup:addSimpleRow(rowcontent,rowdef[1],rowdef[1][2],false)
 			--ToDo!!!!: Save Param and Section somewhere to evaluate it when line is selected
-			print("Regular Row Created")
+			--print("Regular Row Created")
 		elseif rowdef[1][1] == "nonselectable" then
 			-- using header here because simple row is selectable
 			if row == menu.data.preselected_row  then
@@ -303,7 +293,7 @@ function menu.onShowMenu()
 				menu.data.preselected_column = nil
 			end
 			setup:addHeaderRow(rowcontent, false, rowdef[1][2], false, Helper.defaultSimpleBackgroundColor)
-			print("Nonselectable Row created")
+			--print("Nonselectable Row created")
 		elseif rowdef[1][1] == "invisible" then
 			-- using header here because simple row is selectable
 			if row == menu.data.preselected_row  then
@@ -312,7 +302,7 @@ function menu.onShowMenu()
 				menu.data.preselected_column = nil
 			end
 			setup:addHeaderRow(rowcontent, false, rowdef[1][2], false, menu.transparent)
-			print("Invisible Row Created")
+			--print("Invisible Row Created")
 		else
 			if row == menu.data.preselected_row  then
 				DebugError("Preselected Cell is in an empty Row: Row "..row.." - removing selection")
@@ -326,9 +316,9 @@ function menu.onShowMenu()
 		DebugError("Row "..row.."Created")
 		row = row + 1
 	end
-	print("creating middesc")
+	--print("creating middesc")
 	local middesc = setup:createCustomWidthTable(menu.data.midtable_column_sizes, false, true, true, 1, 0, 0, Helper.tableOffsety + ( menu.data.instruction_text and Helper.headerRow2Height or 0 - Helper.headerRow2Height/2 ) + Helper.headerRow2Offsetx , 650 - ( menu.data.instruction_text and Helper.headerRow2Height or 0 ), nil, nil, menu.data.preselected_row,menu.data.preselected_column)--{Helper.e_DescWidth}
-	print("middesc created")
+	--print("middesc created")
 	--BOTTOM
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
@@ -347,40 +337,21 @@ function menu.onShowMenu()
 	menu.toptable, menu.midtable, menu.bottomtable = Helper.displayThreeTableView(menu, topdesc, middesc, bottomdesc, false)
 	--BUTTONS
 	for _,v in ipairs(menu.data.buttonlist_middle) do
-		print("Assigned middle button in row "..v[1].." column "..v[2].." to point to section "..(v[3] or "nil"))
+		--print("Assigned middle button in row "..v[1].." column "..v[2].." to point to section "..(v[3] or "nil"))
 		-- Buttonlist Entry: {row,column,next_section,param,keepvisible,notsubsection}																	section,			param,			keepvisible,	notsubsection
 		Helper.setButtonScript(menu, nil, menu.midtable, v[1], v[2], function () return menu.buttonSelect(v[3],v[4],v[5],v[6]) end)
 	end
 	for _,v in ipairs(menu.data.buttonlist_bottom) do
-		print("Assigned bottom button in row "..v[1].." column "..v[2].." to point to section "..(v[3] or "nil"))
+		--print("Assigned bottom button in row "..v[1].." column "..v[2].." to point to section "..(v[3] or "nil"))
 		-- Buttonlist Entry: {row,column,next_section,param,keepvisible,notsubsection}																	section,			param,			keepvisible,	notsubsection
 		Helper.setButtonScript(menu, nil, menu.bottomtable, v[1], v[2], function () return menu.buttonSelect(v[3],v[4],v[5],v[6]) end)
 	end
 	
-	if false then
-	for i,v in ipairs(menu.data.entries) do
-		if v[5] and v[6] and v[7] and v[8] then
-			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 2, function () return menu.buttonSelectLocal(v[6],v[1]) end)
-			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 3, function () return menu.buttonSelectLocal(v[8],v[1]) end)
-		elseif v[5] and v[6] then
-			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 3, function () return menu.buttonSelectLocal(v[6],v[1]) end)
-		elseif v[7] and v[8] then
-			Helper.setButtonScript(menu, nil, menu.midtable, i+1, 3, function () return menu.buttonSelectLocal(v[8],v[1]) end)
-		else
---			PANIC!!!
-		end
-	end
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 2, menu.button1)
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 4, menu.button2)
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 6, menu.button3)
 	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 8, menu.button4)
 	
---	   Dynamic per-Entry button template
---		for i,v in ipairs(menu.data.entries) do
---			Helper.setButtonScript(menu, nil, menu.midtable, i, 3, function () return menu.buttonSelectLocal(v) end)
---		end
-	
-	end
 	--FINALIZE
 	Helper.releaseDescriptors()
 end
@@ -400,22 +371,22 @@ function menu.buttonSelect(section,param,keepvisible,notsubsection)
 	-- use rowdata Values if there are no Values passed by the Button itself
 	if menu.rowDataMap[Helper.currentDefaultTableRow] or false then
 		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
-		DebugError("Button Pressed")
-		print("rowDataMap Values: 3: "..(selection[3] or "nil").." 4: "..(selection[4] or "nil").." 5: "..(selection[5] or "nil").." 6: "..(selection[6] or "nil"))
+		--DebugError("Button Pressed")
+		--print("rowDataMap Values: 3: "..(selection[3] or "nil").." 4: "..(selection[4] or "nil").." 5: "..(selection[5] or "nil").." 6: "..(selection[6] or "nil"))
 		if not section then
-			print("replacing section "..(section or "nil").." with "..(selection[3] or "nil"))
+			--print("replacing section "..(section or "nil").." with "..(selection[3] or "nil"))
 			section = selection[3]
 		end
 		if not param then
-			print("replacing param "..(param or "nil").." with "..(selection[4] or "nil"))
+			--print("replacing param "..(param or "nil").." with "..(selection[4] or "nil"))
 			param = selection[4]
 		end
 		if not keepvisible then
-			print("replacing keepvisible "..(keepvisible or "nil").." with "..(selection[5] or "nil"))
+			--print("replacing keepvisible "..(keepvisible or "nil").." with "..(selection[5] or "nil"))
 			keepvisible = selection[5]
 		end
 		if not notsubsection then
-			print("replacing notsubsection "..(notsubsection or "nil").." with "..(selection[6] or "nil"))
+			--print("replacing notsubsection "..(notsubsection or "nil").." with "..(selection[6] or "nil"))
 			notsubsection = selection[6]
 		end
 	end
@@ -426,46 +397,6 @@ function menu.buttonSelect(section,param,keepvisible,notsubsection)
 		Helper.closeMenuForSubSection(menu, keepvisible, section, param)
 	else
 	    menu.onCloseElement("back")
-	end
-end
-
-function menu.buttonOK()
-	DebugError("UT Custom Menu - menu.buttonOK called - to be depracted, forwarding to menu.buttonSelect ")
-	if menu.rowDataMap[Helper.currentDefaultTableRow] then
-		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
-		menu.buttonSelect(menu.data.subsection,selection[4])
-	end
-end
-
-function menu.button1()
-	DebugError("UT Custom Menu - menu.button1 called - to be depracted, forwarding to menu.buttonSelect ")
-	if menu.rowDataMap[Helper.currentDefaultTableRow] then
-		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
-		menu.buttonSelect(menu.data.subsection,selection[4])
-	end
-end
-
-function menu.button2()
-	DebugError("UT Custom Menu - menu.button2 called - to be depracted, forwarding to menu.buttonSelect ")
-	if menu.rowDataMap[Helper.currentDefaultTableRow] then
-		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
-		menu.buttonSelect(menu.data.subsection,selection[4])
-	end
-end
-
-function menu.button3()
-	DebugError("UT Custom Menu - menu.button3 called - to be depracted, forwarding to menu.buttonSelect ")
-	if menu.rowDataMap[Helper.currentDefaultTableRow] then
-		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
-		menu.buttonSelect(menu.data.subsection,selection[4])
-	end
-end
-
-function menu.button4()
-	DebugError("UT Custom Menu - menu.button4 called - to be depracted, forwarding to menu.buttonSelect ")
-	if menu.rowDataMap[Helper.currentDefaultTableRow] then
-		local selection = menu.rowDataMap[Helper.currentDefaultTableRow]
-		menu.buttonSelect(menu.data.subsection,selection[4])
 	end
 end
 
