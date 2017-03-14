@@ -407,7 +407,6 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               <assign_trade_manager object="$actor.container" actor="$actor"/>
               <!--assign_control_entity object="$actor.container" actor="$actor"/-->
             </do_if>
-            <cancel_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="Assigned_as_control_entity"/>
             <signal_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="this"/>
@@ -419,7 +418,9 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
           <conditions>
             <check_any>
               <event_cue_signalled/>
-              <check_value value="$actor.iscontrolentity"/>
+              <event_game_loaded><!-- Temp workaround -->
+                <check_value value="$actor.iscontrolentity"/>
+              </event_game_loaded>
             </check_any>
           </conditions>
           <actions>
