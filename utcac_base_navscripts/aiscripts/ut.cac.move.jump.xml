@@ -407,11 +407,12 @@ ToDo:
       <do_if value="not ( this.race == race.xenon or this.race == race.drone)" comment="Computer Races sync the Start perfectly, and a bit earlier than non-computer Races">
         <wait min="100ms" max="3s" sinceversion="30" comment="de-perfect perfect synchromisation"/>
       </do_if>
-      <jump result="$result" object="this.ship" zone="$beacon.zone" ignorefuel="$ignorefuel" commandaction="false" >
+      <jump result="$firstresult" object="this.ship" zone="$beacon.zone" ignorefuel="$ignorefuel" commandaction="false" >
         <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
         <orientation refobject="$beacon" orientation="look_away"/>
         <interrupt_after_time time="0s"/>
       </jump>
+      <set_value name="$result" exact="@$firstresult"/>
       <set_value name="$debug_cooldowntime3" exact="$jumpdrive.cooldowntimeleft"/>
       <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
         <position space="this.zone" object="this.ship" z="20km"/>
@@ -463,7 +464,7 @@ ToDo:
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
       </do_if>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7 operational: %8\nPerforming Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7 operational: %8 Firstresult: %9\nPerforming Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational,@$firstresul]"/>
         <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3\ncooldowntimes: 1: %4, 2: %5, 3: %6 4: %7'.[this.zone.name,$beacon.zone.name,$beacon.name,$debug_cooldowntime1,$debug_cooldowntime2,$debug_cooldowntime3,$debug_cooldowntime4]"/>
         <warp object="this.ship" zone="$beacon.zone">
           <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
