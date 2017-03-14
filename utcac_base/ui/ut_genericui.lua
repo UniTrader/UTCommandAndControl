@@ -313,7 +313,7 @@ function menu.onShowMenu()
 			setup:addHeaderRow({Helper.getEmptyCellDescriptor()}, false, nil , false, menu.transparent)
 			-- error and add an empty row
 		end
-		DebugError("Row "..row.."Created")
+		--DebugError("Row "..row.."Created")
 		row = row + 1
 	end
 	--print("creating middesc")
