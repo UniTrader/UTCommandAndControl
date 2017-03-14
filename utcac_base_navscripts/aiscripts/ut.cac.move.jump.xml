@@ -332,6 +332,7 @@ ToDo:
       <do_while value="$jumpdrive.cooldowntimeleft gt 0">
         <wait min="($jumpdrive.cooldowntimeleft + 2)s" max="($jumpdrive.cooldowntimeleft + 4)s"/>
       </do_while>
+      <set_value name="$debug_cooldowntime1" exact="$jumpdrive.cooldowntimeleft"/>
       
       <!-- Leader of Group Jump - wait till everyone is ready and give the Start Signal -->
       <do_if value="not $leader.exists">
@@ -384,6 +385,8 @@ ToDo:
         </wait>
       </do_else>
       
+      <set_value name="$debug_cooldowntime2" exact="$jumpdrive.cooldowntimeleft"/>
+      
       <label name="jump"/>
       <!-- Preperations Done - Tell everyone to start and add ourselves to the blocking group to prevent too fast advancing on the leaders part -->
       <signal_objects object="this.ship" param="'travel jump start'" param2="[ if $leader then $leader else this.ship , $beacon ]" param3="$leader_preparegroup"/>
@@ -409,6 +412,7 @@ ToDo:
         <orientation refobject="$beacon" orientation="look_away"/>
         <interrupt_after_time time="0s"/>
       </jump>
+      <set_value name="$debug_cooldowntime3" exact="$jumpdrive.cooldowntimeleft"/>
       <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
         <position space="this.zone" object="this.ship" z="20km"/>
         <rotation value="this.ship.rotation"/>
@@ -431,6 +435,7 @@ ToDo:
           </actions>
         </interrupt>
       </move_to>
+      <set_value name="$debug_cooldowntime4" exact="$jumpdrive.cooldowntimeleft"/>
       <stop_moving object="this.ship" immediate="true"/>
       <do_if value="not $result">
         <wait>
@@ -459,7 +464,7 @@ ToDo:
       </do_if>
       <do_else>
         <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7 operational: %8\nPerforming Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational]"/>
-        <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3'.[this.zone.name,$beacon.zone.name,$beacon.name]"/>
+        <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3\ncooldowntimes: 1: %4, 2: %5, 3: %6 4: %7'.[this.zone.name,$beacon.zone.name,$beacon.name,$debug_cooldowntime1,$debug_cooldowntime2,$debug_cooldowntime3,$debug_cooldowntime4]"/>
         <warp object="this.ship" zone="$beacon.zone">
           <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
           <orientation refobject="$beacon" orientation="look_away"/>
