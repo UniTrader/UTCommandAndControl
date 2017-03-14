@@ -417,7 +417,10 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
         </cue>
         <cue name="Assigned_as_control_entity" version="21">
           <conditions>
-            <event_cue_signalled/>
+            <check_any>
+              <event_cue_signalled/>
+              <check_value value="$actor.iscontrolentity"/>
+            </check_any>
           </conditions>
           <actions>
             <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
