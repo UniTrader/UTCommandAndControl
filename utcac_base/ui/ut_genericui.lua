@@ -161,74 +161,74 @@ function menu.fetch()
 	menu.data.buttonlist_bottom = {}
 	
 end
-
-function menu.onShowMenu()
 	
 	-- Set up CreateCell Function
-	local function CreateCell(celldefinition,row,column,height,width,buttonlist)
-		--if celldefinition then print("createCell called for a "..celldefinition[1].." Cell") end
-		if celldefinition == nil then
-			if row == menu.data.preselected_row and column == menu.data.preselected_column then
-				DebugError("Preselected Cell is an empty Cell: Row "..row.." Column "..j.." - removing column")
-				menu.data.preselected_column = nil
-			end
-			--print("createCell called for an empty Cell")
-			return Helper.getEmptyCellDescriptor()
-		elseif celldefinition[1] == "text" then
-	-- { 'text' , 'Text' }
-			if row == menu.data.preselected_row and column == menu.data.preselected_column then
-				DebugError("Preselected Cell is a Text Cell: Row "..row.." Column "..j.." - removing column")
-				menu.data.preselected_column = nil
-			end
-			return celldefinition[2]
-		elseif celldefinition[1] == "button" then
-	-- { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] }
-			-- Fill List with all Button Scripts to assign so i dont have to loop over the whole list twice
-			if celldefinition[5] then
-				-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
-				table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
-			end
-			return Helper.createButton(
-					Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize * 1.4 , 255, 255, 255, 100), 
-					nil, 
-					true,
-					true, 
-					0, 
-					0, 
-					width,
-					height, 
-					nil, 
-					celldefinition[4] and Helper.createButtonHotkey(celldefinition[4], true) or nil, 
-					nil, 
-					nil)
-		elseif celldefinition[1] == "statusbar" then
-			if row == menu.data.preselected_row and column == menu.data.preselected_column then
-				DebugError("Preselected Cell is a Statusbar Cell: Row "..row.." Column "..j.." - removing column")
-				menu.data.preselected_column = nil
-			end
-	-- { 'statusbar' , fillpercent , red , green , blue , alpha }
-		return Helper.createIcon(
-				"solid", 
-				true, 
-				celldefinition[3], 
-				celldefinition[4],
-				celldefinition[5],
-				celldefinition[6], 
-				0, 
-				0, 
-				height, 
-				celldefinition[2] * width / 100)
-		else
-			if row == menu.data.preselected_row and column == menu.data.preselected_column then
-				DebugError("Preselected Cell is an unknown type of Cell: Row "..row.." Column "..j.." - removing column")
-				menu.data.preselected_column = nil
-			end
-			DebugError("unknown Cell Definition in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
-			return Helper.getEmptyCellDescriptor()
+function menu.CreateCell(celldefinition,row,column,height,width,buttonlist)
+	--if celldefinition then print("createCell called for a "..celldefinition[1].." Cell") end
+	if celldefinition == nil then
+		if row == menu.data.preselected_row and column == menu.data.preselected_column then
+			DebugError("Preselected Cell is an empty Cell: Row "..row.." Column "..j.." - removing column")
+			menu.data.preselected_column = nil
 		end
-		DebugError("Cell Definition didnt return in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
+		--print("createCell called for an empty Cell")
+		return Helper.getEmptyCellDescriptor()
+	elseif celldefinition[1] == "text" then
+-- { 'text' , 'Text' }
+		if row == menu.data.preselected_row and column == menu.data.preselected_column then
+			DebugError("Preselected Cell is a Text Cell: Row "..row.." Column "..j.." - removing column")
+			menu.data.preselected_column = nil
+		end
+		return celldefinition[2]
+	elseif celldefinition[1] == "button" then
+-- { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] }
+		-- Fill List with all Button Scripts to assign so i dont have to loop over the whole list twice
+		if celldefinition[5] then
+			-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
+			table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
+		end
+		return Helper.createButton(
+				Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize * 1.4 , 255, 255, 255, 100), 
+				nil, 
+				true,
+				true, 
+				0, 
+				0, 
+				width,
+				height, 
+				nil, 
+				celldefinition[4] and Helper.createButtonHotkey(celldefinition[4], true) or nil, 
+				nil, 
+				nil)
+	elseif celldefinition[1] == "statusbar" then
+		if row == menu.data.preselected_row and column == menu.data.preselected_column then
+			DebugError("Preselected Cell is a Statusbar Cell: Row "..row.." Column "..j.." - removing column")
+			menu.data.preselected_column = nil
+		end
+-- { 'statusbar' , fillpercent , red , green , blue , alpha }
+	return Helper.createIcon(
+			"solid", 
+			true, 
+			celldefinition[3], 
+			celldefinition[4],
+			celldefinition[5],
+			celldefinition[6], 
+			0, 
+			0, 
+			height, 
+			celldefinition[2] * width / 100)
+	else
+		if row == menu.data.preselected_row and column == menu.data.preselected_column then
+			DebugError("Preselected Cell is an unknown type of Cell: Row "..row.." Column "..j.." - removing column")
+			menu.data.preselected_column = nil
+		end
+		DebugError("unknown Cell Definition in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
 		return Helper.getEmptyCellDescriptor()
 	end
+	DebugError("Cell Definition didnt return in row "..row.." column "..column.." Type: "..celldefinition[1].." - filling with empty Cell")
+	return Helper.getEmptyCellDescriptor()
+end
+
+function menu.onShowMenu()
 	
 	--FETCHING
 	menu.fetch()
@@ -266,7 +266,7 @@ function menu.onShowMenu()
 				cellwidth = cellwidth + ( menu.data.midtable_column_sizes[j] or 0 ) + 5
 			end
 													-- menu.createCell(celldefinition,row,column,height,width)
-			table.insert(rowcontent,CreateCell(rowdef[i+1],row,column,36,cellwidth,menu.data.buttonlist_middle))
+			table.insert(rowcontent,menu.CreateCell(rowdef[i+1],row,column,36,cellwidth,menu.data.buttonlist_middle))
 			column=column+rowdef[1][2][i]
 		end
 		--print("Row Content created")
@@ -323,13 +323,13 @@ function menu.onShowMenu()
 	setup = Helper.createTableSetup(menu)
 	setup:addSimpleRow({ 
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[1],1,2,36,210,menu.data.buttonlist_bottom),
+		menu.CreateCell(menu.data.bottom_row[1],1,2,36,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[2],1,4,36,210,menu.data.buttonlist_bottom),
+		menu.CreateCell(menu.data.bottom_row[2],1,4,36,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[3],1,6,36,210,menu.data.buttonlist_bottom),
+		menu.CreateCell(menu.data.bottom_row[3],1,6,36,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor(),
-		CreateCell(menu.data.bottom_row[4],1,8,36,210,menu.data.buttonlist_bottom),
+		menu.CreateCell(menu.data.bottom_row[4],1,8,36,210,menu.data.buttonlist_bottom),
 		Helper.getEmptyCellDescriptor()
 	}, nil, nil, false, menu.transparent)
 	local bottomdesc = setup:createCustomWidthTable({48, 150, 48, 150, 48, 150, 48, 150, 48}, false, false, true, 2, 1, 0, 550, 0, false)
