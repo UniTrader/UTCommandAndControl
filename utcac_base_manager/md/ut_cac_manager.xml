@@ -30,7 +30,8 @@
         <!-- instead of starting the Orderlist now wait till Drone has arrived or, if already on a Station/Ship simulate Drone Arrival to unify the managment of both events -->
         <!--start_script object="$actor" name="'ut.cac.orderlist.loop'"/-->
         <do_if value="($actor.container.isclass.station or ( actor.ship.buildmodule? and actor.ship.architect? ) ) and not @$actor.container.controlentity.{$actor.type}">
-          <signal_objects object="$actor" param="'remote_transport_arrived'" delay="100ms"/>
+          <!--signal_objects object="$actor" param="'remote_transport_arrived'" delay="100ms"/-->
+            <signal_cue cue="Assigned_as_control_entity"/>
         </do_if>
         <do_if value="not $actor.hasownaccount">
           <set_actor_account actor="$actor"/>
@@ -403,29 +404,23 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
           <delay exact="1ms"/>
           <actions>
           <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Actor_Transport_complete triggered'.[player.age,$actor.name,event.name]"/>
-            <do_if value="$actor.container.isclass.station">
-              <assign_trade_manager object="$actor.container" actor="$actor"/>
-              <!--assign_control_entity object="$actor.container" actor="$actor"/-->
-            </do_if>
             <reset_cue cue="Assigned_as_control_entity"/>
             <signal_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="this"/>
-            <!-- restart Order List progression on Arrival -->
-            <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
           </actions>
         </cue>
         <cue name="Assigned_as_control_entity" version="21">
           <conditions>
-            <check_any>
-              <event_cue_signalled/>
-              <check_all>
-                <event_object_changed_attention object="$actor"/>
-                <check_value value="$actor.iscontrolentity"/>
-              </check_all>
-            </check_any>
+            <event_cue_signalled/>
           </conditions>
           <actions>
             <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
+            <!-- (re)start Order List progression on Arrival -->
+            <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
+            <do_if value="$actor.container.isclass.station">
+              <assign_trade_manager object="$actor.container" actor="$actor"/>
+              <!--assign_control_entity object="$actor.container" actor="$actor"/-->
+            </do_if>
           </actions>
           <patch sinceversion="21" state="complete" comment="Previous cue didnt execute the right commands before - doing it here since executing it too early/often is harmless">
             <cancel_cue cue="this"/>
