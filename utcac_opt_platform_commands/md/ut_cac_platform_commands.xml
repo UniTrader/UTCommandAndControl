@@ -69,11 +69,11 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
           <delay exact="150ms"/>
           <actions>
             <!-- TEMPORARY: Code for getting all possible Screenshot modes (might be the way to determine external View) -->
-            <do_if value="not $screenshotmodes">
+            <do_if value="not $screenshotmodes?">
               <set_value name="$screenshotmodes" exact="[]"/>
             </do_if>
             <do_if value="not $screenshotmodes.indexof.{player.screenshotmode}">
-              <append_to_list name="$sceenshotmodes" exact="player.screenshotmode"/>
+              <append_to_list name="$screenshotmodes" exact="player.screenshotmode"/>
               <debug_text filter="general" text="'New Screenshotmode %1\nModes: %2'.[player.screenshotmode,$screenshotmodes]"/>
             </do_if>
             <!-- end temp code -->
