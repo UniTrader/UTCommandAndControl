@@ -139,7 +139,7 @@
     <library name="RenameActions">
       <actions>
         <!-- confirm valadity of Object, saveBlackboard Entity -->
-        <set_value name="$controlentity" exact="if $object.isclass.station then $object.tradenpc else $object.controlentity"/>
+        <set_value name="$controlentity" exact="if $object == player.primaryship then player.entity else if $object.isclass.station then $object.tradenpc else $object.controlentity"/>
         <do_if value="$object.exists and $controlentity.$unformatted_object_name?">
           <do_if value="$keys? or $nameA? or $nameB? or $cargotype? or $type? or $scriptset? or $debug?">
             <debug_text filter="error" text="'Internally used Vars in Included Actions also used by previous Code: $keys: %1 $nameA: %2 $nameB: %3 $cargotype: %4 $type: %5 $scriptset: %6 $debug: %7 - will be overridden and removed!!'.[@$keys,@$nameA,@$nameB,@$cargotype,@$type,@$scriptset,@$debug]"/>
