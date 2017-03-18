@@ -132,7 +132,7 @@ function menu.onShowMenu()
 	local container = GetContextByClass(menu.object, "container", false)
 	local isship = IsComponentClass(menu.object, "ship")
 -- UniTrader Change: Split Name Var into displayname (from Object) and (edit)name (from Local Var of Control Entity , fallback to displayname)
-    menu.controlentity = GetControlEntity(menu.object, "manager") or GetComponentData(menu.object, "controlentity") or ( ( menu.object == GetPlayerPrimaryShipID() ) and ( GetPlayerEntityID() or  GetPlayerEntity() ) -- last is for playership
+    menu.controlentity = GetControlEntity(menu.object, "manager") or GetComponentData(menu.object, "controlentity") or ( ( menu.object == GetPlayerPrimaryShipID() ) and GetPlayerEntityID() ) -- last is for playership
 	local displayname, name, objectowner = GetComponentData(menu.object, "name", "name", "owner")
 	if menu.controlentity and GetNPCBlackboard(menu.controlentity, "$unformatted_object_name") then
 		name = GetNPCBlackboard(menu.controlentity, "$unformatted_object_name")
