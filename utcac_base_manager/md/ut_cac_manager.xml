@@ -407,7 +407,7 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
         <cue name="Assigned_as_control_entity" version="21">
           <actions>
             <do_if value="($actor.container.isclass.station or ( $actor.ship.buildmodule? and $actor.ship.architect? ) ) and not @$actor.container.controlentity.{$actor.type}">
-              <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
+              <debug_text filter="general" text="'%1 %2 %3 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
               <!-- (re)start Order List progression on Arrival -->
               <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
               <do_if value="$actor.container.isclass.station">
@@ -416,6 +416,7 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               </do_if>
             </do_if>
             <do_else>
+              <debug_text filter="general" text="'%1 %2 %3 Assigned_as_control_entity canceled by itself'.[player.age,$actor.name,event.name]"/>
               <cancel_cue cue="this"/>
             </do_else>
           </actions>
