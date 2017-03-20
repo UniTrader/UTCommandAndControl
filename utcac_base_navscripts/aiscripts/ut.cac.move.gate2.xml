@@ -272,14 +272,14 @@
           <set_value name="$ignoredobject" exact="this.ship"/>
         </do_else>
         <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/>
-        <move_to object="this.ship" destination="this.zone" finishonapproach="true"><!-- forcesteering="true" boost="this.ship.pilot.skill.navigation ge 3"-->
+        <move_to object="this.ship" forcesteering="true" destination="this.zone" finishonapproach="true"><!-- boost="this.ship.pilot.skill.navigation ge 3"-->
           <position value="$safeposition"/>
-          <interrupt_after_time time="0s"/>
+          <interrupt_after_time time="1s"/>
         </move_to>
         <set_flight_control_model flightcontrolmodel="flightcontrolmodel.steering" object="this.ship"/>
         <wait exact="10s"/>
       </do_if>
-      <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
+      <set_to_default_flight_control_model object="this.ship"/>
       <set_value name="this.$mayabortpath" comment="tell following movement Script that the remainder of the Path is irrelevant"/>
       
       <!-- un-register from Passage Group to allow the Leader to continue -->
@@ -320,7 +320,7 @@
     <!-- also unblock the Vanilla mechanic -->
     <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
     <!-- reset FCM to default -->
-    <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
+      <set_to_default_flight_control_model object="this.ship"/>
     <!-- signal our followers to stop -->
     <signal_objects object="this.ship" param="'travel aborted'"/>
     <!-- remove from Passage Group -->
