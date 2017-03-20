@@ -478,7 +478,7 @@
       <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 20 km away) and boost to a generous safe spot nearby the Target -->
       <!-- Final boost to nearby the Destination Object - get safepos a bit in our Direction before to avoid yoyo-effect-->
       <get_safe_pos result="$safepos" zone="if $destination.isclass.zone then $destination else $destination.zone" value="if $position then $position else position.[0m,0m,0m]" radius="this.ship.size" directionobject="this.ship" min="5km"/>
-      <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 7km and $destination != $targetspace )">
+      <do_if value="this.zone != $targetspace or ( this.ship.distanceto.{$destination} gt 15km and $destination != $targetspace )">
         <set_value name="this.$waypoint" exact="$targetspace"/>
         <run_script name="'ut.cac.move.boost'">
           <param name="destination" value="if $destination.hascontext.{$targetspace} then $destination else $targetspace"/>
