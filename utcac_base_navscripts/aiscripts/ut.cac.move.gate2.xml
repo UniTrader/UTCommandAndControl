@@ -234,6 +234,14 @@
             <set_value name="$moveintogate" exact="false" />
           </actions>
         </interrupt>
+        <on_attentionchange>
+          <do_if value="this.ship.attention == attention.visible">
+            <warp object="this.ship" zone="this.zone">
+              <rotation value="$gate.rotation"/>
+              <position object="this.ship"/>
+            </warp>
+          </do_if>
+        </on_attentionchange>
       </move_gate>
       <do_if value="$moveintogate">
         <wait>
@@ -245,6 +253,14 @@
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (wait)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
             </actions>
           </interrupt>
+          <on_attentionchange>
+            <do_if value="this.ship.attention == attention.visible">
+              <warp object="this.ship" zone="this.zone">
+                <rotation value="$gate.rotation"/>
+                <position object="this.ship"/>
+             </warp>
+            </do_if>
+          </on_attentionchange>
         </wait>
       </do_if>
       <set_avoid_collisions object="this.ship" enabled="true" comment="restore collision avoidance behavior after Gate Passage"/>
@@ -320,7 +336,7 @@
     <!-- also unblock the Vanilla mechanic -->
     <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
     <!-- reset FCM to default -->
-      <set_to_default_flight_control_model object="this.ship"/>
+    <set_to_default_flight_control_model object="this.ship"/>
     <!-- signal our followers to stop -->
     <signal_objects object="this.ship" param="'travel aborted'"/>
     <!-- remove from Passage Group -->
