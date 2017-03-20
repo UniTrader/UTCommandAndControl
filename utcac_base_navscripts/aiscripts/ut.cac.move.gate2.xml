@@ -275,7 +275,7 @@
       
       <!--  move forward a bit to clear gate exit for the next ship (rate can be one ship every 30s with this Script)  -->
       <do_if value="$cleargate" comment=" and this.ship.pilot.skill.navigation ge 2">
-        <wait exact="200ms" comment="otherwise the player.ship skips movement for some reason"/>
+        <wait exact="100ms" comment="otherwise the player.ship skips movement for some reason"/>
         <transform_position name="$position" refposition="this.ship.position" refrotation="this.ship.rotation" >
           <position x="0m" y="0m" z="(this.ship.size *5)"/>
         </transform_position>
@@ -288,15 +288,15 @@
           <set_value name="$ignoredobject" exact="this.ship"/>
         </do_else>
         <get_safe_pos result="$safeposition" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/>
-        <move_to object="this.ship" forcesteering="true" destination="this.zone" finishonapproach="true"><!-- boost="this.ship.pilot.skill.navigation ge 3"-->
+        <move_to object="this.ship" destination="this.zone" finishonapproach="true"><!-- forcesteering="true" boost="this.ship.pilot.skill.navigation ge 3"-->
           <position value="$safeposition"/>
-          <interrupt_after_time time="1s"/>
+          <interrupt_after_time time="0s"/>
         </move_to>
-        <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
-        <wait exact="10s"/>
+        <!--set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
+        <wait exact="10s"/-->
       </do_if>
-      <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
-      <set_to_default_flight_control_model object="this.ship"/>
+      <!--set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
+      <set_to_default_flight_control_model object="this.ship"/-->
       <set_value name="this.$mayabortpath" comment="tell following movement Script that the remainder of the Path is irrelevant"/>
       
       <!-- un-register from Passage Group to allow the Leader to continue -->
@@ -336,9 +336,9 @@
     </do_if>
     <!-- also unblock the Vanilla mechanic -->
     <request_gate ship="this.ship" gate="$gate" unlock="true" result="$result"/>
-    <!-- reset FCM to default -->
+    <!-- reset FCM to default
     <set_flight_control_model flightcontrolmodel="flightcontrolmodel.spline" object="this.ship"/>
-    <set_to_default_flight_control_model object="this.ship"/>
+    <set_to_default_flight_control_model object="this.ship"/> -->
     <!-- signal our followers to stop -->
     <signal_objects object="this.ship" param="'travel aborted'"/>
     <!-- remove from Passage Group -->
