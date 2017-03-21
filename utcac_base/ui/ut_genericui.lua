@@ -347,11 +347,6 @@ function menu.onShowMenu()
 		Helper.setButtonScript(menu, nil, menu.bottomtable, v[1], v[2], function () return menu.buttonSelect(v[3],v[4],v[5],v[6]) end)
 	end
 	
-	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 2, menu.button1)
-	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 4, menu.button2)
-	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 6, menu.button3)
-	Helper.setButtonScript(menu, nil, menu.bottomtable, 1, 8, menu.button4)
-	
 	--FINALIZE
 	Helper.releaseDescriptors()
 end
