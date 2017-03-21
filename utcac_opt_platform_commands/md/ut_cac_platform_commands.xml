@@ -15,7 +15,12 @@
         <!-- set up object tracking vars -->
         <set_value name="$tracked_objects" exact="table[]"/>
         <!-- Gather Zones in current Sector ans Sectors in current Cluster for regular view check -->
-        <find_zone name="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
+        <find_zone name="$spaces" space="player.sector" multiple="true" known="true" priorityzone="true">
+          <match_any>
+            <match tempzone="false"/>
+            <match_child class="class.station"/>
+          </match_any>
+        </find_zone>
         <remove_value name="$spaces.{$spaces.indexof.{player.zone}}"/>
         <find_sector name="$spaces2" space="player.cluster" multiple="true" known="true"/>
         <remove_value name="$spaces2.{$spaces2.indexof.{player.sector}}"/>
@@ -50,7 +55,12 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
             <event_object_changed_zone object="player.ship"/>
           </conditions>
           <actions>
-            <find_zone name="$spaces" space="player.sector" multiple="true" known="true" tempzone="false" priorityzone="true"/>
+            <find_zone name="$spaces" space="player.sector" multiple="true" known="true" priorityzone="true">
+              <match_any>
+                <match tempzone="false"/>
+                <match_child class="class.station"/>
+              </match_any>
+            </find_zone>
             <do_if value="$spaces.indexof.{player.zone}">
               <remove_value name="$spaces.{$spaces.indexof.{player.zone}}"/>
             </do_if>
@@ -102,6 +112,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <set_value name="$loop" exact="6"/>
               <find_gravidar_contact name="$objects" object="player.ship" multiple="true" checkoperational="true">
                 <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
+                <match class="class.wreck" negate="true"/>
                 <match class="class.station" negate="true"/>
                 <match_size min="200m"/>
               </find_gravidar_contact>
