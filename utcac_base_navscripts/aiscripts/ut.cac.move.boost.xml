@@ -72,6 +72,10 @@
         <debug_text filter="error" text="'%1 %2 %3 Destination does not exist. Aborting!'.[ player.age,this.name,this.container.name]" />
         <return/>
       </do_if>
+      <do_elseif value="$destination.isclass.cluster or $destination.isclass.galaxy">
+        <debug_text filter="error" text="'%1 %2 %3 Destination is a Cluster or Galaxy. Aborting!'.[ player.age,this.name,this.container.name]" />
+        <return/>
+      </do_elseif>
       <do_if value="$destination == this.zone and ( ( not $position ) or this.ship.distanceto.{$position} lt 5km )">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Already in the right Zone and close to Target Position - so why boosting?'.[player.age,this.name,this.container.name]"/>
         <return/>
