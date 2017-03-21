@@ -410,7 +410,7 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               <debug_text filter="general" text="'%1 %2 %3 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
               <!-- (re)start Order List progression on Arrival -->
               <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
-              <do_if value="$actor.container.isclass.station">
+              <do_if value="$actor.container.isclass.station and not ( $actor == @$actor.container.controlentity.{$actor.type} ) ">
                 <assign_trade_manager object="$actor.container" actor="$actor"/>
                 <!--assign_control_entity object="$actor.container" actor="$actor"/-->
               </do_if>
