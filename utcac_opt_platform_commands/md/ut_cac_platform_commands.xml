@@ -112,10 +112,14 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <set_value name="$loop" exact="6"/>
               <find_gravidar_contact name="$objects" object="player.ship" multiple="true" checkoperational="true">
                 <match_is_in_view_of object="player.entity" vertical="15deg" horizontal="15deg"/>
-                <match class="class.wreck" negate="true"/>
                 <match class="class.station" negate="true"/>
                 <match_size min="200m"/>
               </find_gravidar_contact>
+              <do_all exact="$objects.count" counter="$i" reverse="true">
+                <do_if value="$objects.{$i}.iswreck">
+                  <remove_value name="$objects.{$i}"/>
+                </do_if>
+              </do_all>
               <!-- find and add Objects usually not accounted for- with extra-long range -->
               <find_object name="$objects_add" space="player.sector" multiple="true" known="true" checkoperational="true">
                 <match_any>
