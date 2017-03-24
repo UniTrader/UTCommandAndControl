@@ -119,6 +119,8 @@
         <do_else>
           <!-- remove invalid entries from queue when encuntering them.. -->
           <remove_value name="global.$gate_queue.{$gate}.{$i}"/>
+          <!-- also re-adjust queue Position -->
+          <set_value name="$queue_position" operation="subtract"/>
         </do_else>
       </do_all>
       <do_if value="global.$gate_queue.{$gate}.{1}.pilot.commandaction.param == $gate" comment="if the leading Ship is currently flying into the Gate it doesnt need is full length reserved because one half will be behind the Gate at the target pos">
