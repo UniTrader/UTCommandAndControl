@@ -112,7 +112,7 @@
       </do_if>
       <!-- calculate Target Distance BEHIND the Gate (therefore subtract) -->
       <set_value name="$queue_distance" exact="0m"/>
-      <do_all exact="$queue_position" counter="$i">
+      <do_all exact="$queue_position" counter="$i" reverse="true">
         <do_if value="global.$gate_queue.{$gate}.{$i}.exists">
           <set_value name="$queue_distance" operation="subtract" exact="global.$gate_queue.{$gate}.{$i}.size * 2"/>
         </do_if>
@@ -121,12 +121,10 @@
           <remove_value name="global.$gate_queue.{$gate}.{$i}"/>
         </do_else>
       </do_all>
-      <do_if value="global.$gate_queue.{$gate}.{1}.pilot.commandaction.param == $gate" comment="if the leading Ship is currently flying into the Gate it doesnt need a space behind the gate reserved for it">
-        <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{1}.size * 2"/>
+      <do_if value="global.$gate_queue.{$gate}.{1}.pilot.commandaction.param == $gate" comment="if the leading Ship is currently flying into the Gate it doesnt need is full length reserved because one half will be behind the Gateat the target pos">
+        <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{1}.size"/>
       </do_if>
-      <do_else>
-        <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{1}.size * 1"/>
-      </do_else>
+      <set_value name="$queue_distance" operation="add" exact="global.$gate_queue.{$gate}.{$queue_position}.size" comment="current Ship only needs to be acounted for in half"/>
       <transform_position name="$position" refposition="$gate.position" refrotation="$gate.rotation" >
         <position x="0m" y="0m" z="$queue_distance"/>
       </transform_position>
