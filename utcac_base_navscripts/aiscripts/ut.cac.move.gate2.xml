@@ -184,12 +184,6 @@
           </actions>
         </interrupt>
         </wait>
-        <!-- Validate if everyone in Gate Queue still exists ocassionally to prevent complete Lockups - low chance because everyone in queue may do this -->
-        <do_all exact="global.$gate_queue.{$gate}.count" counter="$i" reverse="true" chance="5">
-          <do_if value="not global.$gate_queue.{$gate}.{$i}.exists or  global.$gate_queue.{$gate}.{$i}.zone != $gate.zone">
-            <remove_value name="global.$gate_queue.{$gate}.{$i}"/>
-          </do_if>
-        </do_all>
         <resume label="fly to prep pos" comment="Queue got shorter - advance"/>
       </do_else>
       
