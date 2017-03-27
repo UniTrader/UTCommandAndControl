@@ -1,6 +1,6 @@
-﻿-- Generif UI by UniTrader, based on Original work by Itaros.
+﻿-- Generic UI by UniTrader, based on Original work by Itaros.
 -- Script was so heavily modified though that even Itaros himself couldnt recognize it anymore :P
--- His work was really helpful and Inspirational though so i am gladly keeping the
+-- But his work was really helpful and Inspirational so i am gladly keeping the
 -- Original Copyright Notice:
 -- ==============================================================
 -- Generic UI Script by Itaros. By using this you are bound to keep credit
