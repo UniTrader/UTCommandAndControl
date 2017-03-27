@@ -157,15 +157,18 @@
       <set_value name="$continuepath" exact="2" comment="re-enable soft-advancing queue and also set it persistent"/>
       <set_avoid_collisions object="this.ship" enabled="false" comment="disable collision avoidance while in queue to avoid other ships pushing us out and delaying everything"/>
       <do_if value="$queue_position == 1">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reached Wait Pos in front of queue - Flying into Gate now.'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
         <resume label="pass gate"/>
       </do_if>
       <do_elseif value="this.ship.distanceto.{$gate} lt global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate}" comment="we are closer to the Gate than the Ship before us - swap positions to avoid delays">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reached Wait Pos and Ship in front is farther away than we - swapping pos\nOther Ship: %4; Distance: %5 Our Distance: %6'.[player.age,this.knownname,this.container.knownname,global.$gate_queue.{$gate}.{$queue_position - 1}.name,global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate},this.ship.distanceto.{$gate}]"/>
         <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="global.$gate_queue.{$gate}.{$queue_position - 1}"/>
         <set_value name="global.$gate_queue.{$gate}.{$queue_position - 1}" exact="this.ship"/>
         <signal_objects object="global.$gate_queue.{$gate}.{$queue_position}" param="'travel gate update'" comment="queue changed - signal the Ship we just changed positions with specifically"/>
         <resume label="fly to prep pos"/>
       </do_elseif>
       <do_else>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reached Wait Pos and Ship in front is closer than we - waiting\nOther Ship: %4; Distance: %5 Our Distance: %6'.[player.age,this.knownname,this.container.knownname,global.$gate_queue.{$gate}.{$queue_position - 1}.name,global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate},this.ship.distanceto.{$gate}]"/>
         <wait max="5min" comment="just in case the Signal doesnt trigger properly">
         <interrupt>
           <conditions>
