@@ -47,6 +47,7 @@
 -- { 'text' , 'Text' }
 -- { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] }
 -- { 'statusbar' , fillpercent , red , green , blue , alpha }
+-- { 'stars' [ , count [ , maxcount (5) [ , colorR (255) , colorG (255) , colorB (0) ]]] }
 --
 -- Note: Priority of passed Values for Buttons: Self > Editbox/scrollbar > Selected Line
 -- Note2: Omited next section means a return to previous Section (as in a back button)
@@ -216,6 +217,15 @@ function menu.CreateCell(celldefinition,row,column,height,width,buttonlist)
 			0, 
 			height, 
 			celldefinition[2] * width / 100)
+	elseif celldefinition[1] == "stars" then
+	-- { 'stars' [ , count [ , maxcount (5) [ , colorR (255) , colorG (255) , colorB (0) ]]] }
+		local count = celldefinition[2] or 0
+		local maxcount = celldefinition[3] or 5
+		local colorR = celldefinition[4] or 255
+		local colorG = celldefinition[5] or 255
+		local colorB = celldefinition[6] or 0
+		local stars = string.rep("*", count) .. string.rep("#", maxcount - count)
+		return Helper.createFontString(stars, false, "left", colorR, colorG, colorB, 100, Helper.starFont, 16)
 	else
 		if row == menu.data.preselected_row and column == menu.data.preselected_column then
 			DebugError("Preselected Cell is an unknown type of Cell: Row "..row.." Column "..j.." - removing column")
