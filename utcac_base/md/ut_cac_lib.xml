@@ -513,13 +513,13 @@ Which Orders are available depends on entity Type
           </do_if>
           <set_value name="$genericuiparam" exact="
 [ 0 , 0 ,
-'Personal Information for %1'.[$actor.container.name], null, null , null , [ 182 , 110 , 182 , 110 , 182 , 110 , 182 , -1 ] ,
+'Personal Information for %1'.[$actor.name], null, null , null , [ 182 , 110 , 182 , 110 , 182 , 110 , 182 , -1 ] ,
  [] ,
  [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
     [ 'button' ,  'Remove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Old Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
 ] ]"/>
           <!-- Skill Part of the Menu  -->
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 5 , 2 , 1 ] ] ,
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 , 2 ] ] ,
 [ 'text' , 'Skills' ] , [ 'text' , 'Combinedskill: ' ] , [ 'statusbar' , $actor.combinedskill , 100 , 255 , 100 ,  100 ] ]"/>
           <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
           <!-- Create Lines for Primary Skills -->
@@ -545,12 +545,13 @@ Which Orders are available depends on entity Type
             <do_if value="$combinedcells1.count lt 8">
               <append_to_list name="$combinedcells2" exact="8 - $combinedcells1.count"/>
               <append_to_list name="$combinedcells1" exact="8 - $combinedcells1.count"/>
-              <append_to_list name="$line1" exact="null"/>
-              <append_to_list name="$line2" exact="null"/>
+              <append_to_list name="$line1" exact="[ 'text' , '' ]"/>
+              <append_to_list name="$line2" exact="[ 'text' , '' ]"/>
             </do_if>
             <append_to_list name="$genericuiparam.{8}" exact="$line1"/>
             <append_to_list name="$genericuiparam.{8}" exact="$line2"/>
           </do_while>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
           <!-- Create Lines for Other Skills -->
           <do_while value="$skillist.count">
             <set_value name="$combinedcells" exact="[]"/>
@@ -567,7 +568,7 @@ Which Orders are available depends on entity Type
             </do_while>
             <do_if value="$combinedcells.count lt 8">
               <append_to_list name="$combinedcells" exact="8 - $combinedcells.count"/>
-              <append_to_list name="$line" exact="null"/>
+              <append_to_list name="$line" exact="[ 'text' , '' ]"/>
             </do_if>
             <append_to_list name="$genericuiparam.{8}" exact="$line"/>
           </do_while>
@@ -587,10 +588,10 @@ Which Orders are available depends on entity Type
 [ 'text' , 'Account' + ( if $actor.hasownaccount then ' (Main)' else ' (Shared)' ) ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
             <remove_value name="$accountpercantage"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] ,
-[ 'button' , 'Min: ' + $actor.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , [ 'button' , 'Current: ' + $actor.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , [ 'button' , 'Max ' + $actor.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] , null ]"/>
+[ 'button' , 'Min: ' + $actor.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , [ 'button' , 'Current: ' + $actor.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , [ 'button' , 'Max ' + $actor.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] , [ 'text' , '' ] ]"/>
             <set_value name="$wantedmoney" exact="$actor.container.productionmoney + $actor.container.wantedmoney + $actor.container.buildanchor.wantedmoney"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] ,
-[ 'text' , 'Required Money:'] , [ 'text' , $wantedmoney.formatted.default] , [ 'button' , 'Give Amount' , 'comm_personal_money_transfer' , null , ( $actor.money lt $wantedmoney ) and (($wantedmoney - $actor.money) le player.money ) , $wantedmoney - $actor.money , true ] , null ]"/>
+[ 'text' , 'Required Money:'] , [ 'text' , $wantedmoney.formatted.default] , [ 'button' , 'Give Amount' , 'comm_personal_money_transfer' , null , ( $actor.money lt $wantedmoney ) and (($wantedmoney - $actor.money) le player.money ) , $wantedmoney - $actor.money , true ] , [ 'text' , '' ] ]"/>
           </do_if>
           <do_else>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] ,
@@ -600,9 +601,9 @@ Which Orders are available depends on entity Type
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
           <!-- Begin of Personal Transfer Part -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 8 ] ] ,
-[ 'text' , 'Workplace Managment' ] , null ]"/>
+[ 'text' , 'Workplace Managment' ] ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] ,
-[ 'button' , if $actor.exists then 'Stop Working' else 'Start Working' , 'comm_personal_transfer_stop' , null , false , 0  , true ] , [ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , [ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] , null ]"/>
+[ 'button' , if $actor.exists then 'Stop Working' else 'Start Working' , 'comm_personal_transfer_stop' , null , false , 0  , true ] , [ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , [ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] , [ 'text' , '' ] ]"/>
                         <!--TO DO: Standby Check here-->
           <!-- End of Transfer Part -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
