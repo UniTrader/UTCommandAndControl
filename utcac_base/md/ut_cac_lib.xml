@@ -523,7 +523,7 @@ Which Orders are available depends on entity Type
 [ 'text' , 'Skills' ] , [ 'text' , 'Combinedskill: ' ] , [ 'statusbar' , $actor.combinedskill , 100 , 255 , 100 ,  100 ] ]"/>
           <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
           <!-- Create Lines for Primary Skills -->
-          <set_value name="$primaryskills" exact="$actor.skilltypes"/>
+          <set_value name="$primaryskills" exact="$actor.type.skilltypes"/>
           <do_while value="$primaryskills.count">
             <set_value name="$combinedcells1" exact="[]"/>
             <set_value name="$combinedcells2" exact="[]"/>
@@ -566,7 +566,11 @@ Which Orders are available depends on entity Type
             </do_if>
           </do_while>
           <remove_value name="$combinedcells"/>
+          <remove_value name="$combinedcells1"/>
+          <remove_value name="$combinedcells2"/>
           <remove_value name="$line"/>
+          <remove_value name="$line1"/>
+          <remove_value name="$line2"/>
           <!-- End Skill Part of the Menu -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
           <!-- Account Part of the Menu -->
