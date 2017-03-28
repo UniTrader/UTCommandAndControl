@@ -612,7 +612,7 @@ Which Orders are available depends on entity Type
 [ 'text' , 'Account' + ( if $actor.hasownaccount then ' (Main)' else ' (Shared)' ) ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
             <remove_value name="$accountpercantage"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
-[ 'button' , 'Min: ' + $actor.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , [ 'button' , 'Current: ' + $actor.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , [ 'button' , 'Max ' + $actor.mmaxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] ]"/>
+[ 'button' , 'Min: ' + $actor.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , [ 'button' , 'Current: ' + $actor.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , [ 'button' , 'Max ' + $actor.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] ]"/>
             <set_value name="$wantedmoney" exact="$actor.container.productionmoney + $actor.container.wantedmoney + $actor.container.buildanchor.wantedmoney"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
 [ 'text' , 'Required Money:'] , [ 'text' , $wantedmoney.formatted.default] , [ 'button' , 'Give Amount' , 'comm_personal_money_transfer' , null , ( $actor.money lt $wantedmoney ) and (($wantedmoney - $actor.money) le player.money ) , $wantedmoney - $actor.money , true ] ]"/>
