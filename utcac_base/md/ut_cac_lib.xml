@@ -520,7 +520,7 @@ Which Orders are available depends on entity Type
 ] ]"/>
           <!-- Skill Part of the Menu ( !!! Extensive !!! ) -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 1 , 1 ] ] ,
-[ 'text' , 'Skills' ] , [ 'text' , 'Combinedskill' ] , [ 'statusbar' , $actor.skill.combinedskill , 100 , 255 , 100 ,  100 ] ]"/>
+[ 'text' , 'Skills' ] , [ 'text' , 'Combinedskill' ] , [ 'statusbar' , $actor.combinedskill , 100 , 255 , 100 ,  100 ] ]"/>
           <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
           <do_if value="$actor.skilltypes.{1}?">
             <set_value name="$combinedcells1" exact="[]"/>
@@ -532,21 +532,21 @@ Which Orders are available depends on entity Type
             <append_to_list name="$line1" exact="[ 'text' , $actor.skilltypes.{1}.name ]"/>
             <append_to_list name="$line1" exact="[ 'statusbar' , $actor.type.skillrelevance.{$actor.skilltypes.{1}} * 20 , 100 , 255 , 100 ,  100 ]"/>
             <append_to_list name="$combinedcells2" exact="2"/>
-            <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$actor.skilltypes.{1}]"/>
+            <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$actor.skilltypes.{1}}]"/>
             <do_if value="$actor.skilltypes.{2}?">
               <append_to_list name="$combinedcells1" exact="1"/>
               <append_to_list name="$combinedcells1" exact="1"/>
               <append_to_list name="$line1" exact="[ 'text' , $actor.skilltypes.{2}.name ]"/>
               <append_to_list name="$line1" exact="[ 'statusbar' , $actor.type.skillrelevance.{$actor.skilltypes.{2}} * 20 , 100 , 255 , 100 ,  100 ]"/>
               <append_to_list name="$combinedcells2" exact="2"/>
-              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$actor.skilltypes.{2}]"/>
+              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$actor.skilltypes.{2}}]"/>
               <do_if value="$actor.skilltypes.{3}?">
                 <append_to_list name="$combinedcells1" exact="1"/>
                 <append_to_list name="$combinedcells1" exact="1"/>
                 <append_to_list name="$line1" exact="[ 'text' , $actor.skilltypes.{3}.name ]"/>
                 <append_to_list name="$line1" exact="[ 'statusbar' , $actor.type.skillrelevance.{$actor.skilltypes.{3}} * 20 , 100 , 255 , 100 ,  100 ]"/>
                 <append_to_list name="$combinedcells2" exact="2"/>
-                <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$actor.skilltypes.{3}]"/>
+                <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$actor.skilltypes.{3}}]"/>
               </do_if>
               <do_else>
                 <append_to_list name="$combinedcells1" exact="2"/>
@@ -563,7 +563,7 @@ Which Orders are available depends on entity Type
               <append_to_list name="$combinedcells2" exact="2"/>
               <append_to_list name="$combinedcells2" exact="2"/>
               <append_to_list name="$line2" exact="null"/>
-              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}]"/>
+              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}}]"/>
               <remove_value name="$skillist.{1}"/>
             </do_else>
             <append_to_list name="$genericuiparam.{8}" exact="$line1"/>
@@ -576,11 +576,11 @@ Which Orders are available depends on entity Type
             <set_value name="$line1" exact="[ [ 'regular' , $combinedcells ] ]"/>
             <set_value name="$line2" exact="[ [ 'regular' , $combinedcells ] ]"/>
             <append_to_list name="$line1" exact="[ 'text' , $skillist.{1}.name ]"/>
-            <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}]"/>
+            <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}}]"/>
             <remove_value name="$skillist.{1}"/>
             <do_if value="$skillist.{1}">
               <append_to_list name="$line1" exact="[ 'text' , $skillist.{1}.name ]"/>
-              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}]"/>
+              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}}]"/>
               <remove_value name="$skillist.{1}"/>
             </do_if>
             <do_else>
@@ -589,7 +589,7 @@ Which Orders are available depends on entity Type
             </do_else>
             <do_if value="$skillist.{1}">
               <append_to_list name="$line1" exact="[ 'text' , $skillist.{1}.name ]"/>
-              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}]"/>
+              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}}]"/>
               <remove_value name="$skillist.{1}"/>
             </do_if>
             <do_else>
@@ -609,7 +609,7 @@ Which Orders are available depends on entity Type
             <set_value name="$accountpercentage" exact="[ 80 * $actor.money / ($actor.container.productionmoney + $actor.container.wantedmoney + $actor.container.buildanchor.wantedmoney), 100].min "
             comment="100-%-Point is at 80% filling of the Bar. less than 50% are indcated by a red bar, less than 100% by yellow, and above that green"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] ,
-[ 'text' , 'Account' + ( if $actor.hasownaccount then ' (Main)' else ' (Shared)' ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
+[ 'text' , 'Account' + ( if $actor.hasownaccount then ' (Main)' else ' (Shared)' ) ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
             <remove_value name="$accountpercantage"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
 [ 'button' , 'Min: ' + $actor.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , [ 'button' , 'Current: ' + $actor.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , [ 'button' , 'Max ' + $actor.mmaxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] ]"/>
@@ -627,7 +627,8 @@ Which Orders are available depends on entity Type
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] ,
 [ 'text' , 'Workplace Managment' ] , null ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
-[ 'button' , if $actor.**isworking then 'Stop Working' else 'Start Working' , 'comm_personal_transfer_stop' , null , false , 0  , true ] , [ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , [ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] ]"/>
+[ 'button' , if $actor.exists then 'Stop Working' else 'Start Working' , 'comm_personal_transfer_stop' , null , false , 0  , true ] , [ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , [ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] ]"/>
+                        <!--TO DO: Standby Check here-->
           <!-- End of Transfer Part -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 6 ] ] , null ]" />
           <!-- begin of Pester Level Settings -->
@@ -680,21 +681,21 @@ Which Orders are available depends on entity Type
           </do_else>
         </do_elseif>
         <!-- Transfer Sub-Menus and Actions -->
-        <do_elseif value="event.param == 'comm_personal_work_toggle">
+        <do_elseif value="event.param == 'comm_personal_work_toggle'">
           
         </do_elseif>
-        <do_elseif value="event.param == 'comm_personal_transfer_standby">
+        <do_elseif value="event.param == 'comm_personal_transfer_standby'">
           
         </do_elseif>
-        <do_elseif value="event.param == 'comm_personal_transfer_work">
+        <do_elseif value="event.param == 'comm_personal_transfer_work'">
           
         </do_elseif>
         <!-- Log/Pesterlevel Actions -->
-        <do_elseif value="event.param == 'comm_personal_pester_set">
+        <do_elseif value="event.param == 'comm_personal_pester_set'">
           <set_value name="$actor.$ut_cac.$pesterlevel" exact="event.param2"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
-        <do_elseif value="event.param == 'comm_personal_log_set">
+        <do_elseif value="event.param == 'comm_personal_log_set'">
           <set_value name="$actor.$ut_cac.$loglevel" exact="event.param2"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
