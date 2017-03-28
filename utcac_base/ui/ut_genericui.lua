@@ -226,7 +226,7 @@ function menu.CreateCell(celldefinition,row,column,height,width,buttonlist)
 		local colorG = celldefinition[5] or 255
 		local colorB = celldefinition[6] or 0
 		local stars = string.rep("*", count) .. string.rep("#", maxcount - count)
-		return Helper.createFontString(stars, true, "left", colorR, colorG, colorB, 100, Helper.starFont, 32) -- huge font size since only the upper half is used...
+		return Helper.createFontString(stars, true, "left", colorR, colorG, colorB, 100, Helper.starFont, 16)
 	else
 		if row == menu.data.preselected_row and column == menu.data.preselected_column then
 			DebugError("Preselected Cell is an unknown type of Cell: Row "..row.." Column "..j.." - removing column")
