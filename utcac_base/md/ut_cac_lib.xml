@@ -545,7 +545,11 @@ Which Orders are available depends on entity Type
             <do_if value="$combinedcells1.count lt 8">
               <append_to_list name="$combinedcells2" exact="8 - $combinedcells1.count"/>
               <append_to_list name="$combinedcells1" exact="8 - $combinedcells1.count"/>
+              <append_to_list name="$line1" exact="null"/>
+              <append_to_list name="$line2" exact="null"/>
             </do_if>
+            <append_to_list name="$genericuiparam.{8}" exact="$line1"/>
+            <append_to_list name="$genericuiparam.{8}" exact="$line2"/>
           </do_while>
           <!-- Create Lines for Other Skills -->
           <do_while value="$skillist.count">
@@ -563,7 +567,9 @@ Which Orders are available depends on entity Type
             </do_while>
             <do_if value="$combinedcells.count lt 8">
               <append_to_list name="$combinedcells" exact="8 - $combinedcells.count"/>
+              <append_to_list name="$line" exact="null"/>
             </do_if>
+            <append_to_list name="$genericuiparam.{8}" exact="$line"/>
           </do_while>
           <remove_value name="$combinedcells"/>
           <remove_value name="$combinedcells1"/>
