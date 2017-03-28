@@ -128,7 +128,7 @@ function menu.fetch()
 	local index = nil
 	local totalwidth = 0
 	local maxwidth = 1200
-	if #menu.data.midtable_rows > 10 then maxwidth = 1179 end
+	if #menu.data.midtable_rows > 10 then maxwidth = 1177 end
 	for i, v in pairs(menu.data.midtable_column_sizes) do
 		if v == -1 then
 			index = i
