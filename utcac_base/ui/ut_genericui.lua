@@ -205,7 +205,7 @@ function menu.CreateCell(celldefinition,row,column,height,width,buttonlist)
 			DebugError("Preselected Cell is a Statusbar Cell: Row "..row.." Column "..j.." - removing column")
 			menu.data.preselected_column = nil
 		end
-		if celldefinition[2] = nil or celldefinition[2] < 0 then celldefinition[2] = 0.1 end
+		if celldefinition[2] == nil or celldefinition[2] < 0 then celldefinition[2] = 0.1 end
 -- { 'statusbar' , fillpercent , red , green , blue , alpha }
 		return Helper.createIcon(
 			"solid", 
