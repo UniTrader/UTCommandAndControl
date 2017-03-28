@@ -507,6 +507,200 @@ Which Orders are available depends on entity Type
         <!--                       Personal Menu                          -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_personal_main'">
+          <do_if value="@$selectedcell.{1} gt $actor.$ut_cac.$range.count + 1">
+            <set_value name="$selectedcell.{1}" exact="$actor.$ut_cac.$range.count + 2"/>
+            <set_value name="$selectedcell.{2}" exact="5"/>
+          </do_if>
+          <set_value name="$genericuiparam" exact="
+[ 0 , 0 ,
+'Personal Information for %1'.[$actor.container.name], null, null , null , [ 1 , 399 , 1 , 399 , 1 , -1 ] ,
+ [] ,
+ [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
+    [ 'button' ,  'Remove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Old Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
+] ]"/>
+          <!-- Skill Part of the Menu ( !!! Extensive !!! ) -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 1 , 1 ] ] ,
+[ 'text' , 'Skills' ] , [ 'text' , 'Combinedskill' ] , [ 'statusbar' , $actor.skill.combinedskill , 100 , 255 , 100 ,  100 ] ]"/>
+          <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
+          <do_if value="$actor.skilltypes.{1}?">
+            <set_value name="$combinedcells1" exact="[]"/>
+            <set_value name="$line1" exact="[ [ 'regular' , $combinedcells1 ] ]"/>
+            <set_value name="$combinedcells2" exact="[]"/>
+            <set_value name="$line2" exact="[ [ 'regular' , $combinedcells2 ] ]"/>
+            <append_to_list name="$combinedcells1" exact="1"/>
+            <append_to_list name="$combinedcells1" exact="1"/>
+            <append_to_list name="$line1" exact="[ 'text' , $actor.skilltypes.{1}.name ]"/>
+            <append_to_list name="$line1" exact="[ 'statusbar' , $actor.type.skillrelevance.{$actor.skilltypes.{1}} * 20 , 100 , 255 , 100 ,  100 ]"/>
+            <append_to_list name="$combinedcells2" exact="2"/>
+            <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$actor.skilltypes.{1}]"/>
+            <do_if value="$actor.skilltypes.{2}?">
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$line1" exact="[ 'text' , $actor.skilltypes.{2}.name ]"/>
+              <append_to_list name="$line1" exact="[ 'statusbar' , $actor.type.skillrelevance.{$actor.skilltypes.{2}} * 20 , 100 , 255 , 100 ,  100 ]"/>
+              <append_to_list name="$combinedcells2" exact="2"/>
+              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$actor.skilltypes.{2}]"/>
+              <do_if value="$actor.skilltypes.{3}?">
+                <append_to_list name="$combinedcells1" exact="1"/>
+                <append_to_list name="$combinedcells1" exact="1"/>
+                <append_to_list name="$line1" exact="[ 'text' , $actor.skilltypes.{3}.name ]"/>
+                <append_to_list name="$line1" exact="[ 'statusbar' , $actor.type.skillrelevance.{$actor.skilltypes.{3}} * 20 , 100 , 255 , 100 ,  100 ]"/>
+                <append_to_list name="$combinedcells2" exact="2"/>
+                <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$actor.skilltypes.{3}]"/>
+              </do_if>
+              <do_else>
+                <append_to_list name="$combinedcells1" exact="2"/>
+                <append_to_list name="$line1" exact="null"/>
+                <append_to_list name="$combinedcells2" exact="2"/>
+                <append_to_list name="$line2" exact="null"/>
+              </do_else>
+            </do_if>
+            <do_else>
+              <append_to_list name="$combinedcells1" exact="2"/>
+              <append_to_list name="$combinedcells1" exact="2"/>
+              <append_to_list name="$line1" exact="null"/>
+              <append_to_list name="$line1" exact="[ 'text' , $skillist.{1}.name ]"/>
+              <append_to_list name="$combinedcells2" exact="2"/>
+              <append_to_list name="$combinedcells2" exact="2"/>
+              <append_to_list name="$line2" exact="null"/>
+              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}]"/>
+              <remove_value name="$skillist.{1}"/>
+            </do_else>
+            <append_to_list name="$genericuiparam.{8}" exact="$line1"/>
+            <append_to_list name="$genericuiparam.{8}" exact="$line2"/>
+            <remove_value name="$combinedcells1"/>
+            <remove_value name="$combinedcells2"/>
+          </do_if>
+          <set_value name="$combinedcells" exact="[ 2 , 2 , 2]"/>
+          <do_while value="$skillist.count">
+            <set_value name="$line1" exact="[ [ 'regular' , $combinedcells ] ]"/>
+            <set_value name="$line2" exact="[ [ 'regular' , $combinedcells ] ]"/>
+            <append_to_list name="$line1" exact="[ 'text' , $skillist.{1}.name ]"/>
+            <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}]"/>
+            <remove_value name="$skillist.{1}"/>
+            <do_if value="$skillist.{1}">
+              <append_to_list name="$line1" exact="[ 'text' , $skillist.{1}.name ]"/>
+              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}]"/>
+              <remove_value name="$skillist.{1}"/>
+            </do_if>
+            <do_else>
+              <append_to_list name="$line1" exact="null"/>
+              <append_to_list name="$line2" exact="null"/>
+            </do_else>
+            <do_if value="$skillist.{1}">
+              <append_to_list name="$line1" exact="[ 'text' , $skillist.{1}.name ]"/>
+              <append_to_list name="$line2" exact="[ 'stars' , $actor.skill.{$skillist.{1}]"/>
+              <remove_value name="$skillist.{1}"/>
+            </do_if>
+            <do_else>
+              <append_to_list name="$line1" exact="null"/>
+              <append_to_list name="$line2" exact="null"/>
+            </do_else>
+            <append_to_list name="$genericuiparam.{8}" exact="$line1"/>
+            <append_to_list name="$genericuiparam.{8}" exact="$line2"/>
+          </do_while>
+          <remove_value name="$combinedcells"/>
+          <remove_value name="$line1"/>
+          <remove_value name="$line2"/>
+          <!-- End Skill Part of the Menu -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 6 ] ] , null ]" />
+          <!-- Account Part of the Menu -->
+          <do_if value="$actor.money">
+            <set_value name="$accountpercentage" exact="[ 80 * $actor.money / ($actor.container.productionmoney + $actor.container.wantedmoney + $actor.container.buildanchor.wantedmoney), 100].min "
+            comment="100-%-Point is at 80% filling of the Bar. less than 50% are indcated by a red bar, less than 100% by yellow, and above that green"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] ,
+[ 'text' , 'Account' + ( if $actor.hasownaccount then ' (Main)' else ' (Shared)' ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
+            <remove_value name="$accountpercantage"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
+[ 'button' , 'Min: ' + $actor.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , [ 'button' , 'Current: ' + $actor.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , [ 'button' , 'Max ' + $actor.mmaxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] ]"/>
+            <set_value name="$wantedmoney" exact="$actor.container.productionmoney + $actor.container.wantedmoney + $actor.container.buildanchor.wantedmoney"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
+[ 'text' , 'Required Money:'] , [ 'text' , $wantedmoney.formatted.default] , [ 'button' , 'Give Amount' , 'comm_personal_money_transfer' , null , ( $actor.money lt $wantedmoney ) and (($wantedmoney - $actor.money) le player.money ) , $wantedmoney - $actor.money , true ] ]"/>
+          </do_if>
+          <do_else>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] ,
+[ 'text' , 'Account not available'] , [ 'statusbar' , 100 , 50 , 50 , 50 ,  100 ] ]"/>
+          </do_else>
+          <!-- End Money Part of the Menu -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 6 ] ] , null ]" />
+          <!-- Begin of Personal Transfer Part -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] ,
+[ 'text' , 'Workplace Managment' ] , null ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
+[ 'button' , if $actor.**isworking then 'Stop Working' else 'Start Working' , 'comm_personal_transfer_stop' , null , false , 0  , true ] , [ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , [ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] ]"/>
+          <!-- End of Transfer Part -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 6 ] ] , null ]" />
+          <!-- begin of Pester Level Settings -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] ,
+[ 'text' , 'Log Level: ' + $actor.$ut_cac.$loglevel  + ' Peste Level: ' + $actor.$ut_cac.$loglevel ] , null ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
+[ 'button' , 'Set Pester to 0' , 'comm_personal_pester_set' , null , true , 0  , true ] , [ 'button' , 'Set Pester to 20' , 'comm_personal_pester_set' , null , true , 20  , true ] , [ 'button' , 'Set Pester to 40' , 'comm_personal_pester_set' , null , true , 40  , true ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
+[ 'button' , 'Set Pester to 60' , 'comm_personal_pester_set' , null , true , 60  , true ] , [ 'button' , 'Set Pester to 80' , 'comm_personal_pester_set' , null , true , 80  , true ] ,  [ 'button' , 'Set Pester to 100' , 'comm_personal_pester_set' , null , true , 100  , true ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
+[ 'button' , 'Set Log to 0' , 'comm_personal_log_set' , null , true , 0  , true ] , [ 'button' , 'Set Log to 20' , 'comm_personal_log_set' , null , true , 20  , true ] , [ 'button' , 'Set Log to 40' , 'comm_personal_log_set' , null , true , 40  , true ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 ] ] ,
+[ 'button' , 'Set Log to 60' , 'comm_personal_log_set' , null , true , 60  , true ] , [ 'button' , 'Set Log to 80' , 'comm_personal_log_set' , null , true , 80  , true ] ,  [ 'button' , 'Set Log to 100' , 'comm_personal_log_set' , null , true , 100  , true ] ]"/>
+          <!-- End of Pester Level Settings -->
+          
+          <open_conversation_menu menu="ut_genericui" param="$genericuiparam" />
+          <add_conversation_view view="closeupdetailmonitor" /> 
+        </do_if>
+        <!-- Money Sub-Menus and Actions -->
+        <do_elseif value="event.param == 'comm_personal_money_minbudget'">
+          <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          </do_if>
+          <open_conversation_menu menu="SetMoneyLimitMenu" param="[0, 0, $actor, 'min']" />
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_money_maxbudget'">
+          <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+            <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+          </do_if>
+          <open_conversation_menu menu="SetMoneyLimitMenu" param="[0, 0, $actor, 'max']" />
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_money_transfer'">
+          <do_if value="event.param2 != null">
+            <do_if value="event.param2 gt 0">
+              <transfer_money from="player.entity" to="$actor" amount="event.param2"/>
+            </do_if>
+            <do_elseif value="event.param2 lt 0">
+              <transfer_money from="$actor" to="player.entity" amount="0 - event.param2"/>
+            </do_elseif>
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          </do_if>
+          <do_else>
+            <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
+              <add_npc_line speaker="$actor" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?" />
+            </do_if>
+            <open_conversation_menu menu="MoneyTransferMenu" param="[0, 0, $actor]" />
+          </do_else>
+        </do_elseif>
+        <!-- Transfer Sub-Menus and Actions -->
+        <do_elseif value="event.param == 'comm_personal_work_toggle">
+          
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_transfer_standby">
+          
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_transfer_work">
+          
+        </do_elseif>
+        <!-- Log/Pesterlevel Actions -->
+        <do_elseif value="event.param == 'comm_personal_pester_set">
+          <set_value name="$actor.$ut_cac.$pesterlevel" exact="event.param2"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_log_set">
+          <set_value name="$actor.$ut_cac.$loglevel" exact="event.param2"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <!-- ################################################# -->
+        <!-- Previous Stuff for this Menu - for reference only. -->
+        <do_if value="event.param == 'comm_personal_main'">
           <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <do_if value="event.name == 'event_conversation_next_section'">
               <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
