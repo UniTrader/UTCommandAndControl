@@ -533,7 +533,7 @@ Which Orders are available depends on entity Type
               <append_to_list name="$combinedcells1" exact="1"/>
               <append_to_list name="$combinedcells1" exact="1"/>
               <append_to_list name="$combinedcells2" exact="2"/>
-              <append_to_list name="$line1" exact="[ 'text' , $primaryskills.{1}.name ]"/>
+              <append_to_list name="$line1" exact="[ 'text' , '\033Y' + $primaryskills.{1}.name ]"/>
               <append_to_list name="$line1" exact="[ 'stars' , $actor.skill.{$primaryskills.{1}}]"/>
               <append_to_list name="$line2" exact="[ 'statusbar' , $actor.type.skillrelevance.{$primaryskills.{1}} , 100 , 255 , 100 ,  100 ]"/>
               <remove_value name="$skillist.{$skillist.indexof.{$primaryskills.{1}}}"/>
@@ -542,10 +542,18 @@ Which Orders are available depends on entity Type
                 <break/>
               </do_if>
             </do_while>
-            <do_if value="$combinedcells1.count lt 8">
-              <append_to_list name="$combinedcells2" exact="8 - $combinedcells1.count"/>
-              <append_to_list name="$combinedcells1" exact="8 - $combinedcells1.count"/>
-              <append_to_list name="$line1" exact="[ 'text' , '' ]"/>
+            <do_while value="$combinedcells1.count lt 8">
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$line" exact="[ 'text' , $skillist.{1}.name ]"/>
+              <append_to_list name="$line" exact="[ 'stars' , $actor.skill.{$skillist.{1}}]"/>
+              <remove_value name="$skillist.{1}"/>
+              <do_if value="not $skillist.count">
+                <break/>
+              </do_if>
+            </do_while>
+            <do_if value="$combinedcells2.count lt 4">
+              <append_to_list name="$combinedcells2" exact="8 - ( $combinedcells2.count * 2 )"/>
               <append_to_list name="$line2" exact="[ 'text' , '' ]"/>
             </do_if>
             <append_to_list name="$genericuiparam.{8}" exact="$line1"/>
