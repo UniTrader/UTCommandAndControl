@@ -585,6 +585,10 @@ Which Orders are available depends on entity Type
           <remove_value name="$line"/>
           <remove_value name="$line1"/>
           <remove_value name="$line2"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 6 ] ] ,
+[ 'text' , 'Special Abilities' ] , [ 'text' , '\033#FF000000#Not implemented yet, just reserving the Space here' ] ]"/>
+          
           <!-- End Skill Part of the Menu -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
           <!-- Account Part of the Menu -->
@@ -610,7 +614,7 @@ Which Orders are available depends on entity Type
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 8 ] ] ,
 [ 'text' , 'Workplace Managment' ] ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] ,
-[ 'button' , if $actor.exists then 'Stop Working' else 'Start Working' , 'comm_personal_transfer_stop' , null , false , 0  , true ] , [ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , [ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] , [ 'text' , '' ] ]"/>
+[ 'button' , if $actor.exists then 'Stop Working' else 'Start Working' , 'comm_personal_work_toggle' , null , false , 0  , true ] , [ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , [ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] , [ 'text' , '' ] ]"/>
                         <!--TO DO: Standby Check here-->
           <!-- End of Transfer Part -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
@@ -665,10 +669,20 @@ Which Orders are available depends on entity Type
         <do_elseif value="event.param == 'comm_personal_work_toggle'">
           
         </do_elseif>
-        <do_elseif value="event.param == 'comm_personal_transfer_standby'">
-          
+        <do_elseif value="event.param == 'comm_personal_transfer'">
+          <!-- Depending on whether a Ship is available display Map restricted to Zone or Galaxy to select new Work place -->
         </do_elseif>
-        <do_elseif value="event.param == 'comm_personal_transfer_work'">
+        <do_elseif value="event.param == 'comm_personal_transfer_objectselected'">
+          <!-- present the Player a choice of possible Jobs the Entity can do on the selected Object.
+          => For Player Stations its Manager, DO, ( Engineer ) and Standby
+          => For Player Bigships its Captain, DO, Engineer and Standby
+              => For CVs also offer Standby as Station Entity for completed Station.
+          => For Player Smallships its Pilot or Standby, also limited capacity (why offer it at all? )
+          => For Other Stations its Trade Agent/Info Broker or Standby
+              => For Shipyards also Offer Standby for Ship Positions (and possibly by Extension double-Standby for CVs) -->
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_transfer_jobselected'">
+          <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.common.transfer',$displayname='Transfer to %1'.[event.param2.name],$job=false,$interruptable=true]"/>
           
         </do_elseif>
         <!-- Log/Pesterlevel Actions -->
