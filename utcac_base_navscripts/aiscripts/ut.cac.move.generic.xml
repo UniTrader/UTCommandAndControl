@@ -157,13 +157,13 @@
     </library>
     <handler ref="ut_cac_lib_interrupt_attacked"/>
     <handler>
-        <conditions>
-          <event_object_target_invalid object="this.ship" />
-        </conditions>
-        <actions>
-          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: Current Zone: %4 , Invalid Target: %5 $destination: %6 - restarting'.[player.age,this.name,this.container.name,this.zone.knownname,event.param.knownname,@$destination.knownname]"/>
-          <abort_called_scripts />
-          <resume label="start"/>
+      <conditions>
+        <event_object_target_invalid object="this.ship"/>
+      </conditions>
+      <actions>
+        <debug_text filter="error" text="'%1 %2 %3 Target Invalid: Current Zone: %4 , Invalid Target: %5 $destination: %6 - restarting'.[player.age,this.name,this.container.name,this.zone.knownname,event.param.knownname,@$destination.knownname]"/>
+        <abort_called_scripts/>
+        <resume label="start"/>
       </actions>
     </handler>
     <handler>
@@ -186,7 +186,7 @@
         </check_any>
         <check_value value="$targetspace != ( if $destination.pilot.$waypoint? then $destination.pilot.$waypoint else $destination.zone )"/>
       </conditions>
-      <actions> 
+      <actions>
         <do_if value="$destination.zone == this.zone">
           <!-- Somehow check if there is a movement Step currently in progress before exit-ing? -->
           <debug_text filter="general" text="'%1 %2 %3 Catchup Sucessful on Zone Change in %4 - exiting'.[player.age,this.name,this.container.name,this.zone.name]"/>
@@ -204,7 +204,7 @@
     <actions>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7  , $endintargetspace: %8'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$endintargetspace]"/>
       
-      <set_value name="$bigship" exact="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" />
+      <set_value name="$bigship" exact="this.ship.isclass.ship_xl or this.ship.isclass.ship_l"/>
       
       
       <!-- first Validate Input -
@@ -298,78 +298,82 @@
         </do_else>
       </do_if>
       
-        <!-- for Ships which can Jump: Jump Path -->
-        <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l" >
-          <do_if value="this.sector == $targetspace or this.sector == $targetspace.sector" >
-            <resume label="fine movement"/>
-          </do_if>
-          <do_if value="$targetspace.isclass.zone">
-            <set_value name="$pathend" exact="$targetspace.sector"/>
-          </do_if>
-          <do_elseif value="$targetspace.isclass.sector">
-            <set_value name="$pathend" exact="$targetspace"/>
-          </do_elseif>
-          <do_elseif value="$targetspace.isclass.cluster">
-            <find_sector name="$pathend" space="$targetspace"/>
-          </do_elseif>
-          <do_else>
-            <debug_text filter="error" text="'%1 %2 %3 Targetspace is not a Space! %4! trying to get its Sector...'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
-            <set_value name="$pathend" exact="$targetspace.sector"/>
-          </do_else>
-          <get_jump_path component="$waypoints" multiple="true" start="this.sector" end="$pathend" />
-          <remove_value name="$pathend"/>
-          <!-- set last Entry with the Target Sector to the exact Target Space so we can determine the closest Beacon -->
-          <set_value name="$waypoints.{$waypoints.count}" exact="$targetspace"/>
-          
-          
-          <!-- For Testing: print the full Path to Debuglog -->
-          <do_if value="@this.$debug">
-            <set_value name="$LogMessage" exact="'%1 %2 %3 Jump Path:'.[player.age,this.name,this.container.name]"/>
-            <do_all exact="$waypoints.count" counter="$i">
-              <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname]"/>
-            </do_all>
-            <debug_text filter="general" text="$LogMessage"/>
-          </do_if>
-          
-          <!-- filter the Jump Path for the relevant Path Waypoints (Filter out Sectors where next Waypoint is a Gate in the same Sector, filter out Exit Gate in case we already have an Entry Gate, filter out Exit Gate Sector)-->
-          <!--  remove the first item which is always the Start that we dont need in any case -->
-          <remove_value name="$waypoints.{1}" />
-          <set_value name="$id" exact="1"/>
-          <do_while value="$id lt $waypoints.count">
-            <do_if value="$waypoints.{$id}.isclass.gate">
-              <do_if value="$waypoints.{$id}.destination == $waypoints.{$id+1}.zone">
-                <!-- remove Exit Gate Sector -->
-                <do_if value="$waypoints.{$id+1}.sector == $waypoints.{$id+2}">
-                  <remove_value name="$waypoints.{$id+2}"/>
-                </do_if>
-                <do_else>
-                  <debug_text filter="general" chance="@this.$debug * 100" text="'Next Gate waypoint not in same Sector ( %1) as next+1 Sector ( %2 ) Waypoint - skipping removal'.[$waypoints.{$id+1}.sector.knownname,$waypoints.{$id+2}.sector.knownname]"/>
-                </do_else>
-                <!-- remove Exit Gate -->
-                <remove_value name="$waypoints.{$id+1}"/>
-                <!-- remove Entry Gate Sector-->
-                <do_if value="$waypoints.{$id}.sector == @$waypoints.{$id-1}">
-                  <remove_value name="$waypoints.{$id-1}"/>
-                  <set_value name="$id" operation="subtract"/>
-                </do_if>
-                <do_else>
-                  <debug_text filter="general" chance="@this.$debug * 100" text="'Previous Sector waypoint not in same Sector as current Gate - skipping removal!'"/>
-                </do_else>
+      <!-- for Ships which can Jump: Jump Path -->
+      <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l">
+        <do_if value="this.sector == $targetspace or this.sector == $targetspace.sector">
+          <resume label="fine movement"/>
+        </do_if>
+        <do_if value="$targetspace.isclass.zone">
+          <set_value name="$pathend" exact="$targetspace.sector"/>
+        </do_if>
+        <do_elseif value="$targetspace.isclass.sector">
+          <set_value name="$pathend" exact="$targetspace"/>
+        </do_elseif>
+        <do_elseif value="$targetspace.isclass.cluster">
+          <find_sector name="$pathend" space="$targetspace"/>
+        </do_elseif>
+        <do_else>
+          <debug_text filter="error" text="'%1 %2 %3 Targetspace is not a Space! %4! trying to get its Sector...'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
+          <set_value name="$pathend" exact="$targetspace.sector"/>
+        </do_else>
+        <get_jump_path component="$waypoints" multiple="true" start="this.sector" end="$pathend"/>
+        <remove_value name="$pathend"/>
+        <!-- set last Entry with the Target Sector to the exact Target Space so we can determine the closest Beacon -->
+        <set_value name="$waypoints.{$waypoints.count}" exact="$targetspace"/>
+        
+        <!-- For Testing: print the full Path to Debuglog -->
+        <do_if value="@this.$debug">
+          <set_value name="$LogMessage" exact="'%1 %2 %3 Jump Path:'.[player.age,this.name,this.container.name]"/>
+          <do_all exact="$waypoints.count" counter="$i">
+            <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname]"/>
+          </do_all>
+          <debug_text filter="general" text="$LogMessage"/>
+        </do_if>
+        
+        <!-- filter the Jump Path for the relevant Path Waypoints (Filter out Sectors where next Waypoint is a Gate in the same Sector, filter out Exit Gate in case we already have an Entry Gate, filter out Exit Gate Sector)-->
+        <!--  remove the first item which is always the Start that we dont need in any case -->
+        <remove_value name="$waypoints.{1}"/>
+        <set_value name="$id" exact="1"/>
+        <do_while value="$id lt $waypoints.count">
+          <do_if value="$waypoints.{$id}.isclass.gate">
+            <do_if value="$waypoints.{$id}.destination == $waypoints.{$id+1}.zone">
+              <!-- remove Exit Gate Sector -->
+              <do_if value="$waypoints.{$id+1}.sector == $waypoints.{$id+2}">
+                <remove_value name="$waypoints.{$id+2}"/>
               </do_if>
+              <do_else>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'Next Gate waypoint not in same Sector ( %1) as next+1 Sector ( %2 ) Waypoint - skipping removal'.[$waypoints.{$id+1}.sector.knownname,$waypoints.{$id+2}.sector.knownname]"/>
+              </do_else>
+              <!-- remove Exit Gate -->
+              <remove_value name="$waypoints.{$id+1}"/>
+              <!-- remove Entry Gate Sector-->
+              <do_if value="$waypoints.{$id}.sector == @$waypoints.{$id-1}">
+                <remove_value name="$waypoints.{$id-1}"/>
+                <set_value name="$id" operation="subtract"/>
+              </do_if>
+              <do_else>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'Previous Sector waypoint not in same Sector as current Gate - skipping removal!'"/>
+              </do_else>
             </do_if>
-            <set_value name="$id" operation="add"/>
-          </do_while>
-          
-          <!-- For Testing: print the full Path to Debuglog -->
-          <do_if value="@this.$debug">
-            <set_value name="$LogMessage" exact="'%1 %2 %3 Jump Path cleared:'.[player.age,this.name,this.container.name]"/>
-            <do_all exact="$waypoints.count" counter="$i">
-              <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname]"/>
-            </do_all>
-            <debug_text filter="general" text="$LogMessage"/>
           </do_if>
-          
-          <!-- follow the Waypoints to the Destination Zone/Space, when we reached the right Cluster or Sector Exit (no need to follow remaining waypoints), when Destination is a Zone or Object continue with boosting towards Destination in a seperate script -->
+          <set_value name="$id" operation="add"/>
+        </do_while>
+        
+        <!-- For Testing: print the full Path to Debuglog -->
+        <do_if value="@this.$debug">
+          <set_value name="$LogMessage" exact="'%1 %2 %3 Jump Path cleared:'.[player.age,this.name,this.container.name]"/>
+          <do_all exact="$waypoints.count" counter="$i">
+            <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname]"/>
+          </do_all>
+          <debug_text filter="general" text="$LogMessage"/>
+        </do_if>
+        
+        <!-- Track Experience Progress: Save time when Navigation started and ended -->
+        <do_if value="this.$ut_cac.$experience.{skilltype.navigation}?">
+          <set_value name="$Nav_start_time" exact="player.age"/>
+        </do_if>
+        
+        <!-- follow the Waypoints to the Destination Zone/Space, when we reached the right Cluster or Sector Exit (no need to follow remaining waypoints), when Destination is a Zone or Object continue with boosting towards Destination in a seperate script -->
         <do_while value="$waypoints.count">
           <set_value name="this.$waypoint" exact="$waypoints.{1}"/>
           <signal_objects object="this.ship" param="'travel next waypoint'"/>
@@ -388,7 +392,7 @@
             <do_if value="not this.ship.hascontext.{this.$waypoint}" comment="didnt attemt to IC-Boost or IC-Boost failed">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
               <!-- JUMP!! -->
-              <run_script name="'ut.cac.move.jump'" result="$result" >
+              <run_script name="'ut.cac.move.jump'" result="$result">
                 <param name="destination" value="this.$waypoint"/>
               </run_script>
               <do_if value="not this.ship.hascontext.{this.$waypoint}">
@@ -403,7 +407,7 @@
             <find_object name="$beacon" space="this.$waypoint.zone" class="class.jumpbeacon" knownto="this.owner" checkoperational="true" chance="@this.$ut_cac.$insectorjump * 100" comment="if beacon is in Target Zone consider IS-Jump"/>
             <do_if value="this.sector != this.$waypoint.sector or @$beacon.exists">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to nearest Jumpbeacon to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
-              <run_script name="'ut.cac.move.jump'" result="$result" >
+              <run_script name="'ut.cac.move.jump'" result="$result">
                 <param name="destination" value="this.$waypoint.zone"/>
               </run_script>
               <do_if value="not this.ship.hascontext.{this.$waypoint.sector}">
@@ -429,7 +433,7 @@
             <!-- Move through Gate -->
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 moving through Gate in %4'.[player.age,this.name,this.container.name,this.$waypoint.zone.knownname]"/>
             <run_script name="'ut.cac.move.gate2'">
-              <param name="gate" value="this.$waypoint" />
+              <param name="gate" value="this.$waypoint"/>
             </run_script>
             <do_if value="not this.ship.hascontext.{this.$waypoint.destination}">
               <debug_text filter="error" text="'Move Gate itself Failed! Destination: %1 / %2 Current Sector/Zone: %3 / %4 - restarting'.[@this.$waypoint.sector.name,this.$waypoint.name,this.sector.name,this.zone.name]"/>
@@ -441,7 +445,7 @@
             <!-- ToDo: check ii we could save a bit time with IS-Jumping-->
             <do_if value="this.$waypoint.sector != this.sector or @this.$ut_cac.$insectorjump">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
-              <run_script name="'ut.cac.move.jump'" result="$result" >
+              <run_script name="'ut.cac.move.jump'" result="$result">
                 <param name="destination" value="this.$waypoint"/>
               </run_script>
               <do_if value="not this.ship.hascontext.{this.$waypoint.sector}">
@@ -464,7 +468,7 @@
             <resume label="start"/>
           </do_if>
         </do_while>
-        <debug_text filter="error"  text="'%1 %2 %3 This Part should NEVER be reached!!! last waypoint: %4, destination: %5 - Restarting'.[player.age,this.name,this.container.name,this.$waypoint.knownname,$destination.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 %3 This Part should NEVER be reached!!! last waypoint: %4, destination: %5 - Restarting'.[player.age,this.name,this.container.name,this.$waypoint.knownname,$destination.knownname]"/>
         <resume label="start"/>
       </do_if>
       <do_else>
@@ -479,9 +483,7 @@
         <return/>
       </do_else>
       
-      
       <label name="fine movement"/>
-      
       
       <!-- first check if it makes sense to Boost (not in Target Zone or Destination more than 20 km away) and boost to a generous safe spot nearby the Target -->
       <!-- Final boost to nearby the Destination Object - get safepos a bit in our Direction before to avoid yoyo-effect-->
@@ -523,8 +525,20 @@
         </run_script>
       </do_if>
       
-      
       <label name="finish"/>
+      <!-- Track Experience Progress: Add time needed for Navigation to XP Progress -->
+      <do_if value="this.$ut_cac.$experience.{skilltype.navigation}?">
+        <set_value name="this.$ut_cac.$experience.{skilltype.navigation}" operation="add" exact="player.age - $Nav_start_time"/>
+        <!-- check for Promotion -->
+        <do_if value="this.$ut_cac.$experience.{skilltype.navigation} gt param.ut_cac.experience.{skilltype.navigation}.{this.skill.navigation + 1}">
+          <add_skill entity="this" type="skilltype.navigation" exact="1"/>
+        </do_if>
+        <do_elseif value="( this.$ut_cac.$experience.{skilltype.navigation} lt param.ut_cac.experience.{skilltype.navigation}.{this.skill.navigation} ) and this.skill.navigation ge 1">
+          <!-- Skill and Experience out of Sync - Reset Skill (will level up again into the intended value during the next executions of this Script) -->
+          <set_skill entity="this" type="skilltype.navigation" exact="1"/>
+        </do_elseif>
+      </do_if>
+      
       <set_value name="this.$waypoint" exact="this.zone"/>
       <remove_value name="this.$destination"/>
     </actions>
