@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<diff>
+  <!-- Hire as UT CaC Personell -->
+  <add sel="//cue[@name='DefaultComm']/actions/do_else">
+            <do_if value="not $actor.iscontrolentity and not $actor.isplayerowned">
+              <add_player_choice text="'I want to Hire you (UT CaC)'" section="cArch_UT_CAC_Hire" position="1"/>
+            </do_if>
+  </add>
+  <add sel="//cue[@name='SectionHandler']/actions/do_else" pos="before">
+            <do_elseif value="event.param == 'cArch_UT_CAC_Hire'">
+              <signal_cue_instantly cue="md.UT_CAC_Dialogue.Actor_Init" param="$actor"/>
+              <cancel_cue cue="Base"/>
+            </do_elseif>
+  </add>
+</diff>
