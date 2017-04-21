@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.personal.wait.for.construction" version="30" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+  by  UniTrader
+
+  Script to have Employees waiting on Shipyards until they have finished constructing something to immediately assign ourselves to it.
+  
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="buildmodule" default="false" comment="Buildmodule/Object to wait for completion. (Station as whole works, too - but has some delay to prioritize specifically assigned Employees"/>
+  </params>
+  <init>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$buildmodule?">
+          <set_value name="$buildmodule" exact="$params.$buildmodule"/>
+        </do_if>
+      </do_if>
+  </init>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <!-- Validate Input and get missing Values -->
+      <do_if value="not $destination.exists">
+        <debug_text filter="error" text="'%1 %2 Destination does not exist - aborting!'.[this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      <do_if value="$destination.isclass.ship_s or $destination.isclass.ship_m">
+        <debug_text filter="error" text="'%1 %2 Destination is S or M Ship, not implemented yet - aborting!'.[this.name,this.container.name]"/>
+        <!-- Planned: in this case let the Transfer Ship and the Target Ship dock at the same Station and Transfer there
+        in case of Travel with Big Ships use Transport Drone to Transfer to exchange Station -->
+        <return/>
+      </do_if>
+      
+      <!-- Wait for (Any) construction to finish -->
+      
+      <!-- Wait for prioritisation -->
+      <do_if value="$buildmodule.isclass.station" comment="Employees assigned to a whole Station have lower priority (wait longer)">
+        
+      </do_if>
+        <!-- Rest of the Personal Transfer is handled in the md.UT_CAC_Events.Change_Workplace Cue (should have been Signalled/prepared before to wait till the Actor arrives at his Destination) -->
+      </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>

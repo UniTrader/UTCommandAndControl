@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.personal.transfer" version="30" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+  by  UniTrader
+
+  Script to handle Transfers of Personal to a certain Place and assign their new Job (or set them on Standby properly)
+  
+  Intended to be used together with md.UT_CAC_Events.Change_Workplace (used to finalize the Workplace change)
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="destination" default="false" comment="New Workplace OBJECT. if you also want a specific Dock then pass it as dock"/>
+    <param name="dock" default="false" comment="The Dock the Entity should be on finally. Primarily intended for Standby on Shipyards, defaults to Admin Dock (Stations) or Landing Pad (Ships). 'random' also supported. (maybe support tags?)"/>
+  </params>
+  <init>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$destination?">
+          <set_value name="$destination" exact="$params.$destination"/>
+        </do_if>
+        <do_if value="$params.$dock?">
+          <set_value name="$dock" exact="$params.$dock"/>
+        </do_if>
+        <do_if value="$params.$formationlist?">
+          <set_value name="$formationlist" exact="$params.$formationlist"/>
+        </do_if>
+      </do_if>
+  </init>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <!-- Validate Input and get missing Values -->
+      <do_if value="not $destination.exists">
+        <debug_text filter="error" text="'%1 %2 Destination does not exist - aborting!'.[this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      <do_if value="$destination.isclass.ship_s or $destination.isclass.ship_m">
+        <debug_text filter="error" text="'%1 %2 Destination is S or M Ship, not implemented yet - aborting!'.[this.name,this.container.name]"/>
+        <!-- Planned: in this case let the Transfer Ship and the Target Ship dock at the same Station and Transfer there
+        in case of Travel with Big Ships use Transport Drone to Transfer to exchange Station -->
+        <return/>
+      </do_if>
+      
+      <!-- Get Target Dock -->
+        <do_if value="typeof $dock == datatype.string">
+          <do_if value="$dock == 'random'">
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" numfreeactorslots="1" />
+          </do_if>
+          <do_elseif value="$dock == 'build'">
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" dockpopulationtype="dockpopulationtype.build" numfreeactorslots="1" />
+          </do_elseif>
+          <do_elseif value="$dock == 'trade'">
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" dockpopulationtype="dockpopulationtype.trade" numfreeactorslots="1" />
+          </do_elseif>
+          <do_elseif value="$dock == 'drones'">
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" dockpopulationtype="dockpopulationtype.drones" numfreeactorslots="1" />
+          </do_elseif>
+          <do_elseif value="$dock == 'ships'">
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" dockpopulationtype="dockpopulationtype.ships" numfreeactorslots="1" />
+          </do_elseif>
+          <do_elseif value="$dock == 'repair'">
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" dockpopulationtype="dockpopulationtype.repair" numfreeactorslots="1" />
+          </do_elseif>
+          <do_elseif value="$dock == 'ammo'">
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" dockpopulationtype="dockpopulationtype.ammo" numfreeactorslots="1" />
+          </do_elseif>
+          <do_elseif value="$dock == 'bar'">
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" dockpopulationtype="dockpopulationtype.bar" numfreeactorslots="1" />
+          </do_elseif>
+          <do_elseif value="$dock == 'administrative'">
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" dockpopulationtype="dockpopulationtype.administrative" numfreeactorslots="1" />
+          </do_elseif>
+          <do_else>
+            <!-- Fallback: Random Dock -->
+            <find_dock_location name="$dock" container="$destination" size="tag.size_p" numfreeactorslots="1" />
+          </do_else>
+        </do_if>
+        <do_if value="not $dock.exists">
+          <!-- use Default Dock on Object on arrival -->
+          <set_value name="$dock" exact="false"/>
+        </do_if>
+        
+        <do_if value="false"/>
+        <!-- Get Means of Transport and use it to Destination -->
+        <!-- Get Destination of Ships in current Zone and if one fits - Hitchhike -->
+        <!-- Use Unused Ship at current Container and fly it to Destination -->
+        <do_else>
+          <!-- Simple fallback case: Create a Temp Ship (base it on Cluster?), fly it to Destination,  Destroy it -->
+          <debug_text filter="general" text="'%1 %2 Creating Transport Ship'.[this.name,this.container.name]"/>
+          <create_ship name="$transport_ship" dock="this.container" capturable="false" sellable="false" group="albion_light_fighter"/>
+          <add_actor_to_room actor="this" object="$transport_ship" result="$success" />
+          <assign_pilot object="this.ship" actor="this"/>
+          <debug_text filter="general" text="'%1 %2 Created Transport Ship, Results:\nTransport Ship: %3 ; Success: %4 ; Pilot: %5'.[this.name,this.container.name,@$transport_ship.name,$success,@this.ship.pilot.name]"/>
+          
+          <!-- Fly Ship to Destination -->
+          <run_script name="'move.generic'">
+            <param name="destination" value="$destination" />
+            <param name="endintargetzone" value="true" />
+          </run_script>
+          <debug_text filter="general" text="'%1 %2 Moved to Destination Zone'.[this.name,this.container.name]"/>
+          
+          <!-- (attempt to) Dock at Destination -->
+          <run_script name="'move.dockat'" result="$dockresult">
+            <param name="destination" value="$targetobject" />
+          </run_script>
+          <debug_text filter="general" text="'%1 %2 Docked at Target: %3'.[this.name,this.container.name,$dockresult]"/>
+          
+          <!-- Assuming we have docked at Destination - transfer NPC, Destroy Ship, move to common Finish Part -->
+          <debug_text filter="general" text="'%1 %2 Moving Actor into Target, Destroying Ship'.[this.name,this.container.name]"/>
+          <set_value name="$success" exact="false"/>
+          <do_if value="$dock.exists">
+            <add_actor_to_room actor="this" object="$dock" result="$success" />
+          </do_if>
+          <do_if value="not $success">
+            <add_actor_to_room actor="this" object="$destination" result="$success" />
+          </do_if>
+          <do_if value="not $success">
+            <debug_text filter="general" text="'%1 %2 Moving Actor into Destination was not successful. $dock: %3 $destination: %4'.[this.name,this.container.name,@$dock.name,@$destination.name]"/>
+            <return/>
+          </do_if>
+          <destroy_object object="$transport_ship" explosion="false"/>
+        </do_else>
+        
+        <!-- Rest of the Personal Transfer is handled in the md.UT_CAC_Events.Change_Workplace Cue (should have been Signalled/prepared before to wait till the Actor arrives at his Destination) -->
+      </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>
