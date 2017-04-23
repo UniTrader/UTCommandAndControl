@@ -94,6 +94,8 @@
         
         <!-- Compatibility with Vim Razz' Human Ressources -->
         <set_value name="event.param.$InUse" exact="true"/>
+        
+        <reset_cue cue="this"/>
       </actions>
     </cue>
     <!-- Root Dialogue Tree - supposed to be supporting both Employees and non-Employees in the long run
@@ -768,12 +770,12 @@ null ,
 ]"/>
           <do_if value="event.object.$orderlist?">
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 12 ] ] , [ 'text' , 'Orderlist Details' ] ]"/>
-            <do_all exact="$orderlist.count" counter="$i" reverse="false">
+            <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 1 , 1 , 1 , 2 ] ] ,  
-[ 'text' , 'int:%1 exit:%2'.[@$orderlist.{$i}.$interruptable , @$orderlist.{$i}.$exitonneworder] ] , 
-[ 'text' , @$orderlist.{$i}.$script ] , 
-[ 'text' , @$orderlist.{$i}.$abortscript ] , 
-[ 'text' , @$orderlist.{$i}.$displayname ] 
+[ 'text' , 'int:%1 exit:%2'.[@event.object.$orderlist.{$i}.$interruptable , @event.object.$orderlist.{$i}.$exitonneworder] ] , 
+[ 'text' , @event.object.$orderlist.{$i}.$script ] , 
+[ 'text' , @event.object.$orderlist.{$i}.$abortscript ] , 
+[ 'text' , @event.object.$orderlist.{$i}.$displayname ] 
 ]"/>
             </do_all>
           </do_if>
