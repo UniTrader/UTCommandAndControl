@@ -520,34 +520,34 @@
             <do_while value="$line2.count lt 4" comment="to fill only one Line with Skills, even in case there are more than 3">
               <!-- no funcion to convert a decimal value to a hexadecimal one - using a if-elseif instead to calculate relevancy color -->
               <do_if value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 90">
-                <set_value name="$colorcode" exact="'\033#00FF00#'"/>
+                <set_value name="$colorcode" exact="'\033#FF00FF00#'"/>
               </do_if>
               <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 80">
-                <set_value name="$colorcode" exact="'\033#00FF40#'"/>
+                <set_value name="$colorcode" exact="'\033#FF00FF40#'"/>
               </do_elseif>
               <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 70">
-                <set_value name="$colorcode" exact="'\033#00FF80#'"/>
+                <set_value name="$colorcode" exact="'\033#FF00FF80#'"/>
               </do_elseif>
               <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 60">
-                <set_value name="$colorcode" exact="'\033#00FFBF#'"/>
+                <set_value name="$colorcode" exact="'\033#FF00FFBF#'"/>
               </do_elseif>
               <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 50">
-                <set_value name="$colorcode" exact="'\033#00FFFF#'"/>
+                <set_value name="$colorcode" exact="'\033#FF00FFFF#'"/>
               </do_elseif>
               <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 40">
-                <set_value name="$colorcode" exact="'\033#00BFFF#'"/>
+                <set_value name="$colorcode" exact="'\033#FF00BFFF#'"/>
               </do_elseif>
               <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 30">
-                <set_value name="$colorcode" exact="'\033#0080FF#'"/>
+                <set_value name="$colorcode" exact="'\033#FF0080FF#'"/>
               </do_elseif>
               <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 20">
-                <set_value name="$colorcode" exact="'\033#0040FF#'"/>
+                <set_value name="$colorcode" exact="'\033#FF0040FF#'"/>
               </do_elseif>
               <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 10">
-                <set_value name="$colorcode" exact="'\033#0000FF#'"/>
+                <set_value name="$colorcode" exact="'\033#FF0000FF#'"/>
               </do_elseif>
               <do_else>
-                <set_value name="$colorcode" exact="'\033#0000BF#'"/>
+                <set_value name="$colorcode" exact="'\033#FF0000BF#'"/>
               </do_else>
               <append_to_list name="$line1" exact="[ 'text' , $colorcode + $primaryskills.{1}.name ]"/>
               <append_to_list name="$line1" exact="[ 'stars' , event.object.skill.{$primaryskills.{1}}]"/>
@@ -611,7 +611,7 @@
 [ 'button' , 'Max ' + event.object.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] , 
 [ 'text' , '' ] 
 ]"/>
-            <set_value name="$wantedmoney" exact="event.object.container.productionmoney + event.object.container.wantedmoney + event.object.container.buildanchor.wantedmoney"/>
+            <set_value name="$wantedmoney" exact="event.object.container.productionmoney + event.object.container.wantedmoney + @event.object.container.buildanchor.wantedmoney"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
 [ 'text' , 'Required Money:'] , 
 [ 'text' , $wantedmoney.formatted.default] , 
