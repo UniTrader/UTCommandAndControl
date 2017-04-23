@@ -18,8 +18,8 @@
         
         <!-- declare that the Actor has an individual Conversation tree (not really individual, but applies to all NPCs which have a $ut_cac Blackboard Var) -->
         <!-- cancel Vanilla Dialogue -->
-        <signal_objects object="$actor" param="'cancel Vanilla dialogue tree'"/>
-        <set_comm_handler actor="$actor" customhandler="true" />
+        <signal_objects object="event.param" param="'cancel Vanilla dialogue tree'"/>
+        <set_comm_handler actor="event.param" customhandler="true" />
         
         <!-- set up Common Vars -->
           <do_if value="not event.param.$ut_cac.$pesterlevel?">
@@ -31,13 +31,13 @@
         
         
         <!-- set up Required Vars per Entity Type -->
-        <do_if value="event.object.type == entitytype.pilot">
+        <do_if value="event.param.type == entitytype.pilot">
           <!-- ???? -->
           <do_if value="not event.param.$ut_cac.$legality?">
             <set_value name="event.param.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
           </do_if>
         </do_if>
-        <do_elseif value="event.object.type == entitytype.commander" comment="aka Captain">
+        <do_elseif value="event.param.type == entitytype.commander" comment="aka Captain">
           <do_if value="not event.param.$ut_cac.$jumptype?">
             <set_value name="event.param.$ut_cac.$jumptype" exact="param.ut_cac.setting_defaults.$jumptype"/>
           </do_if>
@@ -52,7 +52,7 @@
             <set_value name="event.param.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
           </do_if>
         </do_elseif>
-        <do_elseif value="event.object.type == entitytype.manager">
+        <do_elseif value="event.param.type == entitytype.manager">
           <do_if value="not event.param.$ut_cac.$legality?">
             <set_value name="event.param.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
           </do_if>
@@ -61,16 +61,16 @@
           <set_value name="event.param.$ut_cac.$range_j" exact="[event.param.sector]"/>
            <set_value name="event.param.$ut_cac.$range_h" exact="[event.param.sector]"/>
         </do_elseif>
-        <do_elseif value="event.object.type == entitytype.engineer">
+        <do_elseif value="event.param.type == entitytype.engineer">
           
         </do_elseif>
-        <do_elseif value="event.object.type == entitytype.architect">
+        <do_elseif value="event.param.type == entitytype.architect">
           
         </do_elseif>
-        <do_elseif value="event.object.type == entitytype.marine">
+        <do_elseif value="event.param.type == entitytype.marine">
           
         </do_elseif>
-        <do_elseif value="event.object.type == entitytype.defencecontrol">
+        <do_elseif value="event.param.type == entitytype.defencecontrol">
           
         </do_elseif>
         
@@ -221,7 +221,7 @@
           </do_elseif>
           <do_else>
             <!-- fallback case: use first occurence of Order -->
-            <set_value name="$order_id" exact="event.object.$orderlist.indexof.event.param2.{3}"/>
+            <set_value name="$order_id" exact="event.object.$orderlist.indexof.{event.param2.{3}}"/>
           </do_else>
           <do_if value="$order_id?">
             <do_if value="event.param2.{1} == 'cancel'">
@@ -253,7 +253,7 @@
             </do_elseif>
           </do_if>
           <do_else>
-            <debug_text filter="error" text="'%1 Specified Order not in Orderlist anymore - doing nothing',[event.object.name]"/>
+            <debug_text filter="error" text="'%1 Specified Order not in Orderlist anymore - doing nothing'.[event.object.name]"/>
           </do_else>
           <remove_value name="$order_id"/>
         </do_elseif>
@@ -578,7 +578,7 @@
 [ 'text' , 'Special Abilities' ] , [ 'text' , '\033#FF000000#Not implemented yet, just reserving the Space here' ] 
 ]"/>
           <!-- End Skill Part of the Menu -->
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>gundam iron
           <!-- Account Part of the Menu -->
           <do_if value="event.object.money">
             <set_value name="$accountpercentage" exact="[ 80 * event.object.money / (event.object.container.productionmoney + event.object.container.wantedmoney + event.object.container.buildanchor.wantedmoney), 100].min " comment="100-%-Point is at 80% filling of the Bar. less than 50% are indcated by a red bar, less than 100% by yellow, and above that green"/>
