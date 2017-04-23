@@ -669,9 +669,9 @@
 [ 'button' , 'Set Log to 100' , 'comm_personal_log_set' , null , true , 100  , true ] 
 ]"/>
             <!-- End of Pester Level Settings -->
-            <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
-            <add_conversation_view view="closeupdetailmonitor"/>
           </do_if>
+          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
+          <add_conversation_view view="closeupdetailmonitor"/>
         </do_if>
         <!-- Money Sub-Menus and Actions -->
         <do_elseif value="event.param == 'comm_personal_money_minbudget'">
@@ -788,6 +788,8 @@ null ,
 ]"/>
             </do_all>
           </do_if>
+          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
+          <add_conversation_view view="closeupdetailmonitor"/>
         </do_if>
         <do_elseif value="event.param == 'comm_debug_skills_set'">
           <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
@@ -806,6 +808,9 @@ null ,
           <disconnect_from_build_location object="event.object.container.buildingmodule.container"/>
           <destroy_object object="event.object.container" explosion="false"/>
         </do_elseif>
+        <do_else>
+          <debug_text filter="error" text="'%1 %2 Unknown Section: %3'.[player.age,event.object.name,event.param]"/>
+        </do_else>
       </actions>
     </cue>
   </cues>
