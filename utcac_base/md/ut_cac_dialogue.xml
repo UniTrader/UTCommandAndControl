@@ -1,0 +1,777 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Dialogue" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
+  <documentation>
+    <author alias="UniTrader"/>
+    <content description="Main Dialogue Script used by all UT CaC Entites - no instances, Dialogue is all shared.     Will refer to/include other Scripts for individual, Employee-Specific functions     (Wages, Possible Orders and Settings etc.)"/>
+  </documentation>
+  <cues>
+    <cue name="Actor_Init">
+      <!-- This Cue is intended to put an Entity into the right State to perform its Job as a certain Entity Type. Also used when changing the Entity Type. does not reset Settings (except where it might interfer with function). if desired delete $actor.$ut_cac before (this also resets Skill Progress) -->
+      <conditions>
+        <event_cue_signalled cue="this"/>
+      </conditions>
+      <actions>
+        <!-- set up Variables -->
+        <do_if value="not event.param.$ut_cac?">
+          <set_value name="event.param.$ut_cac" exact="table[]"/>
+        </do_if>
+        
+        <!-- declare that the Actor has an individual Conversation tree (not really individual, but applies to all NPCs which have a $ut_cac Blackboard Var) -->
+        <!-- cancel Vanilla Dialogue -->
+        <signal_objects object="$actor" param="'cancel Vanilla dialogue tree'"/>
+        <set_comm_handler actor="$actor" customhandler="true" />
+        
+        <!-- set up Common Vars -->
+          <do_if value="not event.param.$ut_cac.$pesterlevel?">
+            <set_value name="event.param.$ut_cac.$pesterlevel" exact="param.ut_cac.setting_defaults.$pesterlevel"/>
+          </do_if>
+          <do_if value="not event.param.$ut_cac.$loglevel?">
+            <set_value name="event.param.$ut_cac.$loglevel" exact="param.ut_cac.setting_defaults.$loglevel"/>
+          </do_if>
+        
+        
+        <!-- set up Required Vars per Entity Type -->
+        <do_if value="event.object.type == entitytype.pilot">
+          <!-- ???? -->
+          <do_if value="not event.param.$ut_cac.$legality?">
+            <set_value name="event.param.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
+          </do_if>
+        </do_if>
+        <do_elseif value="event.object.type == entitytype.commander" comment="aka Captain">
+          <do_if value="not event.param.$ut_cac.$jumptype?">
+            <set_value name="event.param.$ut_cac.$jumptype" exact="param.ut_cac.setting_defaults.$jumptype"/>
+          </do_if>
+          <do_if value="not event.param.$ut_cac.$insectorjump?">
+            <set_value name="event.param.$ut_cac.$insectorjump" exact="param.ut_cac.setting_defaults.$insectorjump"/>
+          </do_if>
+          <do_if value="not event.param.$ut_cac.$clusterboost">
+            <set_value name="event.param.$ut_cac.$clusterboost" exact="param.ut_cac.setting_defaults.$clusterboost"/>
+          </do_if>
+          <!-- ???? -->
+          <do_if value="not event.param.$ut_cac.$legality?">
+            <set_value name="event.param.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
+          </do_if>
+        </do_elseif>
+        <do_elseif value="event.object.type == entitytype.manager">
+          <do_if value="not event.param.$ut_cac.$legality?">
+            <set_value name="event.param.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
+          </do_if>
+          <!-- Reset Range Settings - may not fir to changed Position -->
+          <set_value name="event.param.$ut_cac.$range" exact="[event.param.sector]"/>
+          <set_value name="event.param.$ut_cac.$range_j" exact="[event.param.sector]"/>
+           <set_value name="event.param.$ut_cac.$range_h" exact="[event.param.sector]"/>
+        </do_elseif>
+        <do_elseif value="event.object.type == entitytype.engineer">
+          
+        </do_elseif>
+        <do_elseif value="event.object.type == entitytype.architect">
+          
+        </do_elseif>
+        <do_elseif value="event.object.type == entitytype.marine">
+          
+        </do_elseif>
+        <do_elseif value="event.object.type == entitytype.defencecontrol">
+          
+        </do_elseif>
+        
+        <do_if value="not event.param.$ut_cac.$experience? or typeof event.param.$ut_cac.$experience != datatype.table">
+          <set_value name="event.param.$ut_cac.$experience" exact="table[]"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.boarding}" exact="param.ut_cac.experience.{skilltype.boarding}.{event.param.skill.boarding}"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.combat}" exact="param.ut_cac.experience.{skilltype.combat}.{event.param.skill.combat}"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.engineering}" exact="param.ut_cac.experience.{skilltype.engineering}.{event.param.skill.engineering}"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.leadership}" exact="param.ut_cac.experience.{skilltype.leadership}.{event.param.skill.leadership}"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.management}" exact="param.ut_cac.experience.{skilltype.management}.{event.param.skill.management}"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.morale}" exact="param.ut_cac.experience.{skilltype.morale}.{event.param.skill.morale}"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.navigation}" exact="param.ut_cac.experience.{skilltype.navigation}.{event.param.skill.navigation}"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.science}" exact="param.ut_cac.experience.{skilltype.science}.{event.param.skill.science}"/>
+        </do_if>
+        
+        <!-- If Orderlist is not set up yet: Start Orderlist Loop, and set endless waiting as default Order (this assumes the NPC has no Job yet)-->
+        <do_if value="not event.param.$orderlist?">
+          <set_value name="event.param.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
+          <start_script object="event.param" name="'ut.cac.orderlist.loop'"/>
+        </do_if>
+        
+        <!-- Compatibility with Vim Razz' Human Ressources -->
+        <set_value name="event.param.$InUse" exact="true"/>
+      </actions>
+    </cue>
+    <!-- Root Dialogue Tree - supposed to be supporting both Employees and non-Employees in the long run
+        Choices for Employees:
+        1 - Orderlist Managment (Orders may be unavailable, but Orderlist can always be shown)
+        2 - Settings Managment (may be unavailable)
+        3 - Connect Menu
+        4 - Subordinates Menu
+        5 - Personal Menu
+        
+        Choices for non-Employees (Not Yet Used):
+        1 - Ask for Support/Services
+        2 - I want to hire you
+        3 - Guidiance
+        4 - Maybe include Smalltalk?
+        5 - Personal Information
+        -->
+    <cue name="Comm_Common_Root" >
+      <conditions>
+        <check_any>
+          <event_conversation_started conversation="default"/>
+          <event_conversation_returned_to_section section="default"/>
+        </check_any>
+        <check_value value="event.object.$ut_cac?"/>
+      </conditions>
+      <actions>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <do_if value="event.object.isplayerowned">
+          <do_if value="event.name == 'event_conversation_started'">
+            <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <do_if value="event.object.room == player.entity.room">
+                <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi."/>
+                <add_npc_line speaker="event.object" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?"/>
+              </do_if>
+              <do_else>
+                <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi."/>
+                <add_npc_line speaker="event.object" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?"/>
+              </do_else>
+            </do_if>
+          </do_if>
+          <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main"/>
+          <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main" selectable="event.object.$ut_cac.$settings_cue"/>
+          <add_player_choice_sub text="{5554103,3}" position="3" section="comm_connect_main"/>
+          <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main"/>
+          <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
+        </do_if>
+        <do_else>
+          <do_if value="event.name == 'event_conversation_started'">
+            <do_if value="event.object.room == player.entity.room">
+              <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi."/>
+              <add_npc_line speaker="event.object" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?"/>
+            </do_if>
+            <do_else>
+              <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi."/>
+              <add_npc_line speaker="event.object" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?"/>
+            </do_else>
+          </do_if>
+          <add_player_choice_sub text="{5554103,1}" position="1" section="comm_services_main" selectable="false"/>
+          <add_player_choice_sub text="{5554103,2}" position="2" section="comm_hire_main" selectable="false"/>
+          <add_player_choice_sub text="{5554103,3}" position="3" section="comm_guidiance_main" selectable="false"/>
+          <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main" selectable="false"/>
+          <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
+        </do_else>
+        <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
+        <set_conversation_return_section section="comm_goodbye"/>
+        <add_player_choice_return text="{5554103,6}" position="close"/>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- First Player Employee Specific Stuff -->
+    <!-- Root Choice 1 - Orderlist Managment -->
+    <cue name="Comm_Common_Orders" >
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_orders_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_orders_"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <do_if value="event.param == 'comm_orders_main'">
+          <do_if value="@$selectedcell.{1} gt event.object.$ut_cac.$range.count + 1">
+            <set_value name="$selectedcell.{1}" exact="event.object.$ut_cac.$range.count + 2"/>
+            <set_value name="$selectedcell.{2}" exact="5"/>
+          </do_if>
+          <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Orders for %1 on %2'.[event.object.name,event.object.container.name], null, null , if $selectedcell? then $selectedcell else null , [  if event.object.$orderlist.count ge 10 then 50 else 30 , -1 , 30 , 150 ] ,  [] , [ 
+[ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
+[ 'button' , 'Cancel all Queued Orders' , 'comm_orders_cancel_all' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , false , true] , 
+[ 'button' , 'Insert Order' , 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_Y' , event.object.$ut_cac.$orders_cue? , null , true ] , 
+[ 'button' , 'Append Order', 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_X' , event.object.$ut_cac.$orders_cue? , 0 , true ] 
+] ]"/>
+          <!--<append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 1 , 1 , 1 , 1 ] ] , [ 'text' , '' ] , [ 'text' , 'Available Points for Ranges: ' + $totalrangepoints + '   Remaining Points: ' + $rangepoints ] , [ 'text' , 'Navigation Skill:' ] , [ 'stars' , event.object.skill.navigation], [ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  100 ] ]"/>-->
+          <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1] , null , $i] , 
+[ 'text' , $i + '.' ] , 
+[ 'text' , event.object.$orderlist.{$i}.$displayname ] , 
+[ 'button' , 'V' , 'comm_orders_mod' , null , true , [ 'move down' , $i , event.object.$orderlist.{$i} ] , true ] , 
+[ 'button' , 'Cancel' , 'comm_orders_mod' , null , event.object.$orderlist.{$i}.$interruptable , [ 'cancel' , $i , event.object.$orderlist.{$i} ] , true] 
+]"/>
+          </do_all>
+          <!-- remove last move down Entry -->
+          <set_value name="$genericuiparam.{8}.{$genericuiparam.{8}.count}.{3}" exact="null"/>
+          <remove_value name="$selectedcell"/>
+          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
+          <add_conversation_view view="closeupdetailmonitor"/>
+        </do_if>
+        <do_elseif value="event.param == 'comm_orders_mod'">
+          <!-- get Index of Order to Modify (also account for slight changes in position) -->
+          <do_if value="event.object.$orderlist.{event.param2.{2}} == event.param2.{3}">
+            <set_value name="$order_id" exact="event.param2.{2}"/>
+          </do_if>
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 1} == event.param2.{3}">
+            <set_value name="$order_id" exact="event.param2.{2} - 1"/>
+          </do_elseif>
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} + 1} == event.param2.{3}">
+            <set_value name="$order_id" exact="event.param2.{2} + 1"/>
+          </do_elseif>
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 2} == event.param2.{3}">
+            <set_value name="$order_id" exact="event.param2.{2} - 2"/>
+          </do_elseif>
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} + 2} == event.param2.{3}">
+            <set_value name="$order_id" exact="event.param2.{2} + 2"/>
+          </do_elseif>
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 3} == event.param2.{3}">
+            <set_value name="$order_id" exact="event.param2.{2} - 3"/>
+          </do_elseif>
+          <do_else>
+            <!-- fallback case: use first occurence of Order -->
+            <set_value name="$order_id" exact="event.object.$orderlist.indexof.event.param2.{3}"/>
+          </do_else>
+          <do_if value="$order_id?">
+            <do_if value="event.param2.{1} == 'cancel'">
+              <signal_objects object="event.object" param="'cancel order'" param2="$order_id"/>
+            </do_if>
+            <do_elseif value="event.param2.{1} == 'move down' and event.object.$orderlist.count gt $order_id">
+              <do_if value="$order_id gt 1">
+                <!-- if it doesnt affect the currently active Order just modify the Orderlist directly -->
+                <set_value name="event.object.$orderlist.{$order_id}" exact="event.object.$orderlist.{$order_id + 1}"/>
+                <set_value name="event.object.$orderlist.{$order_id + 1}" exact="event.param2.{3}"/>
+              </do_if>
+              <do_else>
+                <!-- when Active Order is involved let the orderlist loop handle it -->
+                <signal_objects object="event.object" param="'interrupt order'" param2="event.object.$orderlist.{2}"/>
+                <remove_value name="event.object.$orderlist.{2}"/>
+              </do_else>
+            </do_elseif>
+            <do_elseif value="event.param2.{1} == 'move up' and event.object.$orderlist.count - 1 gt $order_id and $order_id gt 1">
+              <do_if value="$order_id gt 2">
+                <!-- if it doesnt affect the currently active Order just modify the Orderlist directly -->
+                <set_value name="event.object.$orderlist.{$order_id}" exact="event.object.$orderlist.{$order_id - 1}"/>
+                <set_value name="event.object.$orderlist.{$order_id - 1}" exact="event.param2.{3}"/>
+              </do_if>
+              <do_else>
+                <!-- when Active Order is involved let the orderlist loop handle it -->
+                <signal_objects object="event.object" param="'interrupt order'" param2="event.object.$orderlist.{2}"/>
+                <remove_value name="event.object.$orderlist.{2}"/>
+              </do_else>
+            </do_elseif>
+          </do_if>
+          <do_else>
+            <debug_text filter="error" text="'%1 Specified Order not in Orderlist anymore - doing nothing',[event.object.name]"/>
+          </do_else>
+          <remove_value name="$order_id"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_orders_cancel_all'">
+          <do_all exact="event.object.$orderlist.count" counter="$i" reverse="true">
+            <do_if value="( if event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true ) and not ( $i == 1 )">
+              <remove_value name="event.object.$orderlist.{$i}"/>
+            </do_if>
+          </do_all>
+          <do_if value="event.param2" comment="event.param2 == true says that we shall also cancel the first order (see comm_orders_modify)">
+            <signal_objects object="event.object" param="'cancel order'" param2="1"/>
+          </do_if>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_orders_add'">
+          <include_actions ref="event.object.$ut_cac.$orders_cue"/>
+        </do_elseif>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Root Choice 2 - Settings Managment -->
+    <cue name="Comm_Common_Settings" >
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_settings_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_settings_"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <include_actions ref="event.object.$ut_cac.$settings_cue"/>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Root Choice 3 - Connect with.. -->
+    <cue name="Comm_Common_Connect" >
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_connect_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_connect_"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <!--- ################################### -->
+        <!--                        Connect Menu                          -->
+        <!--- ################################### -->
+        <do_if value="event.param == 'comm_connect_main'">
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[102081].random" hidechoices="false" comment="Just put him through."/>
+            <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation"/>
+          </do_if>
+          <!-- Slot1: Defense Officer -->
+          <do_if value="event.object.container.defencenpc.exists">
+            <add_player_choice_subconv text="{5554103,31}.[event.object.container.defencenpc.name]" position="1" conversation="default" actor="event.object.container.defencenpc" selectable="event.object.container.defencenpc != event.object"/>
+          </do_if>
+          <do_elseif value="@event.object.container.buildingmodule.container.defencenpc.exists">
+            <add_player_choice_subconv text="{5554103,31}.[event.object.container.buildingmodule.container.defencenpc.name]" position="1" conversation="default" actor="event.object.container.buildingmodule.container.defencenpc" selectable="event.object.container.buildingmodule.container.defencenpc != event.object"/>
+          </do_elseif>
+          <do_elseif value="@event.object.container.buildmodule.buildanchor.defencenpc.exists">
+            <add_player_choice_subconv text="{5554103,31}.[event.object.container.buildmodule.buildanchor.defencenpc.name]" position="1" conversation="default" actor="event.object.container.buildmodule.buildanchor.defencenpc" selectable="event.object.container.buildmodule.buildanchor.defencenpc != event.object"/>
+          </do_elseif>
+          <!-- Slot2: Engineer -->
+          <do_if value="event.object.container.engineer.exists">
+            <add_player_choice_subconv text="{5554103,32}.[event.object.container.engineer.name]" position="2" conversation="default" actor="event.object.container.engineer" selectable="event.object.container.engineer != event.object"/>
+          </do_if>
+          <do_elseif value="@event.object.container.buildingmodule.container.engineer.exists">
+            <add_player_choice_subconv text="{5554103,32}.[event.object.container.buildingmodule.container.engineer.name]" position="2" conversation="default" actor="event.object.container.buildingmodule.container.engineer" selectable="event.object.container.buildingmodule.container.engineer != event.object"/>
+          </do_elseif>
+          <do_elseif value="@event.object.container.buildmodule.buildanchor.engineer.exists">
+            <add_player_choice_subconv text="{5554103,32}.[event.object.container.buildmodule.buildanchor.engineer.name]" position="2" conversation="default" actor="event.object.container.buildmodule.buildanchor.engineer" selectable="event.object.container.buildmodule.buildanchor.engineer != event.object"/>
+          </do_elseif>
+          <!-- Slot3: Architect -->
+          <do_if value="event.object.container.architect.exists">
+            <add_player_choice_subconv text="{5554103,33}.[event.object.container.architect.name]" position="3" conversation="default" actor="event.object.container.architect" selectable="event.object.container.architect != event.object"/>
+          </do_if>
+          <do_elseif value="@event.object.container.buildingmodule.container.architect.exists">
+            <add_player_choice_subconv text="{5554103,33}.[event.object.container.buildingmodule.container.architect.name]" position="3" conversation="default" actor="event.object.container.buildingmodule.container.architect" selectable="event.object.container.buildingmodule.container.architect != event.object"/>
+          </do_elseif>
+          <do_elseif value="@event.object.container.buildmodule.buildanchor.architect.exists">
+            <add_player_choice_subconv text="{5554103,33}.[event.object.container.buildmodule.buildanchor.architect.name]" position="3" conversation="default" actor="event.object.container.buildmodule.buildanchor.architect" selectable="event.object.container.buildmodule.buildanchor.architect != event.object"/>
+          </do_elseif>
+          <!-- Slot4: Superior -->
+          <do_if value="event.object.container.commanderentity.exists">
+            <add_player_choice_subconv text="{5554103,34}.[event.object.container.commanderentity.name]" position="4" conversation="default" actor="event.object.container.commanderentity" selectable="event.object.container.commanderentity != event.object and event.object.container.commanderentity != player.entity"/>
+          </do_if>
+          <do_elseif value="@event.object.container.buildingmodule.container.architect.exists">
+            <add_player_choice_subconv text="{5554103,34}.[event.object.container.buildingmodule.container.commanderentity.name]" position="4" conversation="default" actor="event.object.container.buildingmodule.container.commanderentity" selectable="event.object.container.buildingmodule.container.commanderentity != event.object"/>
+          </do_elseif>
+          <do_elseif value="@event.object.container.buildmodule.buildanchor.architect.exists">
+            <add_player_choice_subconv text="{5554103,34}.[event.object.container.buildmodule.buildanchor.commanderentity.name]" position="4" conversation="default" actor="event.object.container.buildmodule.buildanchor.commanderentity" selectable="event.object.container.buildmodule.buildanchor.commanderentity != event.object"/>
+          </do_elseif>
+          <do_if value="event.object.container.pilot.exists">
+            <add_player_choice_subconv text="{5554103,35}.[event.object.container.pilot.name]" position="5" conversation="default" actor="event.object.container.pilot" selectable="event.object.container.pilot != event.object"/>
+          </do_if>
+          <!-- Slot5: Pilot/Captain/Manager -->
+          <do_elseif value="event.object.container.tradenpc.exists">
+            <add_player_choice_subconv text="{5554103,36}.[event.object.container.tradenpc.name]" position="5" conversation="default" actor="event.object.container.tradenpc" selectable="event.object.container.tradenpc != event.object"/>
+          </do_elseif>
+          <do_elseif value="event.object.container.buildingmodule.container.pilot.exists">
+            <add_player_choice_subconv text="{5554103,35}.[event.object.container.buildingmodule.container.pilot.name]" position="5" conversation="default" actor="event.object.container.buildingmodule.container.pilot" selectable="event.object.container.buildingmodule.container.pilot != event.object"/>
+          </do_elseif>
+          <do_elseif value="event.object.container.buildingmodule.container.tradenpc.exists">
+            <add_player_choice_subconv text="{5554103,36}.[event.object.container.buildingmodule.container.tradenpc.name]" position="5" conversation="default" actor="event.object.container.buildingmodule.container.tradenpc" selectable="event.object.container.buildingmodule.container.tradenpc != event.object"/>
+          </do_elseif>
+          <do_elseif value="event.object.container.buildmodule.buildanchor.pilot.exists">
+            <add_player_choice_subconv text="{5554103,35}.[event.object.container.buildmodule.buildanchor.pilot.name]" position="5" conversation="default" actor="event.object.container.buildmodule.buildanchor.pilot" selectable="event.object.container.buildmodule.buildanchor.pilot != event.object"/>
+          </do_elseif>
+          <do_elseif value="event.object.container.buildmodule.buildanchor.tradenpc.exists">
+            <add_player_choice_subconv text="{5554103,36}.[event.object.container.buildmodule.buildanchor.tradenpc.name]" position="5" conversation="default" actor="event.object.container.buildmodule.buildanchor.tradenpc" selectable="event.object.container.buildmodule.buildanchor.tradenpc != event.object"/>
+          </do_elseif>
+          <!-- Slot6: Subordinates -->
+          <add_player_choice_sub text="{5554103,37}.[event.object.container.subordinates.{event.object.type}.count]" position="6" section="comm_connect_subordinates" selectable="event.object.container.subordinates.{event.object.type}.count" confidence="[event.object.container.subordinates.{event.object.type}.count - 1,5].min"/>
+          <add_player_choice_return text="{5554103,7}" position="close"/>
+        </do_if>
+        <do_elseif value="event.param == 'comm_connect_subordinates'">
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation"/>
+          </do_if>
+          <do_all exact="[event.object.container.subordinates.{event.object.type}.count,6].min" counter="$i">
+            <do_if value="event.object.container.subordinates.{event.object.type}.{$i}.isclass.station">
+              <do_if value="event.object.container.subordinates.{event.object.type}.{$i}.tradenpc.exists">
+                <add_player_choice_subconv text="{5554103,35}.[event.object.container.subordinates.{event.object.type}.{$i}.tradenpc.name]" position="$i" conversation="default" actor="event.object.container.subordinates.{event.object.type}.{$i}.tradenpc"/>
+              </do_if>
+            </do_if>
+            <do_elseif value="event.object.container.subordinates.{event.object.type}.{$i}.isclass.ship">
+              <do_if value="event.object.container.subordinates.{event.object.type}.{$i}.pilot.exists">
+                <add_player_choice_subconv text="{5554103,36}.[event.object.container.subordinates.{event.object.type}.{$i}.pilot.name]" position="$i" conversation="default" actor="event.object.container.subordinates.{event.object.type}.{$i}.pilot"/>
+              </do_if>
+            </do_elseif>
+          </do_all>
+          <add_player_choice_return text="{5554103,7}" position="6" returnparam="'no change'"/>
+          <add_player_choice_return text="{5554103,7}" position="close" returnparam="'no change'"/>
+        </do_elseif>
+        <!-- ToDo: Use this Snippet once again to make a new Conversation which doesnt return to the old one on cmpletion -->
+        <do_elseif value="event.param == 'comm_connect_selected'">
+          <!-- CHOICE SNIPPET (Example)-->
+          <add_player_choice text="{5554103,35}.[event.object.container.subordinates.{event.object.type}.{$i}.pilot.name]" position="$i" section="comm_connect_selected" choiceparam="event.object.container.subordinates.{event.object.type}.{$i}.pilot" selectable="event.object.container.subordinates.{event.object.type}.{$i}.pilot != event.object"/>
+          <!-- /CHOICE SNIPPET -->
+          <!-- Cancel this Conversation and start a new one with the desired Person -->
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="event.object.room != player.entity.room">
+              <add_npc_line speaker="event.object" line="[11,12,1005].random" hidechoices="false"/>
+            </do_if>
+            <do_else>
+              <add_npc_line speaker="event.object" line="[11,12,1006].random" hidechoices="false"/>
+            </do_else>
+          </do_if>
+          <cancel_conversation actor="event.object"/>
+          <start_conversation actor="event.param2" conversation="default"/>
+        </do_elseif>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Root Choice 4 - Subordinates -->
+    <cue name="Comm_Common_Subordinates" >
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_subordinates_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_subordinates_"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Second Non-Employee-Specific Stuff -->
+    <!-- Root Choice 1 - Perform Paid Order (or other Services) - a very Simplified Orders Menu -->
+    <cue name="Comm_Common_Services">
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_services_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_services_"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <!-- Planned types of Services:
+        => Trade Agent (NOT Persistent, will consume Money continiously)
+        => Map Updates (one time update; all things currently known to Faction)
+        => Buy known Trade Offers (one time update; random Stations in Zone/Sector/Cluster, depending on Skill)
+        => Escort for a certain Time (Captain only)
+        => Taxi Servide (Captain only; will send Ship to a certain Location and stay there for 10 minutes, but exits when the Player undocks, retreat on Attack depends on Payment/Skill)
+        => Repairs (Engineer only)
+        => "Special" Discounts (Managers only; Discounts will last several Days, but only apply one time)
+        => Ignore certain Targets (DOs only; broadcast to all Ships of Faction)
+        => Buy Weapons (DOs only; converts stock to player Inventory; expensive in Comparision)
+        -->
+          <!-- Common Services -->
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Root Choice 2 -  Hire Menu -->
+    <cue name="Comm_Common_Hire">
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_hire_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_hire_"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Root Choice 3 -  Guidiance Menu -->
+    <cue name="Comm_Common_Guidiance">
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_guidiance_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_guidiance_"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Root Choice 4 -  Smalltalk -->
+    <cue name="Comm_Common_Smalltalk">
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_smalltalk_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_smalltalk_"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Shared Stuff -->
+    <!-- Root Choice 5 - Personal Stuff (Skills, Account, Workplace ) - Also used for Non-Employees! -->
+    <cue name="Comm_Common_Personal" >
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_personal_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_personal_"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <!--- ################################### -->
+        <!--                       Personal Menu                          -->
+        <!--- ################################### -->
+        <do_if value="event.param == 'comm_personal_main'">
+          <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Personal Information for %1'.[event.object.name], null, null , null , [ 175 , 110 , 175 , 110 , 175 , 110 , 175 , -1 ] ,  [] ,  [ 
+[ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
+[ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
+[ 'button' ,  'Remove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , 
+[ 'button' , 'Old Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] 
+] ]"/>
+          <!-- Skill Part of the Menu  -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 , 2 ] ] , [ 'text' , 'Skills' ] , [ 'text' , 'Combinedskill: ' ] , [ 'statusbar' , event.object.combinedskill , 100 , 255 , 100 ,  100 ] ]"/>
+          <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
+          <!-- Create Lines for Primary Skills -->
+          <set_value name="$primaryskills" exact="event.object.type.skilltypes"/>
+          <do_while value="$primaryskills.count">
+            <set_value name="$combinedcells1" exact="[]"/>
+            <set_value name="$combinedcells2" exact="[]"/>
+            <set_value name="$line1" exact="[ [ 'regular' , $combinedcells1 ] ]"/>
+            <set_value name="$line2" exact="[ [ 'regular' , $combinedcells2 ] ]"/>
+            <do_while value="$combinedcells1.count lt 7">
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$combinedcells2" exact="2"/>
+              <append_to_list name="$line1" exact="[ 'text' , '\033Y' + $primaryskills.{1}.name ]"/>
+              <append_to_list name="$line1" exact="[ 'stars' , event.object.skill.{$primaryskills.{1}}]"/>
+              <append_to_list name="$line2" exact="[ 'statusbar' , event.object.type.skillrelevance.{$primaryskills.{1}} , 100 , 255 , 100 ,  100 ]"/>
+              <remove_value name="$skillist.{$skillist.indexof.{$primaryskills.{1}}}"/>
+              <remove_value name="$primaryskills.{1}"/>
+              <do_if value="not $primaryskills.count">
+                <break/>
+              </do_if>
+            </do_while>
+            <do_while value="$combinedcells1.count lt 8">
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$line1" exact="[ 'text' , $skillist.{1}.name ]"/>
+              <append_to_list name="$line1" exact="[ 'stars' , event.object.skill.{$skillist.{1}}]"/>
+              <remove_value name="$skillist.{1}"/>
+              <do_if value="not $skillist.count">
+                <break/>
+              </do_if>
+            </do_while>
+            <do_if value="$combinedcells2.count lt 4">
+              <append_to_list name="$combinedcells2" exact="8 - ( $combinedcells2.count * 2 )"/>
+              <append_to_list name="$line2" exact="[ 'text' , '' ]"/>
+            </do_if>
+            <append_to_list name="$genericuiparam.{8}" exact="$line1"/>
+            <append_to_list name="$genericuiparam.{8}" exact="$line2"/>
+          </do_while>
+          <!-- Create Lines for Other Skills -->
+          <do_while value="$skillist.count">
+            <set_value name="$combinedcells" exact="[]"/>
+            <set_value name="$line" exact="[ [ 'regular' , $combinedcells ] ]"/>
+            <do_while value="$combinedcells.count lt 7">
+              <append_to_list name="$combinedcells" exact="1"/>
+              <append_to_list name="$combinedcells" exact="1"/>
+              <append_to_list name="$line" exact="[ 'text' , $skillist.{1}.name ]"/>
+              <append_to_list name="$line" exact="[ 'stars' , event.object.skill.{$skillist.{1}}]"/>
+              <remove_value name="$skillist.{1}"/>
+              <do_if value="not $skillist.count">
+                <break/>
+              </do_if>
+            </do_while>
+            <do_if value="$combinedcells.count lt 8">
+              <append_to_list name="$combinedcells" exact="8 - $combinedcells.count"/>
+              <append_to_list name="$line" exact="[ 'text' , '' ]"/>
+            </do_if>
+            <append_to_list name="$genericuiparam.{8}" exact="$line"/>
+          </do_while>
+          <remove_value name="$combinedcells"/>
+          <remove_value name="$combinedcells1"/>
+          <remove_value name="$combinedcells2"/>
+          <remove_value name="$line"/>
+          <remove_value name="$line1"/>
+          <remove_value name="$line2"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 6 ] ] , 
+[ 'text' , 'Special Abilities' ] , [ 'text' , '\033#FF000000#Not implemented yet, just reserving the Space here' ] 
+]"/>
+          <!-- End Skill Part of the Menu -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
+          <!-- Account Part of the Menu -->
+          <do_if value="event.object.money">
+            <set_value name="$accountpercentage" exact="[ 80 * event.object.money / (event.object.container.productionmoney + event.object.container.wantedmoney + event.object.container.buildanchor.wantedmoney), 100].min " comment="100-%-Point is at 80% filling of the Bar. less than 50% are indcated by a red bar, less than 100% by yellow, and above that green"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 , 2 ] ] , [ 'text' , 'Account' + ( if event.object.hasownaccount then ' (Main)' else ' (Shared)' ) ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
+            <remove_value name="$accountpercantage"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
+[ 'button' , 'Min: ' + event.object.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , 
+[ 'button' , 'Current: ' + event.object.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , 
+[ 'button' , 'Max ' + event.object.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] , 
+[ 'text' , '' ] 
+]"/>
+            <set_value name="$wantedmoney" exact="event.object.container.productionmoney + event.object.container.wantedmoney + event.object.container.buildanchor.wantedmoney"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
+[ 'text' , 'Required Money:'] , 
+[ 'text' , $wantedmoney.formatted.default] , 
+[ 'button' , 'Give Amount' , 'comm_personal_money_transfer' , null , ( event.object.money lt $wantedmoney ) and (($wantedmoney - event.object.money) le player.money ) , $wantedmoney - event.object.money , true ] , 
+[ 'text' , '' ] 
+]"/>
+          </do_if>
+          <do_else>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] , [ 'text' , 'Account not available'] , [ 'statusbar' , 100 , 50 , 50 , 50 ,  100 ] ]"/>
+          </do_else>
+          <!-- End Money Part of the Menu -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
+          <!-- Begin of Personal Transfer Part -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 8 ] ] , [ 'text' , 'Workplace Managment' ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
+[ 'button' , if event.object.exists then 'Stop Working' else 'Start Working' , 'comm_personal_work_toggle' , null , false , 0  , true ] , 
+[ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , 
+[ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] , 
+[ 'text' , '' ] 
+]"/>
+          <!--TO DO: Standby Check here-->
+          <!-- End of Transfer Part -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
+          <!-- begin of Pester Level Settings -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 4 ] ] , [ 'text' , ' Pester Level: ' + event.object.$ut_cac.$loglevel ] , [ 'text' , 'Log Level: ' + event.object.$ut_cac.$loglevel ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
+[ 'button' , 'Set Pester to 0' , 'comm_personal_pester_set' , null , true , 0  , true ] , 
+[ 'button' , 'Set Pester to 20' , 'comm_personal_pester_set' , null , true , 20  , true ] , 
+[ 'button' , 'Set Log to 0' , 'comm_personal_log_set' , null , true , 0  , true ] , 
+[ 'button' , 'Set Log to 20' , 'comm_personal_log_set' , null , true , 20  , true ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
+[ 'button' , 'Set Pester to 40' , 'comm_personal_pester_set' , null , true , 40  , true ] , 
+[ 'button' , 'Set Pester to 60' , 'comm_personal_pester_set' , null , true , 60  , true ] , 
+[ 'button' , 'Set Log to 40' , 'comm_personal_log_set' , null , true , 40  , true ] , 
+[ 'button' , 'Set Log to 60' , 'comm_personal_log_set' , null , true , 60  , true ] 
+]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
+[ 'button' , 'Set Pester to 80' , 'comm_personal_pester_set' , null , true , 80  , true ] , 
+[ 'button' , 'Set Pester to 100' , 'comm_personal_pester_set' , null , true , 100  , true ] , 
+[ 'button' , 'Set Log to 80' , 'comm_personal_log_set' , null , true , 80  , true ] ,  
+[ 'button' , 'Set Log to 100' , 'comm_personal_log_set' , null , true , 100  , true ] 
+]"/>
+          <!-- End of Pester Level Settings -->
+          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
+          <add_conversation_view view="closeupdetailmonitor"/>
+        </do_if>
+        <!-- Money Sub-Menus and Actions -->
+        <do_elseif value="event.param == 'comm_personal_money_minbudget'">
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail"/>
+            <add_npc_line speaker="event.object" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?"/>
+          </do_if>
+          <open_conversation_menu menu="SetMoneyLimitMenu" param="[0, 0, event.object, 'min']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_money_maxbudget'">
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail"/>
+            <add_npc_line speaker="event.object" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?"/>
+          </do_if>
+          <open_conversation_menu menu="SetMoneyLimitMenu" param="[0, 0, event.object, 'max']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_money_transfer'">
+          <do_if value="event.param2 != null">
+            <do_if value="event.param2 gt 0">
+              <transfer_money from="player.entity" to="event.object" amount="event.param2"/>
+            </do_if>
+            <do_elseif value="event.param2 lt 0">
+              <transfer_money from="event.object" to="player.entity" amount="0 - event.param2"/>
+            </do_elseif>
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          </do_if>
+          <do_else>
+            <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+              <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail"/>
+              <add_npc_line speaker="event.object" line="[1008].random" hidechoices="false" comment="Yes? What do you want us to do?"/>
+            </do_if>
+            <open_conversation_menu menu="MoneyTransferMenu" param="[0, 0, event.object]"/>
+          </do_else>
+        </do_elseif>
+        <!-- Transfer Sub-Menus and Actions -->
+        <do_elseif value="event.param == 'comm_personal_work_toggle'">
+          
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_transfer'">
+          <!-- Depending on whether a Ship is available display Map restricted to Zone or Galaxy to select new Work place -->
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_transfer_objectselected'">
+          <!-- present the Player a choice of possible Jobs the Entity can do on the selected Object.
+          => For Player Stations its Manager, DO, ( Engineer ) and Standby
+          => For Player Bigships its Captain, DO, Engineer and Standby
+              => For CVs also offer Standby as Station Entity for completed Station.
+          => For Player Smallships its Pilot or Standby, also limited capacity (why offer it at all? )
+          => For Other Stations its Trade Agent/Info Broker or Standby
+              => For Shipyards also Offer Standby for Ship Positions (and possibly by Extension double-Standby for CVs) -->
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_transfer_jobselected'">
+          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.common.transfer',$displayname='Transfer to %1'.[event.param2.name],$job=false,$interruptable=true]"/>
+        </do_elseif>
+        <!-- Log/Pesterlevel Actions -->
+        <do_elseif value="event.param == 'comm_personal_pester_set'">
+          <set_value name="event.object.$ut_cac.$pesterlevel" exact="event.param2"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_log_set'">
+          <set_value name="event.object.$ut_cac.$loglevel" exact="event.param2"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Root Choice 6: Goodbye Section -->
+    <cue name="Comm_Common_Goodbye" >
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_goodbye"/>
+          <event_conversation_returned_to_section sectionprefix="comm_goodbye"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+    <!-- Root Choice 6: Debug Menu -->
+    <cue name="Comm_Common_Debug" >
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_debug_"/>
+          <event_conversation_returned_to_section sectionprefix="comm_debug_"/>
+          <event_cue_signalled/>
+        </check_any>
+      </conditions>
+      <actions>
+        <do_if value="event.param == 'comm_debug_main'">
+          <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Debug Menu for %1'.[event.object.name], null, null , null , [ 97 , 97 , 97 , 97 , 97 , 97 , 97 , 97 , 97 , 97 , 97 , -1 ] ,  [] ,  [ 
+[ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
+[ 'button' , 'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
+[ 'button' ,  'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , 
+[ 'button' , 'UNUSED', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] 
+] ]"/>
+          <!-- Local Variables  -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 12 ] ] , [ 'text' , 'Debug Functions' ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 , 2 , 2 ] ] , 
+[ 'button' , 'Max Skills' , 'comm_debug_skills_set' , false , true , 5 ] , 
+[ 'button' , 'Min Skills' , 'comm_debug_skills_set' , false , true , 1 ] , 
+[ 'button' , 'Remove Actor' , 'comm_debug_cleanup_actor' ] , 
+[ 'button' , 'Debug: ' + @event.object.$debug , 'comm_debug_toggle' ] , 
+null , 
+[ 'button' , 'Remove Object' , 'comm_debug_cleanup_object' ] 
+]"/>
+          <do_if value="event.object.$orderlist?">
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 12 ] ] , [ 'text' , 'Orderlist Details' ] ]"/>
+            <do_all exact="$orderlist.count" counter="$i" reverse="false">
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 1 , 1 , 1 , 2 ] ] ,  
+[ 'text' , 'int:%1 exit:%2'.[@$orderlist.{$i}.$interruptable , @$orderlist.{$i}.$exitonneworder] ] , 
+[ 'text' , @$orderlist.{$i}.$script ] , 
+[ 'text' , @$orderlist.{$i}.$abortscript ] , 
+[ 'text' , @$orderlist.{$i}.$displayname ] 
+]"/>
+            </do_all>
+          </do_if>
+        </do_if>
+        <do_elseif value="event.param == 'comm_debug_skills_set'">
+          <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
+          <do_all exact="$skillist.count" counter="$i">
+            <set_skill entity="event.object" type="$skillist.{$i}" exact="event.param1"/>
+          </do_all>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_debug_toggle'">
+          <set_value name="event.object.$debug" exact="not @event.object.$debug"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_debug_cleanup_actor'">
+          <destroy_object object="event.object" explosion="false"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_debug_cleanup_object'">
+          <disconnect_from_build_location object="event.object.container.buildingmodule.container"/>
+          <destroy_object object="event.object.container" explosion="false"/>
+        </do_elseif>
+        <reset_cue cue="this"/>
+      </actions>
+    </cue>
+  </cues>
+</mdscript>
