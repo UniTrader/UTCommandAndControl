@@ -511,18 +511,47 @@
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 , 2 ] ] , [ 'text' , 'Skills' ] , [ 'text' , 'Combinedskill: ' ] , [ 'statusbar' , event.object.combinedskill , 100 , 255 , 100 ,  100 ] ]"/>
           <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
           <!-- Create Lines for Primary Skills -->
+          <set_value name="$combinedcells1" exact="[1,1,1,1,1,1,1,1]"/>
+          <set_value name="$combinedcells2" exact="[2,2,2,2]"/>
           <set_value name="$primaryskills" exact="event.object.type.skilltypes"/>
           <do_while value="$primaryskills.count">
-            <set_value name="$combinedcells1" exact="[]"/>
-            <set_value name="$combinedcells2" exact="[]"/>
             <set_value name="$line1" exact="[ [ 'regular' , $combinedcells1 ] ]"/>
             <set_value name="$line2" exact="[ [ 'regular' , $combinedcells2 ] ]"/>
-            <do_while value="$combinedcells1.count lt 7">
-              <append_to_list name="$combinedcells1" exact="1"/>
-              <append_to_list name="$combinedcells1" exact="1"/>
-              <append_to_list name="$combinedcells2" exact="2"/>
-              <append_to_list name="$line1" exact="[ 'text' , '\033Y' + $primaryskills.{1}.name ]"/>
+            <do_while value="$line2.count lt 4" comment="to fill only one Line with Skills, even in case there are more than 3">
+              <!-- no funcion to convert a decimal value to a hexadecimal one - using a if-elseif instead to calculate relevancy color -->
+              <do_if value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 90">
+                <set_value name="$colorcode" exact="'\033#00FF00#'"/>
+              </do_if>
+              <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 80">
+                <set_value name="$colorcode" exact="'\033#00FF40#'"/>
+              </do_elseif>
+              <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 70">
+                <set_value name="$colorcode" exact="'\033#00FF80#'"/>
+              </do_elseif>
+              <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 60">
+                <set_value name="$colorcode" exact="'\033#00FFBF#'"/>
+              </do_elseif>
+              <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 50">
+                <set_value name="$colorcode" exact="'\033#00FFFF#'"/>
+              </do_elseif>
+              <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 40">
+                <set_value name="$colorcode" exact="'\033#00BFFF#'"/>
+              </do_elseif>
+              <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 30">
+                <set_value name="$colorcode" exact="'\033#0080FF#'"/>
+              </do_elseif>
+              <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 20">
+                <set_value name="$colorcode" exact="'\033#0040FF#'"/>
+              </do_elseif>
+              <do_elseif value="event.object.type.skillrelevance.{$primaryskills.{1}} gt 10">
+                <set_value name="$colorcode" exact="'\033#0000FF#'"/>
+              </do_elseif>
+              <do_else>
+                <set_value name="$colorcode" exact="'\033#0000BF#'"/>
+              </do_else>
+              <append_to_list name="$line1" exact="[ 'text' , $colorcode + $primaryskills.{1}.name ]"/>
               <append_to_list name="$line1" exact="[ 'stars' , event.object.skill.{$primaryskills.{1}}]"/>
+              <!-- ToDo: Change this into Skill Progress for ALL Skills -->
               <append_to_list name="$line2" exact="[ 'statusbar' , event.object.type.skillrelevance.{$primaryskills.{1}} , 100 , 255 , 100 ,  100 ]"/>
               <remove_value name="$skillist.{$skillist.indexof.{$primaryskills.{1}}}"/>
               <remove_value name="$primaryskills.{1}"/>
@@ -530,32 +559,33 @@
                 <break/>
               </do_if>
             </do_while>
-            <do_while value="$combinedcells1.count lt 8">
-              <append_to_list name="$combinedcells1" exact="1"/>
-              <append_to_list name="$combinedcells1" exact="1"/>
+            <!-- fill unused  Cells in first line with other Skills -->
+            <do_while value="$line2.count lt 4" comment="check if there is still space in the Line">
               <append_to_list name="$line1" exact="[ 'text' , $skillist.{1}.name ]"/>
               <append_to_list name="$line1" exact="[ 'stars' , event.object.skill.{$skillist.{1}}]"/>
+              <!-- ToDo: Change this into Skill Progress for ALL Skills -->
+              <append_to_list name="$line2" exact="[ 'statusbar' , event.object.type.skillrelevance.{$primaryskills.{1}} , 100 , 255 , 100 ,  100 ]"/>
               <remove_value name="$skillist.{1}"/>
               <do_if value="not $skillist.count">
                 <break/>
               </do_if>
             </do_while>
-            <do_if value="$combinedcells2.count lt 4">
-              <append_to_list name="$combinedcells2" exact="8 - ( $combinedcells2.count * 2 )"/>
-              <append_to_list name="$line2" exact="[ 'text' , '' ]"/>
-            </do_if>
             <append_to_list name="$genericuiparam.{8}" exact="$line1"/>
             <append_to_list name="$genericuiparam.{8}" exact="$line2"/>
           </do_while>
           <!-- Create Lines for Other Skills -->
           <do_while value="$skillist.count">
-            <set_value name="$combinedcells" exact="[]"/>
-            <set_value name="$line" exact="[ [ 'regular' , $combinedcells ] ]"/>
-            <do_while value="$combinedcells.count lt 7">
-              <append_to_list name="$combinedcells" exact="1"/>
-              <append_to_list name="$combinedcells" exact="1"/>
+            <set_value name="$combinedcells1" exact="[]"/>
+            <set_value name="$combinedcells2" exact="[]"/>
+            <set_value name="$line" exact="[ [ 'regular' , $combinedcells1 ] ]"/>
+            <do_while value="$combinedcells1.count lt 7">
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$combinedcells1" exact="1"/>
+              <append_to_list name="$combinedcells2" exact="2"/>
               <append_to_list name="$line" exact="[ 'text' , $skillist.{1}.name ]"/>
               <append_to_list name="$line" exact="[ 'stars' , event.object.skill.{$skillist.{1}}]"/>
+              <!-- ToDo: Change this into Skill Progress for ALL Skills -->
+              <append_to_list name="$line2" exact="[ 'statusbar' , event.object.type.skillrelevance.{$primaryskills.{1}} , 100 , 255 , 100 ,  100 ]"/>
               <remove_value name="$skillist.{1}"/>
               <do_if value="not $skillist.count">
                 <break/>
