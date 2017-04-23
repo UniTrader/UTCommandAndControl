@@ -11,6 +11,7 @@
         <event_cue_signalled cue="this"/>
       </conditions>
       <actions>
+        <reset_cue cue="this"/>
         <!-- set up Variables -->
         <do_if value="not event.param.$ut_cac?">
           <set_value name="event.param.$ut_cac" exact="table[]"/>
@@ -95,7 +96,6 @@
         <!-- Compatibility with Vim Razz' Human Ressources -->
         <set_value name="event.param.$InUse" exact="true"/>
         
-        <reset_cue cue="this"/>
       </actions>
     </cue>
     <!-- Root Dialogue Tree - supposed to be supporting both Employees and non-Employees in the long run
@@ -122,6 +122,7 @@
         <check_value value="event.object.$ut_cac?"/>
       </conditions>
       <actions>
+        <reset_cue cue="this"/>
         <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.object.isplayerowned">
           <do_if value="event.name == 'event_conversation_started'">
@@ -137,7 +138,7 @@
             </do_if>
           </do_if>
           <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main"/>
-          <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main" selectable="event.object.$ut_cac.$settings_cue"/>
+          <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main" selectable="event.object.$ut_cac.$settings_cue?"/>
           <add_player_choice_sub text="{5554103,3}" position="3" section="comm_connect_main"/>
           <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main"/>
           <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
@@ -161,8 +162,7 @@
         </do_else>
         <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
         <set_conversation_return_section section="comm_goodbye"/>
-        <add_player_choice_return text="{5554103,6}" position="close"/>
-        <reset_cue cue="this"/>
+        <!--add_player_choice_return text="{5554103,6}" position="close"/-->
       </actions>
     </cue>
     <!-- First Player Employee Specific Stuff -->
@@ -175,6 +175,7 @@
         </check_any>
       </conditions>
       <actions>
+        <reset_cue cue="this"/>
         <do_if value="event.param == 'comm_orders_main'">
           <do_if value="@$selectedcell.{1} gt event.object.$ut_cac.$range.count + 1">
             <set_value name="$selectedcell.{1}" exact="event.object.$ut_cac.$range.count + 2"/>
@@ -272,7 +273,6 @@
         <do_elseif value="event.param == 'comm_orders_add'">
           <include_actions ref="event.object.$ut_cac.$orders_cue"/>
         </do_elseif>
-        <reset_cue cue="this"/>
       </actions>
     </cue>
     <!-- Root Choice 2 - Settings Managment -->
@@ -284,8 +284,8 @@
         </check_any>
       </conditions>
       <actions>
-        <include_actions ref="event.object.$ut_cac.$settings_cue"/>
         <reset_cue cue="this"/>
+        <include_actions ref="event.object.$ut_cac.$settings_cue"/>
       </actions>
     </cue>
     <!-- Root Choice 3 - Connect with.. -->
@@ -298,6 +298,7 @@
         </check_any>
       </conditions>
       <actions>
+        <reset_cue cue="this"/>
         <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
         <!--- ################################### -->
         <!--                        Connect Menu                          -->
@@ -406,7 +407,6 @@
           <cancel_conversation actor="event.object"/>
           <start_conversation actor="event.param2" conversation="default"/>
         </do_elseif>
-        <reset_cue cue="this"/>
       </actions>
     </cue>
     <!-- Root Choice 4 - Subordinates -->
@@ -420,6 +420,8 @@
       </conditions>
       <actions>
         <reset_cue cue="this"/>
+        
+        
       </actions>
     </cue>
     <!-- Second Non-Employee-Specific Stuff -->
@@ -433,6 +435,7 @@
         </check_any>
       </conditions>
       <actions>
+        <reset_cue cue="this"/>
         <!-- Planned types of Services:
         => Trade Agent (NOT Persistent, will consume Money continiously)
         => Map Updates (one time update; all things currently known to Faction)
@@ -445,7 +448,6 @@
         => Buy Weapons (DOs only; converts stock to player Inventory; expensive in Comparision)
         -->
           <!-- Common Services -->
-        <reset_cue cue="this"/>
       </actions>
     </cue>
     <!-- Root Choice 2 -  Hire Menu -->
@@ -459,6 +461,8 @@
       </conditions>
       <actions>
         <reset_cue cue="this"/>
+        
+        
       </actions>
     </cue>
     <!-- Root Choice 3 -  Guidiance Menu -->
@@ -472,6 +476,8 @@
       </conditions>
       <actions>
         <reset_cue cue="this"/>
+        
+        
       </actions>
     </cue>
     <!-- Root Choice 4 -  Smalltalk -->
@@ -485,6 +491,8 @@
       </conditions>
       <actions>
         <reset_cue cue="this"/>
+        
+        
       </actions>
     </cue>
     <!-- Shared Stuff -->
@@ -498,6 +506,7 @@
         </check_any>
       </conditions>
       <actions>
+        <reset_cue cue="this"/>
         <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
         <!--- ################################### -->
         <!--                       Personal Menu                          -->
@@ -725,7 +734,6 @@
           <set_value name="event.object.$ut_cac.$loglevel" exact="event.param2"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
-        <reset_cue cue="this"/>
       </actions>
     </cue>
     <!-- Root Choice 6: Goodbye Section -->
@@ -751,6 +759,7 @@
         </check_any>
       </conditions>
       <actions>
+        <reset_cue cue="this"/>
         <do_if value="event.param == 'comm_debug_main'">
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Debug Menu for %1'.[event.object.name], null, null , null , [ 97 , 97 , 97 , 97 , 97 , 97 , 97 , 97 , 97 , 97 , 97 , -1 ] ,  [] ,  [ 
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
@@ -797,7 +806,6 @@ null ,
           <disconnect_from_build_location object="event.object.container.buildingmodule.container"/>
           <destroy_object object="event.object.container" explosion="false"/>
         </do_elseif>
-        <reset_cue cue="this"/>
       </actions>
     </cue>
   </cues>
