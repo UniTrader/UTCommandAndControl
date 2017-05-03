@@ -2,7 +2,77 @@
 <mdscript name="UT_CAC_Captain" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
 
   <cues>
-
+    <cue name="Orders" namespace="md.UT_CAC_Dialogue_Comm_Common_Orders">
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_captain_orders"/>
+          <event_conversation_returned_to_section sectionprefix="comm_captain_orders"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <reset_cue cue="this"/>
+        <do_if value="event.param == 'comm_captain_orders'">
+          <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
+          <add_player_choice text="{5554103,131}" position="1" section="comm_captain_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
+          <add_player_choice text="{5554103,132}" position="3" section="comm_captain_orders_signals" />
+          <add_player_choice text="{5554103,133}" position="4" section="comm_captain_orders_select_zone" choiceparam="'comm_captain_orders_flyto_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+          <add_player_choice text="'Follow this CAC Ship \033RTesting Only!!!\033X'" position="5"  section="comm_captain_orders_follow_selected" choiceparam="[0,0,player.ship]" selectable="player.ship.exists and player.ship.pilot.$ut_cac?" comment="Follow the current Player Ship (Menu to be added when this works)"/>
+          <add_player_choice_return text="{5554103,7}" position="6" />
+          <add_player_choice_return text="{5554103,7}" position="close" />
+        </do_if>
+        <do_elseif value="event.param == 'comm_captain_orders_combat'">
+          <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
+          <add_player_choice text="'\033RH\033X Retreat'" position="1" section="comm_captain_orders_retrat" comment="same Key as the Orders Menu, first Order and Combat for quick Access (Sequence 1 - 1 - 1 - 1 )" selectable="false" tooltip="'not implemented yet; would currently just wait 10s'"/>
+          <add_player_choice_return text="{5554103,7}" position="6" />
+          <add_player_choice_return text="{5554103,7}" position="close" />
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_retreat'">
+          <!-- ToDo: Write the related Order - i am currently just reserving the Slot here so i will not use it for something else -->
+          <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$displayname='\033RHN\033X Retreat',$order='wait exact',$time=10s,$interruptable=true]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_flyto_selected'">
+          <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
+          <set_value name="$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$endintargetspace=true,$interruptable=true]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_follow_selected'">
+          <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
+          <set_value name="$new_order" exact="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[if event.param2.{3}.controlentity.$shortname then event.param2.{3}.controlentity.$shortname else event.param2.{3}.knownname],$object=event.param2.{3},$interruptable=true]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_signals'">
+          <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
+          <add_player_choice text="{5554103,1321}" position="1" section="comm_captain_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
+          <add_player_choice text="{5554103,1322}" position="2" section="comm_captain_orders_select_playerobject" choiceparam="'comm_captain_orders_send_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+          <add_player_choice text="{5554103,1323}" position="3" section="comm_captain_orders_send_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
+          <add_player_choice text="{5554103,1324}" position="4" section="comm_captain_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship]" />
+          <add_player_choice text="{5554103,1325}" position="5" section="comm_captain_orders_select_playerobject" choiceparam="'comm_captain_orders_wait_signal_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
+          <add_player_choice text="{5554103,1326}" position="6" section="comm_captain_orders_wait_signal_selected" choiceparam="[0LF,0LF,$actor.ship.commander]" />
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_send_signal_selected'">
+          <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='signalobject',$interruptable=true,$displayname='Send Signal to %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_wait_signal_selected'">
+          <set_value name="$new_order" exact="table[$script='ut.cac.microorder',$order='wait signal',$interruptable=true,$displayname='Wait for Signal on %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        
+      </actions>
+    </cue>
+    
+    
     <cue name="Main" instantiate="true" namespace="this" version="20">
       <conditions>
         <event_cue_signalled cue="this"/>
@@ -404,6 +474,13 @@ Rest is shared between all Actor types
           </actions>
         </cue>
         
+        <cue name="Handover_040">
+          <!-- this Script will not be used from 0.40 on anymore - handing over all Instances to the common dialogue Script -->
+          <actions>
+            <set_value name="$actor.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>
+            <cancel_cue cue="Main"/>
+          </actions>
+        </cue>
       </cues>
     </cue>
 
