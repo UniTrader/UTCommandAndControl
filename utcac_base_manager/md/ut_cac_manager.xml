@@ -480,7 +480,7 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
                   <do_elseif value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine or event.param.primarypurpose == objectpurpose.fight" >
                     <!-- convert new Subordinate to my command model if not already happened -->
                     <do_if value="not event.param.pilot.$ut_cac?">
-                      <signal_cue_instantly cue="md.UT_CAC_Captain.Main" param="event.param.pilot"/>
+                      <signal_cue_instantly cue="md.UT_CAC_Dialogue.Actor_Init" param="event.param.pilot"/>
                       <set_value name="event.param.pilot.$debug" exact="@$actor.$debug" comment="new Subordinaes inherit debug status"/>
                       <do_if value="event.param.isclass.ship_xl or event.param.isclass.ship_l">
                         <find_dock_location name="$eventparamdock" container="event.param" size="tag.dock_p"/>

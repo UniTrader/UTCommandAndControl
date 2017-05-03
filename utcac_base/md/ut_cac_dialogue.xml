@@ -98,7 +98,9 @@
           <actions>
             <!-- If Orderlist is not set up yet: Start Orderlist Loop, and set endless waiting as default Order (this assumes the NPC has no Job yet)-->
             <do_if value="not event.param.$orderlist?">
-              <set_value name="event.param.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
+              <do_if value="not event.param.$ut_cac.$defaultorders?">
+                <set_value name="event.param.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
+              </do_if>
               <start_script object="event.param" name="'ut.cac.orderlist.loop'"/>
             </do_if>
           </actions>
@@ -183,7 +185,7 @@
       </conditions>
       <actions>
         <reset_cue cue="this"/>
-        <do_if value="not event.object.$orderlist">
+        <do_if value="not event.object.$orderlist?">
           <debug_text filter="error" text="'%1 No Orderlist!!! returning to prev Section!'.[event.object.name,event.param]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_if>
