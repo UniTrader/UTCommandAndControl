@@ -87,15 +87,6 @@
           <set_value name="event.param.$ut_cac.$experience.{skilltype.science}" exact="param.ut_cac.experience.{skilltype.science}.{event.param.skill.science}"/>
         </do_if>
         
-        
-        <!-- Compatibility with Vim Razz' Human Ressources -->
-        <set_value name="event.param.$InUse" exact="true"/>
-        
-      </actions>
-      <cues>
-        <cue name="Delayed_Scriptstart">
-          <delay min="10ms" max="1s"/>
-          <actions>
             <!-- If Orderlist is not set up yet: Start Orderlist Loop, and set endless waiting as default Order (this assumes the NPC has no Job yet)-->
             <do_if value="not event.param.$orderlist?">
               <do_if value="not event.param.$ut_cac.$defaultorders?">
@@ -103,9 +94,18 @@
               </do_if>
               <start_script object="event.param" name="'ut.cac.orderlist.loop'"/>
             </do_if>
+        
+        <!-- Compatibility with Vim Razz' Human Ressources -->
+        <set_value name="event.param.$InUse" exact="true"/>
+        
+      </actions>
+      <!--cues>
+        <cue name="Delayed_Scriptstart">
+          <delay min="10ms" max="1s"/>
+          <actions>
           </actions>
         </cue>
-      </cues>
+      </cues-->
     </cue>
     <!-- Root Dialogue Tree - supposed to be supporting both Employees and non-Employees in the long run
         Choices for Employees:
