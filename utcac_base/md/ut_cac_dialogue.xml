@@ -5,13 +5,13 @@
     <content description="Main Dialogue Script used by all UT CaC Entites - no instances, Dialogue is all shared.     Will refer to/include other Scripts for individual, Employee-Specific functions     (Wages, Possible Orders and Settings etc.)"/>
   </documentation>
   <cues>
-    <cue name="Actor_Init">
+    <cue name="Actor_Init" instantiate="true">
       <!-- This Cue is intended to put an Entity into the right State to perform its Job as a certain Entity Type. Also used when changing the Entity Type. does not reset Settings (except where it might interfer with function). if desired delete $actor.$ut_cac before (this also resets Skill Progress) -->
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
+        <!--reset_cue cue="this"/-->
         <!-- set up Variables -->
         <do_if value="not event.param.$ut_cac?">
           <set_value name="event.param.$ut_cac" exact="table[]"/>
@@ -87,16 +87,23 @@
           <set_value name="event.param.$ut_cac.$experience.{skilltype.science}" exact="param.ut_cac.experience.{skilltype.science}.{event.param.skill.science}"/>
         </do_if>
         
-        <!-- If Orderlist is not set up yet: Start Orderlist Loop, and set endless waiting as default Order (this assumes the NPC has no Job yet)-->
-        <do_if value="not event.param.$orderlist?">
-          <set_value name="event.param.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
-          <start_script object="event.param" name="'ut.cac.orderlist.loop'"/>
-        </do_if>
         
         <!-- Compatibility with Vim Razz' Human Ressources -->
         <set_value name="event.param.$InUse" exact="true"/>
         
       </actions>
+      <cues>
+        <cue name="Delayed_Scriptstart">
+          <delay min="10ms" max="1s"/>
+          <actions>
+            <!-- If Orderlist is not set up yet: Start Orderlist Loop, and set endless waiting as default Order (this assumes the NPC has no Job yet)-->
+            <do_if value="not event.param.$orderlist?">
+              <set_value name="event.param.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
+              <start_script object="event.param" name="'ut.cac.orderlist.loop'"/>
+            </do_if>
+          </actions>
+        </cue>
+      </cues>
     </cue>
     <!-- Root Dialogue Tree - supposed to be supporting both Employees and non-Employees in the long run
         Choices for Employees:
@@ -176,11 +183,11 @@
       </conditions>
       <actions>
         <reset_cue cue="this"/>
-        <do_if value="event.param == 'comm_orders_main'">
-          <do_if value="@$selectedcell.{1} gt event.object.$ut_cac.$range.count + 1">
-            <set_value name="$selectedcell.{1}" exact="event.object.$ut_cac.$range.count + 2"/>
-            <set_value name="$selectedcell.{2}" exact="5"/>
-          </do_if>
+        <do_if value="not event.object.$orderlist">
+          <debug_text filter="error" text="'%1 No Orderlist!!! returning to prev Section!'.[event.object.name,event.param]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_if>
+        <do_elseif value="event.param == 'comm_orders_main'">
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Orders for %1 on %2'.[event.object.name,event.object.container.name], null, null , if $selectedcell? then $selectedcell else null , [  if event.object.$orderlist.count ge 10 then 50 else 30 , -1 , 30 , 150 ] ,  [] , [ 
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 [ 'button' , 'Cancel all Queued Orders' , 'comm_orders_cancel_all' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , false , true] , 
@@ -201,7 +208,7 @@
           <remove_value name="$selectedcell"/>
           <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
           <add_conversation_view view="closeupdetailmonitor"/>
-        </do_if>
+        </do_elseif>
         <do_elseif value="event.param == 'comm_orders_mod'">
           <!-- get Index of Order to Modify (also account for slight changes in position) -->
           <do_if value="event.object.$orderlist.{event.param2.{2}} == event.param2.{3}">
@@ -270,7 +277,7 @@
             <signal_objects object="event.object" param="'cancel order'" param2="1"/>
           </do_if>
         </do_elseif>
-        <do_elseif value="event.param == 'comm_orders_add_prep'">
+        <do_elseif value="event.param == 'comm_orders_add'">
           <do_if value="event.name == 'event_conversation_next_section'">
             <!-- Prepare Order Selection (Order Selection itself is in the next Section; order will be applied upon Return) -->
             <do_if value="event.param2 == null or event.param2 ge event.object.$orderlist.count">
@@ -769,7 +776,7 @@
               => For Shipyards also Offer Standby for Ship Positions (and possibly by Extension double-Standby for CVs) -->
             <set_value name="$selectedobject" exact="event.param2"/>
             <do_if value="$selectedobject.isplayerowned">
-              <do_if value="$selectedobject.isclass.{[class.ship_l,class.ship.xl]}">
+              <do_if value="$selectedobject.isclass.{[class.ship_l,class.ship_xl]}">
                 <!-- Jobs:
                 1 Captain
                 2 DO
@@ -824,7 +831,7 @@
                 5 Trade Agent
                 -->
                 <add_player_choice_sub text="'Trade Agent'" position="5" section="comm_personal_transfer_jobselected" choiceparam="'tradeagent'"/>
-                <do_if value="$selectedobject.canbuildships (Big)">
+                <do_if value="$selectedobject.canbuildships" comment="Big">
                   <!-- Standby for completed Construction as:
                   1 - Captain
                   2 - DO
