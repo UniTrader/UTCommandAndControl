@@ -12,84 +12,87 @@
       </conditions>
       <actions>
         <!--reset_cue cue="this"/-->
+        
+        <set_value name="$actor" exact="event.param"/>
+        
         <!-- set up Variables -->
-        <do_if value="not event.param.$ut_cac?">
-          <set_value name="event.param.$ut_cac" exact="table[]"/>
+        <do_if value="not $actor.$ut_cac?">
+          <set_value name="$actor.$ut_cac" exact="table[]"/>
         </do_if>
         
         <!-- declare that the Actor has an individual Conversation tree (not really individual, but applies to all NPCs which have a $ut_cac Blackboard Var) -->
         <!-- cancel Vanilla Dialogue -->
-        <signal_objects object="event.param" param="'cancel Vanilla dialogue tree'"/>
-        <set_comm_handler actor="event.param" customhandler="true" />
+        <signal_objects object="$actor" param="'cancel Vanilla dialogue tree'"/>
+        <set_comm_handler actor="$actor" customhandler="true" />
         
         <!-- set up Common Vars -->
-          <do_if value="not event.param.$ut_cac.$pesterlevel?">
-            <set_value name="event.param.$ut_cac.$pesterlevel" exact="param.ut_cac.setting_defaults.$pesterlevel"/>
+          <do_if value="not $actor.$ut_cac.$pesterlevel?">
+            <set_value name="$actor.$ut_cac.$pesterlevel" exact="param.ut_cac.setting_defaults.$pesterlevel"/>
           </do_if>
-          <do_if value="not event.param.$ut_cac.$loglevel?">
-            <set_value name="event.param.$ut_cac.$loglevel" exact="param.ut_cac.setting_defaults.$loglevel"/>
+          <do_if value="not $actor.$ut_cac.$loglevel?">
+            <set_value name="$actor.$ut_cac.$loglevel" exact="param.ut_cac.setting_defaults.$loglevel"/>
           </do_if>
         
         
         <!-- set up Required Vars per Entity Type -->
-        <do_if value="event.param.type == entitytype.pilot">
+        <do_if value="$actor.type == entitytype.pilot">
           <!-- ???? -->
-          <do_if value="not event.param.$ut_cac.$legality?">
-            <set_value name="event.param.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
+          <do_if value="not $actor.$ut_cac.$legality?">
+            <set_value name="$actor.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
           </do_if>
         </do_if>
-        <do_elseif value="event.param.type == entitytype.commander" comment="aka Captain">
-          <do_if value="not event.param.$ut_cac.$jumptype?">
-            <set_value name="event.param.$ut_cac.$jumptype" exact="param.ut_cac.setting_defaults.$jumptype"/>
+        <do_elseif value="$actor.type == entitytype.commander" comment="aka Captain">
+          <do_if value="not $actor.$ut_cac.$jumptype?">
+            <set_value name="$actor.$ut_cac.$jumptype" exact="param.ut_cac.setting_defaults.$jumptype"/>
           </do_if>
-          <do_if value="not event.param.$ut_cac.$insectorjump?">
-            <set_value name="event.param.$ut_cac.$insectorjump" exact="param.ut_cac.setting_defaults.$insectorjump"/>
+          <do_if value="not $actor.$ut_cac.$insectorjump?">
+            <set_value name="$actor.$ut_cac.$insectorjump" exact="param.ut_cac.setting_defaults.$insectorjump"/>
           </do_if>
-          <do_if value="not event.param.$ut_cac.$clusterboost?">
-            <set_value name="event.param.$ut_cac.$clusterboost" exact="param.ut_cac.setting_defaults.$clusterboost"/>
+          <do_if value="not $actor.$ut_cac.$clusterboost?">
+            <set_value name="$actor.$ut_cac.$clusterboost" exact="param.ut_cac.setting_defaults.$clusterboost"/>
           </do_if>
           <!-- ???? -->
-          <do_if value="not event.param.$ut_cac.$legality?">
-            <set_value name="event.param.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
+          <do_if value="not $actor.$ut_cac.$legality?">
+            <set_value name="$actor.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
           </do_if>
         </do_elseif>
-        <do_elseif value="event.param.type == entitytype.manager">
-          <do_if value="not event.param.$ut_cac.$legality?">
-            <set_value name="event.param.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
+        <do_elseif value="$actor.type == entitytype.manager">
+          <do_if value="not $actor.$ut_cac.$legality?">
+            <set_value name="$actor.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
           </do_if>
           <!-- Reset Range Settings - may not fir to changed Position -->
-          <set_value name="event.param.$ut_cac.$range" exact="[event.param.sector]"/>
-          <set_value name="event.param.$ut_cac.$range_j" exact="[event.param.sector]"/>
-           <set_value name="event.param.$ut_cac.$range_h" exact="[event.param.sector]"/>
+          <set_value name="$actor.$ut_cac.$range" exact="[$actor.sector]"/>
+          <set_value name="$actor.$ut_cac.$range_j" exact="[$actor.sector]"/>
+           <set_value name="$actor.$ut_cac.$range_h" exact="[$actor.sector]"/>
         </do_elseif>
-        <do_elseif value="event.param.type == entitytype.engineer">
+        <do_elseif value="$actor.type == entitytype.engineer">
           
         </do_elseif>
-        <do_elseif value="event.param.type == entitytype.architect">
+        <do_elseif value="$actor.type == entitytype.architect">
           
         </do_elseif>
-        <do_elseif value="event.param.type == entitytype.marine">
+        <do_elseif value="$actor.type == entitytype.marine">
           
         </do_elseif>
-        <do_elseif value="event.param.type == entitytype.defencecontrol">
+        <do_elseif value="$actor.type == entitytype.defencecontrol">
           
         </do_elseif>
         
-        <do_if value="not event.param.$ut_cac.$experience? or typeof event.param.$ut_cac.$experience != datatype.table">
-          <set_value name="event.param.$ut_cac.$experience" exact="table[]"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.boarding}" exact="if event.param.skill.boarding then param.ut_cac.experience.{skilltype.boarding}.{event.param.skill.boarding} else 0"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.combat}" exact="if event.param.skill.combat then param.ut_cac.experience.{skilltype.combat}.{event.param.skill.combat} else 0"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.engineering}" exact="if event.param.skill.engineering then param.ut_cac.experience.{skilltype.engineering}.{event.param.skill.engineering} else 0"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.leadership}" exact="if event.param.skill.leadership then param.ut_cac.experience.{skilltype.leadership}.{event.param.skill.leadership} else 0"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.management}" exact="if event.param.skill.management then param.ut_cac.experience.{skilltype.management}.{event.param.skill.management} else 0"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.morale}" exact="if event.param.skill.morale then param.ut_cac.experience.{skilltype.morale}.{event.param.skill.morale} else 0"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.navigation}" exact="if event.param.skill.navigation then param.ut_cac.experience.{skilltype.navigation}.{event.param.skill.navigation} else 0"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.science}" exact="if event.param.skill.science then param.ut_cac.experience.{skilltype.science}.{event.param.skill.science} else 0"/>
+        <do_if value="not $actor.$ut_cac.$experience? or typeof $actor.$ut_cac.$experience != datatype.table">
+          <set_value name="$actor.$ut_cac.$experience" exact="table[]"/>
+          <set_value name="$actor.$ut_cac.$experience.{skilltype.boarding}" exact="if $actor.skill.boarding then param.ut_cac.experience.{skilltype.boarding}.{$actor.skill.boarding} else 0"/>
+          <set_value name="$actor.$ut_cac.$experience.{skilltype.combat}" exact="if $actor.skill.combat then param.ut_cac.experience.{skilltype.combat}.{$actor.skill.combat} else 0"/>
+          <set_value name="$actor.$ut_cac.$experience.{skilltype.engineering}" exact="if $actor.skill.engineering then param.ut_cac.experience.{skilltype.engineering}.{$actor.skill.engineering} else 0"/>
+          <set_value name="$actor.$ut_cac.$experience.{skilltype.leadership}" exact="if $actor.skill.leadership then param.ut_cac.experience.{skilltype.leadership}.{$actor.skill.leadership} else 0"/>
+          <set_value name="$actor.$ut_cac.$experience.{skilltype.management}" exact="if $actor.skill.management then param.ut_cac.experience.{skilltype.management}.{$actor.skill.management} else 0"/>
+          <set_value name="$actor.$ut_cac.$experience.{skilltype.morale}" exact="if $actor.skill.morale then param.ut_cac.experience.{skilltype.morale}.{$actor.skill.morale} else 0"/>
+          <set_value name="$actor.$ut_cac.$experience.{skilltype.navigation}" exact="if $actor.skill.navigation then param.ut_cac.experience.{skilltype.navigation}.{$actor.skill.navigation} else 0"/>
+          <set_value name="$actor.$ut_cac.$experience.{skilltype.science}" exact="if $actor.skill.science then param.ut_cac.experience.{skilltype.science}.{$actor.skill.science} else 0"/>
         </do_if>
         
         
         <!-- Compatibility with Vim Razz' Human Ressources -->
-        <set_value name="event.param.$InUse" exact="true"/>
+        <set_value name="$actor.$InUse" exact="true"/>
         
       </actions>
       <cues>
@@ -97,15 +100,15 @@
           <delay min="10ms" max="1s"/>
           <actions>
             <!-- If Orderlist is not set up yet: Start Orderlist Loop, and set endless waiting as default Order (this assumes the NPC has no Job yet)-->
-            <do_if value="not event.param.$orderlist?">
-              <do_if value="not event.param.$ut_cac.$defaultorders?">
-                <set_value name="event.param.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
+            <do_if value="not $actor.$orderlist?">
+              <do_if value="not $actor.$ut_cac.$defaultorders?">
+                <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
               </do_if>
-              <start_script object="event.param" name="'ut.cac.orderlist.loop'"/>
-              <debug_text filter="error" text="' %1 started loop'.[event.param.name]"/>
+              <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
+              <debug_text filter="error" text="' %1 started loop'.[$actor.name]"/>
             </do_if>
             <do_else>
-              <debug_text filter="error" text="' %1 orderlist detected - not starting loop'.[event.param.name]"/>
+              <debug_text filter="error" text="' %1 orderlist detected - not starting loop'.[$actor.name]"/>
             </do_else>
           </actions>
         </cue>

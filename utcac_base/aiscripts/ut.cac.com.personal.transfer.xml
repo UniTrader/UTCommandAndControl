@@ -11,7 +11,7 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="destination" default="false" comment="New Workplace OBJECT. if you also want a specific Dock then pass it as dock"/>
     <param name="dock" default="false" comment="The Dock the Entity should be on finally. Primarily intended for Standby on Shipyards, defaults to Admin Dock (Stations) or Landing Pad (Ships). 'random' also supported. (maybe support tags?)"/>
-    <param name="job" default="'standby" comment="the Job the NPC should perform when arrived. Will set the existing one to Standby if its replacing one. custom is also available to pass a new defaultorders Script and entitytype directly"/>
+    <param name="job" default="'standby'" comment="the Job the NPC should perform when arrived. Will set the existing one to Standby if its replacing one. custom is also available to pass a new defaultorders Script and entitytype directly"/>
     <param name="new_type" default="null" comment="if the new Job is not directly implemented in this Script pass the new fitting entity type here."/>
     <param name="new_defaultorders" default="null" comment="New defaultorders Scripts table. used in the case of a custom next job."/>
   </params>
@@ -111,7 +111,7 @@
             <set_entity_type entity="this" type="entitytype.architect"/>
           </do_elseif>
           <do_elseif value="$job == 'tradeagent'">
-            <set_entity_type entity="this" type="entitytype.droneoperator"/>
+            <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
           </do_elseif>
           <!-- Passsive Roles (wait for player interaction/completion of something )-->
           <do_elseif value="$job == 'standby'">
@@ -133,7 +133,7 @@
             <set_entity_type entity="this" type="entitytype.architect"/>
           </do_elseif>
           <do_elseif value="$job == 'standby tradeagent'">
-            <set_entity_type entity="this" type="entitytype.droneoperator"/>
+            <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
           </do_elseif>
           <!-- custom case -->
           <do_elseif value="$job == 'custom'">
