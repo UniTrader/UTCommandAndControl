@@ -45,7 +45,7 @@
           <do_if value="not event.param.$ut_cac.$insectorjump?">
             <set_value name="event.param.$ut_cac.$insectorjump" exact="param.ut_cac.setting_defaults.$insectorjump"/>
           </do_if>
-          <do_if value="not event.param.$ut_cac.$clusterboost">
+          <do_if value="not event.param.$ut_cac.$clusterboost?">
             <set_value name="event.param.$ut_cac.$clusterboost" exact="param.ut_cac.setting_defaults.$clusterboost"/>
           </do_if>
           <!-- ???? -->
@@ -77,14 +77,14 @@
         
         <do_if value="not event.param.$ut_cac.$experience? or typeof event.param.$ut_cac.$experience != datatype.table">
           <set_value name="event.param.$ut_cac.$experience" exact="table[]"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.boarding}" exact="param.ut_cac.experience.{skilltype.boarding}.{event.param.skill.boarding}"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.combat}" exact="param.ut_cac.experience.{skilltype.combat}.{event.param.skill.combat}"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.engineering}" exact="param.ut_cac.experience.{skilltype.engineering}.{event.param.skill.engineering}"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.leadership}" exact="param.ut_cac.experience.{skilltype.leadership}.{event.param.skill.leadership}"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.management}" exact="param.ut_cac.experience.{skilltype.management}.{event.param.skill.management}"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.morale}" exact="param.ut_cac.experience.{skilltype.morale}.{event.param.skill.morale}"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.navigation}" exact="param.ut_cac.experience.{skilltype.navigation}.{event.param.skill.navigation}"/>
-          <set_value name="event.param.$ut_cac.$experience.{skilltype.science}" exact="param.ut_cac.experience.{skilltype.science}.{event.param.skill.science}"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.boarding}" exact="if event.param.skill.boarding then param.ut_cac.experience.{skilltype.boarding}.{event.param.skill.boarding} else 0"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.combat}" exact="if event.param.skill.combat then param.ut_cac.experience.{skilltype.combat}.{event.param.skill.combat} else 0"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.engineering}" exact="if event.param.skill.engineering then param.ut_cac.experience.{skilltype.engineering}.{event.param.skill.engineering} else 0"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.leadership}" exact="if event.param.skill.leadership then param.ut_cac.experience.{skilltype.leadership}.{event.param.skill.leadership} else 0"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.management}" exact="if event.param.skill.management then param.ut_cac.experience.{skilltype.management}.{event.param.skill.management} else 0"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.morale}" exact="if event.param.skill.morale then param.ut_cac.experience.{skilltype.morale}.{event.param.skill.morale} else 0"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.navigation}" exact="if event.param.skill.navigation then param.ut_cac.experience.{skilltype.navigation}.{event.param.skill.navigation} else 0"/>
+          <set_value name="event.param.$ut_cac.$experience.{skilltype.science}" exact="if event.param.skill.science then param.ut_cac.experience.{skilltype.science}.{event.param.skill.science} else 0"/>
         </do_if>
         
             <!-- If Orderlist is not set up yet: Start Orderlist Loop, and set endless waiting as default Order (this assumes the NPC has no Job yet)-->
@@ -93,7 +93,11 @@
                 <set_value name="event.param.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
               </do_if>
               <start_script object="event.param" name="'ut.cac.orderlist.loop'"/>
+              <debug_text filter="error" text="' %1 started loop'.[event.param.name]"/>
             </do_if>
+            <do_else>
+              <debug_text filter="error" text="' %1 orderlist detected - not starting loop'.[event.param.name]"/>
+            </do_else>
         
         <!-- Compatibility with Vim Razz' Human Ressources -->
         <set_value name="event.param.$InUse" exact="true"/>

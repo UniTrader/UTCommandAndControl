@@ -11,6 +11,9 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="destination" default="false" comment="New Workplace OBJECT. if you also want a specific Dock then pass it as dock"/>
     <param name="dock" default="false" comment="The Dock the Entity should be on finally. Primarily intended for Standby on Shipyards, defaults to Admin Dock (Stations) or Landing Pad (Ships). 'random' also supported. (maybe support tags?)"/>
+    <param name="job" default="'standby" comment="the Job the NPC should perform when arrived. Will set the existing one to Standby if its replacing one. custom is also available to pass a new defaultorders Script and entitytype directly"/>
+    <param name="new_type" default="null" comment="if the new Job is not directly implemented in this Script pass the new fitting entity type here."/>
+    <param name="new_defaultorders" default="null" comment="New defaultorders Scripts table. used in the case of a custom next job."/>
   </params>
   <init>
       <!-- first decode the $params to the Variables -->
@@ -21,8 +24,14 @@
         <do_if value="$params.$dock?">
           <set_value name="$dock" exact="$params.$dock"/>
         </do_if>
-        <do_if value="$params.$formationlist?">
-          <set_value name="$formationlist" exact="$params.$formationlist"/>
+        <do_if value="$params.$job?">
+          <set_value name="$job" exact="$params.$job"/>
+        </do_if>
+        <do_if value="$params.$new_type?">
+          <set_value name="$new_type" exact="$params.$new_type"/>
+        </do_if>
+        <do_if value="$params.$new_defaultorders?">
+          <set_value name="$new_defaultorders" exact="$params.$new_defaultorders"/>
         </do_if>
       </do_if>
   </init>
@@ -81,6 +90,56 @@
           <set_value name="$dock" exact="false"/>
         </do_if>
         
+        <!-- Set correct Entity Type for future Job -->
+          <!-- Active Roles -->
+          <do_if value="$job == 'captain'">
+            <set_entity_type entity="this" type="entitytype.commander"/>
+          </do_if>
+          <do_elseif value="$job == 'manager'">
+            <set_entity_type entity="this" type="entitytype.manager"/>
+          </do_elseif>
+          <do_elseif value="$job == 'pilot'">
+            <set_entity_type entity="this" type="entitytype.pilot"/>
+          </do_elseif>
+          <do_elseif value="$job == 'defense'">
+            <set_entity_type entity="this" type="entitytype.defencecontrol"/>
+          </do_elseif>
+          <do_elseif value="$job == 'engineer'">
+            <set_entity_type entity="this" type="entitytype.engineer"/>
+          </do_elseif>
+          <do_elseif value="$job == 'architect'">
+            <set_entity_type entity="this" type="entitytype.architect"/>
+          </do_elseif>
+          <do_elseif value="$job == 'tradeagent'">
+            <set_entity_type entity="this" type="entitytype.droneoperator"/>
+          </do_elseif>
+          <!-- Passsive Roles (wait for player interaction/completion of something )-->
+          <do_elseif value="$job == 'standby'">
+            <set_entity_type entity="this" type="entitytype.lawenforcement"/>
+          </do_elseif>
+          <do_elseif value="$job == 'standby captain'">
+            <set_entity_type entity="this" type="entitytype.commander"/>
+          </do_elseif>
+          <do_elseif value="$job == 'standby manager'">
+            <set_entity_type entity="this" type="entitytype.manager"/>
+          </do_elseif>
+          <do_elseif value="$job == 'standby defense'">
+            <set_entity_type entity="this" type="entitytype.defencecontrol"/>
+          </do_elseif>
+          <do_elseif value="$job == 'standby engineer'">
+            <set_entity_type entity="this" type="entitytype.engineer"/>
+          </do_elseif>
+          <do_elseif value="$job == 'standby architect'">
+            <set_entity_type entity="this" type="entitytype.architect"/>
+          </do_elseif>
+          <do_elseif value="$job == 'standby tradeagent'">
+            <set_entity_type entity="this" type="entitytype.droneoperator"/>
+          </do_elseif>
+          <!-- custom case -->
+          <do_elseif value="$job == 'custom'">
+            <set_entity_type entity="this" type="$new_type"/>
+          </do_elseif>
+        
         <do_if value="false"/>
         <!-- Get Means of Transport and use it to Destination -->
         <!-- Get Destination of Ships in current Zone and if one fits - Hitchhike -->
@@ -121,6 +180,67 @@
           </do_if>
           <destroy_object object="$transport_ship" explosion="false"/>
         </do_else>
+        
+        <!-- Finalize - remove current Control Entity, set as new Control Entity and change defaultorders Script -->
+        <do_if value="$job == 'captain'">
+          <do_if value="$destination.pilot.exists">
+            <!-- Captain already present - let new Captain do a soft takeover -->
+            
+          </do_if>
+          <assign_pilot actor="this" object="$destination"/>
+          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+        </do_if>
+        <do_elseif value="$job == 'manager'">
+          <do_if value="$destination.tradenpc.exists">
+          
+          </do_if>
+          <assign_trade_manager actor="this" object="$destination"/>
+          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
+        </do_elseif>######
+        <do_elseif value="$job == 'pilot'">
+          <!-- not properly implemented yet -->
+          <do_if value="$destination.pilot.exists">
+            <!-- Pilot already present - let new Pilot do a soft takeover -->
+            
+          </do_if>
+          <assign_pilot actor="this" object="$destination"/>
+          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+        </do_elseif>
+        <do_elseif value="$job == 'defense'">
+          <!-- ToDo: Figure out how to convert this Script in something Orderlist-compatible or how to restart the other employees -->
+          <do_if value="$destination.defencenpc.exists">
+            <!-- DO already present -  soft takeover-->
+            
+          </do_if>
+          <assign_defence_manager actor="this" object="$destination"/>
+          <start_script object="this" name="'ut.cac.com.defense.main'"/>
+          <!--set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/-->
+        </do_elseif>
+        <do_elseif value="$job == 'engineer'">
+          <!-- related Scripts dont exist yet -->
+          <do_if value="$destination.engineer.exists">
+            <!-- destination already has a (primary) Engineer - soft takeover -->
+            
+          </do_if>
+          <assign_engineer actor="this" object="$destination"/>
+          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.engineer.default']"/>
+        </do_elseif>
+        <do_elseif value="$job == 'architect'">
+          <do_if value="$destination.engineer.exists">
+            <!-- destination already has an Architect - soft takeover -->
+            
+          </do_if>
+          <assign_architect actor="this" object="$destination"/>
+          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.architect.default']"/>
+        </do_elseif>
+        <do_elseif value="$job == 'tradeagent'">
+          
+        </do_elseif>
+        
+        <!-- so far unused assignments:
+          <assign_boarding_commander actor="this" object="$destination"/>
+          <assign_control_entity actor="this" object="$destination"/>
+        -->
         
         <!-- Rest of the Personal Transfer is handled in the md.UT_CAC_Events.Change_Workplace Cue (should have been Signalled/prepared before to wait till the Actor arrives at his Destination) -->
       </actions>
