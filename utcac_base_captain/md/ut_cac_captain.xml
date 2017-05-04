@@ -17,34 +17,42 @@
           </do_if>
           <do_if value="not $new_order?" chance="100" comment="WiP - to be swapped in at a later time">
 <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
-          <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Orders for %1'.[event.object.name], null, null , null , [ -1 , 100 , 100 , 100 , 100 , 100 ] ,  [] ,  [ 
+            <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Orders for %1'.[event.object.name], null, null , null , [ -1 , 200 , 200 , 200 , 200 , 200 ] ,  [] ,  [ 
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_BACK' , false , null , true] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_Y' , false , null , true ] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_X' , false , null , true ] 
 ] ]"/>
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Combat Orders' ] ]"/>
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 1 , 1 ] ] ,
-[ 'text' , 'Withdraw' ] ,
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Combat Orders' ] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 1 , 1 ] ] ,
+[ 'text' , 'Withdraw..' ] ,
 [ 'button' , 'to Headquarters' , 'comm_captain_orders_retreat' , false , global.$Player_HQ? , @global.$Player_HQ , true ] ,
-[ 'button' , 'to Homebase/Superior' , 'comm_captain_orders_retreat' , false , event.object.ship.commander? , @event.object.ship.commander , true ] ,
+[ 'button' , 'to Homebase' , 'comm_captain_orders_retreat' , false , event.object.ship.commander? , @event.object.ship.commander , true ] ,
 [ 'button' , 'from Battle' , 'comm_captain_orders_retreat' , false , true , null , true  ]
 ]"/>
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 1 , 1 ] ] ,
-[ 'text' , 'Attack' ] ,
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [4 , 1 , 1 ] ] ,
+[ 'text' , 'Attack..' ] ,
 [ 'button' , 'Subsystem of..' , 'comm_captain_orders_attack_subsystem' , false , false , null , true ] ,
 [ 'button' , 'Object' , 'comm_captain_orders_attack_object' , false , true , null , true ]
 ]"/>
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 , 1 , 1 , 1 ] ] ,
-[ 'text' , 'Patrol Space' ] ,
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 , 1 , 1 , 1 ] ] ,
+[ 'text' , 'Patrol Space..' ] ,
 [ 'button' , '1 hour' , 'comm_captain_orders_patrol' , false , true , 1h , true ] ,
 [ 'button' , '5 hours' , 'comm_captain_orders_patrol' , false , true , 5h , true ] ,
 [ 'button' , '24 hours' , 'comm_captain_orders_patrol' , false , true , 24h , true ] ,
 [ 'button' , '100 hours' , 'comm_captain_orders_patrol' , false , true , 100h , true ]
 ]"/>
-          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
-          <add_conversation_view view="closeupdetailmonitor"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Navigation Orders' ] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
+[ 'text' , 'Move to..' ] ,
+[ 'button' , 'Space' , 'comm_orders_select_zone' , false , true , 'comm_captain_orders_flyto' , true ]
+]"/>
+            <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
+            <add_conversation_view view="closeupdetailmonitor"/>
           </do_if>
+          <do_else>
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          </do_else>
           <!--
           <add_player_choice text="{5554103,131}" position="1" section="comm_captain_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
           <add_player_choice text="{5554103,132}" position="3" section="comm_captain_orders_signals" />
@@ -65,6 +73,9 @@
           <!-- ToDo: Write the related Order - i am currently just reserving the Slot here so i will not use it for something else -->
           <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.microorder',$displayname='\033RHN\033X Retreat',$order='wait exact',$time=10s,$interruptable=true]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_flyto'">
+        
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_flyto_selected'">
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
