@@ -45,7 +45,7 @@
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Navigation Orders' ] ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
 [ 'text' , 'Move to..' ] ,
-[ 'button' , 'Space' , 'comm_orders_select_zone' , false , true , 'comm_captain_orders_flyto' , true ]
+[ 'button' , 'Space' , 'comm_captain_orders_flyto' , false , true , 'comm_captain_orders_flyto' , true ]
 ]"/>
             <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
             <add_conversation_view view="closeupdetailmonitor"/>
@@ -75,7 +75,8 @@
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_flyto'">
-        
+          <open_conversation_menu menu="MapMenu" param="[0, 0, 'sector', $actor.container.sector, null, $actor.container.zone, 'selectzone', ['comm_captain_orders_flyto_selected']]"/>
+          <add_conversation_view view="closeupdetailmonitor" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_flyto_selected'">
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
