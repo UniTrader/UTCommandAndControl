@@ -15,7 +15,7 @@
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
           </do_if>
-          <do_if value="not $new_order?" chance="0" comment="WiP - to be swapped in at a later time">
+          <do_if value="not $new_order?" chance="100" comment="WiP - to be swapped in at a later time">
 <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Orders for %1'.[event.object.name], null, null , null , [ -1 , 100 , 100 , 100 , 100 , 100 ] ,  [] ,  [ 
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
@@ -43,12 +43,13 @@
 [ 'button' , '100 hours' , comm_captain_orders_patrol , false , true , 100h , true ]
 ]"/>
           </do_if>
+          <!--
           <add_player_choice text="{5554103,131}" position="1" section="comm_captain_orders_combat" comment="same Key as the Orders Menu and first Order for quick Access (Sequence 1 - 1 - 1 )" />
           <add_player_choice text="{5554103,132}" position="3" section="comm_captain_orders_signals" />
           <add_player_choice text="{5554103,133}" position="4" section="comm_captain_orders_select_zone" choiceparam="'comm_captain_orders_flyto_selected'" comment="Object Selection is in ut_cac_lib and passes the selected object to the choiceparam section"/>
           <add_player_choice text="'Follow this CAC Ship \033RTesting Only!!!\033X'" position="5"  section="comm_captain_orders_follow_selected" choiceparam="[0,0,player.ship]" selectable="player.ship.exists and player.ship.pilot.$ut_cac?" comment="Follow the current Player Ship (Menu to be added when this works)"/>
           <add_player_choice_return text="{5554103,7}" position="6" />
-          <add_player_choice_return text="{5554103,7}" position="close" />
+          <add_player_choice_return text="{5554103,7}" position="close" />-->
         </do_if>
         <do_elseif value="event.param == 'comm_captain_orders_combat'">
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
