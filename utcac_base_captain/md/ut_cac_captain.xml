@@ -49,21 +49,34 @@
 [ 'text' , 'Move to..' ] ,
 [ 'button' , 'Space' , 'comm_captain_orders_flyto' , false , true , 'comm_captain_orders_flyto' , true ]
 ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
+[ 'text' , 'Follow Object' ] ,
+[ 'button' , 'Select' , 'comm_captain_orders_flyto' , false , true , 'comm_captain_orders_follow' , true ]
+]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 , 1 , 1 , 1 ] ] ,
+[ 'text' , 'Escort Object..' ] ,
+[ 'button' , '1 hour' , 'comm_captain_orders_escort' , false , true , 1h , true ] ,
+[ 'button' , '5 hours' , 'comm_captain_orders_escort' , false , true , 5h , true ] ,
+[ 'button' , '24 hours' , 'comm_captain_orders_escort' , false , true , 24h , true ] ,
+[ 'button' , '100 hours' , 'comm_captain_orders_escort' , false , true , 100h , true ]
+]"/>
           <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
           <add_conversation_view view="closeupdetailmonitor"/>
         </do_elseif>
-        <do_elseif value="event.param == 'comm_captain_orders_combat'">
-          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
-            <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
-          </do_if>
-          <add_player_choice text="'\033RH\033X Retreat'" position="1" section="comm_captain_orders_retrat" comment="same Key as the Orders Menu, first Order and Combat for quick Access (Sequence 1 - 1 - 1 - 1 )" selectable="false" tooltip="'not implemented yet; would currently just wait 10s'"/>
-          <add_player_choice_return text="{5554103,7}" position="6" />
-          <add_player_choice_return text="{5554103,7}" position="close" />
-        </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_retreat'">
           <!-- ToDo: Write the related Order - i am currently just reserving the Slot here so i will not use it for something else -->
-          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.microorder',$displayname='\033RHN\033X Retreat',$order='wait exact',$time=10s,$interruptable=true]"/>
-          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          <do_if value="event.param2.exists">
+            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="[
+table[$script='ut.cac.microorder',$displayname='\033RHN\033X Retreat',$order='wait exact',$time=10s,$interruptable=true] ,
+table[$script='ut.cac.move.generic',$displayname='Return to %1'.[event.param2.knownname],$destination=event.param2,$endintargetspace=true,$interruptable=true] ,
+table[$script='ut.cac.microorder',$displayname='Wait (2h)',$order='wait exact',$time=2h,$interruptable=true,$exitonneworder=true]
+]"/>
+          </do_if>
+          <do_else>
+            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.microorder',$displayname='\033RHN\033X Retreat',$order='wait exact',$time=10s,$interruptable=true]"/>
+        </do_else>
+        <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        <debug_text filter="error" text="'%1 Retreat Function not implemented yet!!!'.[event.object]"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_flyto'">
           <open_conversation_menu menu="MapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectzone', ['comm_captain_orders_flyto_selected']]"/>
