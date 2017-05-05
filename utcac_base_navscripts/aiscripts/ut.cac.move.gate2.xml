@@ -137,6 +137,12 @@
       </transform_position>
       <!--get_safe_pos result="$safeposition" allowyaxis="true" zone="$gate.zone" value="$position" radius="this.ship.size" ignored="$ignoredobject"/-->
       <!-- move to position in queue/prep pos -->
+      
+      <!-- HACK for FoO - Albion Gate: Deactivate Collission Avoidance every time to not stick to the unnecesarily magnetic path points -->
+      <do_if value="$gate.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'}">
+        <set_avoid_collisions object="this.ship" enabled="false"/>
+      </do_if>
+      
       <move_to object="this.ship" destination="$gate.zone" forceposition="false" forcerotation="false" finishonapproach="true" abortpath="not $continuepath">
         <position value="$position" />
         <rotation value="$gate.rotation" comment="no need to calculate this because we are behind the Gate"/>
