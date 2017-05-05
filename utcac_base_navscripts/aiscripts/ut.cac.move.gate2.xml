@@ -304,9 +304,10 @@
           <position x="0m" y="0m" z="(this.ship.size *6)"/>
         </transform_position>
         <!-- figure out an arrival position in the target zone -->
-        <!-- HACK for FoO - AL Gate - ignore the big rock instead of the current ship for safepos -->
+        <!-- HACK for FoO - AL Gate - ignore the big rock instead of the current ship for safepos AND dont avoid collissions to avoid needless tours -->
         <do_if value="this.zone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'}">
           <find_object name="$ignoredobject" space="this.zone" macro="macro.landmarks_unique_the_mace_macro"/>
+          <set_avoid_collisions object="this.ship" enabled="false"/>
         </do_if>
         <do_else>
           <set_value name="$ignoredobject" exact="this.ship"/>
