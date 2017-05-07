@@ -927,13 +927,20 @@ TE_DETAILMONITOR_Y' , true , null , true ] ,
           <do_if value="event.object.$orderlist?">
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 10 ] ] , [ 'text' , 'Orderlist Details' ] ]"/>
             <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 1 , 1 , 1 , 2 ] ] ,  
-[ 'text' , 'int:%1 exit:%2'.[@event.object.$orderlist.{$i}.$interruptable , @event.object.$orderlist.{$i}.$exitonneworder] ] , 
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 2 , 2 , 2 ] ] ,  
+[ 'text' , 'i:%1 e:%2'.[@event.object.$orderlist.{$i}.$interruptable , @event.object.$orderlist.{$i}.$exitonneworder] ] , 
 [ 'text' , @event.object.$orderlist.{$i}.$script ] , 
-[ 'text' , @event.object.$orderlist.{$i}.$abortscript ] , 
+[ 'text' , if event.object.$orderlist.{$i}.$abortscript? then event.object.$orderlist.{$i}.$abortscript else 'null' ] , 
 [ 'text' , @event.object.$orderlist.{$i}.$displayname ] 
 ]"/>
             </do_all>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 2 , 2 , 2 ] ] ,  
+[ 'text' , 'VVVVV'] ] , 
+[ 'text' , '$script' ] , 
+[ 'text' , '$abortscript' ] , 
+[ 'text' , '$displayname' ] 
+]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 10 ] ] , [ 'text' , 'i: $interruptable; e: $exitonneworder; more as needed '] ] ]"/>
           </do_if>
           <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
           <add_conversation_view view="closeupdetailmonitor"/>
@@ -941,8 +948,9 @@ TE_DETAILMONITOR_Y' , true , null , true ] ,
         <do_elseif value="event.param == 'comm_debug_skills_set'">
           <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
           <do_all exact="$skillist.count" counter="$i">
-            <set_skill entity="event.object" type="$skillist.{$i}" exact="event.param1"/>
+            <set_skill entity="event.object" type="$skillist.{$i}" exact="event.param"/>
           </do_all>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_toggle'">
           <set_value name="event.object.$debug" exact="not @event.object.$debug"/>
