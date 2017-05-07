@@ -911,8 +911,7 @@
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Debug Menu for %1'.[event.object.name], null, null , null , [ 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , -1 ] ,  [] ,  [ 
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 [ 'button' , 'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
-[ 'button' ,  'UNUSED' , '' , 'INPUT_STA
-TE_DETAILMONITOR_Y' , true , null , true ] , 
+[ 'button' ,  'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , 
 [ 'button' , 'UNUSED', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] 
 ] ]"/>
           <!-- Local Variables  -->
@@ -927,21 +926,21 @@ TE_DETAILMONITOR_Y' , true , null , true ] ,
           <do_if value="event.object.$orderlist?">
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 10 ] ] , [ 'text' , 'Orderlist Details' ] ]"/>
             <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 2 , 2 , 2 ] ] ,  
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 2 , 2 , 3, 2 ] ] ,  
 [ 'text' , 'i:%1 e:%2'.[@event.object.$orderlist.{$i}.$interruptable , @event.object.$orderlist.{$i}.$exitonneworder] ] , 
 [ 'text' , @event.object.$orderlist.{$i}.$script ] , 
 [ 'text' , if event.object.$orderlist.{$i}.$abortscript? then event.object.$orderlist.{$i}.$abortscript else 'null' ] , 
 [ 'text' , @event.object.$orderlist.{$i}.$displayname ] 
 ]"/>
             </do_all>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 2 , 2 , 3 , 2] ] ,  
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 1 , 2 , 2 , 3 , 2] ] ,  
 [ 'text' , 'VVVVV'] , 
 [ 'text' , '$script' ] , 
 [ 'text' , '$abortscript' ] , 
 [ 'text' , '$displayname' ] ,
 null
 ]"/>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 10 ] ] , [ 'text' , 'i: $interruptable; e: $exitonneworder; more as needed '] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 10 ] ] , [ 'text' , 'i: $interruptable; e: $exitonneworder; more as needed '] ]"/>
           </do_if>
           <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
           <add_conversation_view view="closeupdetailmonitor"/>
@@ -949,7 +948,7 @@ null
         <do_elseif value="event.param == 'comm_debug_skills_set'">
           <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
           <do_all exact="$skillist.count" counter="$i">
-            <set_skill entity="event.object" type="$skillist.{$i}" exact="event.param"/>
+            <set_skill entity="event.object" type="$skillist.{$i}" exact="event.param2"/>
           </do_all>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
