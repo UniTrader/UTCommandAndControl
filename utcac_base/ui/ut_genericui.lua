@@ -133,7 +133,7 @@ function menu.fetch()
 		if v == -1 then
 			index = i
 		else
-			totalwidth = totalwidth + v + 4 -- 4 is the spacing between columns
+			totalwidth = totalwidth + v + 5 -- 5 is the spacing between columns
 		end
 	end
 	if index then
