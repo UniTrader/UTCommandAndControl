@@ -80,7 +80,7 @@ table[$script='ut.cac.microorder',$displayname='Wait (2h)',$order='wait exact',$
         <debug_text filter="error" text="'%1 Retreat Function not implemented yet!!!'.[event.object]"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_flyto'">
-          <open_conversation_menu menu="MapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectzone', ['comm_captain_orders_flyto_selected']]"/>
+          <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectspace', ['comm_captain_orders_flyto_selected']]"/>
           <add_conversation_view view="closeupdetailmonitor" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_flyto_selected'">
@@ -90,11 +90,27 @@ table[$script='ut.cac.microorder',$displayname='Wait (2h)',$order='wait exact',$
           <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.move.generic',$displayname='Fly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$endintargetspace=true,$interruptable=true]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_follow'">
+          <!-- ToDo: Implement 'Selectship'-functionality in Map Menu (maybe even with some Filters..) -->
+          <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectobject', ['comm_captain_orders_follow_selected']]"/>
+        </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_follow_selected'">
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
           </do_if>
           <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.move.follow.verysimple',$displayname='Follow %1'.[if event.param2.{3}.controlentity.$shortname then event.param2.{3}.controlentity.$shortname else event.param2.{3}.knownname],$object=event.param2.{3},$interruptable=true]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_escort'">
+          <!-- ToDo: Implement 'Selectship'-functionality in Map Menu (maybe even with some Filters..) -->
+          <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectobject', ['comm_captain_orders_follow_selected']]"/>
+          <set_value name="$time" exact="event.param2"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_escort_selected'">
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
+          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.move.escort',$displayname='Escort %1'.[if event.param2.{3}.controlentity.$shortname then event.param2.{3}.controlentity.$shortname else event.param2.{3}.knownname],$escortee=event.param2.{3},$interruptable=true]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_signals'">
