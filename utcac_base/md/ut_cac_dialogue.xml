@@ -280,6 +280,7 @@
             <debug_text filter="error" text="'%1 Specified Order not in Orderlist anymore - doing nothing'.[event.object.name]"/>
           </do_else>
           <remove_value name="$order_id"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_cancel_all'">
           <do_all exact="event.object.$orderlist.count" counter="$i" reverse="true">
@@ -290,6 +291,7 @@
           <do_if value="event.param2" comment="event.param2 == true says that we shall also cancel the first order (see comm_orders_modify)">
             <signal_objects object="event.object" param="'cancel order'" param2="1"/>
           </do_if>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_add'">
           <do_if value="event.name == 'event_conversation_next_section'">
