@@ -431,7 +431,7 @@
         <interrupt_after_time time="100ms"/>
       </move_to>
       <set_value name="$abortpath" exact="false"/>
-      <do_if value="( not $arriving_at? ) and this.ship.numwaypoints">
+      <do_while value="( not $arriving_at? ) and this.ship.numwaypoints">
         <wait resume="true">
           <interrupt>
             <conditions>
@@ -442,7 +442,9 @@
             </conditions>
             <actions>
               <do_if value="event.name == 'event_object_approaching_waypoint'">
-                <set_value name="$arriving_at" exact="event.param2 + player.age"/>
+                <do_if value="this.ship.distanceto.{$targetpos} lt 10km">
+                  <set_value name="$arriving_at" exact="event.param2 + player.age"/>
+                </do_if>
                 <!-- preperation for future Usage: Save current Speed to a Global Var so we can use this to get Ships with similiar Boost Speed -->
                 <do_if value="not global.$ship_boost_speed?">
                   <set_value name="global.$ship_boost_speed" exact="table[]"/>
@@ -454,7 +456,7 @@
             </actions>
           </interrupt>
         </wait>
-      </do_if>
+      </do_while>
       <set_avoid_collisions object="this.ship" enabled="true"/>
       <!-- wait till we are almost there - event_approaching_waypoint usually triggers too early, instead wait till 2-5 seconds before estimated arrival  -->
       <do_if value="@$temp_object.exists">
