@@ -46,8 +46,10 @@
 [ 'button' , '100 hours' , 'comm_captain_orders_patrol' , false , true , 100h , true ]
 ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Navigation Orders' ] ]"/>
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 1 , 1 ] ] ,
 [ 'text' , 'Move to..' ] ,
+[ 'button' , 'Object' , 'comm_captain_orders_flyto' , false , true , 'comm_captain_orders_fly_to_object' , true ] ,
+[ 'button' , 'Space' , 'comm_captain_orders_flyto' , false , true , 'comm_captain_orders_flyto_space' , true ]
 [ 'button' , 'Space' , 'comm_captain_orders_flyto' , false , true , 'comm_captain_orders_flyto' , true ]
 ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
@@ -79,8 +81,16 @@ table[$script='ut.cac.microorder',$displayname='Wait (2h)',$order='wait exact',$
         <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         <debug_text filter="error" text="'%1 Retreat Function not implemented yet!!!'.[event.object]"/>
         </do_elseif>
-        <do_elseif value="event.param == 'comm_captain_orders_flyto'">
+        <do_elseif value="event.param == 'comm_captain_orders_flyto_object'">
+          <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectobject', ['comm_captain_orders_flyto_selected']]"/>
+          <add_conversation_view view="closeupdetailmonitor" />
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_flyto_space'">
           <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectspace', ['comm_captain_orders_flyto_selected']]"/>
+          <add_conversation_view view="closeupdetailmonitor" />
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_flyto'">
+          <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectspaceorobject', ['comm_captain_orders_flyto_selected']]"/>
           <add_conversation_view view="closeupdetailmonitor" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_flyto_selected'">
