@@ -251,7 +251,13 @@
         
         <!-- create boost Target Pos -->
         <do_if value="$position">
-          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size * 2" ignored="this.ship" min="this.ship.size" max="10km"/>
+          <do_if value="$targetzone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and ( $destination.isclass.gate or ( $position.x gt 30km and $position.z lt -20km and $position.y gt -10km and $position.y lt 10km ) )">
+            <find_object name="$ignoredobject" space="$targetzone" macro="macro.landmarks_unique_the_mace_macro"/>
+          </do_if>
+          <do_else>
+            <set_value name="$ignoredobject" exact="this.ship"/>
+          </do_else>
+          <get_safe_pos result="$targetpos" allowyaxis="true" zone="this.zone" value="$position" radius="this.ship.size * 2" ignored="$ignoredobject" min="this.ship.size" max="10km"/>
         </do_if>
         <do_else>
           <create_position_outside_boundingbox name="$targetpos" component="$destination" distance="this.ship.size">
@@ -268,13 +274,7 @@
           <!--create_position_outside_boundingbox name="$startpos" component="this.ship" distance="this.ship.size" >
             <position object="$destination"/>
           </create_position_outside_boundingbox-->
-          <do_if value="$targetzone.macro.ismacro.{'Cluster_T_Sector01_Zone001_macro'} and ( $destination.isclass.gate or ( $position.x gt 30km and $position.z lt -20km and $position.y gt -10km and $position.y lt 10km ) )">
-            <find_object name="$ignoredobject" space="$targetzone" macro="macro.landmarks_unique_the_mace_macro"/>
-          </do_if>
-          <do_else>
-            <set_value name="$ignoredobject" exact="this.ship"/>
-          </do_else>
-          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size * 2" ignored="$ignoredobject" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
+          <get_safe_pos result="$startpos" allowyaxis="true" zone="this.zone" value="this.ship.position" radius="this.ship.size * 2" ignored="this.ship" directionobject="$destination" min="this.ship.size*0.75" max="this.ship.size * 1.5"/>
           <create_orientation name="$startrot" orientation="look_at" refposition="$targetpos">
             <position value="$startpos" />
           </create_orientation>
