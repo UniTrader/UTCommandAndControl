@@ -2,7 +2,9 @@
 <mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Dialogue" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
   <documentation>
     <author alias="UniTrader"/>
-    <content description="Main Dialogue Script used by all UT CaC Entites - no instances, Dialogue is all shared.     Will refer to/include other Scripts for individual, Employee-Specific functions     (Wages, Possible Orders and Settings etc.)"/>
+    <content description="Main Dialogue Script used by all UT CaC Entites - no instances, Dialogue is all shared.
+    Will refer to/include other Scripts for individual, Employee-Specific functions
+    (Wages, Possible Orders and Settings etc.)"/>
   </documentation>
   <cues>
     <cue name="Actor_Init" instantiate="true">
@@ -707,10 +709,10 @@
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
             <!-- Begin of Personal Transfer Part -->
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 8 ] ] , [ 'text' , 'Workplace Managment' ] ]"/>
+<!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , if event.object.$defaultorders.$script then 'Stop Working' else 'Start Working' , 'comm_personal_work_toggle' , null , false , 0  , true ] , 
-[ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , 
-[ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] , 
+[ 'button' , if ( event.object.$defaultorders? and not @event.object.$defaultorders.$inactive ) then 'Stop Working' else 'Start Working' , 'comm_personal_work_toggle' , null , event.object.$defaultorders? , 0  , true ] , 
+[ 'button' , 'Work on.. as..' , 'comm_personal_transfer' , null , false , 20  , true ] , 
 [ 'text' , '' ] 
 ]"/>
             <!--TO DO: Standby Check here-->
@@ -775,7 +777,8 @@
         </do_elseif>
         <!-- Transfer Sub-Menus and Actions -->
         <do_elseif value="event.param == 'comm_personal_work_toggle'">
-          
+          <set_value name="event.object.$defaultorders.$inactive" exact="not @event.object.$defaultorders.$inactive"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer'">
           <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectobject', [comm_personal_transfer_objectselected]]"/>
@@ -872,7 +875,8 @@
             <add_player_choice_sub text="'Wait there'" position="6" section="comm_personal_transfer_jobselected" choiceparam="'standby'"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer_jobselected'">
-          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1'.[$selectedobject.name],$job=event.param2,$interruptable=true]"/>
+          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$selectedobject.name,event.param2],$job=event.param2,$interruptable=true]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <!-- Log/Pesterlevel Actions -->
         <do_elseif value="event.param == 'comm_personal_pester_set'">

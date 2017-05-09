@@ -185,14 +185,48 @@
         <do_if value="$job == 'captain'">
           <do_if value="$destination.pilot.exists">
             <!-- Captain already present - let new Captain do a soft takeover -->
-            
+            <do_if value="$destination.pilot.$orderlist?">
+              <signal_objects object="$destination.pilot" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+            </do_if>
+            <do_else>
+              <!-- ToDo: Vanilla Takeover -->
+            </do_else>
+            <wait>
+              <interrupt>
+                <conditions>
+                 <event_object_signalled object="this" param="'ready for takeover'"/> 
+                </conditions>
+                <actions>
+                  <set_value name="this.$orderlist" exact="event.param2"/>
+                  <set_value name="this.$ut_cac" exact="event.param3"/>
+                </actions>
+              </interrupt>
+            </wait>
           </do_if>
           <assign_pilot actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
         </do_if>
         <do_elseif value="$job == 'manager'">
           <do_if value="$destination.tradenpc.exists">
-          
+            <!-- Captain already present - let new Captain do a soft takeover -->
+            <do_if value="$destination.tradenpc.$orderlist?">
+              <signal_objects object="$destination.tradenpc" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+            </do_if>
+            <do_else>
+              <!-- ToDo: Vanilla Takeover -->
+            </do_else>
+            <wait>
+              <interrupt>
+                <conditions>
+                 <event_object_signalled object="this" param="'ready for takeover'"/> 
+                </conditions>
+                <actions>
+                  <set_value name="this.$orderlist" exact="event.param2"/>
+                  <set_value name="this.$ut_cac" exact="event.param3"/>
+                </actions>
+              </interrupt>
+            </wait>
+          </do_if>
           </do_if>
           <assign_trade_manager actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
@@ -201,7 +235,23 @@
           <!-- not properly implemented yet -->
           <do_if value="$destination.pilot.exists">
             <!-- Pilot already present - let new Pilot do a soft takeover -->
-            
+            <do_if value="$destination.pilot.$orderlist?">
+              <signal_objects object="$destination.pilot" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+            </do_if>
+            <do_else>
+              <!-- ToDo: Vanilla Takeover -->
+            </do_else>
+            <wait>
+              <interrupt>
+                <conditions>
+                 <event_object_signalled object="this" param="'ready for takeover'"/> 
+                </conditions>
+                <actions>
+                  <set_value name="this.$orderlist" exact="event.param2"/>
+                  <set_value name="this.$ut_cac" exact="event.param3"/>
+                </actions>
+              </interrupt>
+            </wait>
           </do_if>
           <assign_pilot actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
@@ -210,7 +260,23 @@
           <!-- ToDo: Figure out how to convert this Script in something Orderlist-compatible or how to restart the other employees -->
           <do_if value="$destination.defencenpc.exists">
             <!-- DO already present -  soft takeover-->
-            
+            <do_if value="$destination.defencenpc.$orderlist?">
+              <signal_objects object="$destination.defencenpc" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+            </do_if>
+            <do_else>
+              <!-- ToDo: Vanilla Takeover -->
+            </do_else>
+            <wait>
+              <interrupt>
+                <conditions>
+                 <event_object_signalled object="this" param="'ready for takeover'"/> 
+                </conditions>
+                <actions>
+                  <set_value name="this.$orderlist" exact="event.param2"/>
+                  <set_value name="this.$ut_cac" exact="event.param3"/>
+                </actions>
+              </interrupt>
+            </wait>
           </do_if>
           <assign_defence_manager actor="this" object="$destination"/>
           <start_script object="this" name="'ut.cac.com.defense.main'"/>
@@ -220,21 +286,69 @@
           <!-- related Scripts dont exist yet -->
           <do_if value="$destination.engineer.exists">
             <!-- destination already has a (primary) Engineer - soft takeover -->
-            
+            <do_if value="$destination.engineer.$orderlist?">
+              <signal_objects object="$destination.engineer" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+            </do_if>
+            <do_else>
+              <!-- ToDo: Vanilla Takeover -->
+            </do_else>
+            <wait>
+              <interrupt>
+                <conditions>
+                 <event_object_signalled object="this" param="'ready for takeover'"/> 
+                </conditions>
+                <actions>
+                  <set_value name="this.$orderlist" exact="event.param2"/>
+                  <set_value name="this.$ut_cac" exact="event.param3"/>
+                </actions>
+              </interrupt>
+            </wait>
           </do_if>
           <assign_engineer actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.engineer.default']"/>
         </do_elseif>
         <do_elseif value="$job == 'architect'">
-          <do_if value="$destination.engineer.exists">
+          <do_if value="$destination.architect.exists">
             <!-- destination already has an Architect - soft takeover -->
-            
+            <do_if value="$destination.architect.$orderlist?">
+              <signal_objects object="$destination.architect" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+            </do_if>
+            <do_else>
+              <!-- ToDo: Vanilla Takeover -->
+            </do_else>
+            <wait>
+              <interrupt>
+                <conditions>
+                 <event_object_signalled object="this" param="'ready for takeover'"/> 
+                </conditions>
+                <actions>
+                  <set_value name="this.$orderlist" exact="event.param2"/>
+                  <set_value name="this.$ut_cac" exact="event.param3"/>
+                </actions>
+              </interrupt>
+            </wait>
           </do_if>
           <assign_architect actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.architect.default']"/>
         </do_elseif>
         <do_elseif value="$job == 'tradeagent'">
-          
+          <do_if value="$destination.hastradesubscription">
+            <signal_objects object="$destination" param="'trade agent handover'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+            <wait>
+              <interrupt>
+                <conditions>
+                  <event_object_signalled object="this" param="'ready for takeover'"/> 
+                </conditions>
+                <actions>
+                  <set_value name="this.$orderlist" exact="event.param2"/>
+                  <set_value name="this.$ut_cac" exact="event.param3"/>
+                </actions>
+              </interrupt>
+            </wait>
+          </do_if>
+          <do_else>
+            <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='#################']"/>
+          </do_else>
         </do_elseif>
         
         <!-- so far unused assignments:
