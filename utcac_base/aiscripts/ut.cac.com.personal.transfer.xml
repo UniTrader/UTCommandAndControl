@@ -230,7 +230,7 @@
           </do_if>
           <assign_trade_manager actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
-        </do_elseif>######
+        </do_elseif>
         <do_elseif value="$job == 'pilot'">
           <!-- not properly implemented yet -->
           <do_if value="$destination.pilot.exists">
@@ -254,7 +254,7 @@
             </wait>
           </do_if>
           <assign_pilot actor="this" object="$destination"/>
-          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/><!-- ToDo: Seperate Defaultorders Script for Pilot -->
         </do_elseif>
         <do_elseif value="$job == 'defense'">
           <!-- ToDo: Figure out how to convert this Script in something Orderlist-compatible or how to restart the other employees -->
@@ -280,7 +280,7 @@
           </do_if>
           <assign_defence_manager actor="this" object="$destination"/>
           <start_script object="this" name="'ut.cac.com.defense.main'"/>
-          <!--set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/-->
+          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.defense.default']"/>
         </do_elseif>
         <do_elseif value="$job == 'engineer'">
           <!-- related Scripts dont exist yet -->
@@ -346,9 +346,7 @@
               </interrupt>
             </wait>
           </do_if>
-          <do_else>
-            <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='#################']"/>
-          </do_else>
+          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='#################']"/>
         </do_elseif>
         
         <!-- so far unused assignments:

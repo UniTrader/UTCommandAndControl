@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.orders.tradeagent.default" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!-- this is both an Order and an Order Source Script to keep things simple -->
+  <params>
+    <param name="params" comment="Persistent Params Table to keep track of what should be done and when"/>
+  </params>
+  <init>
+    <set_value name="$exitonneworder" exact="$params.$isorder?"/>
+  </init>
+  <interrupts>
+    <handler ref="ut_cac_exitonneworder"/>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <do_if value="$params.$isorder?">
+        <add_trade_subscription object="this.container"/>
+        <wait/>
+        <remove_trade_subscription object="this.container"/>
+      </do_if>
+      <do_elseif value="not this.container.hastradesubscription">
+        <set_value name="$order" exact="$params.clone"/>
+        <set_value name="$order.$isorder"/>
+        <set_value name="$order.$displayname" exact="'Monitoring Trades'"/>
+        <signal_objects object="this" param="'new order'" param2="$order"/>
+      </do_elseif>
+      <do_else>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Assignment',$order='wait order',$time=10h,$interruptable=true]"/>
+      </do_else>
+    </actions>
+  </attention>
+  <on_abort>
+    <remove_trade_subscription object="this.container"/>
+  </on_abort>
+</aiscript>
