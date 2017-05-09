@@ -781,9 +781,15 @@
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer'">
-          <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectobject', ['comm_personal_transfer_objectselected']]"/>
-          <add_conversation_view view="closeupdetailmonitor" />
-          <!-- Depending on whether a Ship is available display Map restricted to Zone or Galaxy to select new Work place -->
+          <do_if value="$jobselected">
+            <remove_value name="$jobselected"/>
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          </do_if>
+          <do_else>
+            <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectobject', ['comm_personal_transfer_objectselected']]"/>
+            <add_conversation_view view="closeupdetailmonitor" />
+            <!-- Depending on whether a Ship is available display Map restricted to Zone or Galaxy to select new Work place -->
+          </do_else>
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer_objectselected'">
           <do_if value="$jobselected">
