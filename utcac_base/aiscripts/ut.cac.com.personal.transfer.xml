@@ -90,55 +90,9 @@
           <set_value name="$dock" exact="false"/>
         </do_if>
         
-        <!-- Set correct Entity Type for future Job -->
-          <!-- Active Roles -->
-          <do_if value="$job == 'captain'">
-            <set_entity_type entity="this" type="entitytype.commander"/>
-          </do_if>
-          <do_elseif value="$job == 'manager'">
-            <set_entity_type entity="this" type="entitytype.manager"/>
-          </do_elseif>
-          <do_elseif value="$job == 'pilot'">
-            <set_entity_type entity="this" type="entitytype.pilot"/>
-          </do_elseif>
-          <do_elseif value="$job == 'defense'">
-            <set_entity_type entity="this" type="entitytype.defencecontrol"/>
-          </do_elseif>
-          <do_elseif value="$job == 'engineer'">
-            <set_entity_type entity="this" type="entitytype.engineer"/>
-          </do_elseif>
-          <do_elseif value="$job == 'architect'">
-            <set_entity_type entity="this" type="entitytype.architect"/>
-          </do_elseif>
-          <do_elseif value="$job == 'tradeagent'">
-            <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
-          </do_elseif>
-          <!-- Passsive Roles (wait for player interaction/completion of something )-->
-          <do_elseif value="$job == 'standby'">
-            <set_entity_type entity="this" type="entitytype.lawenforcement"/>
-          </do_elseif>
-          <do_elseif value="$job == 'standby captain'">
-            <set_entity_type entity="this" type="entitytype.commander"/>
-          </do_elseif>
-          <do_elseif value="$job == 'standby manager'">
-            <set_entity_type entity="this" type="entitytype.manager"/>
-          </do_elseif>
-          <do_elseif value="$job == 'standby defense'">
-            <set_entity_type entity="this" type="entitytype.defencecontrol"/>
-          </do_elseif>
-          <do_elseif value="$job == 'standby engineer'">
-            <set_entity_type entity="this" type="entitytype.engineer"/>
-          </do_elseif>
-          <do_elseif value="$job == 'standby architect'">
-            <set_entity_type entity="this" type="entitytype.architect"/>
-          </do_elseif>
-          <do_elseif value="$job == 'standby tradeagent'">
-            <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
-          </do_elseif>
-          <!-- custom case -->
-          <do_elseif value="$job == 'custom'">
-            <set_entity_type entity="this" type="$new_type"/>
-          </do_elseif>
+        <!-- save current entity type in case it has to be restored-->
+        <set_value name="$previoustype" exact="this.type"/>
+        
         
         <do_if value="false"/>
         <!-- Get Means of Transport and use it to Destination -->
@@ -146,6 +100,7 @@
         <!-- Use Unused Ship at current Container and fly it to Destination -->
         <do_else>
           <!-- Simple fallback case: Create a Temp Ship (base it on Cluster?), fly it to Destination,  Destroy it -->
+          <set_entity_type entity="this" type="entitytype.pilot" comment="convert to an type who is able to pilot ships"/>
           <debug_text filter="general" text="'%1 %2 Creating Transport Ship'.[this.name,this.container.name]"/>
           <create_ship name="$transport_ship" dock="this.container" capturable="false" sellable="false" group="albion_light_fighter"/>
           <add_actor_to_room actor="this" object="$transport_ship" result="$success" />
@@ -183,6 +138,7 @@
         
         <!-- Finalize - remove current Control Entity, set as new Control Entity and change defaultorders Script -->
         <do_if value="$job == 'captain'">
+          <set_entity_type entity="this" type="entitytype.commander"/>
           <do_if value="$destination.pilot.exists">
             <!-- Captain already present - let new Captain do a soft takeover -->
             <do_if value="$destination.pilot.$orderlist?">
@@ -207,6 +163,7 @@
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
         </do_if>
         <do_elseif value="$job == 'manager'">
+          <set_entity_type entity="this" type="entitytype.manager"/>
           <do_if value="$destination.tradenpc.exists">
             <!-- Captain already present - let new Captain do a soft takeover -->
             <do_if value="$destination.tradenpc.$orderlist?">
@@ -231,6 +188,7 @@
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
         </do_elseif>
         <do_elseif value="$job == 'pilot'">
+          <set_entity_type entity="this" type="entitytype.pilot"/>
           <!-- not properly implemented yet -->
           <do_if value="$destination.pilot.exists">
             <!-- Pilot already present - let new Pilot do a soft takeover -->
@@ -256,6 +214,7 @@
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/><!-- ToDo: Seperate Defaultorders Script for Pilot -->
         </do_elseif>
         <do_elseif value="$job == 'defense'">
+          <set_entity_type entity="this" type="entitytype.defencecontrol"/>
           <!-- ToDo: Figure out how to convert this Script in something Orderlist-compatible or how to restart the other employees -->
           <do_if value="$destination.defencenpc.exists">
             <!-- DO already present -  soft takeover-->
@@ -282,6 +241,7 @@
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.defense.default']"/>
         </do_elseif>
         <do_elseif value="$job == 'engineer'">
+          <set_entity_type entity="this" type="entitytype.engineer"/>
           <!-- related Scripts dont exist yet -->
           <do_if value="$destination.engineer.exists">
             <!-- destination already has a (primary) Engineer - soft takeover -->
@@ -307,6 +267,7 @@
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.engineer.default']"/>
         </do_elseif>
         <do_elseif value="$job == 'architect'">
+            <set_entity_type entity="this" type="entitytype.architect"/>
           <do_if value="$destination.architect.exists">
             <!-- destination already has an Architect - soft takeover -->
             <do_if value="$destination.architect.$orderlist?">
@@ -331,6 +292,7 @@
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.architect.default']"/>
         </do_elseif>
         <do_elseif value="$job == 'tradeagent'">
+          <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
           <do_if value="$destination.hastradesubscription">
             <signal_objects object="$destination" param="'trade agent handover'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
             <wait>
@@ -354,6 +316,34 @@
         -->
         
         <!-- Rest of the Personal Transfer is handled in the md.UT_CAC_Events.Change_Workplace Cue (should have been Signalled/prepared before to wait till the Actor arrives at his Destination) -->
+        <do_elseif value="$job == 'standby'">
+          <set_entity_type entity="this" type="entitytype.lawenforcement"/>
+        </do_elseif>
+        <do_elseif value="$job == 'standby captain'">
+          <set_entity_type entity="this" type="entitytype.commander"/>
+        </do_elseif>
+        <do_elseif value="$job == 'standby manager'">
+          <set_entity_type entity="this" type="entitytype.manager"/>
+        </do_elseif>
+        <do_elseif value="$job == 'standby defense'">
+          <set_entity_type entity="this" type="entitytype.defencecontrol"/>
+        </do_elseif>
+        <do_elseif value="$job == 'standby engineer'">
+          <set_entity_type entity="this" type="entitytype.engineer"/>
+        </do_elseif>
+        <do_elseif value="$job == 'standby architect'">
+          <set_entity_type entity="this" type="entitytype.architect"/>
+        </do_elseif>
+        <do_elseif value="$job == 'standby tradeagent'">
+          <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
+        </do_elseif>
+        <!-- custom case -->
+        <do_elseif value="$job == 'custom'">
+          <set_entity_type entity="this" type="$new_type"/>
+        </do_elseif> 
+        <do_else>
+          <set_entity_type entity="this" type="$previoustype"/>
+        </do_else>
       </actions>
   </attention>
   <on_abort>
