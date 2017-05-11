@@ -102,9 +102,11 @@
           <!-- Simple fallback case: Create a Temp Ship (base it on Cluster?), fly it to Destination,  Destroy it -->
           <set_entity_type entity="this" type="entitytype.pilot" comment="convert to an type who is able to pilot ships"/>
           <debug_text filter="general" text="'%1 %2 Creating Transport Ship'.[this.name,this.container.name]"/>
-          <create_ship name="$transport_ship" dock="this.container" capturable="false" sellable="false" group="albion_light_fighter"/>
-          <add_actor_to_room actor="this" object="$transport_ship" result="$success" />
-          <assign_pilot object="this.ship" actor="this"/>
+          <create_ship name="$transport_ship" dock="this.container" capturable="false" sellable="false" group="albion_light_fighter">
+            <pilot actor="this"/>
+          </create_ship>
+          <!--assign_pilot object="this.ship" actor="this"/>
+          <add_actor_to_room actor="this" object="$transport_ship" result="$success" /-->
           <debug_text filter="general" text="'%1 %2 Created Transport Ship, Results:\nTransport Ship: %3 ; Success: %4 ; Pilot: %5'.[this.name,this.container.name,@$transport_ship.name,$success,@this.ship.pilot.name]"/>
           
           <!-- Fly Ship to Destination -->
