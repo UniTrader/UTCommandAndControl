@@ -13,22 +13,29 @@
   <attention min="unknown">
     <actions>
       <do_if value="$params.$isorder?">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Starting Job as Trade Agent'.[this.name,this.container.name]"/>
         <add_trade_subscription object="this.container"/>
-        <wait/>
+        <do_while value="true">
+          <wait exact="1000h"/>
+        </do_while>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stopping Job as Trade Agent (wait end)'.[this.name,this.container.name]"/>
         <remove_trade_subscription object="this.container"/>
       </do_if>
       <do_elseif value="not this.container.hastradesubscription">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Called for defaultorders and giving Order'.[this.name,this.container.name]"/>
         <set_value name="$order" exact="$params.clone"/>
         <set_value name="$order.$isorder"/>
         <set_value name="$order.$displayname" exact="'Monitoring Trades'"/>
         <signal_objects object="this" param="'new order'" param2="$order"/>
       </do_elseif>
       <do_else>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Called for defaultorders and wait for assignment (trade subscription already present)'.[this.name,this.container.name]"/>
         <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Assignment',$order='wait order',$time=10h,$interruptable=true]"/>
       </do_else>
     </actions>
   </attention>
   <on_abort>
+    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stopping Job as Trade Agent (abort case)'.[this.name,this.container.name]"/>
     <remove_trade_subscription object="this.container"/>
   </on_abort>
 </aiscript>
