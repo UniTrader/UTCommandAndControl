@@ -93,6 +93,18 @@
         <!-- save current entity type in case it has to be restored-->
         <set_value name="$previoustype" exact="this.type"/>
         
+        <!-- wait till Player has finished Conversation, its annoying when NPC just disappears -->
+        <do_if value="player.isinconversation">
+          <wait>
+            <interrupt>
+              <conditions>
+                <event_conversation_finished actor="this"/>
+              </conditions>
+            </interrupt>
+          </wait>
+          <wait exact="2s"/>
+        </do_if>
+        
         
         <do_if value="$destination == this.container">
           <debug_text filter="general" text="'%1 %2 Already on right Container, no Transport needed'.[this.name,this.container.name]"/>

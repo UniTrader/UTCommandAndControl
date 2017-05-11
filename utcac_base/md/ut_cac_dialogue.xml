@@ -137,7 +137,10 @@
     <cue name="Comm_Common_Root" >
       <conditions>
         <check_any>
-          <event_conversation_started conversation="default"/>
+          <check_all>
+            <event_conversation_started conversation="default"/>
+            <check_value value="event.object.$orderlist.{1}.$script == 'ut.cac.com.personal.transfer'" comment="no conversations during Personal Transfer!"/>
+          </check_all>
           <event_conversation_returned_to_section section="default"/>
         </check_any>
         <check_value value="event.object.$ut_cac?"/>
