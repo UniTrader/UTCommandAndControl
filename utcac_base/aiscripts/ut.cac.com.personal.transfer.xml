@@ -158,14 +158,14 @@
             <add_actor_to_room actor="this" object="$destination" result="$success" />
           </do_if>
           <do_if value="not $success or not this.container">
-            <debug_text filter="general" text="'%1 %2 Putting actor into dock/station not succesful - trying fallback.. ($success: %3, container: %4'.[this.name,this.container.name,$success,@$actor.container.name]"/>
+            <debug_text filter="general" text="'%1 %2 Putting actor into dock/station not succesful - trying fallback.. ($success: %3, container: %4'.[this.name,@this.container.name,$success,@$actor.container.name]"/>
             <!-- ok, adding actor to originally intended platform did not work, try to find another one -->
             <find_dock_location container="$destination" name="$dock" numfreeactorslots="1" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.administrative" />
             <do_if value="not $dock">
               <find_dock_location container="$destination" name="$dock" numfreeactorslots="1" size="player.primaryship.docksize" />
             </do_if>
             <do_if value="$dock">
-              <debug_text filter="general" text="'%1 %2 Attempting to put actor into %4  on %5 '.[this.name,@this.container.name,$dock,$destination.name]"/>
+              <debug_text filter="general" text="'%1 %2 Attempting to put actor into %3  on %4 '.[this.name,@this.container.name,$dock,$destination.name]"/>
               <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
             </do_if>
           </do_if>
