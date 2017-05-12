@@ -13,21 +13,20 @@
       <do_if value="$params.$isorder?">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Starting Job as Trade Agent'.[this.name,this.container.name]"/>
         <add_trade_subscription object="this.container"/>
-        <do_while>
-          <wait>
-            <interrupt>
-              <conditions>
-                <event_object_signalled object="this" param="'new order received'"/>
-              </conditions>
-              <actions>
-                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Received new Order - Exiting (Trade Agent specific Case)'.[this.name,this.container.name]"/>
-                <remove_trade_subscription object="this.container"/>
-                <return/>
-              </actions>
-            </interrupt>
-          </wait>
-        <debug_text filter="general" text="'%1 %2 Wait ended - looping'.[this.name,this.container.name]"/>
-        </do_while>
+        <wait exact="24h">
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="this" param="'new order received'"/>
+            </conditions>
+            <actions>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Received new Order - Exiting (Trade Agent specific Case)'.[this.name,this.container.name]"/>
+              <remove_trade_subscription object="this.container"/>
+              <return/>
+            </actions>
+          </interrupt>
+        </wait>
+        <debug_text filter="general" text="'%1 %2 Wait ended - remove trade subscription temporarily'.[this.name,this.container.name]"/>
+        <remove_trade_subscription object="this.container"/>
       </do_if>
       <do_elseif value="not this.container.hastradesubscription">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Called for defaultorders and giving Order'.[this.name,this.container.name]"/>
