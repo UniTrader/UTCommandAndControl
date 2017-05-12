@@ -5,25 +5,24 @@
     <param name="params" comment="Persistent Params Table to keep track of what should be done and when"/>
   </params>
   <init>
-    <set_value name="$exitonneworder" exact="$params.$isorder?"/>
   </init>
   <interrupts>
-    <handler ref="ut_cac_exitonneworder">
-      <actions>
-       <remove_trade_subscription object="this.container"/>
-      </actions>
-    </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
       <do_if value="$params.$isorder?">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Starting Job as Trade Agent'.[this.name,this.container.name]"/>
         <add_trade_subscription object="this.container"/>
-        <do_while value="true">
-          <wait exact="1000h"/>
-        </do_while>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stopping Job as Trade Agent (wait end)'.[this.name,this.container.name]"/>
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="this" param="'new order received'"/>
+            </conditions>
+          </interrupt>
+        </wait>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received new Order - Exiting (Trade Agent specific Case)'.[player.age,this.name,this.container.name]"/>
         <remove_trade_subscription object="this.container"/>
+        <return/>
       </do_if>
       <do_elseif value="not this.container.hastradesubscription">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Called for defaultorders and giving Order'.[this.name,this.container.name]"/>
