@@ -50,6 +50,10 @@
         in case of Travel with Big Ships use Transport Drone to Transfer to exchange Station -->
         <return/>
       </do_if>
+      <!-- use specific Dock when sending Actor to a Ship/Station -->
+      <do_if value="$target.isclass.container and not $dock">
+        <set_value name="$dock" exact="'administrative'"/>
+      </do_if>
       
       <!-- Get Target Dock -->
         <do_if value="typeof $dock == datatype.string">
@@ -155,7 +159,7 @@
               <find_dock_location container="$destination" name="$dock" numfreeactorslots="1" size="player.primaryship.docksize" />
             </do_if>
             <do_if value="$dock">
-              <debug_text filter="general" text="'%1 %2 Attempting to put actor into %3 ( %4  ) on %5 '.[this.name,this.container.name,$dock.name,$dock,$destination.name]"/>
+              <debug_text filter="general" text="'%1 %2 Attempting to put actor into %4  on %5 '.[this.name,@this.container.name,$dock,$destination.name]"/>
               <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
             </do_if>
           </do_if>
