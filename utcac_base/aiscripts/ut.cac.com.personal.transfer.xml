@@ -50,8 +50,12 @@
         in case of Travel with Big Ships use Transport Drone to Transfer to exchange Station -->
         <return/>
       </do_if>
+      
+      <debug_text filter="general" text="'%1 %2 Script started'.[this.name,this.container.name]"/>
+      
       <!-- use specific Dock when sending Actor to a Ship/Station -->
       <do_if value="$destination.isclass.container and not $dock">
+        <debug_text filter="general" text="'%1 %2 Destination is a Container - Attempting to use Administrative dock'.[this.name,this.container.name]"/>
         <set_value name="$dock" exact="'administrative'"/>
       </do_if>
       
@@ -87,11 +91,13 @@
           <do_else>
             <!-- Fallback: Random Dock -->
             <find_dock_location name="$dock" container="$destination" size="tag.size_p" numfreeactorslots="1" />
+          <debug_text filter="general" text="'%1 %2 Fallback for Destination Dock: %3 on %4'.[this.name,this.container.name,$dock,$destination.name]"/>
           </do_else>
         </do_if>
         <do_if value="not $dock.exists">
           <!-- use Default Dock on Object on arrival -->
           <set_value name="$dock" exact="null"/>
+          <debug_text filter="general" text="'%1 %2 Dock not existent - nulling'.[this.name,this.container.name]"/>
         </do_if>
         
         <!-- save current entity type in case it has to be restored-->
