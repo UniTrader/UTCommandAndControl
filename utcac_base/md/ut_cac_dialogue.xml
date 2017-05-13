@@ -134,7 +134,7 @@
         4 - Maybe include Smalltalk?
         5 - Personal Information
         -->
-    <cue name="Comm_Common_Root" >
+    <cue name="Comm_Common_Root" instantiate="true">
       <conditions>
         <check_any>
           <check_all>
@@ -146,7 +146,6 @@
         <check_value value="event.object.$ut_cac?"/>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
         <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.object.isplayerowned">
           <do_if value="event.name == 'event_conversation_started'">
@@ -353,15 +352,14 @@
       </actions>
     </cue>
     <!-- Root Choice 2 - Settings Managment -->
-    <cue name="Comm_Common_Settings" >
+    <cue name="Comm_Common_Settings" instantiate="true">
       <conditions>
         <check_any>
           <event_conversation_next_section sectionprefix="comm_settings_"/>
           <event_conversation_returned_to_section sectionprefix="comm_settings_"/>
         </check_any>
       </conditions>
-      <actions>
-        <reset_cue cue="this"/>
+      <actions>y
         <do_if value="event.object.$ut_cac.$settings_section?">
           <include_actions ref="event.object.$ut_cac.$settings_section"/>
         </do_if>
@@ -371,7 +369,7 @@
       </actions>
     </cue>
     <!-- Root Choice 3 - Connect with.. -->
-    <cue name="Comm_Common_Connect" >
+    <cue name="Comm_Common_Connect" instantiate="true">
       <conditions>
         <check_any>
           <event_conversation_next_section sectionprefix="comm_connect_"/>
@@ -380,7 +378,6 @@
         </check_any>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
         <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
         <!--- ################################### -->
         <!--                        Connect Menu                          -->
@@ -492,7 +489,7 @@
       </actions>
     </cue>
     <!-- Root Choice 4 - Subordinates -->
-    <cue name="Comm_Common_Subordinates" >
+    <cue name="Comm_Common_Subordinates" instantiate="true">
       <conditions>
         <check_any>
           <event_conversation_next_section sectionprefix="comm_subordinates_"/>
@@ -501,14 +498,13 @@
         </check_any>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
         
         
       </actions>
     </cue>
     <!-- Second Non-Employee-Specific Stuff -->
     <!-- Root Choice 1 - Perform Paid Order (or other Services) - a very Simplified Orders Menu -->
-    <cue name="Comm_Common_Services">
+    <cue name="Comm_Common_Services" instantiate="true">
       <conditions>
         <check_any>
           <event_conversation_next_section sectionprefix="comm_services_"/>
@@ -517,7 +513,6 @@
         </check_any>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
         <!-- Planned types of Services:
         => Trade Agent (NOT Persistent, will consume Money continiously)
         => Map Updates (one time update; all things currently known to Faction)
@@ -533,7 +528,7 @@
       </actions>
     </cue>
     <!-- Root Choice 2 -  Hire Menu -->
-    <cue name="Comm_Common_Hire">
+    <cue name="Comm_Common_Hire" instantiate="true">
       <conditions>
         <check_any>
           <event_conversation_next_section sectionprefix="comm_hire_"/>
@@ -542,13 +537,12 @@
         </check_any>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
         
         
       </actions>
     </cue>
     <!-- Root Choice 3 -  Guidiance Menu -->
-    <cue name="Comm_Common_Guidiance">
+    <cue name="Comm_Common_Guidiance" instantiate="true">
       <conditions>
         <check_any>
           <event_conversation_next_section sectionprefix="comm_guidiance_"/>
@@ -557,13 +551,12 @@
         </check_any>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
         
         
       </actions>
     </cue>
     <!-- Root Choice 4 -  Smalltalk -->
-    <cue name="Comm_Common_Smalltalk">
+    <cue name="Comm_Common_Smalltalk" instantiate="true">
       <conditions>
         <check_any>
           <event_conversation_next_section sectionprefix="comm_smalltalk_"/>
@@ -572,7 +565,6 @@
         </check_any>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
         
         
       </actions>
@@ -924,7 +916,7 @@
       </actions>
     </cue>
     <!-- Root Choice 6: Goodbye Section -->
-    <cue name="Comm_Common_Goodbye" >
+    <cue name="Comm_Common_Goodbye" instantiate="true">
       <conditions>
         <check_any>
           <event_conversation_next_section sectionprefix="comm_goodbye"/>
@@ -933,11 +925,10 @@
         </check_any>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
       </actions>
     </cue>
     <!-- Root Choice 6: Debug Menu -->
-    <cue name="Comm_Common_Debug" >
+    <cue name="Comm_Common_Debug" instantiate="true">
       <conditions>
         <check_any>
           <event_conversation_next_section sectionprefix="comm_debug_"/>
@@ -946,7 +937,6 @@
         </check_any>
       </conditions>
       <actions>
-        <reset_cue cue="this"/>
         <do_if value="event.param == 'comm_debug_main'">
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Debug Menu for %1'.[event.object.name], null, null , null , [ 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , -1 ] ,  [] ,  [ 
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
