@@ -152,7 +152,7 @@
           <debug_text filter="general" text="'%1 %2 Moving Actor into Target, Destroying Ship'.[this.name,this.container.name]"/>
           <set_value name="$success" exact="false"/>
           <do_if value="@$dock.component.exists">
-            <debug_text filter="general" text="'%1 %2 Attempting to put actor into %3 ( %4  ) on %5 '.[this.name,this.container.name,$dock.name,$dock,$destination.name]"/>
+            <debug_text filter="general" text="'%1 %2 Attempting to put actor into %3 on %4'.[this.name,this.container.name,$dock,$destination.name]"/>
             <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
           </do_if>
           <do_if value="not $success">
@@ -172,7 +172,7 @@
             </do_if>
           </do_if>
           <do_if value="not $success or not this.container">
-            <debug_text filter="error" text="'%1 %2 Moving Actor into Destination was not successful. $dock: %3 $destination: %4'.[this.name,this.container.name,@$dock.name,@$destination.name]"/>
+            <debug_text filter="error" text="'%1 %2 Moving Actor into Destination was not successful. $dock: %3 $destination: %4'.[this.name,this.container.name,@$dock,@$destination.name]"/>
             <destroy_object object="$transport_ship" explosion="false"/>
             <destroy_object object="this" explosion="false"/>
             <return/>
