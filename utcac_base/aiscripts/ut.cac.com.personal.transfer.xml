@@ -55,8 +55,14 @@
       
       <!-- use specific Dock when sending Actor to a Ship/Station -->
       <do_if value="$destination.isclass.container and not $dock">
-        <debug_text filter="general" text="'%1 %2 Destination is a Container - Attempting to use Administrative dock'.[this.name,this.container.name]"/>
-        <set_value name="$dock" exact="'administrative'"/>
+        <do_if value="$destination.isclass.station">
+          <debug_text filter="general" text="'%1 %2 Destination is a Station - Attempting to use Administrative dock'.[this.name,this.container.name]"/>
+          <set_value name="$dock" exact="'administrative'"/>
+        </do_if>
+        <do_else>
+          <debug_text filter="general" text="'%1 %2 Destination is a Ship (?) - Attempting to use random dock'.[this.name,this.container.name]"/>
+          <set_value name="$dock" exact="'random'"/>
+        </do_else>
       </do_if>
       
       <!-- Get Target Dock -->
@@ -89,11 +95,11 @@
           <do_elseif value="$dock == 'administrative'">
             <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.administrative" numfreeactorslots="1" />
           </do_elseif>
-          <do_else>
+          <do_if value="typeof $dock == datatype.string or $dock == null or not $dock.numfreeactorslots">
             <!-- Fallback: Random Dock -->
             <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" numfreeactorslots="1" />
             <debug_text filter="general" text="'%1 %2 Random Fallback'.[this.name,this.container.name,$dock,$destination.name]"/>
-          </do_else>
+          </do_if>
           <debug_text filter="general" text="'%1 %2 selected %3'.[this.name,this.container.name,$dock]"/>
         </do_if>
         <do_if value="not @$dock.component.exists">
