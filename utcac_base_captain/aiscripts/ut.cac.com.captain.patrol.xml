@@ -122,8 +122,10 @@
       
       <label name="finish"/>
       <!-- seperate Escort Groups since we just removed ourselves from it -->
-      <remove_from_group group="this.$escortgroup" object="this.ship"/>
-      <remove_value name="this.$escortgroup"/>
+      <do_if value="this.$escortgroup?">
+        <remove_from_group group="this.$escortgroup" object="this.ship"/>
+        <remove_value name="this.$escortgroup"/>
+      </do_if>
       <add_to_group groupname="this.$escortgroup" object="this.ship"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (on_abort case):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'patrol ends'" param2="$params" param3="this.$escortgroup"/>
