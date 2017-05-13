@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="UTF-8" ?>
 <diff>
   <!-- Hire as UT CaC Personell - not used yet because no free Command Slots-->
-  <!-- <add sel="//cue[@name='DefaultComm']/actions/do_else">
-            <do_if value="not $actor.iscontrolentity and not $actor.isplayerowned">
-              <add_player_choice text="'I want to Hire you (UT CaC)'" section="cEngineer_UT_CAC_Hire" position="1"/>
-            </do_if>
-  </add>-->
+  <add sel="//cue[@name='DefaultComm']/actions/do_else/do_if[@value='player.room != $actor.room']" pos="after">
+              <do_elseif value="not $actor.iscontrolentity and not $actor.isplayerowned">
+                <add_player_choice text="'I want to Hire you (UT CaC)'" section="cEngineer_UT_CAC_Hire" position="1"/>
+              </do_elseif>
+  </add>
   <add sel="//cue[@name='SectionHandler']/actions/do_else" pos="before">
             <do_elseif value="event.param == 'cEngineer_UT_CAC_Hire'">
               <add_npc_line line="1520" comment="Thank you for hiring me, sir. You will not be disappointed." view="facenormal" />
