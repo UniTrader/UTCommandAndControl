@@ -127,6 +127,11 @@
         <do_if value="$destination == this.container">
           <debug_text filter="general" text="'%1 %2 Already on right Container, no Transport needed'.[this.name,this.container.name]"/>
           <debug_text filter="general" text="'further helpful Infos to refine this:\n$destination: %1 ; $dock: %2 ; $dock.component: %3\nthis.container: %4, this.room: %5'.[@$destination, @$dock, @$dock.component, @this.container , @this.room]"/>
+          <do_if value="@$dock.component.exists">
+            <debug_text filter="general" text="'%1 %2 Moving Actor to Dock %3'.[this.name,this.container.name,$dock]"/>
+            <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
+            <debug_text filter="general" text="'further helpful Infos to refine this:\n$destination: %1 ; $dock: %2 ; $dock.component: %3\nthis.container: %4, this.room: %5'.[@$destination, @$dock, @$dock.component, @this.container , @this.room]"/>
+          </do_if>
           
         </do_if>
         <!-- Get Means of Transport and use it to Destination -->
