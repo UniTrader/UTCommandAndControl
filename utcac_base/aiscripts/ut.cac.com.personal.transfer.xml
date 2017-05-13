@@ -187,21 +187,21 @@
             <!-- Captain already present - let new Captain do a soft takeover -->
             <do_if value="$destination.pilot.$orderlist?">
               <signal_objects object="$destination.pilot" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+              <wait>
+                <interrupt>
+                  <conditions>
+                    <event_object_signalled object="this" param="'ready for takeover'"/> 
+                  </conditions>
+                  <actions>
+                    <set_value name="this.$orderlist" exact="event.param2"/>
+                    <set_value name="this.$ut_cac" exact="event.param3"/>
+                  </actions>
+                </interrupt>
+              </wait>
             </do_if>
             <do_else>
-              <!-- ToDo: Vanilla Takeover -->
+              <destroy_object object="$destination.pilot"/>
             </do_else>
-            <wait>
-              <interrupt>
-                <conditions>
-                 <event_object_signalled object="this" param="'ready for takeover'"/> 
-                </conditions>
-                <actions>
-                  <set_value name="this.$orderlist" exact="event.param2"/>
-                  <set_value name="this.$ut_cac" exact="event.param3"/>
-                </actions>
-              </interrupt>
-            </wait>
           </do_if>
           <assign_pilot actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
@@ -212,21 +212,21 @@
             <!-- Captain already present - let new Captain do a soft takeover -->
             <do_if value="$destination.tradenpc.$orderlist?">
               <signal_objects object="$destination.tradenpc" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+              <wait>
+                <interrupt>
+                  <conditions>
+                    <event_object_signalled object="this" param="'ready for takeover'"/> 
+                  </conditions>
+                  <actions>
+                    <set_value name="this.$orderlist" exact="event.param2"/>
+                    <set_value name="this.$ut_cac" exact="event.param3"/>
+                  </actions>
+                </interrupt>
+              </wait>
             </do_if>
             <do_else>
-              <!-- ToDo: Vanilla Takeover -->
+              <destroy_object object="$destination.tradenpc"/>
             </do_else>
-            <wait>
-              <interrupt>
-                <conditions>
-                 <event_object_signalled object="this" param="'ready for takeover'"/> 
-                </conditions>
-                <actions>
-                  <set_value name="this.$orderlist" exact="event.param2"/>
-                  <set_value name="this.$ut_cac" exact="event.param3"/>
-                </actions>
-              </interrupt>
-            </wait>
           </do_if>
           <assign_trade_manager actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
@@ -238,21 +238,21 @@
             <!-- Pilot already present - let new Pilot do a soft takeover -->
             <do_if value="$destination.pilot.$orderlist?">
               <signal_objects object="$destination.pilot" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+              <wait>
+                <interrupt>
+                  <conditions>
+                    <event_object_signalled object="this" param="'ready for takeover'"/> 
+                  </conditions>
+                  <actions>
+                    <set_value name="this.$orderlist" exact="event.param2"/>
+                    <set_value name="this.$ut_cac" exact="event.param3"/>
+                  </actions>
+                </interrupt>
+              </wait>
             </do_if>
             <do_else>
-              <!-- ToDo: Vanilla Takeover -->
+              <destroy_object object="$destination.pilot"/>
             </do_else>
-            <wait>
-              <interrupt>
-                <conditions>
-                 <event_object_signalled object="this" param="'ready for takeover'"/> 
-                </conditions>
-                <actions>
-                  <set_value name="this.$orderlist" exact="event.param2"/>
-                  <set_value name="this.$ut_cac" exact="event.param3"/>
-                </actions>
-              </interrupt>
-            </wait>
           </do_if>
           <assign_pilot actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/><!-- ToDo: Seperate Defaultorders Script for Pilot -->
@@ -264,21 +264,21 @@
             <!-- DO already present -  soft takeover-->
             <do_if value="$destination.defencenpc.$orderlist?">
               <signal_objects object="$destination.defencenpc" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+              <wait>
+                <interrupt>
+                  <conditions>
+                    <event_object_signalled object="this" param="'ready for takeover'"/> 
+                  </conditions>
+                  <actions>
+                    <set_value name="this.$orderlist" exact="event.param2"/>
+                    <set_value name="this.$ut_cac" exact="event.param3"/>
+                  </actions>
+                </interrupt>
+              </wait>
             </do_if>
             <do_else>
-              <!-- ToDo: Vanilla Takeover -->
+              <destroy_object object="$destination.defencenpc"/>
             </do_else>
-            <wait>
-              <interrupt>
-                <conditions>
-                 <event_object_signalled object="this" param="'ready for takeover'"/> 
-                </conditions>
-                <actions>
-                  <set_value name="this.$orderlist" exact="event.param2"/>
-                  <set_value name="this.$ut_cac" exact="event.param3"/>
-                </actions>
-              </interrupt>
-            </wait>
           </do_if>
           <assign_defence_manager actor="this" object="$destination"/>
           <start_script object="this" name="'ut.cac.com.defense.main'"/>
@@ -291,21 +291,21 @@
             <!-- destination already has a (primary) Engineer - soft takeover -->
             <do_if value="$destination.engineer.$orderlist?">
               <signal_objects object="$destination.engineer" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+              <wait>
+                <interrupt>
+                  <conditions>
+                    <event_object_signalled object="this" param="'ready for takeover'"/> 
+                  </conditions>
+                  <actions>
+                    <set_value name="this.$orderlist" exact="event.param2"/>
+                    <set_value name="this.$ut_cac" exact="event.param3"/>
+                  </actions>
+                </interrupt>
+              </wait>
             </do_if>
             <do_else>
-              <!-- ToDo: Vanilla Takeover -->
+              <destroy_object object="$destination.engineer"/>
             </do_else>
-            <wait>
-              <interrupt>
-                <conditions>
-                 <event_object_signalled object="this" param="'ready for takeover'"/> 
-                </conditions>
-                <actions>
-                  <set_value name="this.$orderlist" exact="event.param2"/>
-                  <set_value name="this.$ut_cac" exact="event.param3"/>
-                </actions>
-              </interrupt>
-            </wait>
           </do_if>
           <assign_engineer actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.engineer.default']"/>
@@ -316,21 +316,21 @@
             <!-- destination already has an Architect - soft takeover -->
             <do_if value="$destination.architect.$orderlist?">
               <signal_objects object="$destination.architect" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+              <wait>
+                <interrupt>
+                  <conditions>
+                    <event_object_signalled object="this" param="'ready for takeover'"/> 
+                  </conditions>
+                  <actions>
+                    <set_value name="this.$orderlist" exact="event.param2"/>
+                    <set_value name="this.$ut_cac" exact="event.param3"/>
+                  </actions>
+                </interrupt>
+              </wait>
             </do_if>
             <do_else>
-              <!-- ToDo: Vanilla Takeover -->
+              <destroy_object object="$destination.architect"/>
             </do_else>
-            <wait>
-              <interrupt>
-                <conditions>
-                 <event_object_signalled object="this" param="'ready for takeover'"/> 
-                </conditions>
-                <actions>
-                  <set_value name="this.$orderlist" exact="event.param2"/>
-                  <set_value name="this.$ut_cac" exact="event.param3"/>
-                </actions>
-              </interrupt>
-            </wait>
           </do_if>
           <assign_architect actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.architect.default']"/>
@@ -339,7 +339,8 @@
           <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
           <do_if value="$destination.hastradesubscription">
             <signal_objects object="$destination" param="'trade agent handover'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
-            <wait>
+            <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
+            <wait exact="10s">
               <interrupt>
                 <conditions>
                   <event_object_signalled object="this" param="'ready for takeover'"/> 
@@ -347,11 +348,13 @@
                 <actions>
                   <set_value name="this.$orderlist" exact="event.param2"/>
                   <set_value name="this.$ut_cac" exact="event.param3"/>
+                  <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.tradeagent.default']"/>
                 </actions>
               </interrupt>
             </wait>
           </do_if>
-          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.tradeagent.default']"/>
+          <do_else>
+          </do_else>
         </do_elseif>
         
         <!-- so far unused assignments:
@@ -363,6 +366,7 @@
         <do_elseif value="$job == 'standby'">
           <set_entity_type entity="this" type="entitytype.lawenforcement"/>
         </do_elseif>
+        <!-- These are for Assignment on Shipyards or CVs to wait for a completed Construction. will wait till the Architect/Ship Trader gives the Assignment. -->
         <do_elseif value="$job == 'standby captain'">
           <set_entity_type entity="this" type="entitytype.commander"/>
         </do_elseif>
@@ -381,7 +385,7 @@
         <do_elseif value="$job == 'standby tradeagent'">
           <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
         </do_elseif>
-        <!-- custom case -->
+        <!-- custom case, used for jobs not directly covered in this Script -->
         <do_elseif value="$job == 'custom'">
           <set_entity_type entity="this" type="$new_type"/>
         </do_elseif> 
