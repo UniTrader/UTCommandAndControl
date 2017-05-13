@@ -1188,7 +1188,7 @@ function menu.createChildList(isfirsttime)
 	-- included stations
 	if #stations > 0 then
 		for i, station in ipairs(stations) do
-			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or (menu.mode == "selectobject" and GetComponentData(station, "owner") ~= "player") or menu.mode == "selectspaceorstation"  or menu.mode == "selectspaceorobject" then
+			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or menu.mode == "selectobject" or menu.mode == "selectspaceorstation"  or menu.mode == "selectspaceorobject" then
 				displayedstations = true
 				lines = lines + 1
 				local islastchild = false
@@ -1349,7 +1349,7 @@ function menu.createChildList(isfirsttime)
 	-- included ships
 	if #ships > 0 then
 		for i, ship in ipairs(ships) do
-			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or (menu.mode == "selectobject" and GetComponentData(ship, "owner") ~= "player") or menu.mode == "selectspaceorobject" then
+			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or menu.mode == "selectobject" or menu.mode == "selectspaceorobject" then
 				displayedships = true
 				lines = displayShip(ship, lines, 0)
 			end
@@ -1493,7 +1493,7 @@ function menu.createChildList(isfirsttime)
 	end
 	if displayedstations then
 		for i, station in ipairs(stations) do 
-			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or (menu.mode == "selectobject" and GetComponentData(station, "owner") ~= "player") then
+			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or menu.mode == "selectobject" then
 				local isextended = menu.isExtended(ConvertIDTo64Bit(station))
 
 				Helper.setButtonScript(menu, nil, menu.selecttable, nooflines, 1, function () return menu.buttonNavigation("ship", ConvertIDTo64Bit(station), 0) end)
@@ -1544,7 +1544,7 @@ function menu.createChildList(isfirsttime)
 	end
 	if displayedships then
 		for i, ship in ipairs(ships) do
-			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or (menu.mode == "selectobject" and GetComponentData(ship, "owner") ~= "player") then
+			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or menu.mode == "selectobject" then
 				nooflines = setShipScript(ship, nooflines)
 			end
 		end
@@ -2333,7 +2333,7 @@ function menu.filterComponentByText(component, text, includeobjects)
 				end
 			end
 			for _, ship in ipairs(ships) do
-				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or (menu.mode == "selectobject" and GetComponentData(ship, "owner") ~= "player") then
+				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or menu.mode == "selectobject" then
 					if menu.filterComponentByText(ship, text, false) then
 						return true
 					end
@@ -2349,7 +2349,7 @@ function menu.filterComponentByText(component, text, includeobjects)
 				end
 			end
 			for _, station in ipairs(stations) do
-				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or (menu.mode == "selectobject" and GetComponentData(station, "owner") ~= "player") then
+				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or menu.mode == "selectobject" then
 					if menu.filterComponentByText(station, text, false) then
 						return true
 					end
@@ -2433,7 +2433,7 @@ function menu.filterComponentByText(component, text, includeobjects)
 				end
 			end
 			for _, subordinate in ipairs(subordinates) do
-				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(subordinate, "owner") == "player") or (menu.mode == "selectobject" and GetComponentData(subordinate, "owner") ~= "player") then
+				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(subordinate, "owner") == "player") or menu.mode == "selectobject" then
 					if menu.filterComponentByText(subordinate, text, false) then
 						return true
 					end
