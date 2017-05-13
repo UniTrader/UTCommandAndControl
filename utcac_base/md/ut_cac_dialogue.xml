@@ -816,7 +816,7 @@
                 <add_player_choice_sub text="'Captain'" position="1" section="comm_personal_transfer_jobselected" choiceparam="'captain'"/>
                 <add_player_choice_sub text="'Defense'" position="2" section="comm_personal_transfer_jobselected" choiceparam="'defense'"/>
                 <add_player_choice_sub text="'Engineer'" position="3" section="comm_personal_transfer_jobselected" choiceparam="'engineer'"/>
-                <do_if value="$selectedobject.isconstructionvessel">
+                <do_if value="$selectedobject.buildmodule.exists" comment="Is Constructionvessel?">
                   <!-- 4 Architect-->
                   <!-- 5 Standby for Station completion - new sub-Menu:
                             .1 Manager
@@ -826,10 +826,20 @@
                   <add_player_choice_sub text="'Architect'" position="4" section="comm_personal_transfer_jobselected" choiceparam="'architect'"/>
                   <add_player_choice_sub text="'Wait till construction complete as..'" position="5" section="comm_personal_transfer_standby_as"/>
                 </do_if>
-                <do_elseif value="$selectedobject.iscarrier">
-                  <!-- 5 Pilot (for contained small Ships - Functionality not present yet - just reserving the slot -->
-                  <add_player_choice_sub text="'Pilot for Fighters'" position="5" section="comm_personal_transfer_jobselected" choiceparam="'carrier pilot'" selectable="false" tooltip="'Not Implemented Yet'"/>
-                </do_elseif>
+                <do_else>
+                  <set_value name="$iscarrier" exact="false" />
+                  <do_all exact="4" counter="$i">
+                    <find_dock_location container="this.ship" size="[tag.dock_m, tag.dock_s, tag.dock_xl, tag.dock_l].{$i}" name="$dock_found"/>
+                    <do_if value="$dock_found.exists">
+                      <break/>
+                    </do_if>
+                  </do_all>
+                  <do_if value="$dock_found.exists">
+                    <!-- 5 Pilot (for contained small Ships - Functionality not present yet - just reserving the slot -->
+                    <add_player_choice_sub text="'Pilot for Fighters'" position="5" section="comm_personal_transfer_jobselected" choiceparam="'carrier pilot'" selectable="false" tooltip="'Not Implemented Yet'"/>
+                  </do_if>
+                  <remove_value name="$dock_found"/>
+                </do_else>
               </do_if>
               <do_elseif value="$selectedobject.isclass.ship">
                 <!-- Jobs:
