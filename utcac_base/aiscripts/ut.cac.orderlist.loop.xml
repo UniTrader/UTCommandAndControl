@@ -82,7 +82,12 @@
                 <abort_called_scripts resume="start"/>
               </do_if>
               <do_elseif value="if this.$orderlist.{1}.$interruptable? then this.$orderlist.{1}.$interruptable else true">
-                <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" operation="insert"/>
+                <do_if value="@this.$orderlist.{1}.$exitonneworder">
+                  <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" comment="replace first Order if it should terminate for new Orders"/>
+                </do_if>
+                <do_else>
+                  <set_value name="this.$orderlist.{1}" exact="$new_orders.{$i}" operation="insert"/>
+                </do_else>
                 <abort_called_scripts resume="start"/>
               </do_elseif>
               <do_else>
