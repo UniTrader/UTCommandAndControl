@@ -56,6 +56,26 @@
       <remove_value name="this.$ut_cac.$orders_section" comment="no Orders until this arrived at his assigned Workplace!"/>
       <remove_value name="this.$ut_cac.$settings_section" comment="no Settings until this arrived at his assigned Workplace!"/>
       
+      <!-- dismiss Control Entity if assigned -->
+      <do_if value="this.container.pilot == this">
+        <dismiss_control_entity object="this.container" actor="this"/>
+        <dismiss_pilot object="this.ship"/>
+        <stop_moving object="this.ship"/>
+      </do_if>
+      <do_if value="this.container.defencenpc == this">
+        <dismiss_control_entity object="this.container" actor="this"/>
+        <cease_fire object="this.ship"/>
+      </do_if>
+      <do_if value="this.container.engineer == this">
+        <dismiss_control_entity object="this.container" actor="this"/>
+      </do_if>
+      <do_if value="this.container.tradenpc == this">
+        <dismiss_control_entity object="this.container" actor="this"/>
+      </do_if>
+      <do_if value="this.container.architect == this">
+        <dismiss_control_entity object="this.container" actor="this"/>
+      </do_if>
+      
       <!-- use specific Dock when sending Actor to a Ship/Station -->
       <do_if value="$destination.isclass.container and not $dock">
         <do_if value="$destination.isclass.station">
@@ -113,6 +133,7 @@
         
         <!-- save current entity type in case it has to be restored-->
         <set_value name="$previoustype" exact="this.type"/>
+        
         
         <!-- wait till Player has finished Conversation, its annoying when NPC just disappears -->
         <do_if value="player.isinconversation">
