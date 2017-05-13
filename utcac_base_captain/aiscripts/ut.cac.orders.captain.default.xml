@@ -109,15 +109,15 @@
       
       <!-- Signal the Superior we are now Free and want something to do -->
       <do_if value="this.ship.commanderentity == player.entity" comment="Subordinate of the Player - currently not in my Plan, so either wait where you are (Trade Ships) or Patrol the current Sector (Battleships) until further Notice" >
-        <debug_text filter="error" text="'%1 %2 %3 Ship is Player direct Subordinate - NYI!!!!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Ship is Player direct Subordinate - NYI!!!!'.[player.age,this.name,this.container.name]"/>
         <do_if value="this.ship.primarypurpose == objectpurpose.fight">
-          <!-- Patrol for 1h in the Sector and then pester again -->
-          <signal_objects object="this" param="'new order'" param2="['patrol' , 0 , 'sector' , 1h ]"/>
+          <!-- Patrol for 1h in the Zone and then pester again -->
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname='Patrolling %1 (Self)'.[this.zone.knownname],$space=this.zone,$patroltime=1h,$exitonneworder=true,$interruptable=true]"/>
           <return/>
         </do_if>
         <do_else comment="this.ship.primarypurpose == objectpurpose.trade">
           <!-- wait at current Position until given a new Order, pester again after 1h -->
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=1h,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (Self)',$order='wait order',$time=1h,$interruptable=true]"/>
           <return/>
         </do_else>
       </do_if>
