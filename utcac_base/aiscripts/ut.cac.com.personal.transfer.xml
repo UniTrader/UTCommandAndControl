@@ -52,6 +52,9 @@
       </do_if>
       
       <debug_text filter="general" text="'%1 %2 Script started'.[this.name,this.container.name]"/>
+      <set_value name="$params.$interruptable" exact="false" comment="Order may not be stopped anymore!"/>
+      <remove_value name="this.$ut_cac.$orders_section" comment="no Orders until this arrived at his assigned Workplace!"/>
+      <remove_value name="this.$ut_cac.$settings_section" comment="no Settings until this arrived at his assigned Workplace!"/>
       
       <!-- use specific Dock when sending Actor to a Ship/Station -->
       <do_if value="$destination.isclass.container and not $dock">
@@ -216,6 +219,8 @@
           </do_if>
           <assign_pilot actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/>
+          <set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>
+          <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
         </do_if>
         <do_elseif value="$job == 'manager'">
           <set_entity_type entity="this" type="entitytype.manager"/>
@@ -241,6 +246,8 @@
           </do_if>
           <assign_trade_manager actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
+          <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
+          <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
         </do_elseif>
         <do_elseif value="$job == 'pilot'">
           <set_entity_type entity="this" type="entitytype.pilot"/>
@@ -267,6 +274,8 @@
           </do_if>
           <assign_pilot actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default']"/><!-- ToDo: Seperate Defaultorders Script for Pilot -->
+          <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
+          <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
         </do_elseif>
         <do_elseif value="$job == 'defense'">
           <set_entity_type entity="this" type="entitytype.defencecontrol"/>
@@ -294,6 +303,8 @@
           <assign_defence_manager actor="this" object="$destination"/>
           <start_script object="this" name="'ut.cac.com.defense.main'"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.defense.default']"/>
+          <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
+          <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
         </do_elseif>
         <do_elseif value="$job == 'engineer'">
           <set_entity_type entity="this" type="entitytype.engineer"/>
@@ -320,6 +331,8 @@
           </do_if>
           <assign_engineer actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.engineer.default']"/>
+          <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
+          <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
         </do_elseif>
         <do_elseif value="$job == 'architect'">
             <set_entity_type entity="this" type="entitytype.architect"/>
@@ -345,6 +358,8 @@
           </do_if>
           <assign_architect actor="this" object="$destination"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.architect.default']"/>
+          <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
+          <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
         </do_elseif>
         <do_elseif value="$job == 'tradeagent'">
           <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
@@ -360,6 +375,8 @@
                   <set_value name="this.$orderlist" exact="event.param2"/>
                   <set_value name="this.$ut_cac" exact="event.param3"/>
                   <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.tradeagent.default']"/>
+                  <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
+                  <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
                 </actions>
               </interrupt>
             </wait>

@@ -162,7 +162,7 @@
             </do_if>
           </do_if>
           <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main"/>
-          <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main" selectable="event.object.$ut_cac.$settings_cue?"/>
+          <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main" selectable="event.object.$ut_cac.$settings_section?"/>
           <add_player_choice_sub text="{5554103,3}" position="3" section="comm_connect_main"/>
           <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main"/>
           <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
@@ -300,14 +300,19 @@
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_add'">
           <do_if value="event.name == 'event_conversation_next_section'">
-            <!-- Prepare Order Selection (Order Selection itself is in the next Section; order will be applied upon Return) -->
-            <do_if value="event.param2 == null or event.param2 ge event.object.$orderlist.count">
-              <set_value name="$insert_pos" exact="null"/>
+            <do_if value="event.object.$ut_cac.$orders_section?">
+              <!-- Prepare Order Selection (Order Selection itself is in the next Section; order will be applied upon Return) -->
+              <do_if value="event.param2 == null or event.param2 ge event.object.$orderlist.count">
+                <set_value name="$insert_pos" exact="null"/>
+              </do_if>
+              <do_else>
+                <set_value name="$insert_pos" exact="[ event.object.$orderlist.{event.param2}, event.param2 ]"/>
+              </do_else>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'next_subsection', event.object.$ut_cac.$orders_section]"/>
             </do_if>
             <do_else>
-              <set_value name="$insert_pos" exact="[ event.object.$orderlist.{event.param2}, event.param2 ]"/>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_else>
-            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'next_subsection', event.object.$ut_cac.$orders_section]"/>
           </do_if>
           <do_elseif value="event.name == 'event_conversation_returned_to_section'">
             <!-- Returned from Order Selection - check if there is a new Order to be inserted, if yes signal order managment and return -->
@@ -337,12 +342,12 @@
                 <do_if value="$index">
                   <signal_objects object="event.object" param="'new order'" param2="$new_order" param3="$index"/>
                 </do_if>
-              </do_else>            
-              <!-- cleanup and return--> 
+              </do_else>
+              <!-- cleanup and return-->
               <remove_value name="$insert_pos"/>
               <remove_value name="$new_order"/>
-              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_if>
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
           </do_elseif>
         </do_elseif>
       </actions>
@@ -357,7 +362,12 @@
       </conditions>
       <actions>
         <reset_cue cue="this"/>
-        <include_actions ref="event.object.$ut_cac.$settings_cue"/>
+        <do_if value="event.object.$ut_cac.$settings_section?">
+          <include_actions ref="event.object.$ut_cac.$settings_section"/>
+        </do_if>
+        <do_else>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_else>
       </actions>
     </cue>
     <!-- Root Choice 3 - Connect with.. -->
