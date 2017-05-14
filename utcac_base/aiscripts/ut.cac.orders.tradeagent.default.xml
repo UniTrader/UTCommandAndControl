@@ -7,6 +7,16 @@
   <init>
   </init>
   <interrupts>
+    <handler comment="handler for passing over tradeagent functionality to someone else">
+      <conditions>
+        <event_object_signalled object="this.container" param="'trade agent handover'"/>
+      </conditions>
+      <actions>
+        <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
+        <signal_objects object="event.param2" param="'trade agent handover'" param2="'ready for takeover'"/>
+        <return/>
+      </actions>
+    </handler>
   </interrupts>
   <attention min="unknown">
     <actions>
