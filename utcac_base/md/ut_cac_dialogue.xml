@@ -110,6 +110,9 @@
                 <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
               </do_if>
               <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
+              <do_if value="$actor.room != player.room">
+                <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[this.station.name,'standby'],$destination=this.station,$job='standby',$interruptable=true]" delay="1s"/>
+              </do_if>
               <debug_text filter="error" text="' %1 started loop'.[$actor.name]"/>
             </do_if>
             <do_else>
