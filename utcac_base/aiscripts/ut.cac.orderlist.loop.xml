@@ -202,7 +202,7 @@
       <label name="find job"/>
       <do_if value="player.age gt $next_default_order_call">
         <!-- limit looking up default orders to once per minute -->
-        <set_value name="$next_default_order_call" exact="player.age + 10s"/>
+        <set_value name="$next_default_order_call" exact="player.age + 1s"/>
         <!-- no outstanding direct orders - call defined Default Orders Script to get new ones -->
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calling Default Orders Script'.[player.age,this.name,this.container.name]"/>
         <run_script name="this.$ut_cac.$defaultorders.$script">
@@ -211,9 +211,9 @@
         <resume label="start"/>
       </do_if>
       <do_else>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting because Default Orders is overused'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 %3 Waiting because Default Orders is overused - defaultorderscript: %4'.[player.age,this.name,this.container.name,this.$ut_cac.$defaultorders]"/>
         <wait exact="$next_default_order_call - player.age + 1s"/>
-        <resume label="find job"/>
+        <resume label="start"/>
       </do_else>
     </actions>
   </attention>
