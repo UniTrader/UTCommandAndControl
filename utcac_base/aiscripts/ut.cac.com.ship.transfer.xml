@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.com.ship.transfer" version="30" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+  by  UniTrader
+
+  Script to handle Hierarchy Changes of Objects
+  
+  (basically just a <set_object_commander/> which can be sheduled via Orderlist )
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="newcommander" default="null" comment="New Superior. set to null if you want to remove it."/>
+    <param name="newcommandertype" default="null" comment="New Superior. set to null if you want to remove it."/>
+    <param name="skipnavigation" default="false" comment="Dont fly to Commander after Assignment, just change superior"/>
+    <param name="exitonneworder" default="false" comment="Exit immediately when receiving a new Order. If set to a Number of 2 or greater this is the Number of Orders the this.{$orderlist} has to contain before aborting (since 1 is always this Script) (Note: setting the new Commander is never skipped!!)"/>
+  </params>
+  <init>
+    <!-- first decode the $params to the Variables -->
+    <do_if value="$params">
+      <do_if value="$params.$newcommander?">
+        <set_value name="$newcommander" exact="$params.$newcommander"/>
+      </do_if>
+      <do_if value="$params.$newcommandertype?">
+        <set_value name="$newcommandertype" exact="$params.$newcommandertype"/>
+      </do_if>
+      <do_if value="$params.$skipnavigation?">
+        <set_value name="$skipnavigation" exact="$params.$skipnavigation"/>
+      </do_if>
+      <do_if value="$params.$newcommander?">
+        <set_value name="$newcommander" exact="$params.$newcommander"/>
+      </do_if>
+      <do_if value="$params.$exitonneworder?">
+        <set_value name="$exitonneworder" exact="$params.$exitonneworder"/>
+      </do_if>
+    </do_if>
+  </init>
+  <interrupts>
+    <handler ref="ut_cac_exitonneworder"/>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <label name="start"/>
+      <set_object_commander object="this.ship" commander="$newcommander" type="$newcommandertype"/>
+      
+      <!-- Exit if we got new Orders -->
+      <do_if value="if $exitonneworder gt 1 then this.$orderlist.{$exitonneworder}? else $exitonneworder and this.$orderlist.{2}? ">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received New Orders - Exiting (start Case)'.[player.age,this.name,this.container.name]"/>
+        <resume label="finish"/>
+      </do_if>
+      
+      <!-- Exit if we skip Navigation -->
+      <do_if value="skipnavigation ">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received New Orders - Exiting (start Case)'.[player.age,this.name,this.container.name]"/>
+        <resume label="finish"/>
+      </do_if>
+      
+      <run_script name="'ut.cac.move.generic'">
+        <param name="destination" value="$newcommander" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+        <param name="endintargetspace" value="true" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
+        <param name="exitonneworder" value="false" comment="This Script should interrupt, not the called Script!!!"/>
+      </run_script>
+      
+      <label name="finish"/>
+    </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>
