@@ -1,14 +1,264 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
-<mdscript name="UT_CAC_Manager" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
-
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<mdscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="UT_CAC_Manager" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/md.xsd">
   <cues>
-
+    <cue name="Settings" instantiate="true">
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_manager_settings"/>
+          <event_conversation_returned_to_section sectionprefix="comm_manager_settings"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6 slot= %7'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3,@$slot]"/>
+        <!--- ################################### -->
+        <!--                       Settings Menu                          -->
+        <!--- ################################### -->
+        <do_if value="event.param == 'comm_settings_main'">
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
+              <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail"/>
+              <add_npc_line speaker="event.object" line="[4110,4111].random" hidechoices="false" comment="Here you go."/>
+            </do_if>
+            <do_elseif value="event.name == 'event_conversation_returned_to_section'">
+              <do_if value="event.param2 == 'no change'">
+                <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time."/>
+              </do_if>
+              <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation"/>
+            </do_elseif>
+          </do_if>
+          <!-- #### Maybe a check is required here to see if Itaros' Gerneicui is available? if yes call comm_settings_range_genericui instead -->
+          <add_player_choice_sub text="if event.object.skill.navigation ge 1 then {5554103,241} else {5554103,242}" position="1" section="comm_settings_range_genericui" selectable="event.object.skill.navigation ge 1"/>
+          <add_player_choice_sub text="if event.object.container.istraderestricted then {5554103,243} else {5554103,244}" position="2" section="comm_settings_trade_restriction"/>
+          <add_player_choice_sub text="{5554103,245}" position="3" section="comm_settings_trade_legality"/>
+          <add_player_choice_return text="{5554103,7}" position="6"/>
+          <add_player_choice_return text="{5554103,7}" position="close"/>
+        </do_if>
+        <do_elseif value="event.param == 'comm_settings_range'">
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation"/>
+          </do_if>
+          <!--resize_list list="event.object.$ut_cac.$range" count="param.ut_cac.rangelimits.{event.object.skill.navigation}.{6}"/-->
+          <resize_list list="event.object.$ut_cac.$range_h" count="event.object.$ut_cac.$range.count"/>
+          <resize_list list="event.object.$ut_cac.$range_j" count="event.object.$ut_cac.$range.count"/>
+          <resize_list list="event.object.$ut_cac.$range_w" count="event.object.$ut_cac.$range.count"/>
+          <do_all exact="event.object.$ut_cac.$range.count" counter="$i">
+            <!-- Text Block is for apporiate Coloring of Range Entry - see also deactivated doif/elseif version below (wanted to try stacked inline ifs :D )-->
+            <do_if value="event.object.$ut_cac.$range.{$i}">
+              <set_value name="$choicetext" exact="
+              if event.object.$ut_cac.$range_h.{$i} then
+                ( if event.object.$ut_cac.$range_j.{$i} then
+                  '\033G%1\033X'.[event.object.$ut_cac.$range.{$i}.name] else
+                  '\033Y%1\033X'.[event.object.$ut_cac.$range.{$i}.name] )
+                else
+                  ( if event.object.$ut_cac.$range_j.{$i} then
+                    '\033B%1\033X'.[event.object.$ut_cac.$range.{$i}.name] else
+                    '\033A%1\033X'.[event.object.$ut_cac.$range.{$i}.name] )"/>
+              <do_if value="event.object.$ut_cac.$range_w.{$i}">
+                <set_value name="$choicetext" exact="'%1 via %2'.[$choicetext,event.object.$ut_cac.$range_w.{$i}.name]"/>
+              </do_if>
+            </do_if>
+            <do_else>
+              <set_value name="$choicetext" exact="'&gt; &gt; unused &lt; &lt;\033X'"/>
+            </do_else>
+            <add_player_choice_sub position="$i" section="comm_settings_range_mod" choiceparam="$i" text="$choicetext"/>
+            <do_if value="false">
+              <do_if value="event.object.$ut_cac.$range.{$i}">
+                <!-- jump and highway Range Slot -->
+                <do_if value="event.object.$ut_cac.$range_h.indexof.{event.object.$ut_cac.$range.{$i}} and event.object.$ut_cac.$range_h.indexof.{event.object.$ut_cac.$range.{$i}}">
+                  <add_player_choice_sub text="'\033G%1\033X'.[event.object.$ut_cac.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                </do_if>
+                <!-- jump Range Slot -->
+                <do_elseif value="event.object.$ut_cac.$range_j.indexof.{event.object.$ut_cac.$range.{$i}}">
+                  <add_player_choice_sub text="'\033B%1\033X'.[event.object.$ut_cac.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                </do_elseif>
+                <!-- highway Range Slot -->
+                <do_elseif value="event.object.$ut_cac.$range_h.indexof.{event.object.$ut_cac.$range.{$i}}">
+                  <add_player_choice_sub text="'\033Y%1\033X'.[event.object.$ut_cac.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                </do_elseif>
+                <!-- only passthrough Range -->
+                <do_else>
+                  <add_player_choice_sub text="'\033A%1\033X'.[event.object.$ut_cac.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+                </do_else>
+              </do_if>
+              <!-- unused Range Slot -->
+              <do_else>
+                <add_player_choice_sub text="'\033A&gt; &gt; unused &lt; &lt;\033X'" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
+              </do_else>
+            </do_if>
+          </do_all>
+          <add_player_choice_return text="{5554103,7}" position="6"/>
+          <add_player_choice_return text="{5554103,7}" position="close"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_range_genericui'">
+          <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
+          <do_if value="@$selectedcell.{1} gt event.object.$ut_cac.$range.count + 1">
+            <set_value name="$selectedcell.{1}" exact="event.object.$ut_cac.$range.count + 2"/>
+            <set_value name="$selectedcell.{2}" exact="5"/>
+          </do_if>
+          <set_value name="$genericuiparam" exact="
+[ 0 , 0 , 'Range Managment for %1'.[event.object.container.name], 'Select Range to Modify', null , if $selectedcell? then $selectedcell else null , [ if event.object.$ut_cac.$range.count ge 10 then 50 else 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,  [] ,  
+[ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , [ 'button' ,  'Remove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Old Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 1 , 1 , 1 , 1 ] ] , 
+[ 'text' , '' ] , 
+[ 'text' , 'Available Points for Ranges: ' + $totalrangepoints + '   Remaining Points: ' + $rangepoints ] , 
+[ 'text' , 'Navigation Skill:' ] , [ 'stars' , event.object.skill.navigation], 
+[ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  100 ] 
+]"/>
+          <do_all exact="event.object.$ut_cac.$range.count" counter="$i" reverse="false">
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] , null , $i] ,  
+[ 'text' , $i + '.' ] , 
+[ 'button' , if event.object.$ut_cac.$range_j.{$i} then '\033BJ' else 'J' , 'comm_settings_range_toggle_jump' , null , true , $i , true ] , 
+[ 'button' , if event.object.$ut_cac.$range_h.{$i} then '\033GH' else 'H' , 'comm_settings_range_toggle_highway' , null  , true , $i , true ] , 
+[ 'text' ,  event.object.$ut_cac.$range.{$i}.name + ( if @event.object.$ut_cac.$range_w.{$i} then ( ' via ' + event.object.$ut_cac.$range_w.{$i}.name ) else '' ) ] , 
+[ 'button' , 'Move Down' , 'comm_settings_range_move_down' , null , true , $i , true ] , 
+[ 'button' , 'Change' , 'comm_settings_range_change' , null , true , $i ] , 
+[ 'button' , if @event.object.$ut_cac.$range_w.{$i} then 'Mod Waypoint' else 'Set Waypoint' , 'comm_settings_range_change_waypoint' , null , true , $i] ]"/>
+          </do_all>
+          <!-- remove last move down Entry -->
+          <set_value name="$genericuiparam.{8}.{$genericuiparam.{8}.count}.{6}" exact="null"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 3 ] ] , 
+[ 'text' , '#' ] , 
+[ 'text' , 'Add new Range Setting' ] , 
+[ 'button' , 'Select Space or Station' , 'comm_settings_range_change' , null , true , event.object.$ut_cac.$range.count + 1 ] 
+]"/>
+          <remove_value name="$selectedcell"/>
+          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
+          <add_conversation_view view="closeupdetailmonitor"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_range_toggle_jump'">
+          <do_if value="event.object.$ut_cac.$range_j.{event.param2}">
+            <set_value name="event.object.$ut_cac.$range_j.{event.param2}" exact="null"/>
+          </do_if>
+          <do_else>
+            <set_value name="event.object.$ut_cac.$range_j.{event.param2}" exact="event.object.$ut_cac.$range.{event.param2}"/>
+          </do_else>
+          <set_value name="$selectedcell" exact="[event.param2+1,2]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_range_toggle_highway'">
+          <do_if value="event.object.$ut_cac.$range_h.{event.param2}">
+            <set_value name="event.object.$ut_cac.$range_h.{event.param2}" exact="null"/>
+          </do_if>
+          <do_else>
+            <set_value name="event.object.$ut_cac.$range_h.{event.param2}" exact="event.object.$ut_cac.$range.{event.param2}"/>
+          </do_else>
+          <set_value name="$selectedcell" exact="[event.param2+1,3]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_range_move_down'">
+          <set_value name="$tmp_range" exact="event.object.$ut_cac.$range.{event.param2}"/>
+          <set_value name="$tmp_range_h" exact="event.object.$ut_cac.$range_h.{event.param2}"/>
+          <set_value name="$tmp_range_j" exact="event.object.$ut_cac.$range_j.{event.param2}"/>
+          <do_if value="event.object.$ut_cac.$range_w.{event.param2}">
+            <set_value name="$tmp_range_w" exact="event.object.$ut_cac.$range_w.{event.param2}"/>
+          </do_if>
+          <remove_value name="event.object.$ut_cac.$range.{event.param2}"/>
+          <remove_value name="event.object.$ut_cac.$range_h.{event.param2}"/>
+          <remove_value name="event.object.$ut_cac.$range_j.{event.param2}"/>
+          <remove_value name="event.object.$ut_cac.$range_w.{event.param2}"/>
+          <set_value name="event.object.$ut_cac.$range.{event.param2 + 1}" operation="insert" exact="$tmp_range"/>
+          <set_value name="event.object.$ut_cac.$range_h.{event.param2 + 1}" operation="insert" exact="$tmp_range_h"/>
+          <set_value name="event.object.$ut_cac.$range_j.{event.param2 + 1}" operation="insert" exact="$tmp_range_j"/>
+          <do_if value="$tmp_range_w?">
+            <set_value name="event.object.$ut_cac.$range_j.{event.param2 + 1}" operation="insert" exact="$tmp_range_j"/>
+          </do_if>
+          <remove_value name="$tmp_range"/>
+          <remove_value name="$tmp_range_h"/>
+          <remove_value name="$tmp_range_j"/>
+          <remove_value name="$tmp_range_w"/>
+          <do_if value="event.param2 + 1 == event.object.$ut_cac.$range.count">
+            <set_value name="$selectedcell" exact="[event.param2+1,5]"/>
+          </do_if>
+          <do_else>
+            <set_value name="$selectedcell" exact="[event.param2+2,5]"/>
+          </do_else>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_range_change'">
+          <!-- can also be used for passing Ranges by passing an index of range count + 1 -->
+          <set_value name="$slot" exact="event.param2"/>
+          <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', event.object.container.cluster, null, event.object.container.sector, 'selectspaceorstation', ['comm_settings_range_set']]"/>
+          <add_conversation_view view="closeupdetailmonitor"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_range_set'">
+          <do_if value="$slot gt event.object.$ut_cac.$range.count">
+            <append_to_list name="event.object.$ut_cac.$range" exact="event.param2.{3}"/>
+            <append_to_list name="event.object.$ut_cac.$range_j" exact="event.param2.{3}"/>
+            <append_to_list name="event.object.$ut_cac.$range_h" exact="event.param2.{3}"/>
+            <append_to_list name="event.object.$ut_cac.$range_w" exact="null"/>
+          </do_if>
+          <do_else>
+            <set_value name="event.object.$ut_cac.$range.{$slot}" exact="event.param2.{3}"/>
+            <set_value name="event.object.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
+            <set_value name="event.object.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
+          </do_else>
+          <set_value name="$selectedcell" exact="[$slot+1,6]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_range_change_waypoint'">
+          <set_value name="$slot" exact="event.param2"/>
+          <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', event.object.container.cluster, null, event.object.container.sector, 'selectspace', ['comm_settings_range_set_waypoint']]"/>
+          <add_conversation_view view="closeupdetailmonitor"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_range_set_waypoint'">
+          <set_value name="event.object.$ut_cac.$range_w.{$slot}" exact="event.param2.{3}"/>
+          <set_value name="$selectedcell" exact="[$slot + 1,7]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_range_remove'">
+          <do_if value="event.param2">
+            <do_if value="event.object.$ut_cac.$range_w.{event.param2}">
+              <set_value name="event.object.$ut_cac.$range_w.{event.param2}" exact="null"/>
+              <set_value name="$selectedcell" exact="[event.param2+1,null]"/>
+            </do_if>
+            <do_else>
+              <remove_value name="event.object.$ut_cac.$range.{event.param2}"/>
+              <remove_value name="event.object.$ut_cac.$range_j.{event.param2}"/>
+              <remove_value name="event.object.$ut_cac.$range_h.{event.param2}"/>
+              <remove_value name="event.object.$ut_cac.$range_w.{event.param2}"/>
+              <do_if value="event.param2  == event.object.$ut_cac.$range.count">
+                <set_value name="$selectedcell" exact="[event.param2,null]"/>
+              </do_if>
+              <do_else>
+                <set_value name="$selectedcell" exact="[event.param2+1,null]"/>
+              </do_else>
+            </do_else>
+          </do_if>
+          <do_else>
+            <set_value name="$selectedcell" exact="[event.object.$ut_cac.$range.count + 2,5]"/>
+          </do_else>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_trade_restriction'">
+          <!-- currently this is a simple Toggle between restricted and non-restricted, but planning to change this to a finer definition consisting of own only, own+allied, own+allied+friend, own+allied+friend+neutral and own+allied+friend+neutral+docking allowed -->
+          <do_if value="event.object.container.istraderestricted">
+            <set_trade_restrictions object="event.object.container" restricted="false"/>
+          </do_if>
+          <do_else>
+            <set_trade_restrictions object="event.object.container" restricted="true"/>
+          </do_else>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_trade_legality'">
+          <add_player_choice text="{5554103,2431}" position="1" section="comm_settings_trade_legality_set" choiceparam="3"/>
+          <add_player_choice text="{5554103,2432}" position="2" section="comm_settings_trade_legality_set" choiceparam="2" selectable="event.object.skill.morale ge 2"/>
+          <add_player_choice text="{5554103,2433}" position="3" section="comm_settings_trade_legality_set" choiceparam="1" selectable="event.object.skill.morale ge 3"/>
+          <add_player_choice text="{5554103,2434}" position="4" section="comm_settings_trade_legality_set" choiceparam="0" selectable="event.object.skill.morale ge 4"/>
+          <add_player_choice_return text="{5554103,7}" position="6"/>
+          <add_player_choice_return text="{5554103,7}" position="close"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_settings_trade_legality_set'">
+          <set_value name="event.object.$ut_cac.$legality" exact="event.param2"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+      </actions>
+    </cue>
     <cue name="Main" instantiate="true" namespace="this" version="30">
       <conditions>
         <event_cue_signalled cue="this"/>
       </conditions>
       <actions>
-        <set_value name="$actor" exact="event.param" />
+        <set_value name="$actor" exact="event.param"/>
         <include_actions ref="md.UT_CAC_Lib.Actor_Init" comment="setting neccesary Variables"/>
         <set_value name="$actor.$ut_cac.$range" exact="[$actor.sector]"/>
         <set_value name="$actor.$ut_cac.$range_h" exact="[$actor.sector]"/>
@@ -23,8 +273,8 @@
         </do_if>
         <!-- add Group for managing available Fight Ships to avoid debug Errors -->
         <create_group groupname="$actor.$ut_cac.$availablefightships"/>
-        <debug_text filter="general"  chance="@$actor.$debug * 100" text="'%1 now uses UT CAC Manager comm handlers'.[$actor.name]" />
-        <set_comm_handler actor="$actor" customhandler="true" />
+        <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 now uses UT CAC Manager comm handlers'.[$actor.name]"/>
+        <set_comm_handler actor="$actor" customhandler="true"/>
         <!-- From now on, only this instance tree is responsible for handling the entity conversation - only available for the Player, it will manage Personal costs, Dialogue Tree and Settings Config (interface to AIscripts are blackboard Vars and Signals)-->
         <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
         <!-- instead of starting the Orderlist now wait till Drone has arrived or, if already on a Station/Ship simulate Drone Arrival to unify the managment of both events -->
@@ -46,12 +296,12 @@
         <do_if value="$actor.station.tradewares.{ware.fuelcells}.exists">
           <remove_tradeware object="$actor.station" ware="ware.fuelcells"/>
         </do_if>
-         <!--Compatibility with Vim Razz' Human Ressources -->
+        <!--Compatibility with Vim Razz' Human Ressources -->
         <set_value name="$actor.$InUse" exact="true"/>
       </patch>
       <patch sinceversion="12" state="complete">
         <!-- the definition of consumables changed slightly; just updating to current default Values because the changed part was not used yet. -->
-		<!-- first revision of Manager Script 2016 changes this functionality entirely - no need to update these vars anymore since they will be removed --> 
+        <!-- first revision of Manager Script 2016 changes this functionality entirely - no need to update these vars anymore since they will be removed -->
         <!--set_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$onetimedelivery" exact="param.ut_cac.setting_defaults.$consumables.{ware.fuelcells}.$onetimedelivery"/-->
         <!--set_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$unbundle" exact="param.ut_cac.setting_defaults.$consumables.{ware.fuelcells}.$unbundle"/-->
         <remove_value name="$actor.$ut_cac.$consumables.{ware.fuelcells}.$type"/>
@@ -69,11 +319,10 @@
         <cue name="Payment" ref="md.UT_CAC_Lib.Payment">
           <param name="actor" value="$actor"/>
         </cue>
-        
         <cue name="Account_Manager" ref="md.UT_CAC_Lib.Account_Manager">
           <param name="actor" value="$actor"/>
         </cue>
-<!--
+        <!--
 Dialogue Tree - Entity specific Parts:
 1. Direct Orders
 ** none so far **
@@ -96,12 +345,12 @@ Rest is shared between all Actor types
               <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <do_if value="$actor.room == player.entity.room">
-                  <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi." />
-                  <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?" />
+                  <add_npc_line speaker="player.entity" line="[1100,1101].random" hidechoices="false" comment="Hello there. | Hi."/>
+                  <add_npc_line speaker="$actor" line="[1,5,1002,1004].random" hidechoices="false" comment="Hey, there!  | How can I help? | How can I help, Sir? | Hello, Sir. What can I do for you?"/>
                 </do_if>
                 <do_else>
-                  <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi." />
-                  <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?" />
+                  <add_npc_line speaker="player.entity" line="[1,1100,1101].random" hidechoices="false" comment="This is Otani, channel open. | Hello there. | Hi."/>
+                  <add_npc_line speaker="$actor" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?"/>
                 </do_else>
               </do_if>
             </do_if>
@@ -112,10 +361,9 @@ Rest is shared between all Actor types
             <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
             <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
             <set_conversation_return_section section="comm_goodbye"/>
-            <add_player_choice_return text="{5554103,6}" position="close" />
+            <add_player_choice_return text="{5554103,6}" position="close"/>
           </actions>
         </cue>
-        
         <!-- Menu 1: Orders (Note: partially Entity-Specific, see cue Comm_Orders ) -->
         <cue name="Comm_Common_Orders" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Orders">
           <param name="actor" value="$actor"/>
@@ -147,26 +395,26 @@ Rest is shared between all Actor types
             <do_if value="event.param == 'comm_settings_main'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
                 <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_settings_main'">
-                  <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-                  <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+                  <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail"/>
+                  <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go."/>
                 </do_if>
                 <do_elseif value="event.name == 'event_conversation_returned_to_section'">
                   <do_if value="event.param2 == 'no change'">
-                    <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
+                    <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time."/>
                   </do_if>
-                  <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+                  <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation"/>
                 </do_elseif>
               </do_if>
               <!-- #### Maybe a check is required here to see if Itaros' Gerneicui is available? if yes call comm_settings_range_genericui instead -->
               <add_player_choice_sub text="if $actor.skill.navigation ge 1 then {5554103,241} else {5554103,242}" position="1" section="comm_settings_range_genericui" selectable="$actor.skill.navigation ge 1"/>
               <add_player_choice_sub text="if $actor.container.istraderestricted then {5554103,243} else {5554103,244}" position="2" section="comm_settings_trade_restriction"/>
               <add_player_choice_sub text="{5554103,245}" position="3" section="comm_settings_trade_legality"/>
-              <add_player_choice_return text="{5554103,7}" position="6" />
-              <add_player_choice_return text="{5554103,7}" position="close" />
+              <add_player_choice_return text="{5554103,7}" position="6"/>
+              <add_player_choice_return text="{5554103,7}" position="close"/>
             </do_if>
             <do_elseif value="event.param == 'comm_settings_range'">
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
-                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+                <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation"/>
               </do_if>
               <!--resize_list list="$actor.$ut_cac.$range" count="param.ut_cac.rangelimits.{$actor.skill.navigation}.{6}"/-->
               <resize_list list="$actor.$ut_cac.$range_h" count="$actor.$ut_cac.$range.count"/>
@@ -175,15 +423,7 @@ Rest is shared between all Actor types
               <do_all exact="$actor.$ut_cac.$range.count" counter="$i">
                 <!-- Text Block is for apporiate Coloring of Range Entry - see also deactivated doif/elseif version below (wanted to try stacked inline ifs :D )-->
                 <do_if value="$actor.$ut_cac.$range.{$i}">
-                  <set_value name="$choicetext" exact="
-                  if $actor.$ut_cac.$range_h.{$i} then 
-                  ( if $actor.$ut_cac.$range_j.{$i} then 
-                    '\033G%1\033X'.[$actor.$ut_cac.$range.{$i}.name] else 
-                    '\033Y%1\033X'.[$actor.$ut_cac.$range.{$i}.name] )
-                  else 
-                  ( if $actor.$ut_cac.$range_j.{$i} then 
-                    '\033B%1\033X'.[$actor.$ut_cac.$range.{$i}.name] else 
-                    '\033A%1\033X'.[$actor.$ut_cac.$range.{$i}.name] )"/>
+                  <set_value name="$choicetext" exact="                   if $actor.$ut_cac.$range_h.{$i} then                    ( if $actor.$ut_cac.$range_j.{$i} then                      '\033G%1\033X'.[$actor.$ut_cac.$range.{$i}.name] else                      '\033Y%1\033X'.[$actor.$ut_cac.$range.{$i}.name] )                   else                    ( if $actor.$ut_cac.$range_j.{$i} then                      '\033B%1\033X'.[$actor.$ut_cac.$range.{$i}.name] else                      '\033A%1\033X'.[$actor.$ut_cac.$range.{$i}.name] )"/>
                   <do_if value="$actor.$ut_cac.$range_w.{$i}">
                     <set_value name="$choicetext" exact="'%1 via %2'.[$choicetext,$actor.$ut_cac.$range_w.{$i}.name]"/>
                   </do_if>
@@ -191,9 +431,9 @@ Rest is shared between all Actor types
                 <do_else>
                   <set_value name="$choicetext" exact="'&gt; &gt; unused &lt; &lt;\033X'"/>
                 </do_else>
-                <add_player_choice_sub position="$i" section="comm_settings_range_mod" choiceparam="$i" text="$choicetext" />
+                <add_player_choice_sub position="$i" section="comm_settings_range_mod" choiceparam="$i" text="$choicetext"/>
                 <do_if value="false">
-                  <do_if value="$actor.$ut_cac.$range.{$i}" >
+                  <do_if value="$actor.$ut_cac.$range.{$i}">
                     <!-- jump and highway Range Slot -->
                     <do_if value="$actor.$ut_cac.$range_h.indexof.{$actor.$ut_cac.$range.{$i}} and $actor.$ut_cac.$range_h.indexof.{$actor.$ut_cac.$range.{$i}}">
                       <add_player_choice_sub text="'\033G%1\033X'.[$actor.$ut_cac.$range.{$i}.name]" position="$i" section="comm_settings_range_mod" choiceparam="$i"/>
@@ -217,8 +457,8 @@ Rest is shared between all Actor types
                   </do_else>
                 </do_if>
               </do_all>
-              <add_player_choice_return text="{5554103,7}" position="6" />
-              <add_player_choice_return text="{5554103,7}" position="close" />
+              <add_player_choice_return text="{5554103,7}" position="6"/>
+              <add_player_choice_return text="{5554103,7}" position="close"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_genericui'">
               <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
@@ -226,31 +466,17 @@ Rest is shared between all Actor types
                 <set_value name="$selectedcell.{1}" exact="$actor.$ut_cac.$range.count + 2"/>
                 <set_value name="$selectedcell.{2}" exact="5"/>
               </do_if>
-              <set_value name="$genericuiparam" exact="
-[ 0 , 0 ,
-'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', null ,
-if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.count ge 10 then 50 else 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,
- [] ,
- [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
-    [ 'button' ,  'Remove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Old Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
-] ]"/>
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 1 , 1 , 1 , 1 ] ] ,
-[ 'text' , '' ] , [ 'text' , 'Available Points for Ranges: ' + $totalrangepoints + '   Remaining Points: ' + $rangepoints ] , [ 'text' , 'Navigation Skill:' ] , [ 'stars' , $actor.skill.navigation], [ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  100 ] ]"/>
+              <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Range Managment for %1'.[$actor.container.name], 'Select Range to Modify', null , if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.count ge 10 then 50 else 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,  [] ,  [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] ,      [ 'button' ,  'Remove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Old Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] ] ]"/>
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 1 , 1 , 1 , 1 ] ] , [ 'text' , '' ] , [ 'text' , 'Available Points for Ranges: ' + $totalrangepoints + '   Remaining Points: ' + $rangepoints ] , [ 'text' , 'Navigation Skill:' ] , [ 'stars' , $actor.skill.navigation], [ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  100 ] ]"/>
               <do_all exact="$actor.$ut_cac.$range.count" counter="$i" reverse="false">
-                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] , null , $i] , 
-[ 'text' , $i + '.' ] , [ 'button' , if $actor.$ut_cac.$range_j.{$i} then '\033BJ' else 'J' , 'comm_settings_range_toggle_jump' , null , true , $i , true ] , [ 'button' , if $actor.$ut_cac.$range_h.{$i} then '\033GH' else 'H' , 'comm_settings_range_toggle_highway' , null  , true , $i , true ] ,
-[ 'text' ,  $actor.$ut_cac.$range.{$i}.name + ( if @$actor.$ut_cac.$range_w.{$i} then ( ' via ' + $actor.$ut_cac.$range_w.{$i}.name ) else '' ) ] ,
-[ 'button' , 'Move Down' , 'comm_settings_range_move_down' , null , true , $i , true ] , [ 'button' , 'Change' , 'comm_settings_range_change' , null , true , $i ] , [ 'button' , if @$actor.$ut_cac.$range_w.{$i} then 'Mod Waypoint' else 'Set Waypoint' , 'comm_settings_range_change_waypoint' , null , true , $i]
-]"/>
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] , null , $i] ,  [ 'text' , $i + '.' ] , [ 'button' , if $actor.$ut_cac.$range_j.{$i} then '\033BJ' else 'J' , 'comm_settings_range_toggle_jump' , null , true , $i , true ] , [ 'button' , if $actor.$ut_cac.$range_h.{$i} then '\033GH' else 'H' , 'comm_settings_range_toggle_highway' , null  , true , $i , true ] , [ 'text' ,  $actor.$ut_cac.$range.{$i}.name + ( if @$actor.$ut_cac.$range_w.{$i} then ( ' via ' + $actor.$ut_cac.$range_w.{$i}.name ) else '' ) ] , [ 'button' , 'Move Down' , 'comm_settings_range_move_down' , null , true , $i , true ] , [ 'button' , 'Change' , 'comm_settings_range_change' , null , true , $i ] , [ 'button' , if @$actor.$ut_cac.$range_w.{$i} then 'Mod Waypoint' else 'Set Waypoint' , 'comm_settings_range_change_waypoint' , null , true , $i] ]"/>
               </do_all>
               <!-- remove last move down Entry -->
               <set_value name="$genericuiparam.{8}.{$genericuiparam.{8}.count}.{6}" exact="null"/>
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 3 ] ] , 
-[ 'text' , '#' ] , [ 'text' , 'Add new Range Setting' ] , [ 'button' , 'Select Space' , 'comm_settings_range_change' , null , true , $actor.$ut_cac.$range.count + 1 ]
-]"/>
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 3 ] ] ,  [ 'text' , '#' ] , [ 'text' , 'Add new Range Setting' ] , [ 'button' , 'Select Space' , 'comm_settings_range_change' , null , true , $actor.$ut_cac.$range.count + 1 ] ]"/>
               <remove_value name="$selectedcell"/>
-              <open_conversation_menu menu="ut_genericui" param="$genericuiparam" />
-               <add_conversation_view view="closeupdetailmonitor" /> 
+              <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
+              <add_conversation_view view="closeupdetailmonitor"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_toggle_jump'">
               <do_if value="$actor.$ut_cac.$range_j.{event.param2}">
@@ -273,39 +499,39 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_move_down'">
-                <set_value name="$tmp_range" exact="$actor.$ut_cac.$range.{event.param2}"/>
-                <set_value name="$tmp_range_h" exact="$actor.$ut_cac.$range_h.{event.param2}"/>
-                <set_value name="$tmp_range_j" exact="$actor.$ut_cac.$range_j.{event.param2}"/>
-                <do_if value="$actor.$ut_cac.$range_w.{event.param2}">
-                  <set_value name="$tmp_range_w" exact="$actor.$ut_cac.$range_w.{event.param2}"/>
-                </do_if>
-                <remove_value name="$actor.$ut_cac.$range.{event.param2}"/>
-                <remove_value name="$actor.$ut_cac.$range_h.{event.param2}"/>
-                <remove_value name="$actor.$ut_cac.$range_j.{event.param2}"/>
-                <remove_value name="$actor.$ut_cac.$range_w.{event.param2}"/>
-                <set_value name="$actor.$ut_cac.$range.{event.param2 + 1}" operation="insert" exact="$tmp_range"/>
-                <set_value name="$actor.$ut_cac.$range_h.{event.param2 + 1}" operation="insert" exact="$tmp_range_h"/>
+              <set_value name="$tmp_range" exact="$actor.$ut_cac.$range.{event.param2}"/>
+              <set_value name="$tmp_range_h" exact="$actor.$ut_cac.$range_h.{event.param2}"/>
+              <set_value name="$tmp_range_j" exact="$actor.$ut_cac.$range_j.{event.param2}"/>
+              <do_if value="$actor.$ut_cac.$range_w.{event.param2}">
+                <set_value name="$tmp_range_w" exact="$actor.$ut_cac.$range_w.{event.param2}"/>
+              </do_if>
+              <remove_value name="$actor.$ut_cac.$range.{event.param2}"/>
+              <remove_value name="$actor.$ut_cac.$range_h.{event.param2}"/>
+              <remove_value name="$actor.$ut_cac.$range_j.{event.param2}"/>
+              <remove_value name="$actor.$ut_cac.$range_w.{event.param2}"/>
+              <set_value name="$actor.$ut_cac.$range.{event.param2 + 1}" operation="insert" exact="$tmp_range"/>
+              <set_value name="$actor.$ut_cac.$range_h.{event.param2 + 1}" operation="insert" exact="$tmp_range_h"/>
+              <set_value name="$actor.$ut_cac.$range_j.{event.param2 + 1}" operation="insert" exact="$tmp_range_j"/>
+              <do_if value="$tmp_range_w?">
                 <set_value name="$actor.$ut_cac.$range_j.{event.param2 + 1}" operation="insert" exact="$tmp_range_j"/>
-                <do_if value="$tmp_range_w?">
-                  <set_value name="$actor.$ut_cac.$range_j.{event.param2 + 1}" operation="insert" exact="$tmp_range_j"/>
-                </do_if>
-                <remove_value name="$tmp_range"/>
-                <remove_value name="$tmp_range_h"/>
-                <remove_value name="$tmp_range_j"/>
-                <remove_value name="$tmp_range_w"/>
-                <do_if value="event.param2 + 1 == $actor.$ut_cac.$range.count">
-                  <set_value name="$selectedcell" exact="[event.param2+1,5]"/>
-                </do_if>
-                <do_else>
-                  <set_value name="$selectedcell" exact="[event.param2+2,5]"/>
-                </do_else>
-                <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+              </do_if>
+              <remove_value name="$tmp_range"/>
+              <remove_value name="$tmp_range_h"/>
+              <remove_value name="$tmp_range_j"/>
+              <remove_value name="$tmp_range_w"/>
+              <do_if value="event.param2 + 1 == $actor.$ut_cac.$range.count">
+                <set_value name="$selectedcell" exact="[event.param2+1,5]"/>
+              </do_if>
+              <do_else>
+                <set_value name="$selectedcell" exact="[event.param2+2,5]"/>
+              </do_else>
+              <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_change'">
               <!-- can also be used for passing Ranges by passing an index of range count + 1 -->
               <set_value name="$slot" exact="event.param2"/>
               <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspaceorstation', ['comm_settings_range_set']]"/>
-              <add_conversation_view view="closeupdetailmonitor" />
+              <add_conversation_view view="closeupdetailmonitor"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set'">
               <do_if value="$slot gt $actor.$ut_cac.$range.count">
@@ -318,14 +544,14 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
                 <set_value name="$actor.$ut_cac.$range.{$slot}" exact="event.param2.{3}"/>
                 <set_value name="$actor.$ut_cac.$range_j.{$slot}" exact="event.param2.{3}"/>
                 <set_value name="$actor.$ut_cac.$range_h.{$slot}" exact="event.param2.{3}"/>
-                </do_else>
+              </do_else>
               <set_value name="$selectedcell" exact="[$slot+1,6]"/>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_change_waypoint'">
               <set_value name="$slot" exact="event.param2"/>
               <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', $actor.container.cluster, null, $actor.container.sector, 'selectspace', ['comm_settings_range_set_waypoint']]"/>
-              <add_conversation_view view="closeupdetailmonitor" />
+              <add_conversation_view view="closeupdetailmonitor"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_range_set_waypoint'">
               <set_value name="$actor.$ut_cac.$range_w.{$slot}" exact="event.param2.{3}"/>
@@ -356,7 +582,6 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               </do_else>
               <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
             </do_elseif>
-            
             <do_elseif value="event.param == 'comm_settings_trade_restriction'">
               <!-- currently this is a simple Toggle between restricted and non-restricted, but planning to change this to a finer definition consisting of own only, own+allied, own+allied+friend, own+allied+friend+neutral and own+allied+friend+neutral+docking allowed -->
               <do_if value="$actor.container.istraderestricted">
@@ -372,8 +597,8 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               <add_player_choice text="{5554103,2432}" position="2" section="comm_settings_trade_legality_set" choiceparam="2" selectable="$actor.skill.morale ge 2"/>
               <add_player_choice text="{5554103,2433}" position="3" section="comm_settings_trade_legality_set" choiceparam="1" selectable="$actor.skill.morale ge 3"/>
               <add_player_choice text="{5554103,2434}" position="4" section="comm_settings_trade_legality_set" choiceparam="0" selectable="$actor.skill.morale ge 4"/>
-              <add_player_choice_return text="{5554103,7}" position="6" />
-              <add_player_choice_return text="{5554103,7}" position="close" />
+              <add_player_choice_return text="{5554103,7}" position="6"/>
+              <add_player_choice_return text="{5554103,7}" position="close"/>
             </do_elseif>
             <do_elseif value="event.param == 'comm_settings_trade_legality_set'">
               <set_value name="$actor.$ut_cac.$legality" exact="event.param2"/>
@@ -397,17 +622,16 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
         <cue name="Comm_Common_Misc" instantiate="true" ref="md.UT_CAC_Lib.Comm_Common_Misc">
           <param name="actor" value="$actor"/>
         </cue>
-        
         <cue name="Actor_Transport_complete">
           <conditions>
             <check_all>
-              <event_object_signalled object="$actor" param="'remote_passenger_arrived'" />
+              <event_object_signalled object="$actor" param="'remote_passenger_arrived'"/>
               <check_value value="($actor.container.isclass.station or ( $actor.ship.buildmodule? and $actor.ship.architect? ) ) and not @$actor.container.controlentity.{$actor.type}"/>
             </check_all>
           </conditions>
           <delay exact="1ms"/>
           <actions>
-          <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Actor_Transport_complete triggered'.[player.age,$actor.name,event.name]"/>
+            <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Actor_Transport_complete triggered'.[player.age,$actor.name,event.name]"/>
             <reset_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="this"/>
           </actions>
@@ -447,7 +671,7 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
                 <check_value value="@$actor.ship.buildmodule and @$actor.ship.architect"/>
               </conditions>
               <delay exact="100ms"/>
-              <actions> 
+              <actions>
                 <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 GatherCVSubordinates triggered'.[player.age,$actor.name,event.name]"/>
                 <set_value name="$subordinates" exact="$actor.ship.subordinates"/>
                 <do_all exact="$subordinates.count" counter="$i">
@@ -473,7 +697,6 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
               </conditions>
               <actions>
                 <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
-                
                 <!-- Re-Adjust Wanted Amount for Fuel Cells (consumable, but neither involved in the Production nor in Trading ) - keep a complete refill for everyone in storage -->
                 <!-- re-calculation only necesary for bigger Ships (also taking into account that there will be possibly M Ships with JD) -->
                 <!-- This Snippet is also in ut.cac.com.architect.build because the part here doestn seem to trigger properly on CVs and after transferring Architect -->
@@ -485,7 +708,7 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
                 <do_if value="event.name == 'event_object_subordinate_added' or event.name == 'event_object_signalled'">
                   <do_if value="@event.param.pilot.$XRCLS and @event.param.pilot.$XRCLS.{1} == true" comment="MT Station Logistics Ship - Ignore as new Subordinate"/>
                   <do_elseif value="event.param.primarypurpose == objectpurpose.build" comment="Construction Vessel - ignore as new Subordinate"/>
-                  <do_elseif value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine or event.param.primarypurpose == objectpurpose.fight" >
+                  <do_elseif value="event.param.primarypurpose == objectpurpose.trade or event.param.primarypurpose == objectpurpose.mine or event.param.primarypurpose == objectpurpose.fight">
                     <!-- convert new Subordinate to my command model if not already happened -->
                     <do_if value="not event.param.pilot.$ut_cac?">
                       <signal_cue_instantly cue="md.UT_CAC_Dialogue.Actor_Init" param="event.param.pilot"/>
@@ -525,7 +748,6 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
                 </do_elseif>
               </actions>
             </cue>
-           
             <cue name="ZonetradeCleanup">
               <!-- Adds a Cleanup Order to the Managers Orderlist because starting Zonetrade and Clearing it up are two seperate Actions -->
               <conditions>
@@ -552,14 +774,19 @@ if $selectedcell? then $selectedcell else null , [ if $actor.$ut_cac.$range.coun
           </conditions>
           <!--delay exact="1s" comment="delay as the PlatformActor library may also take care of this"/ currently not included, so commented out -->
           <actions>
-            <debug_text filter="general" chance="@$actor.$debug*100" text="'%1 UT CAC Dialogue canceled, reason: %2'.[$actor.name,event.name]" />
+            <debug_text filter="general" chance="@$actor.$debug*100" text="'%1 UT CAC Dialogue canceled, reason: %2'.[$actor.name,event.name]"/>
             <cancel_cue cue="Main"/>
           </actions>
         </cue>
-        
+        <cue name="Handover_040">
+          <!-- this Script will not be used from 0.40 on anymore - handing over all Instances to the common dialogue Script -->
+          <actions>
+            <set_value name="$actor.$ut_cac.$settings_section" exact="'comm_manager_settings'"/>
+            <debug_text filter="general" text="'%1 UT CAC Dialogue Handover to 040'.[$actor.name]"/>
+            <cancel_cue cue="Main"/>
+          </actions>
+        </cue>
       </cues>
     </cue>
-
   </cues>
-
 </mdscript>
