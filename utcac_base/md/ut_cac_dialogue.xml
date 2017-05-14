@@ -221,8 +221,13 @@
 [ 'button' , 'Cancel' , 'comm_orders_mod' , null , event.object.$orderlist.{$i}.$interruptable , [ 'cancel' , $i , event.object.$orderlist.{$i} ] , true] 
 ]"/>
           </do_all>
-          <!-- remove last move down Entry -->
-          <set_value name="$genericuiparam.{8}.{$genericuiparam.{8}.count}.{4}" exact="null"/>
+          <!-- remove last move down Entry, or add a Placeholder Entry to prevent the menü from bugging out -->
+          <do_if value="$genericuiparam.{8}.count">
+            <set_value name="$genericuiparam.{8}.{$genericuiparam.{8}.count}.{4}" exact="null"/>
+          </do_if>
+          <do_else>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 4] , null , $i] , [ 'text' , ' ««« ORDERLIST EMPTY »» :wtf:' ] ]"/>
+          </do_else>
           <remove_value name="$selectedcell"/>
           <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
           <add_conversation_view view="closeupdetailmonitor"/>
