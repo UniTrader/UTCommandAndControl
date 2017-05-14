@@ -364,9 +364,9 @@
           <event_conversation_returned_to_section sectionprefix="comm_settings_"/>
         </check_any>
       </conditions>
-      <actions>y
-        <do_if value="event.object.$ut_cac.$settings_section?">
-          <include_actions ref="event.object.$ut_cac.$settings_section"/>
+      <actions>
+        <do_if value="event.name == 'event_conversation_next_section' and event.object.$ut_cac.$settings_section?">
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'next_subsection', event.object.$ut_cac.$settings_section]"/>
         </do_if>
         <do_else>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
