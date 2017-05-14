@@ -237,6 +237,7 @@
       
       <!-- switch to new Superior if passed -->
       <do_if value="$new_superior.exists">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Assigning to new Superior %3'.[this.name,this.container.name,$new_superior.name]"/>
         <do_if value="$new_superiortype">
           <set_object_commander object="this.ship" commander="$new_superior" type="$new_superiortype"/>
         </do_if>
@@ -262,6 +263,7 @@
       <label name="finish"/>  
       <!-- Finalize - remove current Control Entity, set as new Control Entity and change defaultorders Script -->
       <do_if value="$job == 'captain'">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as Captain'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.commander"/>
         <do_if value="$destination.pilot.exists">
           <!-- Captain already present - let new Captain do a soft takeover -->
@@ -289,6 +291,7 @@
         <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
       </do_if>
       <do_elseif value="$job == 'manager'">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as Manager'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.manager"/>
         <do_if value="$destination.tradenpc.exists">
           <!-- Captain already present - let new Captain do a soft takeover -->
@@ -316,6 +319,7 @@
         <set_value name="this.$ut_cac.$settings_section" exact="'comm_manager_settings'"/>
       </do_elseif>
       <do_elseif value="$job == 'pilot'">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as Pilot'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.pilot"/>
         <!-- not properly implemented yet -->
         <do_if value="$destination.pilot.exists">
@@ -344,6 +348,7 @@
         <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
       </do_elseif>
       <do_elseif value="$job == 'defense'">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as DO'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.defencecontrol"/>
         <!-- ToDo: Figure out how to convert this Script in something Orderlist-compatible or how to restart the other employees -->
         <do_if value="$destination.defencenpc.exists">
@@ -373,6 +378,7 @@
         <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
       </do_elseif>
       <do_elseif value="$job == 'engineer'">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as Engineer'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.engineer"/>
         <!-- related Scripts dont exist yet -->
         <do_if value="$destination.engineer.exists">
@@ -401,6 +407,7 @@
         <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
       </do_elseif>
       <do_elseif value="$job == 'architect'">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as Architect'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.architect"/>
         <do_if value="$destination.architect.exists">
           <!-- destination already has an Architect - soft takeover -->
@@ -428,6 +435,7 @@
         <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
       </do_elseif>
       <do_elseif value="$job == 'tradeagent'">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as Tradeagent'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.architect" comment="entitytype.droneoperator"/>
         <do_if value="$destination.hastradesubscription">
           <signal_objects object="$destination" param="'trade agent handover'" param2="this"/>
@@ -443,11 +451,19 @@
                 <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.tradeagent.default']"/>
                 <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
                 <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Tradeagent Takeover'.[this.name,this.container.name]"/>
               </actions>
             </interrupt>
           </wait>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Takeover chance end'.[this.name,this.container.name]"/>
         </do_if>
         <do_else>
+          <set_value name="this.$orderlist" exact="event.param2"/>
+          <set_value name="this.$ut_cac" exact="event.param3"/>
+          <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.tradeagent.default']"/>
+          <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
+          <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Tradeagent Set Up'.[this.name,this.container.name]"/>
         </do_else>
       </do_elseif>
       
