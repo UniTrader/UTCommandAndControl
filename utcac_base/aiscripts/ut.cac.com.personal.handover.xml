@@ -39,7 +39,7 @@
       <do_if value="not $new_orderlist">
         <set_value name="$new_orderlist" exact="[]"/>
       </do_if>
-      <do_all exact="$old_orderlist.count" counter="$i" reverse="false">
+      <do_all exact="$old_orderlist.count" counter="$i" reverse="true">
         <do_if value="$old_orderlist.{$i}.$script == 'ut.cac.com.personal.transfer'">
           <set_value name="$new_orderlist.{1}" operation="insert" exact="$old_orderlist.{$i}"/>
           <remove_value name="$old_orderlist.{$i}"/>
@@ -68,7 +68,7 @@
       </do_else>
       
       <!-- Signal new Employee for Takeover -->
-      <signal_objects object="$sucessor" param="'ready for takeover'" param2="$old_orderlist" param3="$old_settings"/>
+      <signal_objects object="$successor" param="'ready for takeover'" param2="$old_orderlist" param3="$old_settings"/>
       
       <!-- Use new Settings -->
       
