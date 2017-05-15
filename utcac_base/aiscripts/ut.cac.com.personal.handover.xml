@@ -67,6 +67,18 @@
         <set_value name="this.$ut_cac" exact="$new_settings"/>
       </do_else>
       
+      <!-- Ending current Job -->
+      <do_if value="this.ship.pilot == this">
+        <dismiss_pilot object="this.ship"/>
+        <stop_moving object="this.ship" immediate="true"/>
+      </do_if>
+      <do_if value="this.container.defencenpc == this">
+        <cease_fire object="this"/>
+      </do_if>
+      <do_if value="this.iscontrolentity">
+        <dismiss_control_entity object="this.container" actor="this"/>
+      </do_if>
+      
       <!-- Signal new Employee for Takeover -->
       <signal_objects object="$successor" param="'ready for takeover'" param2="$old_orderlist" param3="$old_settings"/>
       
