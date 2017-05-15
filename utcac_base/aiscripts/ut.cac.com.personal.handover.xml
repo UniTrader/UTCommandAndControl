@@ -3,24 +3,17 @@
   <!--
   This Script is intended to Pass the control function to another NPC who is ready to take over. 
   Intended to be executed asap, will send existing Settings and Sheduled Orders for fluent Takeover.
+  If there is another Job after this also shedule ut.cac.com.personal.transfer after this. (will be kept for current Entity, all others will be passed to successor)
   -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="successor" default="false" comment="Replacement NPC to be signalled when ready"/>
-    <param name="new_orderlist" default="false" comment="Orderlist to Execute after this. Current Order List will be replaced."/>
-    <param name="new_settings" default="false" comment="Settings to use afte handover. Set to true if a clean Table shall be used and to false to clone the current one (shallow copy except for specific cases like range)"/>
   </params>
   <init>
       <!-- first decode the $params to the Variables -->
       <do_if value="$params">
         <do_if value="$params.$successor?">
           <set_value name="$successor" exact="$params.$successor"/>
-        </do_if>
-        <do_if value="$params.$new_orderlist?">
-          <set_value name="$new_orderlist" exact="$params.$new_orderlist"/>
-        </do_if>
-        <do_if value="$params.$new_settings?">
-          <set_value name="$new_settings" exact="$params.$new_settings"/>
         </do_if>
       </do_if>
   </init>
@@ -36,9 +29,8 @@
       
       <!-- Prepare Orderlist for Successor - successor shall perform all remaining Orders except Transfer ones -->
       <set_value name="$old_orderlist" exact="this.$orderlist"/>
-      <do_if value="not $new_orderlist">
-        <set_value name="$new_orderlist" exact="[]"/>
-      </do_if>
+      <remove_value name="$old_orderlist.{1}"/>
+      <set_value name="this.$orderlist" exact="[$params]"/>
       <do_all exact="$old_orderlist.count" counter="$i" reverse="true">
         <do_if value="$old_orderlist.{$i}.$script == 'ut.cac.com.personal.transfer'">
           <set_value name="$new_orderlist.{1}" operation="insert" exact="$old_orderlist.{$i}"/>
@@ -46,26 +38,14 @@
         </do_if>
       </do_all>
       
-      <!-- prepare new Settings for Employee - either start from Scratch, or clone all Entries -->
+      <!-- prepare new Settings for Employee - start from Scratch -->
       <set_value name="$old_settings" exact="this.$ut_cac"/>
-      <do_if value="$new_settings == true">
-        <set_value name="this.$ut_cac" exact="table[]"/>
-      </do_if>
-      <do_elseif value="$new_settings == false">
-        <set_value name="this.$ut_cac" exact="$old_settings.clone"/>
-        <do_if value="$old_settings.$range?">
-          <set_value name="this.$ut_cac.$range" exact="$old_settings.$range.clone"/>
-        </do_if>
-        <do_if value="$old_settings.$range_h?">
-          <set_value name="this.$ut_cac.$range_h" exact="$old_settings.$range_h.clone"/>
-        </do_if>
-        <do_if value="$old_settings.$range_j?">
-          <set_value name="this.$ut_cac.$range_j" exact="$old_settings.$range_j.clone"/>
-        </do_if>
-      </do_elseif>
-      <do_else>
-        <set_value name="this.$ut_cac" exact="$new_settings"/>
-      </do_else>
+      <set_value name="this.$ut_cac" exact="table[]"/>#
+      
+      <!-- Wait for new Assignment -->
+      <remove_value name="this.$ut_cac.$orders_section" comment="no Orders until new Assignment!"/>
+      <remove_value name="this.$ut_cac.$settings_section" comment="no Settings until new Assignment!"/>
+      <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']" comment="failsafe in case something goes wrong"/>
       
       <!-- Ending current Job -->
       <do_if value="this.ship.pilot == this">
