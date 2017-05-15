@@ -169,7 +169,7 @@
         
         <do_if value="$destination == this.container">
           <debug_text filter="general" text="'%1 %2 Already on right Container, no Transport needed'.[this.name,this.container.name]"/>
-          <debug_text filter="general" text="'further helpful Infos to refine this:\n$destination: %1 ; $dock: %2 ; $dock.component: %3\nthis.container: %4, this.room: %5, this.room.parent: %6, this.room.dockslot: %7'.[@$destination, @$dock, @$dock.component, @this.container , @this.room, @this.room.parent,@ this.room.dockslot]"/>
+          <debug_text filter="general" text="'further helpful Infos to refine this:\n$destination: %1 ; $dock: %2 ; $dock.component: %3\nthis.container: %4, this.room: %5, this.room.parent: %6, this.room.dockslot: %7'.[@$destination, @$dock, @$dock.component, @this.container , @this.room, @this.room.parent, @this.room.dockslot]"/>
           <do_if value="@$dock.component.exists">
             <debug_text filter="general" text="'%1 %2 Moving Actor to Dock %3'.[this.name,this.container.name,$dock]"/>
             <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
@@ -446,8 +446,8 @@
                 <event_object_signalled object="this" param="'ready for takeover'"/> 
               </conditions>
               <actions>
-                <set_value name="this.$orderlist" exact="event.param2"/>
-                <set_value name="this.$ut_cac" exact="event.param3"/>
+                <!--set_value name="this.$orderlist" exact="event.param2"/>
+                <set_value name="this.$ut_cac" exact="event.param3"/-->
                 <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.tradeagent.default']"/>
                 <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
                 <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
@@ -458,8 +458,6 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Takeover chance end'.[this.name,this.container.name]"/>
         </do_if>
         <do_else>
-          <set_value name="this.$orderlist" exact="event.param2"/>
-          <set_value name="this.$ut_cac" exact="event.param3"/>
           <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.tradeagent.default']"/>
           <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
           <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
