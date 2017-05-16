@@ -175,8 +175,13 @@
           <debug_text filter="general" text="'%1 %2 Already on right Container, no Transport needed'.[this.name,this.container.name]"/>
           <debug_text filter="general" text="'further helpful Infos to refine this:\n$destination: %1 ; $dock: %2 ; $dock.component%3 ; $dock.component.parent: %4\nthis.container: %5, this.room: %6, this.room.parent: %7, this.room.parent^2: %8'.[@$destination, @$dock, @$dock.component, @$dock.component.parent, @this.container , @this.room, @this.room.parent, @this.room.parent.parent]"/>
           <do_if value="@$dock.component.exists">
-            <debug_text filter="general" text="'%1 %2 Moving Actor to Dock %3'.[this.name,this.container.name,$dock]"/>
-            <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
+            <do_if value="$dock.component.parent == this.room.parent">
+              <debug_text filter="general" text="'%1 %2 Already on right Platform - no Movement.'.[this.name,this.container.name]"/>
+            </do_if>
+            <do_else>
+              <debug_text filter="general" text="'%1 %2 Moving Actor to Dock %3'.[this.name,this.container.name,$dock]"/>
+              <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
+            </do_else>
           </do_if>
           
         </do_if>
