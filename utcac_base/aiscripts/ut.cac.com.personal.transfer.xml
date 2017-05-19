@@ -357,7 +357,6 @@
       <do_elseif value="$job == 'defense'">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as DO'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.defencecontrol"/>
-        <!-- ToDo: Figure out how to convert this Script in something Orderlist-compatible or how to restart the other employees -->
         <do_if value="$destination.defencenpc.exists">
           <!-- DO already present -  soft takeover-->
           <do_if value="$destination.defencenpc.$orderlist?">
@@ -379,7 +378,6 @@
           </do_else>
         </do_if>
         <assign_defence_manager actor="this" object="$destination"/>
-        <start_script object="this" name="'ut.cac.com.defense.main'"/>
         <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.defense.default']"/>
         <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
         <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
