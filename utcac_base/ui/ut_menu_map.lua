@@ -1254,14 +1254,14 @@ function menu.createChildList(isfirsttime)
 				if isplayer and warning > 0 then
 					if GetComponentData(station, "tradesubscription") then
 						setup:addSimpleRow({ 
-							Helper.createButton(Helper.createButtonText(isextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, ((not menu.mode) or (menu.mode == "selectobject")) and (#entries > 0), 0, 0, 0, Helper.standardTextHeight),
+							Helper.createButton(Helper.createButtonText(isextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, ((not menu.mode) or (menu.mode == "selectobject") or (menu.mode == "selectspaceorobject")) and (#entries > 0), 0, 0, 0, Helper.standardTextHeight),
 							Helper.createFontString(name, false, "left", color.r, color.g, color.b, 100),
 							Helper.createIcon("menu_eye", false, 255, 255, 255, 100, 0, 0, Helper.standardTextHeight, Helper.standardButtonWidth),
 							Helper.createIcon("workshop_error", false, warning == 2 and 255 or 192, warning == 2 and 0 or 192, 0, 100, 0, 0, Helper.standardTextHeight, Helper.standardButtonWidth)
 						}, {"station", station}, {1, 2, 1, 1})
 					else
 						setup:addSimpleRow({ 
-							Helper.createButton(Helper.createButtonText(isextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, ((not menu.mode) or (menu.mode == "selectobject")) and (#entries > 0), 0, 0, 0, Helper.standardTextHeight),
+							Helper.createButton(Helper.createButtonText(isextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, ((not menu.mode) or (menu.mode == "selectobject") or (menu.mode == "selectspaceorobject")) and (#entries > 0), 0, 0, 0, Helper.standardTextHeight),
 							Helper.createFontString(name, false, "left", color.r, color.g, color.b, 100),
 							Helper.createIcon("workshop_error", false, warning == 2 and 255 or 192, warning == 2 and 0 or 192, 0, 100, 0, 0, Helper.standardTextHeight, Helper.standardButtonWidth)
 						}, {"station", station}, {1, 3, 1})
@@ -1269,13 +1269,13 @@ function menu.createChildList(isfirsttime)
 				else
 					if GetComponentData(station, "tradesubscription") then
 						setup:addSimpleRow({ 
-							Helper.createButton(Helper.createButtonText(isextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, ((not menu.mode) or (menu.mode == "selectobject")) and (#entries > 0), 0, 0, 0, Helper.standardTextHeight),
+							Helper.createButton(Helper.createButtonText(isextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, ((not menu.mode) or (menu.mode == "selectobject") or (menu.mode == "selectspaceorobject")) and (#entries > 0), 0, 0, 0, Helper.standardTextHeight),
 							Helper.createFontString(name, false, "left", color.r, color.g, color.b, 100),
 							Helper.createIcon("menu_eye", false, 255, 255, 255, 100, 0, 0, Helper.standardTextHeight, Helper.standardButtonWidth)
 						}, {"station", station}, {1, 3, 1})
 					else
 						setup:addSimpleRow({ 
-							Helper.createButton(Helper.createButtonText(isextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, ((not menu.mode) or (menu.mode == "selectobject")) and (#entries > 0), 0, 0, 0, Helper.standardTextHeight),
+							Helper.createButton(Helper.createButtonText(isextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, ((not menu.mode) or (menu.mode == "selectobject") or (menu.mode == "selectspaceorobject")) and (#entries > 0), 0, 0, 0, Helper.standardTextHeight),
 							Helper.createFontString(name, false, "left", color.r, color.g, color.b, 100)
 						}, {"station", station}, {1, 4})
 					end
