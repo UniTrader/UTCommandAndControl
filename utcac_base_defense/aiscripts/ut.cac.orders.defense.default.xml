@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.orders.tradeagent.default" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
-  <!-- this is both an Order and an Order Source Script to keep things simple -->
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.orders.defense.default" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <params>
     <param name="params" comment="Persistent Params Table to keep track of what should be done and when"/>
   </params>
@@ -8,9 +7,8 @@
   </init>
   <attention min="unknown">
     <actions>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Called for defaultorders and wait for assignment (trade subscription already present)'.[this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Called for defaultorders - Sheduling DO Script'.[this.name,this.container.name]"/>
       <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.defense.main',$displayname='Defend %1.[this.container]',$interruptable=true]"/>
-      </do_else>
     </actions>
   </attention>
   <on_abort>
