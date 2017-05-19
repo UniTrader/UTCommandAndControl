@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.engineer.wrapper" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!-- a Wrapper for the Vanilla Script to allow usage with UT CaC Framework -->
+  <params>
+    <param name="params" comment="Persistent Params Table to keep track of what should be done and when"/>
+  </params>
+  <init>
+    <!-- Set Value for exitonneworder handler (static in this case since this is by design an Endless Script) -->
+    <set_value name="$exitonneworder" exact="true"/>
+  </init>
+  <interrupts>
+    <handler ref="ut_cac_exitonneworder"/>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <run_script name="'engineer.ai'"/>
+    </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>
