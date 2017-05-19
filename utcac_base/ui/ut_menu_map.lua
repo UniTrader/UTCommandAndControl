@@ -1291,7 +1291,7 @@ function menu.createChildList(isfirsttime)
 						local isseqextended = menu.isSequenceExtended(station, seqidx)
 						
 						setup:addSimpleRow({ 
-							Helper.createButton(Helper.createButtonText(isseqextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, not menu.mode or menu.mode == "selectobject", 0, 0, 0, Helper.standardTextHeight),
+							Helper.createButton(Helper.createButtonText(isseqextended and "-" or "+", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, not menu.mode or menu.mode == "selectobject" or menu.mode == "selectspaceorobject", 0, 0, 0, Helper.standardTextHeight),
 							sequence.seqname
 						}, {"sequence", station, seqidx}, {1, 4})
 						lines = lines + 1
@@ -1493,7 +1493,7 @@ function menu.createChildList(isfirsttime)
 	end
 	if displayedstations then
 		for i, station in ipairs(stations) do 
-			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or menu.mode == "selectobject" then
+			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or menu.mode == "selectobject" or menu.mode == "selectspaceorobject" then
 				local isextended = menu.isExtended(ConvertIDTo64Bit(station))
 
 				Helper.setButtonScript(menu, nil, menu.selecttable, nooflines, 1, function () return menu.buttonNavigation("ship", ConvertIDTo64Bit(station), 0) end)
@@ -1544,7 +1544,7 @@ function menu.createChildList(isfirsttime)
 	end
 	if displayedships then
 		for i, ship in ipairs(ships) do
-			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or menu.mode == "selectobject" then
+			if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or menu.mode == "selectobject" or menu.mode == "selectspaceorobject" then
 				nooflines = setShipScript(ship, nooflines)
 			end
 		end
@@ -1663,7 +1663,7 @@ function menu.updateJumpButton()
 		menu.jumpdrive.mouseovertext = mouseovertext
 		menu.jumpdrive.active = active
 		Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)
-		SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText((menu.mode == "selectplayerobject" or menu.mode == "selectobject") and ReadText(1001, 3102) or jumpdrivetext, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, active, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, mouseovertext), 2, 9)
+		SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText((menu.mode == "selectplayerobject" or menu.mode == "selectobject" or menu.mode == "selectspaceorobject") and ReadText(1001, 3102) or jumpdrivetext, "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, active, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, mouseovertext), 2, 9)
 		Helper.setButtonScript(menu, nil, menu.buttontable, 2, 9, menu.buttonJumpDrive)
 	end
 end
@@ -1714,9 +1714,9 @@ function menu.onRowChanged(row, rowdata)
 						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText(ReadText(1001, 3216), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, false, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_Y", true)), 2, 7)
 						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 7, menu.buttonComm)
 						-- DETAILS
-						local active = ((not menu.mode) or (menu.mode == "selectobject")) and IsInfoUnlockedForPlayer(menu.selectedcomponent, "name") and (CanViewLiveData(station) or GetComponentData(menu.selectedcomponent, "tradesubscription") or menu.mode == "selectobject")
+						local active = ((not menu.mode) or (menu.mode == "selectobject" or menu.mode == "selectspaceorobject")) and IsInfoUnlockedForPlayer(menu.selectedcomponent, "name") and (CanViewLiveData(station) or GetComponentData(menu.selectedcomponent, "tradesubscription") or menu.mode == "selectobject" or menu.mode == "selectspaceorobject")
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)
-						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText((menu.mode == "selectplayerobject" or menu.mode == "selectobject") and ReadText(1001, 3102) or ReadText(1001, 2961), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, active, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, active and ReadText(1026, 3206) or nil), 2, 9)
+						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText((menu.mode == "selectplayerobject" or menu.mode == "selectobject" or menu.mode == "selectspaceorobject") and ReadText(1001, 3102) or ReadText(1001, 2961), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, active, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, active and ReadText(1026, 3206) or nil), 2, 9)
 						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 9, menu.buttonDetails)
 					elseif rowdata[1] == "gate" or rowdata[1] == "jumpbeacon" then
 						-- COMM
@@ -1757,7 +1757,7 @@ function menu.onRowChanged(row, rowdata)
 						-- DETAILS
 						Helper.removeButtonScripts(menu, menu.buttontable, 2, 9)
 						local activate = false
-						if IsInfoUnlockedForPlayer(menu.selectedcomponent, "name") and (CanViewLiveData(menu.selectedcomponent) or GetComponentData(menu.selectedcomponent, "tradesubscription") or menu.mode == "selectobject") then
+						if IsInfoUnlockedForPlayer(menu.selectedcomponent, "name") and (CanViewLiveData(menu.selectedcomponent) or GetComponentData(menu.selectedcomponent, "tradesubscription") or menu.mode == "selectobject" or menu.mode == "selectspaceorobject") then
 							if menu.mode ~= "selectplayerobject" then
 								activate = true
 							else
@@ -1766,7 +1766,7 @@ function menu.onRowChanged(row, rowdata)
 								end
 							end
 						end
-						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText((menu.mode == "selectplayerobject" or menu.mode == "selectobject") and ReadText(1001, 3102) or ReadText(1001, 2961), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, activate, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, activate and ((menu.mode ~= "selectplayerobject" and menu.mode ~= "selectobject") and ReadText(1026, 3206) or nil) or nil), 2, 9)
+						SetCellContent(menu.buttontable, Helper.createButton(Helper.createButtonText((menu.mode == "selectplayerobject" or menu.mode == "selectobject" or menu.mode == "selectspaceorobject") and ReadText(1001, 3102) or ReadText(1001, 2961), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, activate, 0, 0, 150, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_X", true), nil, activate and ((menu.mode ~= "selectplayerobject" and menu.mode ~= "selectobject" and menu.mode ~= "selectspaceorobject") and ReadText(1026, 3206) or nil) or nil), 2, 9)
 						Helper.setButtonScript(menu, nil, menu.buttontable, 2, 9, menu.buttonDetails)
 					end
 				elseif menu.componenttype == "container" then
@@ -2333,7 +2333,7 @@ function menu.filterComponentByText(component, text, includeobjects)
 				end
 			end
 			for _, ship in ipairs(ships) do
-				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or menu.mode == "selectobject" then
+				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(ship, "owner") == "player") or menu.mode == "selectobject" or menu.mode == "selectspaceorobject" then
 					if menu.filterComponentByText(ship, text, false) then
 						return true
 					end
@@ -2349,7 +2349,7 @@ function menu.filterComponentByText(component, text, includeobjects)
 				end
 			end
 			for _, station in ipairs(stations) do
-				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or menu.mode == "selectobject" then
+				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(station, "owner") == "player") or menu.mode == "selectobject" or menu.mode == "selectspaceorobject" then
 					if menu.filterComponentByText(station, text, false) then
 						return true
 					end
@@ -2433,7 +2433,7 @@ function menu.filterComponentByText(component, text, includeobjects)
 				end
 			end
 			for _, subordinate in ipairs(subordinates) do
-				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(subordinate, "owner") == "player") or menu.mode == "selectobject" then
+				if (not menu.mode) or (menu.mode == "selectplayerobject" and GetComponentData(subordinate, "owner") == "player") or menu.mode == "selectobject" or menu.mode == "selectspaceorobject" then
 					if menu.filterComponentByText(subordinate, text, false) then
 						return true
 					end
