@@ -13,6 +13,8 @@
         <debug_text filter="general" text="'%1 %2:\nevent.param= %3 event.param2= %4 event.param3= %5\nnew order:%6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3,@md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order]"/>
         <do_if value="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order?" comment="we have an Order to be given - return to Order Menu and let the calling MD File handle the rest.">
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          <!-- delete temp values for Orders when returning -->
+          <remove_value name="$patroltime"/>
         </do_if>
         <do_elseif value="event.param == 'comm_captain_orders'">
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -79,6 +81,20 @@ table[$script='ut.cac.microorder',$displayname='Wait (2h)',$order='wait exact',$
         </do_else>
         <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         <debug_text filter="error" text="'%1 Retreat Function not implemented yet!!!'.[event.object]"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_patrol'">
+          <do_if value="event.name == 'event_conversation_next_section'">
+            <set_value name="$patroltime" exact="event.param2"/>
+          </do_if>
+          <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectspace', ['comm_captain_orders_patrol_selected']]"/>
+          <add_conversation_view view="closeupdetailmonitor" />
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_orders_patrol_selected'">
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+          </do_if>
+          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.captain.patrol',$displayname='Patrolling %1'.[event.param2.{3}.knownname],$space=event.param2.{3},$patroltime=$patroltime,$exitonneworder=true,$interruptable=true]"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_flyto_object'">
           <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectobject', ['comm_captain_orders_flyto_selected']]"/>
