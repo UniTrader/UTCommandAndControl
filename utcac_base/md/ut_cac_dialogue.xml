@@ -215,6 +215,9 @@
 [ 'button' , 'Insert Order' , 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_Y' , event.object.$ut_cac.$orders_section? , null , true ] , 
 [ 'button' , 'Append Order', 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_X' , event.object.$ut_cac.$orders_section? , 0 , false ] 
 ] ]"/>
+          <do_if value="not event.object.$ut_cac.$orders_section? and event.object.$ut_cac.$defaultorders.$script == 'ut.cac.orders.endlesswait'" comment="Employee is waiting for another Assignment - replace Order Button with Assignment one">
+            <set_value name="$genericuiparam.{9}.{4}" exact="[ 'button' , 'New Assignment' , 'comm_personal_transfer' , null , true , null , true ]"/>
+          </do_if>
           <!--<append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 1 , 1 , 1 , 1 ] ] , [ 'text' , '' ] , [ 'text' , 'Available Points for Ranges: ' + $totalrangepoints + '   Remaining Points: ' + $rangepoints ] , [ 'text' , 'Navigation Skill:' ] , [ 'stars' , event.object.skill.navigation], [ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  100 ] ]"/>-->
           <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1] , null , $i] , 
@@ -771,7 +774,7 @@
 <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
 [ 'button' , if ( event.object.$defaultorders? and not @event.object.$defaultorders.$inactive ) then 'Stop Working' else 'Start Working' , 'comm_personal_work_toggle' , null , event.object.$defaultorders? , 0  , true ] , 
-[ 'button' , 'Work on.. as..' , 'comm_personal_transfer' , null , false , 20  , true ] , 
+[ 'button' , 'Work on.. as..' , 'comm_personal_transfer' , null , true , null , true ] , 
 [ 'text' , '' ] 
 ]"/>
             <!--TO DO: Standby Check here-->
