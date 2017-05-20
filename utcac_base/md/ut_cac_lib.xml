@@ -55,21 +55,21 @@
             </do_else>
             <!-- ToDo: Check if there is enough Money available and do apporiate steps if not (for example reduce skill or stop working for the Player altogether) -->
             <do_if value="$actor.container.commanderentity.exists and $actor.container.commanderentity.hasownaccount and $actor.container.commanderentity.money gt $wage">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his Commanders Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$ut_cac.$experience,$actor.combinedskill]"/>
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his Commanders Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$experience,$actor.combinedskill]"/>
               <transfer_money from="$actor.container.commanderentity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
               <do_if value="$actor.$ut_cac.$loglevel ge param.ut_cac.loglevel.$wage">
                 <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,102}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr,$actor.container.commanderentity.name,$actor.container.commander.name]"/>
               </do_if>
             </do_if>
             <do_elseif value="$actor.hasownaccount and $actor.money gt $wage and $actor.type == entitytype.manager">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his own Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$ut_cac.$experience,$actor.combinedskill]"/>
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from his own Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$experience,$actor.combinedskill]"/>
               <transfer_money from="$actor" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
               <do_if value="$actor.$ut_cac.$loglevel ge param.ut_cac.loglevel.$wage">
                 <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,103}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
               </do_if>
             </do_elseif>
             <do_elseif value="player.money gt $wage">
-              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from Player Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$ut_cac.$experience,$actor.combinedskill]"/>
+              <debug_text filter="general"  text="'%1 %2 %3 just grabbed %4 as Payment from Player Acc, Total Wage so far: %5 combinedskill: %6'.[player.age,$actor.name,$actor.container.name,$wage,$actor.$experience,$actor.combinedskill]"/>
               <transfer_money from="player.entity" to="md.UT_CAC_Lib.Payment_Timer.$payment_sink" amount="$wage"/>
               <do_if value="$actor.$ut_cac.$loglevel ge param.ut_cac.loglevel.$wage">
                 <write_to_logbook category="general" object="$actor.container" interaction="guidance" text="{5554203,104}.[param.ut_cac.loglevel.$wage,$actor.container.name,$actor.name,($wage)Cr]"/>
@@ -82,8 +82,8 @@
             </do_else>
             
             <!-- simple EXP gain at certain total Wage Paid - will be changed at some point -->
-            <set_value name="$actor.$ut_cac.$experience" operation="add" exact="$wage"/>
-            <do_if value="$actor.$ut_cac.$experience gt param.ut_cac.experience.{ ($actor.combinedskill / 20 )i + 1}">
+            <set_value name="$actor.$experience" operation="add" exact="$wage"/>
+            <do_if value="$actor.$experience gt param.ut_cac.experience.{ ($actor.combinedskill / 20 )i + 1}">
               <do_all exact="$actor.type.skilltypes.count" counter="$i">
                 <do_if value="$actor.skill.{$actor.type.skilltypes.{$i}} lt 5">
                   <add_skill entity="$actor" type="$actor.type.skilltypes.{$i}" exact="1"/>
@@ -266,22 +266,22 @@
           </do_if>
         </do_else>
         <!-- for simple EXP gain at certain total Wages paid - will be changed at some point -->
-        <do_if value="not $actor.$ut_cac.$experience?">
+        <do_if value="not $actor.$experience?">
           <do_if value="$actor.combinedskill lt 20">
-            <set_value name="$actor.$ut_cac.$experience" exact="0Cr"/>
+            <set_value name="$actor.$experience" exact="0Cr"/>
           </do_if>
           <do_else>
-            <set_value name="$actor.$ut_cac.$experience" exact="param.ut_cac.experience.{ ($actor.combinedskill / 20 )i }"/>
+            <set_value name="$actor.$experience" exact="param.ut_cac.experience.{ ($actor.combinedskill / 20 )i }"/>
           </do_else>
-          <!--set_value name="$actor.$ut_cac.$experience" exact="table[]"/>
-          <set_value name="$actor.$ut_cac.$experience.{skilltype.boarding}" exact="if $actor.skill.boarding then param.ut_cac.experience.{$actor.skill.boarding} else 0"/>
-          <set_value name="$actor.$ut_cac.$experience.{skilltype.combat}" exact="if $actor.skill.combat then param.ut_cac.experience.{$actor.skill.combat} else 0"/>
-          <set_value name="$actor.$ut_cac.$experience.{skilltype.engineering}" exact="if $actor.skill.engineering then param.ut_cac.experience.{$actor.skill.engineering} else 0"/>
-          <set_value name="$actor.$ut_cac.$experience.{skilltype.leadership}" exact="if $actor.skill.leadership then param.ut_cac.experience.{$actor.skill.leadership} else 0"/>
-          <set_value name="$actor.$ut_cac.$experience.{skilltype.management}" exact="if $actor.skill.management then param.ut_cac.experience.{$actor.skill.management} else 0"/>
-          <set_value name="$actor.$ut_cac.$experience.{skilltype.morale}" exact="if $actor.skill.morale then param.ut_cac.experience.{$actor.skill.morale} else 0"/>
-          <set_value name="$actor.$ut_cac.$experience.{skilltype.navigation}" exact="if $actor.skill.navigation then param.ut_cac.experience.{$actor.skill.navigation} else 0"/>
-          <set_value name="$actor.$ut_cac.$experience.{skilltype.science}" exact="if $actor.skill.science then param.ut_cac.experience.{$actor.skill.science} else 0"/-->
+          <!--set_value name="$actor.$experience" exact="table[]"/>
+          <set_value name="$actor.$experience.{skilltype.boarding}" exact="if $actor.skill.boarding then param.ut_cac.experience.{$actor.skill.boarding} else 0"/>
+          <set_value name="$actor.$experience.{skilltype.combat}" exact="if $actor.skill.combat then param.ut_cac.experience.{$actor.skill.combat} else 0"/>
+          <set_value name="$actor.$experience.{skilltype.engineering}" exact="if $actor.skill.engineering then param.ut_cac.experience.{$actor.skill.engineering} else 0"/>
+          <set_value name="$actor.$experience.{skilltype.leadership}" exact="if $actor.skill.leadership then param.ut_cac.experience.{$actor.skill.leadership} else 0"/>
+          <set_value name="$actor.$experience.{skilltype.management}" exact="if $actor.skill.management then param.ut_cac.experience.{$actor.skill.management} else 0"/>
+          <set_value name="$actor.$experience.{skilltype.morale}" exact="if $actor.skill.morale then param.ut_cac.experience.{$actor.skill.morale} else 0"/>
+          <set_value name="$actor.$experience.{skilltype.navigation}" exact="if $actor.skill.navigation then param.ut_cac.experience.{$actor.skill.navigation} else 0"/>
+          <set_value name="$actor.$experience.{skilltype.science}" exact="if $actor.skill.science then param.ut_cac.experience.{$actor.skill.science} else 0"/-->
         </do_if>
         <!-- Compatibility with Vim Razz' Human Ressources -->
         <set_value name="$actor.$InUse" exact="true"/>
@@ -339,7 +339,7 @@
         
         
         
-        <!--set_value name="$rangepoints" exact="$actor.skill.navigation * param.ut_cac.rangeprices.$points_per_star + ( if $actor.$ut_cac.$experience ge param.ut_cac.experience.{6} then  param.ut_cac.rangeprices.$sixth_star_points else 0 )"/-->
+        <!--set_value name="$rangepoints" exact="$actor.skill.navigation * param.ut_cac.rangeprices.$points_per_star + ( if $actor.$experience ge param.ut_cac.experience.{6} then  param.ut_cac.rangeprices.$sixth_star_points else 0 )"/-->
         <do_if value="false">
         <set_value name="$gatecount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{1}"/>
         <set_value name="$galaxycount" exact="param.ut_cac.rangelimits.{$actor.skill.navigation}.{2}"/>
