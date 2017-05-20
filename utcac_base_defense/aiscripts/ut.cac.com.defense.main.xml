@@ -81,6 +81,9 @@ Defensemodes regulate how active the Ship reacts to enemies:
     <!-- Set Value for exitonneworder handler (static in this case since this is by design an Endless Script) -->
     <set_value name="$exitonneworder" exact="true"/>
     
+    <!-- Set up Values used Internally, but which shall be exposed -->
+    <set_value name="this.$ut_cac.$defensemode" exact="4"/>
+    
     <!-- create GV to store empty Groups -->
     <do_if value="not global.$unused_groups?">
       <set_value name="global.$unused_groups" exact="[]"/>
@@ -440,7 +443,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
       <do_if value="$ordered_target.isoperational">
         <set_value name="$primarytarget" exact="$ordered_target"/>
       </do_if>
-      <do_elseif value=" global.$utcac.$enemy_priority.isoperational and $enemies_g.indexof.{global.$utcac.$enemy_priority}">
+      <do_elseif value="@global.$utcac.$enemy_priority.isoperational and $enemies_g.indexof.{global.$utcac.$enemy_priority}">
         <set_value name="$primarytarget" exact="global.$utcac.$enemy_priority"/>
       </do_elseif>
       <do_elseif value="not $primarytarget.isoperational">
@@ -550,7 +553,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
       <do_if value="$ordered_target.isoperational">
         <set_value name="$primarytarget" exact="$ordered_target"/>
       </do_if>
-      <do_elseif value=" global.$utcac.$enemy_priority.isoperational and $enemies_g.indexof.{global.$utcac.$enemy_priority}">
+      <do_elseif value="@global.$utcac.$enemy_priority.isoperational and $enemies_g.indexof.{global.$utcac.$enemy_priority}">
         <set_value name="$primarytarget" exact="global.$utcac.$enemy_priority"/>
       </do_elseif>
       <do_elseif value="not $primarytarget.isoperational">
@@ -687,7 +690,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
       <do_if value="$ordered_target.isoperational">
         <set_value name="$primarytarget" exact="$ordered_target"/>
       </do_if>
-      <do_elseif value=" global.$utcac.$enemy_priority.isoperational and $enemies_g.indexof.{global.$utcac.$enemy_priority}">
+      <do_elseif value="@global.$utcac.$enemy_priority.isoperational and $enemies_g.indexof.{global.$utcac.$enemy_priority}">
         <set_value name="$primarytarget" exact="global.$utcac.$enemy_priority"/>
       </do_elseif>
       
@@ -753,7 +756,7 @@ Defensemodes regulate how active the Ship reacts to enemies:
       <do_if value="$ordered_target.isoperational">
         <set_value name="$primarytarget" exact="$ordered_target"/>
       </do_if>
-      <do_elseif value=" global.$utcac.$enemy_priority.isoperational and $enemies_g.indexof.{global.$utcac.$enemy_priority}">
+      <do_elseif value="@global.$utcac.$enemy_priority.isoperational and $enemies_g.indexof.{global.$utcac.$enemy_priority}">
         <set_value name="$primarytarget" exact="global.$utcac.$enemy_priority"/>
       </do_elseif>
       
@@ -857,6 +860,9 @@ Defensemodes regulate how active the Ship reacts to enemies:
   </attention>
   <on_abort>
     <!-- Script Terminated - set Drones into self-destruct mode and pass them as group via signal, so a replacement DO can recover them -->
+    
+    <!-- remove exposed values -->
+    <remove_value name="this.$ut_cac.$defensemode"/>
     
     <!-- remove now unneeded Naming Vars from the Naming Entity -->
     <set_value name="$namingentity.$namereplacement.$utcac_do_state"/>
