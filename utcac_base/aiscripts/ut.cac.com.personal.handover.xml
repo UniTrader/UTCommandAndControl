@@ -52,13 +52,16 @@
       <do_if value="this.ship.pilot == this">
         <dismiss_pilot object="this.ship"/>
         <stop_moving object="this.ship" immediate="true"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 Stop working as Pilot'.[this.name,this.container.name]"/>
       </do_if>
       <do_if value="this.container.defencenpc == this">
         <cease_fire object="this.container"/>
         <dismiss_control_entity object="this.container" actor="this"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 Stop working as DO'.[this.name,this.container.name]"/>
       </do_if>
       <do_if value="this.iscontrolentity">
         <dismiss_control_entity object="this.container" actor="this"/>
+        <debug_text filter="general" chance="this.$debug * 100" text="'%1 %2 Stop working as other Controlentity'.[this.name,this.container.name]"/>
       </do_if>
       
       <!-- Signal new Employee for Takeover -->
