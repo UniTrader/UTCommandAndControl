@@ -173,7 +173,7 @@
         <do_if value="$destination == this.container">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Already on right Container, no Transport needed'.[this.name,this.container.name]"/>
           <do_if value="@$dock.component.exists">
-            <do_if value="$dock.component.parent == this.room.parent">
+            <do_if value="$dock.component.parent == this.room.parent and not (this.container.defencenpc == this)">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Already on right Platform - no Movement.'.[this.name,this.container.name]"/>
             </do_if>
             <do_else>
