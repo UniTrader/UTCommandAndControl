@@ -105,7 +105,7 @@
             <run_interrupt_script name="'ut.cac.move.to.pos'" abortscripts="true" resume="start">
               <param name="destination" value="event.param2.{2}"/>
               <param name="position" value="event.param2.{3}"/>
-              <param name="rotation" value="event.param2.{4}"/>
+              <param name="rotation" value="@event.param2.{4}"/>
               <param name="leader" value="event.param2.{1}"/>
               <param name="leader_preparegroup" value="event.param3"/>
             </run_interrupt_script>
@@ -369,7 +369,7 @@
         </do_if>
         
         <!-- Track Experience Progress: Save time when Navigation started and ended -->
-        <do_if value="this.$experience.{skilltype.navigation}?">
+        <do_if value="this.$ut_cac.$experience.{skilltype.navigation}?">
           <set_value name="$nav_start_time" exact="player.age"/>
         </do_if>
         
@@ -527,13 +527,13 @@
       
       <label name="finish"/>
       <!-- Track Experience Progress: Add time needed for Navigation to XP Progress -->
-      <do_if value="this.$experience.{skilltype.navigation}? and $nav_start_time?">
-        <set_value name="this.$experience.{skilltype.navigation}" operation="add" exact="player.age - $nav_start_time"/>
+      <do_if value="this.$ut_cac.$experience.{skilltype.navigation}? and $nav_start_time?">
+        <set_value name="this.$ut_cac.$experience.{skilltype.navigation}" operation="add" exact="player.age - $nav_start_time"/>
         <!-- check for Promotion -->
-        <do_if value="this.$experience.{skilltype.navigation} gt param.ut_cac.experience.{skilltype.navigation}.{this.skill.navigation + 1}">
+        <do_if value="this.$ut_cac.$experience.{skilltype.navigation} gt param.ut_cac.experience.{skilltype.navigation}.{this.skill.navigation + 1}">
           <add_skill entity="this" type="skilltype.navigation" exact="1"/>
         </do_if>
-        <do_elseif value="( this.$experience.{skilltype.navigation} lt param.ut_cac.experience.{skilltype.navigation}.{this.skill.navigation} ) and this.skill.navigation ge 1">
+        <do_elseif value="( this.$ut_cac.$experience.{skilltype.navigation} lt param.ut_cac.experience.{skilltype.navigation}.{this.skill.navigation} ) and this.skill.navigation ge 1">
           <!-- Skill and Experience out of Sync - Reset Skill (will level up again into the intended value during the next executions of this Script) -->
           <set_skill entity="this" type="skilltype.navigation" exact="1"/>
         </do_elseif>
