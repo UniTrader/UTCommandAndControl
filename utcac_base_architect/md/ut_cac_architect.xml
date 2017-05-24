@@ -21,10 +21,63 @@
         <do_if value="event.object.ship.buildmodule.exists" comment="only available on builder ship">
           <do_if value="event.object.$construction? and event.object.$construction.exists">
             <!-- directly present Upgrade Menu -->
+<!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
+            <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Orders for %1'.[event.object.name], null, null , null , [ -1 , 200 , 200 , 200 , 200 , 200 ] ,  [] ,  [ 
+[ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
+[ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_BACK' , false , null , true] , 
+[ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_Y' , false , null , true ] , 
+[ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_X' , false , null , true ] 
+] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Extend Station' ] ]"/>
+            <do_all exact="event.object.$ut_cac.$orderedbuildplanlist.count" counter="$i">
+              <set_value name="$sequence" exact="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{1}"/>
+              <do_if value="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2} lt event.object.$construction.completebuildplan.{$sequence}.stage">
+                <set_value name="$purposemacro" exact="event.object.$constructionmacro.buildpurposemacro.{buildplan.[$sequence,event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2}+1]}"/>
+                <set_value name="$colorcode" exact="
+                if $purposemacro.isclass.production then '\033Y'
+                else if $purposemacro.isclass.storage then '\033C'
+                else if $purposemacro.isclass.cargobay then '\033C'
+                else if $purposemacro.isclass.dronelaunchpad then '\033Y'
+                else if $purposemacro.isclass.radar then '\033M'
+                else if $purposemacro.isclass.destructible then '\033R'
+                else '\033B'"/>
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
+[ 'text' , '%1Extend: Build %2'.[$colorcode,$purposemacro.name] ] ,
+[ 'button' , 'Select' , 'comm_architect_orders_extend_selected' , false , true , $sequence , true  ]
+]"/>
+              </do_if>
+            </do_all>
+            <remove_value name="$purposemacro"/>
+            <remove_value name="$colorcode"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Upgrade Station' ] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
+[ 'text' , 'Work in Progress' ] ,
+null
+]"/>
+            <!-- find anything which can be repaired ( ToDo: maybe some Filtering?? )-->
+            <!-- this Value will also be used in the Section called by this choice!!! -->
+            <find_object_component name="$RepairableParts" object="$station" checkoperational="false" multiple="true">
+              <match_any>
+                <match restorable="true" comment="wrecked"/>
+                <match repairable="true" invulnerable="false">
+                  <match_hull min="99" negate="true" />
+                </match>
+              </match_any>
+            </find_object_component>
+            <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if $RepairableParts.count then '%1 Parts need repairs'.[$RepairableParts.count] else 'nothing to repair'" selectable="false and $actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
+            <do_if value="$RepairableParts.count">
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3, 2 ] ] , [ 'text' , 'Repair Station' ] , [ 'text' , 'Parts needing Repairs: %1'.[$RepairableParts.count] ]"/>
+              <do_all exact="$RepairableParts.count" counter="$i">
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
+[ 'text' , '%1 - %2 // %3'.[$i,$RepairableParts.{$i}.knownname,$RepairableParts.{$i}.hullpercentage ] ,
+null
+]"/>
+              </do_all>
+            </do_if>
           </do_if>
           <do_else>
             <!-- Choose Space where to Build a Station or Station to Attach to - will auto-decide based on input -->
-            <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', event.object.container.cluster, null, event.object.container.sector, 'selectspaceorstation', ['comm_architect_orders_spaceorstationselected']]"/>
+            <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'cluster', event.object.container.cluster, null, event.object.container.sector, 'selectspaceorstation', ['comm_architect_orders_deploy_spaceorstationselected']]"/>
           </do_else>
         </do_if>
         <do_else>
@@ -32,15 +85,15 @@
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_else>
       </do_elseif>
-      
-      
-      <do_elseif value="event.param == 'comm_architect_orders_spaceorstationselected'">
+      <!-- Stuff related to Initial Deployment -->
+      <do_elseif value="event.param == 'comm_architect_orders_deploy_spaceorstationselected'">
         <do_if value="event.param2.{3}.isclass.station">
           <do_if value="not event.param2.{3}.buildanchor.exists" comment="Check if there is already a CV attached">
             <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Deploy to %1'.[event.param2.{3}.knownname],$station=event.param2.{3},$interruptable=false]"/>
             <!-- Set a few Values related to the currently built Station here -->
             <set_value name="event.object.$construction" exact="event.param2.{3}"/>
             <set_value name="event.object.$constructionacro" exact="event.param2.{3}.macro"/>
+            <!--DONT FORGET: event.object.$orderedbuildplanlist !!!!!!! -->
             <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
           </do_if>
           <do_else>
@@ -48,9 +101,66 @@
             <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
           </do_else>
         </do_if>
+        <do_else>
+          <do_if value="event.param2.{3}.isclass.sector or event.param2.{3}.isclass.cluster">
+            <do_all exact="10">
+              <find_zone name="$zone" known="true" priorityzone="true" tempzone="false" space="event.param2.{3}" />
+              <do_if value="$zone.freebuildlocations.count ge 1">
+                <do_all exact="$zone.freebuildlocations.count" counter="$i">
+                  <do_if value="not $zone.freebuildlocations.{$i}.child.exists">
+                    <set_value name="$buildlocation" exact="$zone.freebuildlocations.{$i}"/>
+                    <break/>
+                  </do_if>
+                </do_all>
+                <do_if value="$buildlocation?">
+                  <break/>
+                </do_if>
+              </do_if>
+            </do_all>
+          </do_if>
+          <do_elseif value="event.param2.{3}.isclass.zone">
+            <set_value name="$zone" exact="event.param2.{3}"/>
+            <do_if value="$zone.freebuildlocations.count ge 1">
+              <do_all exact="$zone.freebuildlocations.count" counter="$i">
+                <do_if value="not $zone.freebuildlocations.{$i}.child.exists">
+                  <set_value name="$buildlocation" exact="$zone.freebuildlocations.{$i}"/>
+                  <break/>
+                </do_if>
+              </do_all>
+            </do_if>
+          </do_elseif>
+          <do_if value="$buildlocation?">
+            <debug_text filter="general"  chance="event.object.$debug * 100" text="'start building via Dialogue'"/>
+            <signal_cue_instantly cue="Comm_Architect_Start_Build" param="$buildlocation"/>
+            <!--remove_value name="$buildlocation"/-->
+          </do_if>
+          <do_else>
+            <!-- couldnt find a suitable Build Location - Tell Player  and go back -->
+            <debug_text filter="general"  chance="event.object.$debug * 100" text="'no fitting buildlocation'"/>
+            <add_npc_line speaker="event.object" line="[1014,1015,1020,1019].random" hidechoices="false" comment="reject order" />
+          </do_else>
+        </do_else>
       </do_elseif>
-        
-        
+      <!-- Stuff related to Station Extension -->
+      <do_elseif value="event.param == 'comm_architect_orders_extend_selected'">
+        <do_all exact="event.object.$ut_cac.$orderedbuildplanlist.count" counter="$i">
+          <do_if value="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2">
+            <set_value name="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
+            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend: Build %1'.[event.object.$constructionmacro.buildpurposemacro.{buildplan.[event.param2,event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}.name],$sequence=event.param2,$upgradeplan=[],$interruptable=false]"/>
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          </do_if>
+        </do_all>
+      </do_elseif>
+      <!-- Stuff related to Station Upgrades -->
+      <do_elseif value="event.param == 'comm_architect_orders_upgrade_selected'">
+        <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Upgrade %1'.[event.object.$construction.name],$upgradeplan=event.param2,$interruptable=true]"/>
+      </do_elseif>
+      <!-- stuff related to Station Repairs -->
+      <do_elseif value="event.param == 'comm_architect_orders_upgrade_selected'">
+        <set_value name="$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Upgrade %1'.[event.object.$construction.name],$upgradeplan=event.param2,$interruptable=true]"/>
+      </do_elseif>
+      
+      <!-- ################################################ -->
       <do_if value="just to be well-formed">  
         <!-- VVVVVVV    Old Stuff   VVVVVVV  -->
         <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -98,7 +208,7 @@
         <add_player_choice_return text="{5554103,7}" position="close" />
       </do_elseif>
       <do_elseif value="event.param == 'comm_architect_orders_attach'">
-        *************
+        
       </do_elseif>
       <do_elseif value="event.param == 'comm_architect_orders_build_spaceselected'">
         <do_if value="event.param2.{3}.isclass.sector or event.param2.{3}.isclass.cluster">
@@ -139,6 +249,8 @@
           <add_npc_line speaker="event.object" line="[1014,1015,1020,1019].random" hidechoices="false" comment="reject order" />
         </do_else>
       </do_elseif>
+      
+      
       <do_elseif value="event.param == 'comm_architect_orders_extend_ui'">
         <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
           <do_if value="event.name == 'event_conversation_next_section'">
@@ -247,48 +359,127 @@
         </do_if>
         <set_value name="$new_order" exact="table[$script='ut.cac.com.architectcaptain.undeploy.constructionvessel',$displayname='Detach CV',$interruptable=true]"/>
       </do_elseif>
-      <!-- If both $prev_order and $new_order have a Value we can safely assume the Player has selected where he wants to add a New Order and what this Order is - so just insert it at the specified Spot -->
-      <do_if value="$prev_order? and $new_order?">
-        <!-- Player selected no Previous Order so he wants to attach it at the End of the List -->
-        <do_if value="$prev_order == null">
-          <append_to_list name="event.object.$orderlist" exact="$new_order"/>
-        </do_if>
-        <do_else>
-          <!-- Player selected a Specific Order to replace or insert - if it hasnt Moved just get its index, otherwise use the first fit in the List -->
-          <do_if value="event.object.$orderlist.{$prev_order.{3}} == $prev_order.{2}">
-            <set_value name="$index" exact="$prev_order.{3}"/>
-          </do_if>
-          <!-- Order to replace moved down - a common occurence probably -->
-          <do_elseif value="event.object.$orderlist.indexof.{$prev_order.{2}} lt $prev_order.{3}">
-            <set_value name="$index" exact="event.object.$orderlist.indexof.{$prev_order.{2}}"/>
-          </do_elseif>
-          <!-- Order moved Up - Unusual, leave a Note in the Log -->
-          <do_elseif value="event.object.$orderlist.indexof.{$prev_order.{2}}">
-            <set_value name="$index" exact="event.object.$orderlist.indexof.{$prev_order.{2}}"/>
-          </do_elseif>
-          <!-- Order not in Orderlist anymore - Dont change anything -->
-          <do_else>
-            <set_value name="$index" exact="null"/>
-          </do_else>
-          <do_if value="$index">
-            <do_if value="$prev_order.{4} == 'insert'">
-              <set_value name="event.object.$orderlist.{$index}" exact="$new_order" operation="insert"/>
-            </do_if>
-            <do_elseif value="$prev_order.{4} == 'replace'">
-              <set_value name="event.object.$orderlist.{$index}" exact="$new_order"/>
-            </do_elseif>
-          </do_if>
-        </do_else>
-        
-        <remove_value name="$prev_order"/>
-        <remove_value name="$new_order"/>
-        <signal_objects object="event.object" param="'new order received'" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
-        <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
-      </do_if>
     </actions>
     </cue>
     
-
+    <cue name="Performed_Build_Action">
+        <conditions>
+        <check_any>
+          <check_all>
+            <event_player_performed_build_action/>
+            <check_value value="event.object.architect.$ut_cac?"/>
+          </check_all>
+          <event_cue_signalled/><!-- param = $buildlocation - how to aquire Actor/Event Object? -->
+          <check_all>
+            <check_any>
+              <event_conversation_started actor="$actor" conversation="OnBuildAction"/>
+              <event_conversation_returned_to_section actor="$actor" section="OnBuildAction"/>
+              <event_conversation_next_section actor="$actor" sectionprefix="cArch_"/>
+              <event_conversation_returned_to_section actor="$actor" sectionprefix="cArch_"/>
+            </check_any>
+            <check_value value="event.object.$ut_cac?"/>
+          </check_all>
+        </check_any>
+      </conditions>
+      <actions>
+        <debug_text filter="general" text="'%1 %2:\nevent.param= %3 event.param2= %4 event.param3= %5'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <do_if value="event.name == 'event_player_performed_build_action'">
+          <set_value name="$buildlocation" exact="event.param" />
+          <start_conversation actor="event.object" conversation="OnBuildAction" type="unqueued" />
+          <set_value name="$zone" exact="player.zone"/>
+          <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$interruptable=true]"/>
+          <signal_objects object="event.object.ship.pilot" param="'new order'" param2="$CaptainMoveOrder"/>
+        </do_if>
+        <do_elseif value="event.name == 'event_cue_signalled'">
+          <set_value name="$buildlocation" exact="event.param.{1}" />
+          <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$interruptable=true]"/>
+          <signal_objects object="event.param.{2}.ship.pilot" param="'new order'" param2="$CaptainMoveOrder"/>
+          <open_conversation_menu menu="BuilderMacrosMenu" param="[0, 0, event.param.{2}, event.param.{2}.ship, 1]" param2="event.param3"/>
+          <set_conversation_return_section section="cArch_BuildAbort"/>
+        </do_elseif>
+        
+        <!-- Conversation: Select station to Build -->
+        <!-- Maybe add a Skill and Architect Faction Filter -->
+        <do_elseif value="event.param ==  'OnBuildAction'">
+          <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+            <do_if value="event.name == 'event_conversation_started'">
+              <add_npc_line line="1111" comment="Here is a list of stations we can build." view="closeupdetailmonitor" />
+            </do_if>
+            <do_else>
+              <add_npc_line line="4170" comment="Is there anything else I can offer you?" view="closeupdetailmonitor" />
+            </do_else>
+          </do_if>
+          <open_conversation_menu menu="BuilderMacrosMenu" param="[0, 0, event.object, event.object.ship, 1]" param2="event.param3"/>
+          <set_conversation_return_section section="cArch_BuildAbort"/>
+        </do_elseif>
+        
+        <do_elseif value="event.param == 'cArch_selectUpgradesMenu'">
+          <add_conversation_view view="closeupdetailmonitor" />
+          <do_if value="not $showed_cArch_selectUpgradesMenu?">
+            <set_value name="$showed_cArch_selectUpgradesMenu" />
+            <add_npc_line line="1122" comment="Please adjust the upgrade levels and then confirm the order." />
+          </do_if>
+          <!-- param2: [ 0 , 0 , actor , ship , null/object , station macro , sequence , stage , 1(build limit in demo) ]-->
+          <!-- param3: [ [ Upgrade 1 Tag , ratio ] , [ Upgrade 2 Tag , ratio ] ...] (optional) -->
+          <open_conversation_menu menu="SelectUpgradesMenu" param="event.param2" param2="event.param3" />
+        </do_elseif>
+        
+        <do_elseif value="event.param == 'cArch_buildcost'">
+          <add_conversation_view view="closeupdetailmonitor" />
+          <!-- param2: [ 0 , 0 , actor , ship , null/object , station macro , sequence , stage , [ [ Upgrade 1 Tag , ratio ] , [ Upgrade 2 Tag , ratio ] ...] , 1(build limit in demo) , null(targethullfraction) , 0(upgradesonly) { , droneplan , ammoplan } ]-->
+          <!-- param3: ???? -->
+          <open_conversation_menu menu="BuildCostMenu" param="event.param2" param2="event.param3" />
+        </do_elseif>
+        
+        <do_elseif value="event.param == 'cArch_buildermacrosResult'">
+          <!-- Result from build cost menu -->
+          <!-- param2 == { selected macro name, buildplanlist, upgradeplanlist } -->
+          <set_trade_restrictions object="event.object.container" restricted="true" />
+          <set_value name="$stationmacro" exact="macro.{event.param2.{1}}"/>
+          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Build Station (moveto)',$buildlocation=$buildlocation,$zone=$zone,$macro=$stationmacro,$upgradeplanlist=event.param2.{3},$interruptable=false]"/>
+          <!-- create buildplan var from temp station of planned type.. $TempCluster and everything within will be cleared once the first stage is complete-->
+          <do_if value="not md.$ut_cac_tempcluster?">
+            <create_presentation_cluster name="md.$ut_cac_tempcluster"/>
+            <set_presentation_cluster_persistence cluster="md.$ut_cac_tempcluster" persistent="true"/>
+          </do_if>
+          <find_zone name="$TempZone" space="md.$ut_cac_tempcluster" />
+          <create_station name="event.object.$ut_cac.$construction" macro="$stationmacro" owner="faction.player" zone="$TempZone" comment="temporary completed Station to get values from (not possible from construction) - will be swapped on completion"/>
+          <!--create_ai_unit object="event.object.$ut_cac.$construction"/-->
+          <remove_trade_subscription object="event.object.$ut_cac.$construction"/>
+          <set_known object="event.object.$ut_cac.$construction" known="false"/>
+          <set_cover_owner object="event.object.$ut_cac.$construction" faction="faction.neutral"/>
+          <set_value name="event.object.$ut_cac.$orderedbuildplanlist" exact="[]"/>
+          <do_all exact="event.object.$ut_cac.$construction.completebuildplan.sequences.count" counter="$i">
+            <append_to_list name="event.object.$ut_cac.$orderedbuildplanlist" exact="[ event.object.$ut_cac.$construction.completebuildplan.sequences.{$i} , 0 ]"/>
+          </do_all>
+          <do_if value="SwitchToPermanentStationB.state == cuestate.waiting" comment="waiting for a deployment which will never happen - reseting parent cue">
+            <reset_cue cue="SwitchToPermanentStationA"/>
+            <debug_text filter="error" text="'resetting Cue SwitchToPermanentStationA because SwitchToPermanentStationB is still in waiting state although it shouldnt be!'"/>
+          </do_if>
+          <signal_cue cue="SwitchToPermanentStationA" comment="this cue destroys the temp station when not needed anymore and updates the Station reference to the Station which is built"/>
+          <remove_value name="$CaptainMoveOrder"/>
+        </do_elseif>
+        
+        <!-- Station Upgrade via UI - probably not needed anymore.. -->
+        <do_elseif value="event.param == 'cArch_buildtreeResult'">
+          <!-- Selection made in build tree menu -->
+          <!-- param2 == [ buildplanlist, upgradeplanlist ] -->
+          <add_npc_line line="1109" comment="we will start construction" view="facenormal" />
+          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Extend Station',$station=event.object.ship.buildmodule.buildanchor,$buildplanlist=event.param2.{1},$upgradeplanlist=event.param2.{2},$interruptable=false]"/>
+          <do_if value="event.object.$orderlist.count ge 1 and event.object.$orderlist.{event.object.$orderlist.count}.$script=='ut.cac.com.architect.build'">
+            <set_value name="event.object.$orderlist.{event.object.$orderlist.count}.$interruptable" exact="false"/>
+          </do_if>
+        </do_elseif>
+        <do_elseif value="event.param == 'cArch_BuildAbort'">
+          <!-- Selection made in build tree menu -->
+          <!-- param2 == [ buildplanlist, upgradeplanlist ] -->
+          <add_npc_line line="1109" comment="we will start construction" view="facenormal" />
+          <signal_objects object="event.object" param="'cancel order'" param2="$CaptainMoveOrder"/>
+          <remove_value name="$CaptainMoveOrder"/>
+        </do_elseif>
+      </actions>
+    </cue>
+    
     <cue name="Main" instantiate="true" namespace="this" version="20">
       <conditions>
         <event_cue_signalled cue="this"/>
