@@ -566,7 +566,12 @@ Rest is shared between all Actor types
         <cue name="Handover_040">
           <!-- this Script will not be used from 0.40 on anymore - handing over all Instances to the common dialogue Script -->
           <actions>
-            <set_value name="$actor.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>
+            <do_if value="$actor.ship.pilot == $actor">
+              <set_value name="$actor.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>
+            </do_if>
+            <do_else>
+              <remove_value name="$actor.$ut_cac.$orders_section"/>
+            </do_else>
             <debug_text filter="general" text="'%1 UT CAC Dialogue Handover to 040'.[$actor.name]" />
             <cancel_cue cue="Main"/>
           </actions>
