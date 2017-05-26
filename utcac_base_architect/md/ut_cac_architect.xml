@@ -10,7 +10,7 @@
         </check_any>
       </conditions>
       <actions>
-      <debug_text filter="general" text="'%1 %2:\nevent.object= %3 event.param= %4 event.param2= %5 event.param3= %6\n$new_order: %7'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3,@md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order]"/>
+      <debug_text filter="general" text="'%1 %2:\nevent.name= %3 event.param= %4 event.param2= %5 event.param3= %6\n$new_order: %7'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3,@md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order]"/>
         <do_if value="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order?" comment="we have an Order to be given - return to Order Menu and let the calling MD File handle the rest.">
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
           <!-- delete temp values for Orders when returning -->
@@ -131,7 +131,7 @@ null
           </do_elseif>
           <do_if value="$buildlocation?">
             <debug_text filter="general"  chance="@event.object.$debug * 100" text="'start building via Dialogue'"/>
-            <signal_cue_instantly cue="Performed_Build_Action" param="$buildlocation,event.object]"/>
+            <signal_cue_instantly cue="Performed_Build_Action" param="[$buildlocation,event.object]"/>
             <!--remove_value name="$buildlocation"/-->
           </do_if>
           <do_else>
@@ -383,7 +383,7 @@ null
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" text="'%1 %2:\nevent.object= %3 event.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" text="'%1 %2:\nevent.name= %3 event.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.name == 'event_player_performed_build_action'">
           <set_value name="$buildlocation" exact="event.param" />
           <start_conversation actor="event.object" conversation="OnBuildAction" type="unqueued" />
