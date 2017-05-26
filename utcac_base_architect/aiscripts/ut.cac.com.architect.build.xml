@@ -250,12 +250,16 @@
                 </check_any>
               </conditions>
               <actions>
-                <do_if value="event.name == 'event_object_drone_added'">
-                  <restart_build object="$station" buildmodule="this.ship.buildmodule"/>
-                </do_if>
+                <set_value name="$eventname" exact="event.name"/>
               </actions>
             </interrupt>
           </wait>
+          <do_if value="$eventname == 'event_object_drone_added'">
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Updating Drone Count'.[this.name,this.container.name]"/>
+            <clear_buildmodule buildmodule="this.ship.buildmodule"/>
+            <disconnect_from_build_location object="this.ship"/>
+          </do_if>
+          <remove_value name="$eventname"/>
         </do_while>
         <set_value name="this.$ut_cac.$isactive" exact="1" comment="possibly long-lasting action is done - pay the last payment period too"/>
         <!-- Station Construction complete  - remove blocked area, set commander, start ai -->
