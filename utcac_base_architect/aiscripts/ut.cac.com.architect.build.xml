@@ -240,13 +240,23 @@
         </do_all>
         <!-- wait till construction is done -->
         <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
-        <wait>
-          <interrupt>
-            <conditions>
-              <event_build_finished object="this.ship"/>
-            </conditions>
-          </interrupt>
-        </wait>
+        <do_while value="$station.isconstruction">
+          <wait>
+            <interrupt>
+              <conditions>
+                <check_any>
+                  <event_object_drone_added object="this.ship"/>
+                  <event_build_finished object="this.ship"/>
+                </check_any>
+              </conditions>
+              <actions>
+                <do_if value="event.name == 'event_object_drone_added'">
+                  <restart_build object="$station" buildmodule="this.ship.buildmodule"/>
+                </do_if>
+              </actions>
+            </interrupt>
+          </wait>
+        </do_while>
         <set_value name="this.$ut_cac.$isactive" exact="1" comment="possibly long-lasting action is done - pay the last payment period too"/>
         <!-- Station Construction complete  - remove blocked area, set commander, start ai -->
         <remove_blocked_area blocker="this" zone="this.zone"/>
