@@ -1007,7 +1007,7 @@
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 [ 'button' , 'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
 [ 'button' ,  'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , 
-[ 'button' , 'UNUSED', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] 
+[ 'button' , 'Details', 'comm_debug_order_details' , 'INPUT_STATE_DETAILMONITOR_X' , true ] 
 ] ]"/>
           <!-- Local Variables  -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 10 ] ] , [ 'text' , 'Debug Functions' ] ]"/>
@@ -1021,7 +1021,7 @@
           <do_if value="event.object.$orderlist?">
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 10 ] ] , [ 'text' , 'Orderlist Details' ] ]"/>
             <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 2 , 2 , 3, 2 ] ] ,  
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 3 , 3 , 3 ], 'comm_debug_order_details' , @event.object.$orderlist.{$i} ] ,  
 [ 'text' , 'i:%1 e:%2'.[@event.object.$orderlist.{$i}.$interruptable , @event.object.$orderlist.{$i}.$exitonneworder] ] , 
 [ 'text' , @event.object.$orderlist.{$i}.$script ] , 
 [ 'text' , if event.object.$orderlist.{$i}.$abortscript? then event.object.$orderlist.{$i}.$abortscript else 'null' ] , 
@@ -1057,6 +1057,18 @@ null
         <do_elseif value="event.param == 'comm_debug_cleanup_object'">
           <disconnect_from_build_location object="event.object.container.buildingmodule.container"/>
           <destroy_object object="event.object.container" explosion="false"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_debug_order_details'">
+          <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Order Details for %1'.[event.param2.$displayname], null, null , null , [ 300 , -1 ] ,  [] ,  [ 
+[ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
+null , null , null ] ]"/>
+          <set_value name="$keys" exact="event.param2.keys.list"/>
+          <do_all exact="$keys.count" counter="$i">
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 ] ] ,  
+[ 'text' , $keys.{$i} ] , 
+[ 'text' , event.param2.{$keys.{$i}} ]
+]"/>
+          </do_all>
         </do_elseif>
         <do_else>
           <debug_text filter="error" text="'%1 %2 Unknown Section: %3'.[player.age,event.object.name,event.param]"/>
