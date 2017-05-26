@@ -66,10 +66,10 @@ null
             </find_object_component>
             <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if $RepairableParts.count then '%1 Parts need repairs'.[$RepairableParts.count] else 'nothing to repair'" selectable="false and $actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
             <do_if value="$RepairableParts.count">
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3, 2 ] ] , [ 'text' , 'Repair Station' ] , [ 'text' , 'Parts needing Repairs: %1'.[$RepairableParts.count] ]"/>
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3, 2 ] ] , [ 'text' , 'Repair Station' ] , [ 'text' , 'Parts needing Repairs: %1'.[$RepairableParts.count] ] ]"/>
               <do_all exact="$RepairableParts.count" counter="$i">
                 <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
-[ 'text' , '%1 - %2 // %3'.[$i,$RepairableParts.{$i}.knownname,$RepairableParts.{$i}.hullpercentage ] ,
+[ 'text' , '%1 - %2 // %3'.[$i,$RepairableParts.{$i}.knownname,$RepairableParts.{$i}.hullpercentage ] ] ,
 null
 ]"/>
               </do_all>
@@ -373,10 +373,10 @@ null
           <event_cue_signalled/><!-- param = $buildlocation - how to aquire Actor/Event Object? -->
           <check_all>
             <check_any>
-              <event_conversation_started actor="$actor" conversation="OnBuildAction"/>
-              <event_conversation_returned_to_section actor="$actor" section="OnBuildAction"/>
-              <event_conversation_next_section actor="$actor" sectionprefix="cArch_"/>
-              <event_conversation_returned_to_section actor="$actor" sectionprefix="cArch_"/>
+              <event_conversation_started conversation="OnBuildAction"/>
+              <event_conversation_returned_to_section section="OnBuildAction"/>
+              <event_conversation_next_section sectionprefix="cArch_"/>
+              <event_conversation_returned_to_section sectionprefix="cArch_"/>
             </check_any>
             <check_value value="event.object.$ut_cac?"/>
           </check_all>
