@@ -12,63 +12,63 @@
       <actions>
         <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2:\nevent.param= %3 event.param2= %4 event.param3= %5'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'comm_defense_settings_main'">
-          <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
+          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <do_if value="event.name == 'event_conversation_next_section'">
               <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
-              <add_npc_line speaker="$actor" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
+              <add_npc_line speaker="event.object" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
             </do_if>
             <do_elseif value="event.name == 'event_conversation_returned_to_section'">
               <do_if value="event.param2 == 'no change'">
                 <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time." />
               </do_if>
-              <add_npc_line speaker="$actor" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
+              <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
             </do_elseif>
           </do_if>
-          <add_player_choice_sub text="{5554103,252}.[readtext.{5554103}.{2521+$actor.$ut_cac.$defensemode}]" position="2" section="comm_defense_settings_behavior" comment="Change how Aggresively Enemies will be dealt with"/>
+          <add_player_choice_sub text="{5554103,252}.[readtext.{5554103}.{2521+event.object.$ut_cac.$defensemode}]" position="2" section="comm_defense_settings_behavior" comment="Change how Aggresively Enemies will be dealt with"/>
           <add_player_choice_return text="{5554103,7}" position="6" />
           <add_player_choice_return text="{5554103,7}" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_defense_settings_behavior'">
-          <add_player_choice text="{5554103,2521}" position="1" section="comm_defense_settings_behavior_incative" immediate="$actor.$ut_cac.$defensemode == 1"/>
-          <add_player_choice text="{5554103,2522}" position="2" section="comm_defense_settings_behavior_missile_defense" immediate="$actor.$ut_cac.$defensemode == 2"/>
-          <add_player_choice text="{5554103,2523}" position="3" section="comm_defense_settings_behavior_defensive" immediate="$actor.$ut_cac.$defensemode == 3"/>
-          <add_player_choice text="{5554103,2524}" position="4" section="comm_defense_settings_behavior_defense_aggressive" immediate="$actor.$ut_cac.$defensemode == 4"/>
-          <add_player_choice text="{5554103,2525}" position="5" section="comm_defense_settings_behavior_aggressive" immediate="$actor.$ut_cac.$defensemode == 5"/>
+          <add_player_choice text="{5554103,2521}" position="1" section="comm_defense_settings_behavior_incative" immediate="event.object.$ut_cac.$defensemode == 1"/>
+          <add_player_choice text="{5554103,2522}" position="2" section="comm_defense_settings_behavior_missile_defense" immediate="event.object.$ut_cac.$defensemode == 2"/>
+          <add_player_choice text="{5554103,2523}" position="3" section="comm_defense_settings_behavior_defensive" immediate="event.object.$ut_cac.$defensemode == 3"/>
+          <add_player_choice text="{5554103,2524}" position="4" section="comm_defense_settings_behavior_defense_aggressive" immediate="event.object.$ut_cac.$defensemode == 4"/>
+          <add_player_choice text="{5554103,2525}" position="5" section="comm_defense_settings_behavior_aggressive" immediate="event.object.$ut_cac.$defensemode == 5"/>
           <add_player_choice_return text="{5554103,7}" position="6" />
           <add_player_choice_return text="{5554103,7}" position="close" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_defense_settings_behavior_aggressive'">
-          <set_value name="$actor.$ut_cac.$defensemode" exact="4"/>
-          <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
-            <set_value name="$actor.$config_attackenemies" exact="1"/>
+          <set_value name="event.object.$ut_cac.$defensemode" exact="4"/>
+          <do_if value="event.object.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+            <set_value name="event.object.$config_attackenemies" exact="1"/>
           </do_if>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_defense_settings_behavior_defense_aggressive'">
-          <set_value name="$actor.$ut_cac.$defensemode" exact="3"/>
-          <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
-            <set_value name="$actor.$config_attackenemies" exact="1"/>
+          <set_value name="event.object.$ut_cac.$defensemode" exact="3"/>
+          <do_if value="event.object.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+            <set_value name="event.object.$config_attackenemies" exact="1"/>
           </do_if>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_defense_settings_behavior_defensive'">
-          <set_value name="$actor.$ut_cac.$defensemode" exact="2"/>
-          <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
-            <set_value name="$actor.$config_attackenemies" exact="0"/>
+          <set_value name="event.object.$ut_cac.$defensemode" exact="2"/>
+          <do_if value="event.object.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+            <set_value name="event.object.$config_attackenemies" exact="0"/>
           </do_if>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_defense_settings_behavior_missile_defense'">
-          <set_value name="$actor.$ut_cac.$defensemode" exact="1"/>
-          <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
-            <set_value name="$actor.$config_attackenemies" exact="0"/>
+          <set_value name="event.object.$ut_cac.$defensemode" exact="1"/>
+          <do_if value="event.object.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+            <set_value name="event.object.$config_attackenemies" exact="0"/>
           </do_if>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_defense_settings_behavior_incative'">
-          <set_value name="$actor.$ut_cac.$defensemode" exact="0"/>
-          <do_if value="$actor.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
-            <set_value name="$actor.$config_attackenemies" exact="0"/>
+          <set_value name="event.object.$ut_cac.$defensemode" exact="0"/>
+          <do_if value="event.object.$config_attackenemies?" comment="Vanilla Integration - might be removed at some point">
+            <set_value name="event.object.$config_attackenemies" exact="0"/>
           </do_if>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
