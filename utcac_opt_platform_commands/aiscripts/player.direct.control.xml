@@ -7,6 +7,14 @@
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
   </params>
+  <init>
+    <!-- first turn params param into real params -->
+    <do_if value="$params">
+      <do_if value="$params.$exitonneworder?">
+        <set_value name="$exitonneworder" exact="$params.$exitonneworder"/>
+      </do_if>
+    </do_if>
+  </init>
   <interrupts>
     <handler comment="Player Undocked - Terminate">
       <conditions>
@@ -17,6 +25,7 @@
         <resume label="finish"/>
       </actions>
     </handler>
+    <handler ref="ut_cac_exitonneworder"/>
   </interrupts>
     <actions>
       <label name="init"/>
@@ -121,7 +130,7 @@
       <stop_moving object="this.ship" immediate="true"/>
       <!--set_avoid_collisions object="player.ship" enabled="true"/-->
       <remove_effect object="player.platform" effect="'jump_activation_jumpdrive_slow'"/>
-        <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
+      <signal_objects object="player.primaryship" param="'Restart Platform Commands'"/>
     </do_if>
   </on_abort>
 </aiscript>
