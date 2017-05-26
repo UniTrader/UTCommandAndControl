@@ -1001,7 +1001,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2:\nevent.param= %3 event.param2= %4 event.param3= %5'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2:\nevent.name = %3 event.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'comm_debug_main'">
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Debug Menu for %1'.[event.object.name], null, null , null , [ 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , -1 ] ,  [] ,  [ 
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
@@ -1069,6 +1069,8 @@ null , null , null ] ]"/>
 [ 'text' , event.param2.{$keys.{$i}} ]
 ]"/>
           </do_all>
+          <remove_value name="$keys"/>
+          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
         </do_elseif>
         <do_else>
           <debug_text filter="error" text="'%1 %2 Unknown Section: %3'.[player.age,event.object.name,event.param]"/>
