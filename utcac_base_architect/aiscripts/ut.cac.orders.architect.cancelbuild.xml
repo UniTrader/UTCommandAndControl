@@ -11,10 +11,12 @@
   </params>
   <attention min="unknown">
     <actions>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Canceling Sequence %3 from Order %4'.[player.age,this.name,$params.$sequence,$order_pos]"/>
       <do_all exact="this.$orderlist.count" counter="$i">
         <!-- Cancel each subsequent Order which   is a Build Order VVVVVVV  and has a Sequence to extend VVVVVVVV  and extends the same Sequence as the Build Order to be cancelled VVVVV -->
         <do_if value="this.$orderlist.{$i}.$script == 'ut.cac.com.architect.build' and this.$orderlist.{$i}.$sequence? and $params.$sequence == this.$orderlist.{$i}.$sequence">
           <remove_value name="this.$orderlist.{$i}"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'==> Canceled Order %1'.[$i]"/>
         </do_if>
         <do_if value="$order_pos == $i">
           <break/>
