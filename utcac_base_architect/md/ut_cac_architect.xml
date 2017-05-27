@@ -146,7 +146,7 @@ null
         <do_all exact="event.object.$ut_cac.$orderedbuildplanlist.count" counter="$i">
           <do_if value="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2">
             <set_value name="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
-            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Extend: Build %1'.[event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[event.param2,event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}.name],$sequence=event.param2,$upgradeplan=[],$interruptable=false]"/>
+            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$abortscript='ut.cac.com.architect.cancelbuild',$displayname='Extend: Build %1'.[event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[event.param2,event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}.name],$sequence=event.param2,$upgradeplan=[]]"/>
             <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
           </do_if>
         </do_all>

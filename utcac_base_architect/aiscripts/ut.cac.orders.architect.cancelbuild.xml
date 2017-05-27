@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.orders.architect.cancelbuild" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+    This Script is responsible to cancel all Builds which are based on the Cancelled to keep the Orderlist consistent.
+    
+    ToDo when its ready: add Functions needed for Branching Build Trees like the one planned for the HQ -->
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="orderpos" />
+  </params>
+  <attention min="unknown">
+    <actions>
+      <do_while value="$orderpos lt this.$orderlist.count">
+        <set_value name="$orderpos" operation="add"/>
+        <!-- Cancel each subsequent Order which   is a Build Order VVVVVVV  and has a Sequence to extend VVVVVVVV  and extends the same Sequence as the Build Order to be cancelled VVVVV -->
+        <do_if value="this.$orderlist{$orderpos}.$script == 'ut.cac.com.architect.build' and this.$orderlist{$orderpos}.$sequence? and $params.$sequence == this.$orderlist{$orderpos}.$sequence">
+          <remove_value name="this.$orderlist{$orderpos}"/>
+          <set_value name="$orderpos" operation="subtract"/>
+        </do_if>
+      </do_while>
+    </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>
