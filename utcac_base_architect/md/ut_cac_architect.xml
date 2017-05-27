@@ -38,6 +38,9 @@
                     <set_value name="$next_stage" operation="add"/>
                   </do_if>
                 </do_all>
+                <do_if value="$next_stage gt event.object.$ut_cac.$construction.completebuildplan.{$sequence}.stage" comment="complete build already planned">
+                  <continue/>
+                </do_if>
                 <set_value name="$purposemacro" exact="event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[$sequence,$next_stage]}"/>
                 <set_value name="$colorcode" exact="
                 if $purposemacro.isclass.production then '\033Y'
