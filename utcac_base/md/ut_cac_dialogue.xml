@@ -217,29 +217,29 @@
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_mod'">
           <!-- get Index of Order to Modify (also account for slight changes in position) -->
-          <do_if value="event.object.$orderlist.{event.param2.{2}} == event.param2.{3}">
-            <set_value name="$order_id" exact="event.param2.{2}"/>
+          <do_if value="event.object.$orderlist.{event.param3.{2}} == event.param3.{3}">
+            <set_value name="$order_id" exact="event.param3.{2}"/>
           </do_if>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 1} == event.param2.{3}">
-            <set_value name="$order_id" exact="event.param2.{2} - 1"/>
+          <do_elseif value="event.object.$orderlist.{event.param3.{2} - 1} == event.param3.{3}">
+            <set_value name="$order_id" exact="event.param3.{2} - 1"/>
           </do_elseif>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} + 1} == event.param2.{3}">
-            <set_value name="$order_id" exact="event.param2.{2} + 1"/>
+          <do_elseif value="event.object.$orderlist.{event.param3.{2} + 1} == event.param3.{3}">
+            <set_value name="$order_id" exact="event.param3.{2} + 1"/>
           </do_elseif>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 2} == event.param2.{3}">
-            <set_value name="$order_id" exact="event.param2.{2} - 2"/>
+          <do_elseif value="event.object.$orderlist.{event.param3.{2} - 2} == event.param3.{3}">
+            <set_value name="$order_id" exact="event.param3.{2} - 2"/>
           </do_elseif>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} + 2} == event.param2.{3}">
-            <set_value name="$order_id" exact="event.param2.{2} + 2"/>
+          <do_elseif value="event.object.$orderlist.{event.param3.{2} + 2} == event.param3.{3}">
+            <set_value name="$order_id" exact="event.param3.{2} + 2"/>
           </do_elseif>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 3} == event.param2.{3}">
-            <set_value name="$order_id" exact="event.param2.{2} - 3"/>
+          <do_elseif value="event.object.$orderlist.{event.param3.{2} - 3} == event.param3.{3}">
+            <set_value name="$order_id" exact="event.param3.{2} - 3"/>
           </do_elseif>
           <do_else>
             <!-- fallback case: use first occurence of Order -->
-            <set_value name="$order_id" exact="event.object.$orderlist.indexof.{event.param2.{3}}"/>
+            <set_value name="$order_id" exact="event.object.$orderlist.indexof.{event.param3.{3}}"/>
           </do_else>
-          <do_if value="$order_id?">
+          <do_if value="$order_id? and $order.id">
             <do_if value="event.param2.{1} == 'cancel'">
               <signal_objects object="event.object" param="'cancel order'" param2="$order_id"/>
             </do_if>
