@@ -115,6 +115,7 @@
           <do_if value="$order_pos and ( if this.$orderlist.{$order_pos}.$interruptable? then this.$orderlist.{$order_pos}.$interruptable else true )"> 
             <!-- check if an abort Script was defined and execute it -->
             <do_if value="this.$orderlist.{$order_pos}.$abortscript?">
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Executing Abort Script %3 for Order Pos %4'.[player.age,this.name,this.$orderlist.{$order_pos}.$abortscript?,$order_pos]"/>
               <run_interrupt_script name="this.$orderlist.{$order_pos}.$abortscript" >
                  <param name="params" value="this.$orderlist.{$order_pos}"/>
                  <param name="order_pos" value="$order_pos"/>
@@ -123,6 +124,7 @@
             </do_if>
             <!-- remove Order from Orderlist if its not the first one - otherwise let the next_order Signal handle this -->
             <do_if value="$order_pos gt 1">
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Removing Order %3 on Order Pos %4'.[player.age,this.name,this.$orderlist.{$order_pos}.$abortscript?,$order_pos]"/>
               <remove_value name="this.$orderlist.{$order_pos}"/>
               <remove_value name="$order_pos"/>
             </do_if>
