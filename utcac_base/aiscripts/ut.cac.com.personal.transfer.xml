@@ -97,6 +97,8 @@
         </do_if>
         <do_if value="this.container.architect == this">
           <dismiss_control_entity object="this.container" actor="this"/>
+          <remove_value name="this.$ut_cac.$construction"/>
+          <remove_value name="event.object.$ut_cac.$orderedbuildplanlist"/>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Architect'.[this.name,this.container.name]"/>
         </do_if>
         
@@ -444,6 +446,10 @@
         <set_value name="this.$ut_cac.$orders_section" exact="'comm_architect_orders_main'"/>
         <do_if value="this.ship.buildmodule.buildanchor.exists">
           <set_value name="this.$ut_cac.$construction" exact="this.ship.buildmodule.buildanchor"/>
+          <set_value name="event.object.$ut_cac.$orderedbuildplanlist" exact="[]"/>
+          <do_all exact="event.object.$ut_cac.$construction.completebuildplan.sequences.count" counter="$i">
+            <append_to_list name="event.object.$ut_cac.$orderedbuildplanlist" exact="[ event.object.$ut_cac.$construction.completebuildplan.sequences.{$i} , 0 ]"/>
+          </do_all>
         </do_if>
         <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
       </do_elseif>
