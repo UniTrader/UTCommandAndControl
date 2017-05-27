@@ -425,6 +425,7 @@
           <!-- destination already has an Architect - soft takeover -->
           <do_if value="$destination.architect.$orderlist?">
             <signal_objects object="$destination.architect" param="'new order'" param2="table[$displayname='Handing over Job to %1'.[this.name],$script='ut.cac.com.personal.handover',$successor=this,$interruptable=false]"/>
+            <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="$destination.architect.$ut_cac.$orderedbuildplanlist"/>
             <wait>
               <interrupt>
                 <conditions>
@@ -446,10 +447,12 @@
         <set_value name="this.$ut_cac.$orders_section" exact="'comm_architect_orders_main'"/>
         <do_if value="this.ship.buildmodule.buildanchor.exists">
           <set_value name="this.$ut_cac.$construction" exact="this.ship.buildmodule.buildanchor"/>
-          <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
-          <do_all exact="this.$ut_cac.$construction.completebuildplan.sequences.count" counter="$i">
-            <append_to_list name="this.$ut_cac.$orderedbuildplanlist" exact="[ this.$ut_cac.$construction.completebuildplan.sequences.{$i} , 0 ]"/>
-          </do_all>
+          <do_if value="not this.$ut_cac.$orderedbuildplanlist?">
+            <set_value name="this.$ut_cac.$orderedbuildplanlist" exact="[]"/>
+            <do_all exact="this.$ut_cac.$construction.completebuildplan.sequences.count" counter="$i">
+              <append_to_list name="this.$ut_cac.$orderedbuildplanlist" exact="[ this.$ut_cac.$construction.completebuildplan.sequences.{$i} , 0 ]"/>
+            </do_all>
+          </do_if>
         </do_if>
         <!--<set_value name="this.$ut_cac.$settings_section" exact="'comm_captain_settings'"/>-->
       </do_elseif>
