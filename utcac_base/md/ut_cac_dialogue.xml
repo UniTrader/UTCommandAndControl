@@ -200,8 +200,8 @@
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1] , null , $i] , 
 [ 'text' , $i + '.' ] , 
 [ 'text' , event.object.$orderlist.{$i}.$displayname ] , 
-[ 'button' , 'V' , 'comm_orders_mod' , null , true , [ 'move down' , $i , event.object.$orderlist.{$i} ] , true ] , 
-[ 'button' , 'Cancel' , 'comm_orders_mod' , null , if event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true , [ 'cancel' , $i , event.object.$orderlist.{$i} ] , true] 
+[ 'button' , 'V' , 'comm_orders_mod' , null , true , [ 'move down' , $i , event.object.$orderlist.{$i}.$script ] , true ] , 
+[ 'button' , 'Cancel' , 'comm_orders_mod' , null , if event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true , [ 'cancel' , $i , event.object.$orderlist.{$i}.$script ] , true] 
 ]"/>
           </do_all>
           <!-- remove last move down Entry, or add a Placeholder Entry to prevent the menü from bugging out -->
@@ -217,27 +217,26 @@
         </do_elseif>
         <do_elseif value="event.param == 'comm_orders_mod'">
           <!-- get Index of Order to Modify (also account for slight changes in position) -->
-          <do_if value="event.object.$orderlist.{event.param2.{2}} == event.param2.{3}">
+          <do_if value="event.object.$orderlist.{event.param2.{2}}.$script == event.param2.{3}.$script">
             <set_value name="$order_id" exact="event.param2.{2}"/>
           </do_if>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 1} == event.param2.{3}">
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 1}.$script == event.param2.{3}.$script">
             <set_value name="$order_id" exact="event.param2.{2} - 1"/>
           </do_elseif>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} + 1} == event.param2.{3}">
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} + 1}.$script == event.param2.{3}.$script">
             <set_value name="$order_id" exact="event.param2.{2} + 1"/>
           </do_elseif>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 2} == event.param2.{3}">
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 2}.$script == event.param2.{3}.$script">
             <set_value name="$order_id" exact="event.param2.{2} - 2"/>
           </do_elseif>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} + 2} == event.param2.{3}">
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} + 2}.$script == event.param2.{3}.$script">
             <set_value name="$order_id" exact="event.param2.{2} + 2"/>
           </do_elseif>
-          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 3} == event.param2.{3}">
+          <do_elseif value="event.object.$orderlist.{event.param2.{2} - 3}.$script == event.param2.{3}.$script">
             <set_value name="$order_id" exact="event.param2.{2} - 3"/>
           </do_elseif>
           <do_else>
-            <!-- fallback case: use first occurence of Order -->
-            <set_value name="$order_id" exact="event.object.$orderlist.indexof.{event.param2.{3}}"/>
+            <!-- If order cannot be Located - do nothing! -->
           </do_else>
           <do_if value="$order_id? and $order_id">
             <do_if value="event.param2.{1} == 'cancel'">
