@@ -191,7 +191,7 @@ function menu.CreateCell(celldefinition,row,column,height,width,buttonlist)
 				Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize * 1.4 , 255, 255, 255, 100), 
 				nil, 
 				true,
-				celldefinition[5], 
+				celldefinition[5] or true, 
 				0, 
 				0, 
 				width,
