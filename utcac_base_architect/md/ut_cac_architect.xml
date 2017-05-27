@@ -28,9 +28,9 @@
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_Y' , false , null , true ] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_X' , false , null , true ] 
 ] ]"/>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Extend Station' ] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Extend %1'.[event.object.$ut_cac.$construction.name] ] ]"/>
             <do_if value="not md.UT_CAC_Dialogue.Comm_Common_Orders.$insert_pos" comment="Sheduling Extensions is only Possible at the End of the Orderlist">
-              <do_all exact="event.object.$ut_cac.$construction.completebuildplan.sequences.count" counter="$i">
+              <do_all exact="event.object.$ut_cac.$construction.completebuildplan.sequences.count" counter="$i" reverse="false">
                 <set_value name="$sequence" exact="event.object.$ut_cac.$construction.completebuildplan.sequences.{$i}"/>
                 <set_value name="$next_stage" exact="event.object.$ut_cac.$construction.completebuildplan.{$sequence}.stage + 1"/>
                 <do_all exact="event.object.$orderlist.count" counter="$j">
