@@ -7,6 +7,31 @@
     (Wages, Possible Orders and Settings etc.)"/>
   </documentation>
   <cues>
+    <cue name="Clone_Actor" instantiate="true">
+      <conditions>
+        <event_object_signalled object="player.galaxy" param="'clone actor'"/>
+      </conditions>
+      <actions>
+        <create_platform_actor name="$clone" dockingbay="event.param3" type="event.param2.type" macro="event.param2.macro">
+          <name name="event.param2.name"/>
+          <owner exact="event.param2.owner"/>
+          <page exact="event.param2.page"/>
+          <skills>
+            <skill type="boarding" exact="event.param2.skill.boarding"/>
+            <skill type="combat" exact="event.param2.skill.combat"/>
+            <skill type="engineering" exact="event.param2.skill.engineering"/>
+            <skill type="leadership" exact="event.param2.skill.leadership"/>
+            <skill type="management" exact="event.param2.skill.management"/>
+            <skill type="morale" exact="event.param2.skill.morale"/>
+            <skill type="navigation" exact="event.param2.skill.navigation"/>
+            <skill type="science" exact="event.param2.skill.science"/>
+          </skills>
+        </create_platform_actor>
+        <set_value name="$clone.$ut_cac" exact="event.param2.$ut_cac.clone"/>
+        <set_value name="$clone.$experience" exact="event.param2.$experience"/>
+        <signal_cue_instantly cue="Actor_Init" param="$clone"/>
+      </actions>
+    </cue>
     <cue name="Actor_Init" instantiate="true">
       <!-- This Cue is intended to put an Entity into the right State to perform its Job as a certain Entity Type. Also used when changing the Entity Type. does not reset Settings (except where it might interfer with function). if desired delete $actor.$ut_cac before (this also resets Skill Progress) -->
       <conditions>
