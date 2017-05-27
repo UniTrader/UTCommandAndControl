@@ -106,7 +106,7 @@ null
       <do_elseif value="event.param == 'comm_architect_orders_deploy_spaceorstationselected'">
         <do_if value="event.param2.{3}.isclass.station">
           <do_if value="not event.param2.{3}.buildanchor.exists" comment="Check if there is already a CV attached">
-            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Deploy to %1'.[event.param2.{3}.knownname],$station=event.param2.{3},$interruptable=false]"/>
+            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Deploy to %1'.[event.param2.{3}.knownname],$station=event.param2.{3},$interruptable=false,$moveable=false]"/>
             <!-- Set a few Values related to the currently built Station here -->
             <set_value name="event.object.$ut_cac.$construction" exact="event.param2.{3}"/>
             <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
@@ -158,7 +158,7 @@ null
       </do_elseif>
       <!-- Stuff related to Station Extension -->
       <do_elseif value="event.param == 'comm_architect_orders_extend_selected'">
-        <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$abortscript='ut.cac.orders.architect.cancelbuild',$displayname='Extend: Build %1 ( %2%3 )'.[event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[event.param2.{1},event.param2.{2}]}.name,event.param2.{1},event.param2.{2}],$sequence=event.param2.{1},$upgradeplan=[]]"/>
+        <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$abortscript='ut.cac.orders.architect.cancelbuild',$displayname='Extend: Build %1 ( %2%3 )'.[event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[event.param2.{1},event.param2.{2}]}.name,event.param2.{1},event.param2.{2}],$sequence=event.param2.{1},$upgradeplan=[],$moveable=false]"/>
         <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
       </do_elseif>
       <!-- Stuff related to Station Upgrades -->
@@ -448,7 +448,7 @@ null
           <!-- param2 == { selected macro name, buildplanlist, upgradeplanlist } -->
           <set_trade_restrictions object="event.object.container" restricted="true" />
           <set_value name="$stationmacro" exact="macro.{event.param2.{1}}"/>
-          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Build Station (moveto)',$buildlocation=$buildlocation,$zone=$zone,$macro=$stationmacro,$upgradeplanlist=event.param2.{3},$interruptable=false]"/>
+          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.architect.build',$displayname='Build Station (moveto)',$buildlocation=$buildlocation,$zone=$zone,$macro=$stationmacro,$upgradeplanlist=event.param2.{3},$interruptable=false,$moveable=false]"/>
           <!-- create buildplan var from temp station of planned type.. $TempCluster and everything within will be cleared once the first stage is complete-->
           <do_if value="not md.$ut_cac_tempcluster?">
             <create_presentation_cluster name="md.$ut_cac_tempcluster"/>

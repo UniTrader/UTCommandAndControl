@@ -200,7 +200,7 @@
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1] , null , $i] , 
 [ 'text' , $i + '.' ] , 
 [ 'text' , event.object.$orderlist.{$i}.$displayname ] , 
-[ 'button' , 'V' , 'comm_orders_mod' , null , true , [ 'move down' , $i , event.object.$orderlist.{$i}.$script ] , true ] , 
+[ 'button' , 'V' , 'comm_orders_mod' , null , ( if event.object.$orderlist.{$i}.$moveable? then event.object.$orderlist.{$i}.$moveable else true ) and ( if $i == 1 and event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true ) , [ 'move down' , $i , event.object.$orderlist.{$i}.$script ] , true ] , 
 [ 'button' , 'Cancel' , 'comm_orders_mod' , null , if event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true , [ 'cancel' , $i , event.object.$orderlist.{$i}.$script ] , true] 
 ]"/>
           </do_all>
