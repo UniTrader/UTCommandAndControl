@@ -29,11 +29,13 @@
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_X' , false , null , true ] 
 ] ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Extend Station' ] ]"/>
-            <do_all exact="event.object.$ut_cac.$orderedbuildplanlist.count" counter="$i">
-              <set_value name="$sequence" exact="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{1}"/>
-              <do_if value="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2} lt event.object.$ut_cac.$construction.completebuildplan.{$sequence}.stage">
-                <set_value name="$purposemacro" exact="event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[$sequence,event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2}+1]}"/>
-                <set_value name="$colorcode" exact="
+            <do_all exact="event.object.$ut_cac.$construction.completebuildplan.sequences.count" counter="$i">
+              <set_value name="$sequence" exact="this.$ut_cac.$construction.completebuildplan.sequences.{$i}"/>
+              <do_all exact="event.object.$orderlist.count" counter="$j">
+                <do_if value="event.object.$orderlist.{$j.$sequence? and event.object.$orderlist.{$j}.$sequence == $sequence">
+                  <set_value name="$next_stage" exact="event.object.$orderlist.{$j.$stage + 1"/>
+                  <set_value name="$purposemacro" exact="event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[$sequence,$next_stage]}"/>
+                  <set_value name="$colorcode" exact="
                 if $purposemacro.isclass.production then '\033Y'
                 else if $purposemacro.isclass.storage then '\033C'
                 else if $purposemacro.isclass.cargobay then '\033C'
@@ -42,13 +44,17 @@
                 else if $purposemacro.isclass.destructible then '\033R'
                 else '\033B'"/>
                 <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
-[ 'text' , '%1Extend: Build %2'.[$colorcode,$purposemacro.name] ] ,
-[ 'button' , 'Select' , 'comm_architect_orders_extend_selected' , false , true , $sequence , true  ]
+[ 'text' , '%1Extend: Build %2 ( %3%4 )'.[$colorcode,$purposemacro.name,$sequence,$next_stage] ] ,
+[ 'button' , 'Select' , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage] , true  ]
 ]"/>
-              </do_if>
+
+                </do_if>
+              </do_all>
             </do_all>
             <remove_value name="$purposemacro"/>
             <remove_value name="$colorcode"/>
+            <remove_value name="$sequence"/>
+            <remove_value name="$next_stage"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Upgrade Station' ] ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
 [ 'text' , 'Work in Progress' ] ,
@@ -93,7 +99,6 @@ null
             <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Deploy to %1'.[event.param2.{3}.knownname],$station=event.param2.{3},$interruptable=false]"/>
             <!-- Set a few Values related to the currently built Station here -->
             <set_value name="event.object.$ut_cac.$construction" exact="event.param2.{3}"/>
-            <!--DONT FORGET: event.object.$orderedbuildplanlist !!!!!!! -->
             <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
           </do_if>
           <do_else>
@@ -143,13 +148,8 @@ null
       </do_elseif>
       <!-- Stuff related to Station Extension -->
       <do_elseif value="event.param == 'comm_architect_orders_extend_selected'">
-        <do_all exact="event.object.$ut_cac.$orderedbuildplanlist.count" counter="$i">
-          <do_if value="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{1} == event.param2">
-            <set_value name="event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2}" operation="add"/>
-            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$abortscript='ut.cac.com.architect.cancelbuild',$displayname='Extend: Build %1'.[event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[event.param2,event.object.$ut_cac.$orderedbuildplanlist.{$i}.{2}]}.name],$sequence=event.param2,$upgradeplan=[]]"/>
-            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
-          </do_if>
-        </do_all>
+        <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$abortscript='ut.cac.com.architect.cancelbuild',$displayname='Extend: Build %1 ( %2%3 )'.[event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[event.param2.{1},event.param2.{2}]}.name,event.param2.{1},event.param2.{2}]],$sequence=event.param2.{1},$upgradeplan=[]]"/>
+        <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
       </do_elseif>
       <!-- Stuff related to Station Upgrades -->
       <do_elseif value="event.param == 'comm_architect_orders_upgrade_selected'">
