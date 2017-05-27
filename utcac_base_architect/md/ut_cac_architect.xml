@@ -64,7 +64,6 @@ null
                 </match>
               </match_any>
             </find_object_component>
-            <add_player_choice text="'Repair Station'" position="3" section="comm_orders_repair" tooltip="if $RepairableParts.count then '%1 Parts need repairs'.[$RepairableParts.count] else 'nothing to repair'" selectable="false and $actor.$ut_cac.$orderedbuildplanlist and $RepairableParts.count"/>
             <do_if value="$RepairableParts.count">
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3, 2 ] ] , [ 'text' , 'Repair Station' ] , [ 'text' , 'Parts needing Repairs: %1'.[$RepairableParts.count] ] ]"/>
               <do_all exact="$RepairableParts.count" counter="$i">
@@ -74,6 +73,8 @@ null
 ]"/>
               </do_all>
             </do_if>
+            <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
+            <add_conversation_view view="closeupdetailmonitor"/>
           </do_if>
           <do_else>
             <!-- Choose Space where to Build a Station or Station to Attach to - will auto-decide based on input -->
