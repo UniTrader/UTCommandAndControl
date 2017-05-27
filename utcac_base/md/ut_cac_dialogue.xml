@@ -35,54 +35,6 @@
           <set_value name="$actor.$ut_cac.$loglevel" exact="param.ut_cac.setting_defaults.$loglevel"/>
         </do_if>
         
-        
-        <!-- set up Required Vars per Entity Type -->
-        <do_if value="$actor.type == entitytype.pilot">
-          <!-- ???? -->
-          <do_if value="not $actor.$ut_cac.$legality?">
-            <set_value name="$actor.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
-          </do_if>
-        </do_if>
-        <do_elseif value="$actor.type == entitytype.commander" comment="aka Captain">
-          <do_if value="not $actor.$ut_cac.$jumptype?">
-            <set_value name="$actor.$ut_cac.$jumptype" exact="param.ut_cac.setting_defaults.$jumptype"/>
-          </do_if>
-          <do_if value="not $actor.$ut_cac.$insectorjump?">
-            <set_value name="$actor.$ut_cac.$insectorjump" exact="param.ut_cac.setting_defaults.$insectorjump"/>
-          </do_if>
-          <do_if value="not $actor.$ut_cac.$clusterboost?">
-            <set_value name="$actor.$ut_cac.$clusterboost" exact="param.ut_cac.setting_defaults.$clusterboost"/>
-          </do_if>
-          <do_if value="not $actor.$ut_cac.$orders_section?">
-            <set_value name="$actor.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>
-          </do_if>
-          <!-- ???? -->
-          <do_if value="not $actor.$ut_cac.$legality?">
-            <set_value name="$actor.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
-          </do_if>
-        </do_elseif>
-        <do_elseif value="$actor.type == entitytype.manager">
-          <do_if value="not $actor.$ut_cac.$legality?">
-            <set_value name="$actor.$ut_cac.$legality" exact="param.ut_cac.setting_defaults.$legality"/>
-          </do_if>
-          <!-- Reset Range Settings - may not fir to changed Position -->
-          <set_value name="$actor.$ut_cac.$range" exact="[$actor.sector]"/>
-          <set_value name="$actor.$ut_cac.$range_j" exact="[$actor.sector]"/>
-          <set_value name="$actor.$ut_cac.$range_h" exact="[$actor.sector]"/>
-        </do_elseif>
-        <do_elseif value="$actor.type == entitytype.engineer">
-          
-        </do_elseif>
-        <do_elseif value="$actor.type == entitytype.architect">
-          
-        </do_elseif>
-        <do_elseif value="$actor.type == entitytype.marine">
-          
-        </do_elseif>
-        <do_elseif value="$actor.type == entitytype.defencecontrol">
-          
-        </do_elseif>
-        
         <do_if value="not $actor.$experience?">
           <set_value name="$actor.$experience" exact="table[]"/>
           <set_value name="$actor.$experience.{skilltype.boarding}" exact="if $actor.skill.boarding then param.ut_cac.experience.{skilltype.boarding}.{$actor.skill.boarding} else 0"/>
