@@ -187,12 +187,11 @@ function menu.CreateCell(celldefinition,row,column,height,width,buttonlist)
 			-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
 			table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
 		end
-		print("selectable: "..celldefinition[5].."<--")
 		return Helper.createButton(
 				Helper.createButtonText(celldefinition[2], "center", Helper.standardFont, Helper.standardFontSize * 1.4 , 255, 255, 255, 100), 
 				nil, 
 				true,
-				celldefinition[5] or true, 
+				(celldefinition[5] == null) or (celldefinition[5] == 1) or false, 
 				0, 
 				0, 
 				width,
