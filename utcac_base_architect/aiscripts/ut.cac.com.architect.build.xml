@@ -37,7 +37,7 @@
         <do_if value="$params.$upgradeplan?">
           <set_value name="$upgradeplan" exact="$params.$upgradeplan"/>
         </do_if>
-        <debug_text filter="general" text="'%1 %2 %3 Architect build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Architect build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
       </do_if>
       
       
@@ -103,11 +103,11 @@
               <set_value name="this.ship.pilot.$orderlist.{$i}.$interruptable" exact="false"/>
               <signal_objects object="this.container" param="'Object Name Updated'"/>
               <do_if value="$i == 1">
-                <debug_text filter="general" text="'%1 %2 %3 Signalling Captain about new Plans'.[player.age,this.name,this.container.name]"/>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signalling Captain about new Plans'.[player.age,this.name,this.container.name]"/>
                 <signal_objects object="this.ship.pilot" param="'Set Build Macro'"/>
               </do_if>
               <do_else>
-                <debug_text filter="general" text="'%1 %2 %3 changing queued Order about new Plans'.[player.age,this.name,this.container.name]"/>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 changing queued Order about new Plans'.[player.age,this.name,this.container.name]"/>
               </do_else>
               <set_value name="$changed_order" comment="only used in the 4th line from here to not give a new Order if there is already one"/>
               <break/>
@@ -115,7 +115,7 @@
           </do_all>
           <do_if value="not $changed_order?">
             <signal_objects object="this.ship.pilot" param="'new order'" param2="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Moving to Build Position for %1'.[$macro.name],$buildlocation=$buildlocation,$zone=$zone,$interruptable=false]"/>
-            <debug_text filter="general" text="'%1 %2 %3 Giving Moveto buildlocation Order with final Plans'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Giving Moveto buildlocation Order with final Plans'.[player.age,this.name,this.container.name]"/>
           </do_if>
           <do_else>
             <remove_value name="$changed_order"/>
@@ -171,7 +171,7 @@
         <!-- set Captain to a "Hold Position"-Command-Loop which checks every few hours if we are at the desired Position and if not re-adjust it -->
         
         
-        <debug_text filter="general" text="'%1 %2 %3 Builder Ship is starting deployment'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Builder Ship is starting deployment'.[player.age,this.name,this.container.name]"/>
         <set_value name="$params.$displayname" exact="'Deploying Builder Ship'"/>
         <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Deploying Builder Ship'"/>
         <signal_objects object="this.container" param="'Object Name Updated'"/>
@@ -304,7 +304,7 @@
           <create_build_plan macro="$station.macro" buildplan="$Buildplan" buildplanlist="[[$sequence,$stage]]" upgradeplanlist="$upgradeplan" />
           <add_build_plan buildmodule="this.ship.buildmodule" buildplan="$Buildplan" updatebuild="true" />
           <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.buildpurposemacro.{$Buildplan}.name]"/>
-          <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Constructing %1'.[$macro.buildpurposemacro.{$Buildplan}.name]"/>
+          <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Constructing %1 ( %2%3 )'.[$macro.buildpurposemacro.{$Buildplan}.name,$sequence,$stage]"/>
           <set_command_action commandaction="commandaction.repairingto" param="$macro.buildpurposemacro.{buildplan.[$sequence,$stage]}" />
           <signal_objects object="this.container" param="'Object Name Updated'"/>
           <remove_blocked_area blocker="this" zone="this.zone"/>
@@ -355,43 +355,21 @@
       
       <!-- after each building Step check if Personal for the Station is on board (primarily for now possibly needed Specialists) and transfer all subordinate Ships, too -->
       <!-- Move all Station personal on board over to the Station after building, extending and redeploying (only if not already present)-->
-      <find_dock_location name="$dock" container="$station" dockpopulationtype="dockpopulationtype.administrative" required="true" />
       <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager"/>
-      <do_if value="$manager.exists and not $station.tradenpc.exists">
-        <do_if value="this.container.attention ge attention.visible">
-          <start_actor_transport actor="$manager" target="$station"/>
-          <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
-        </do_if>
-        <do_else>
-          <add_actor_to_platform actor="$manager" dockingbay="$dock.component"/>
-          <signal_objects object="$manager" param="'remote_passenger_arrived'" />
-        </do_else>
+      <do_if value="$manager.exists and not $station.tradenpc.exists ">
+        <signal_objects object="$manager" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'manager'],$destination=$station,$job='manager',$interruptable=true]"/>
       </do_if>
       <do_else>
         <remove_value name="$manager"/>
       </do_else>
       <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" controlentity="false"/>
       <do_if value="$defensivenpc.exists and not $station.defencenpc.exists">
-        <do_if value="this.container.attention ge attention.visible">
-          <start_actor_transport actor="$defensivenpc" target="$station"/>
-          <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
-        </do_if>
-        <do_else>
-          <add_actor_to_platform actor="$defensivenpc" dockingbay="$dock.component"/>
-          <signal_objects object="$defensivenpc" param="'remote_passenger_arrived'" />
-        </do_else>
+        <signal_objects object="$defensivenpc" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'defense'],$destination=$station,$job='defense',$interruptable=true]"/>
       </do_if>
       <do_if value="false" comment="add check for Station Engineer Mod (or add limited repair functionality to Engineers)">
         <find_object_component name="$engineer" object="this.ship" entitytype="entitytype.engineer" controlentity="false"/>
         <do_if value="$engineer.exists and not $station.engineer.exists">
-          <do_if value="this.container.attention ge attention.visible">
-            <start_actor_transport actor="$engineer" target="$station"/>
-            <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
-          </do_if>
-          <do_else>
-            <add_actor_to_platform actor="$engineer" dockingbay="$dock.component"/>
-            <signal_objects object="$engineer" param="'remote_passenger_arrived'" />
-          </do_else>
+          <signal_objects object="$engineer" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'engineer'],$destination=$station,$job='engineer',$interruptable=true]"/>
         </do_if>
       </do_if>
       <get_production_specialist_types name="$specialisttypes" object="$station" />
