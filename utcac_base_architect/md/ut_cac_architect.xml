@@ -14,10 +14,6 @@
         <do_if value="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order?" comment="we have an Order to be given - return to Order Menu and let the calling MD File handle the rest.">
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_if>
-        <!-- Check if we have a Order which blocks further Orders at the end of the Orderlist -->
-        <do_if value="event.object.$orderlist.{event.object.$orderlist.count}.$script == 'ut.cac.com.architectcaptain.undeploy.constructionvessel'">
-          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
-        </do_if>
       <!-- Select new Order -->
       <do_elseif value="event.param == 'comm_architect_orders_main'">
         <do_if value="event.object.ship.buildmodule.exists and event.object.ship.pilot.$ut_cac?" comment="only available on builder ship and with ut cac Captain">
@@ -180,6 +176,7 @@ null
         <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
           <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
         </do_if>
+        <remove_value name="event.object.$ut_cac.$orders_section"/>
         <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architectcaptain.undeploy.constructionvessel',$displayname='Detach CV (Blocks further Orders)',$interruptable=false]"/>
         <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
       </do_elseif>
