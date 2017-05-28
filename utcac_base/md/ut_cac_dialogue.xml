@@ -866,7 +866,10 @@
                             .3 Engineer
                   -->
                   <add_player_choice_sub text="'Architect'" position="4" section="comm_personal_transfer_jobselected" choiceparam="'architect'"/>
-                  <add_player_choice_sub text="'Wait till construction complete as..'" position="5" section="comm_personal_transfer_standby_as"/>
+                  <do_if value="$selectedobject.buildmodule.buildanchor.isconstruction or not $selectedobject.buildmodule.buildanchor.exists">
+                    <add_player_choice_sub text="'Manager'" position="5" section="comm_personal_transfer_jobselected" choiceparam="'manager'"/>
+                    <add_player_choice_sub text="'Wait till construction complete as..'" position="6" section="comm_personal_transfer_standby_as"/>
+                  </do_if>
                 </do_if>
                 <do_else>
                   <set_value name="$iscarrier" exact="false" />
