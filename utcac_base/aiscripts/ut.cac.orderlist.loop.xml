@@ -13,6 +13,16 @@
           <abort_called_scripts resume="finish"/>
         </actions>
       </handler>
+      <handler name="ut_cac_yieldonneworder" comment="Handler for interrupting current Script when a new Order is received; will be put as second in queue">
+        <conditions>
+          <event_object_signalled object="this" param="'new order received'" param2="2"/>
+        </conditions>
+        <actions>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received new Order - Yielding (interrupt case)'.[player.age,this.name,this.container.name]"/>
+          <set_value name="this.$orderlist.{3}" operation="insert" exact="this.$orderlist.{1}"/>
+          <abort_called_scripts resume="finish"/>
+        </actions>
+      </handler>
     </library>
     <handler>
       <!-- 
@@ -92,12 +102,12 @@
               </do_elseif>
               <do_else>
                 <set_value name="this.$orderlist.{2}" exact="$new_orders.{$i}" operation="insert"/>
-                <signal_objects object="this" param="'new order received'" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
+                <signal_objects object="this" param="'new order received'" param2="2" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
               </do_else>
             </do_if>
             <do_else comment="insert order at specific position in queue">
               <set_value name="this.$orderlist.{$order_pos}" exact="$new_orders.{$i}" operation="insert"/>
-              <signal_objects object="this" param="'new order received'" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
+              <signal_objects object="this" param="'new order received'" param2="$order_pos" comment="to signal wait Scripts which wait for new Orders or should abort in this case"/>
             </do_else>
           </do_all>
           <remove_value name="$order_pos"/>
