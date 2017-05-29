@@ -48,9 +48,11 @@
                 else if $purposemacro.isclass.radar then '\033M'
                 else if $purposemacro.isclass.destructible then '\033R'
                 else '\033B'"/>
-                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 1 , 1 ] ] ,
 [ 'text' , '%1Extend: Build %2 ( %3%4 )'.[$colorcode,$purposemacro.name,$sequence,$next_stage] ] ,
-[ 'button' , 'Select' , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage] , true  ]
+[ 'button' , 'Unarmed' , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage , 0.0 ] , true ],
+[ 'button' , 'Half Armed' , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage , 0.5 ] , true ],
+[ 'button' , 'Full Armed' , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage , 1.0 ] , true ]
 ]"/>
               </do_all>
               <remove_value name="$purposemacro"/>
@@ -164,7 +166,8 @@ null
       </do_elseif>
       <!-- Stuff related to Station Extension -->
       <do_elseif value="event.param == 'comm_architect_orders_extend_selected'">
-        <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$abortscript='ut.cac.orders.architect.cancelbuild',$displayname='Extend: Build %1 ( %2%3 )'.[event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[event.param2.{1},event.param2.{2}]}.name,event.param2.{1},event.param2.{2}],$sequence=event.param2.{1},$upgradeplan=[],$moveable=false]"/>
+        <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$abortscript='ut.cac.orders.architect.cancelbuild',$displayname='Extend: Build %1 ( %2%3 )'.[event.object.$ut_cac.$construction.macro.buildpurposemacro.{buildplan.[event.param2.{1},event.param2.{2}]}.name,event.param2.{1},event.param2.{2}],$sequence=event.param2.{1},$moveable=false,
+$upgradeplan=['turret_small_mg',event.param2.{3},'turret_small_sg',event.param2.{3},'turret_medium_pe',event.param2.{3},'turret_medium_lb',event.param2.{3},'turret_medium_sp',event.param2.{3},'turret_missile_df',event.param2.{3},'turret_missile_sm',event.param2.{3},'shieldgenerator',event.param2.{3},'shieldgenerator_cap',event.param2.{3}]]"/>
         <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
       </do_elseif>
       <!-- Stuff related to Station Upgrades -->
