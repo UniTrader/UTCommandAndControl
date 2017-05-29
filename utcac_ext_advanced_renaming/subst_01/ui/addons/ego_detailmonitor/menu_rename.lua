@@ -172,20 +172,20 @@ function menu.onShowMenu()
 		Helper.getEmptyCellDescriptor(),
 		Helper.createButton(Helper.createButtonText(ReadText(1001, 64), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, Helper.createButtonHotkey("INPUT_STATE_DETAILMONITOR_ESC", true), nil, isship and ReadText(1026, 1120) or nil),
 		Helper.getEmptyCellDescriptor()
-	}, nil, {2, 2, 2, 2, 2}, false, menu.transparent)
+	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 	
 	-- Mass Renaming Functions
-	setup:addSimpleRow({ReadText(5554302, 1001),Helper.getEmptyCellDescriptor()}, nil, {6, 4})
+	setup:addSimpleRow({ReadText(5554302, 1001),Helper.getEmptyCellDescriptor()}, nil, {3, 2})
 	setup:addSimpleRow({ 
 		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1002), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, ReadText(5554302, 1003)),
 		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1004), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, ReadText(5554302, 1005)),
 		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1006), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, ReadText(5554302, 1007)),
 		Helper.getEmptyCellDescriptor(),
 		Helper.getEmptyCellDescriptor()
-	}, nil, {2, 2, 2, 2, 2}, false, menu.transparent)
+	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 	
 	
-	setup:addSimpleRow({'Experimental Keyboard',Helper.getEmptyCellDescriptor()}, nil, {6, 4})
+	setup:addSimpleRow({'Experimental Keyboard',Helper.getEmptyCellDescriptor()}, nil, {3, 2})
 	setup:addSimpleRow({ 
 		Helper.createButton(Helper.createButtonText("1", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, nil),
 		Helper.createButton(Helper.createButtonText("2", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25, nil, nil, nil, nil),
@@ -237,24 +237,24 @@ function menu.onShowMenu()
 	
 	-- Expressions Help - Static Info Text
 	if ( ReadText(5554302, 6) == "All" ) or ( ReadText(5554302, 6) == "Static" ) then
-		setup:addSimpleRow({Helper.getEmptyCellDescriptor()}, nil, {10})
-		setup:addHeaderRow({ReadText(5554302, 1100)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1101)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1102)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1103)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1104)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1105)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1106)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1107)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1108)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1109)}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1110)}, nil, {10})
+		setup:addSimpleRow({Helper.getEmptyCellDescriptor()}, nil, {5})
+		setup:addHeaderRow({ReadText(5554302, 1100)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1101)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1102)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1103)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1104)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1105)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1106)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1107)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1108)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1109)}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1110)}, nil, {5})
 	end
 	-- Expressions Help - Script-Defined Expressions Overview
 	local namereplacement =  GetNPCBlackboard(menu.controlentity, "$namereplacement")
 	if ( ( ReadText(5554302, 6) == "All" ) and namereplacement ) or ( ReadText(5554302, 6) == "Script" ) then
-		setup:addSimpleRow({Helper.getEmptyCellDescriptor()}, nil, {10})
-		setup:addSimpleRow({ReadText(5554302, 1111),ReadText(5554302, 1112)}, nil, {6,4})
+		setup:addSimpleRow({Helper.getEmptyCellDescriptor()}, nil, {5})
+		setup:addSimpleRow({ReadText(5554302, 1111),ReadText(5554302, 1112)}, nil, {3,2})
 		if namereplacement and table.getn(namereplacement) then
 			local key1 = nil
 			local value1 = nil
