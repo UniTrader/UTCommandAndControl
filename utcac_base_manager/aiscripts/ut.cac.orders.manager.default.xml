@@ -7,10 +7,6 @@
     <actions>
       
       <!-- Set up Persistent Vars needed by this Script -->
-      <!-- Set up mining Command (must re-use the same table since i am also using it to store persistent Values) - only $mininglist is updated with every iteration so the miningscript knows what is needed -->
-      <do_if value="not $params.$miningorder?">
-        <set_value name="$params.$miningorder" exact="table[$script='ut.cac.com.manager.gatherressources',$displayname='Gather Ressources (default)',$interruptable=true]"/>
-      </do_if>
       <!--immediately allow Zone Trading and Mining -->
       <do_if value="not $params.$next_zonetrade?">
         <set_value name="$next_zonetrade" exact="player.age"/>
@@ -43,15 +39,13 @@
             </do_if>
           </do_if>
         </do_all>
-        <do_if value="$mineable_ressources.count or ( $params.$miningorder.gatherware? and $params.$miningorder.$gatherstart? and $params.$miningorder.$gatherrate? )">
+        <do_if value="$mineable_ressources.count">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Mineable Ressources: \n%4'.[player.age,this.name,this.container.name,$mineable_ressources]"/>
-          <set_value name="$params.$miningorder.$wareslist" exact="$mineable_ressources"/>
-          <set_value name="$params.$miningorder.$next_call" exact="1min"/>
-          <signal_objects object="this" param="'new order'" param2="$params.$miningorder"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.gatherressources',$displayname='Gather Ressources (default)',$wareslist=$mineable_ressources,$interruptable=true]"/>
           <set_value name="$next_miningstep" exact="player.age + 1min"/>
         </do_if>
         <do_else>
-          <set_value name="$next_miningstep" exact="player.age + 5min"/>
+          <set_value name="$next_miningstep" exact="player.age + 10min"/>
         </do_else>
       </do_if>
       

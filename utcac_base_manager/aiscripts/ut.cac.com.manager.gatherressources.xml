@@ -4,27 +4,18 @@
   
   Manager-Based Gas Mining Script by UniTrader
   
-IMPORTANT NOTE:
-This Script is intended to be called regulary with >the same< Table as $params because it stores some needed Values there to actually Work. Please keep this in mind when using this Script. 
+  This Script will yield to any other Script which wants to perform Actions any time, and can resume safely from the Data stored in the $params Table
 
 
 -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
   </params>
-  <interrupts>
-    <handler comment="Print Script Vars">
-      <conditions>
-        <event_object_signalled object="this" param="'print script vars to logfile'"/>
-      </conditions>
-      <actions>
-        <debug_text filter="general" text="'\n
-        Manager Name ' + this.knownname + ' at Time ' + player.age + ' Script Values:\n'"/>
-      </actions>
-    </handler>
-  </interrupts>
   <init>
   </init>
+  <interrupts>
+    <handler ref="ut_cac_yieldonneworder"/>
+  </interrupts>
   <attention min="unknown">
     <actions>
       <do_if value="$params">
@@ -38,23 +29,9 @@ This Script is intended to be called regulary with >the same< Table as $params b
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 manager Gather Script called with: \n%4'.[player.age,this.name,this.container.name,$params]"/>
       
-      <!-- first check if we already started gathering Ressources and add them to the Station -->
+      <!-- first check if we already started gathering Ressources and Jump forward to wait/gather part (in case this Script Yielded) -->
       <do_if value="$params.$gatherware?">
-        <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware" type="sell"/>
-        <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$params.$gatherware" />
-        <set_value name="$gatherrate" exact="$gatherrate / 3" comment="Station Gas Mining is only 30% as effective as it could be"/>
-        <set_value name="$gatherrate" exact="[$gatherrate,$params.$gatherrate].min"/>
-        <set_value name="$gathertime" exact="player.age - $params.$gatherstart" />
-        <set_value name="$gathered" exact="$gathertime * $gatherrate" />
-        <get_ware_reservation ware="$params.$gatherware" object="this.container" result="$incomingamount" type="sell"/>
-        <set_value name="$gathered" exact=" [ this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count - $incomingamount , $gathered ].min"/>
-        <do_if value="$gathered gt 0">
-          <deplete_yield zone="this.zone" container="this.container" ware="$params.$gatherware" amount="$gathered" />
-        </do_if>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Gathered from previous run:\n%4 units of %5 in %6 seconds (%7 units/s)'.[player.age,this.name,this.container.name,$gathered, $params.$gatherware, $gathertime, $gatherrate]"/>
-        <remove_value name="$params.$gatherstart"/>
-        <remove_value name="$params.$gatherware"/>
-        <remove_value name="$params.$gatherrate"/>
+        <resume label="launch drones"/>
       </do_if>
       
       <do_if value="$wareslist.count == 0">
@@ -132,27 +109,58 @@ This Script is intended to be called regulary with >the same< Table as $params b
       <do_if value="not $params.$gascollectormk2quota?">
         <add_mass_traffic_quota quota="$params.$gascollectormk2quota" zone="this.zone" start="this.container" end="this.container" macro="macro.units_size_drone_liquid_collector_mk2_macro" amount="this.container.units.{unitcategory.gascollector}.mk.{2}.count" />
       </do_if-->
+      <label name="launch drones"/>
       <do_if value="this.container.attention ge attention.visible">
         <debug_text filter="general" chance="@this.$debug * 100" text="'launching Drones'"/>
         <find_object_component groupname="$dronelaunchbays" object="this.container" multiple="true" class="class.dronelaunchpad" checkoperational="true"/>
-        <create_group groupname="$drones"/>
+        <create_group groupname="$params.$drones"/>
         <!-- launching about half the Drones available so we can also laumch some on the next cycle in case they didnt return yet -->
-        <do_while value="($drones.count lt this.container.units.{unitcategory.gascollector}.count / 3 or $drones.count lt 15 ) and this.container.availableunits.{unitcategory.gascollector}.count">
+        <do_while value="($params.$drones.count lt this.container.units.{unitcategory.gascollector}.count / 3 or $params.$drones.count lt 15 ) and this.container.availableunits.{unitcategory.gascollector}.count">
           <do_all exact="$dronelaunchbays.count" counter="$i">
-            <launch_drone groupname="$drones" object="$dronelaunchbays.{$i}" group="unitcategory.gascollector" exact="1"/>
+            <launch_drone groupname="$params.$drones" object="$dronelaunchbays.{$i}" group="unitcategory.gascollector" exact="1"/>
           </do_all>
         </do_while>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$drones.count,$dronelaunchbays.count]"/>
-        <do_all exact="$drones.count" counter="$i">
-          <do_if value="$drones.{$i}.isoperational">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'Launched %1 Drones from %2 launch bays'.[$params.$drones.count,$dronelaunchbays.count]"/>
+        <do_all exact="$params.$drones.count" counter="$i">
+          <do_if value="$params.$drones.{$i}.isoperational">
             <!-- ToDo: needs a better Script -->
-            <start_script name="'ut.cac.com.drone.gatherressources'" object="$drones.{$i}.pilot">
+            <start_script name="'ut.cac.com.drone.gatherressources'" object="$params.$drones.{$i}.pilot">
               <param name="homebase" value="this.container"/>
               <param name="ware" value="$params.$gatherware"/>
             </start_script>
           </do_if>
         </do_all>
       </do_if>
+      
+      <wait exact="$params.$gatherstart + 5min - player.age">
+        <interrupt>
+          <conditions>
+            <event_object_changed_attention object="this.ship" min="visible"/>
+          </conditions>
+          <actions>
+            <resume label="launch drones"/>
+          </actions>
+        </interrupt>
+      </wait>
+      
+      <label name="end mining"/>
+      <remove_ware_reservation object="this.container" entity="this" ware="$params.$gatherware" type="sell"/>
+      <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$params.$gatherware" />
+      <set_value name="$gatherrate" exact="$gatherrate / 3" comment="Station Gas Mining is only 30% as effective as it could be"/>
+      <set_value name="$gatherrate" exact="[$gatherrate,$params.$gatherrate].min"/>
+      <set_value name="$gathertime" exact="player.age - $params.$gatherstart" />
+      <set_value name="$gathered" exact="$gathertime * $gatherrate" />
+      <get_ware_reservation ware="$params.$gatherware" object="this.container" result="$incomingamount" type="sell"/>
+      <set_value name="$gathered" exact=" [ this.container.cargo.{$params.$gatherware}.target - this.container.cargo.{$params.$gatherware}.count - $incomingamount , $gathered ].min"/>
+      <do_if value="$gathered gt 0">
+        <deplete_yield zone="this.zone" container="this.container" ware="$params.$gatherware" amount="$gathered" />
+      </do_if>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Gathered from previous run:\n%4 units of %5 in %6 seconds (%7 units/s)'.[player.age,this.name,this.container.name,$gathered, $params.$gatherware, $gathertime, $gatherrate]"/>
+      <remove_value name="$params.$gatherstart"/>
+      <remove_value name="$params.$gatherware"/>
+      <remove_value name="$params.$gatherrate"/>
+      
+      <label name="finish"/>
     </actions>
   </attention>
 </aiscript>
