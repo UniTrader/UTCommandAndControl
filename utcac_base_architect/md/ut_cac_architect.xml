@@ -66,9 +66,10 @@
 ]"/>
             </do_else>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , 'Upgrade Station' ] ]"/>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
-[ 'text' , 'Work in Progress' ] ,
-null
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 4,1,1 ] ] ,
+[ 'text' , 'Upgrade whole Station to' ] ,
+[ 'button' , 'Half Armed' , 'comm_architect_orders_upgrade_selected' , false , true , 0.5 , true ],
+[ 'button' , 'Full Armed' , 'comm_architect_orders_upgrade_selected' , false , true , 1.0 , true ]
 ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 6 ] ] ,
 [ 'text' , ''+event.object.$ut_cac.$construction.currentbuildplan ]
@@ -172,11 +173,9 @@ $upgradeplan=['turret_small_mg',event.param2.{3},'turret_small_sg',event.param2.
       </do_elseif>
       <!-- Stuff related to Station Upgrades -->
       <do_elseif value="event.param == 'comm_architect_orders_upgrade_selected'">
-        <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Upgrade %1'.[event.object.$ut_cac.$construction.name],$upgradeplan=event.param2,$interruptable=true]"/>
-      </do_elseif>
-      <!-- stuff related to Station Repairs -->
-      <do_elseif value="event.param == 'comm_architect_orders_upgrade_selected'">
-        <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Upgrade %1'.[event.object.$ut_cac.$construction.name],$upgradeplan=event.param2,$interruptable=true]"/>
+        <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.architect.build',$displayname='Upgrade %1'.[event.object.$ut_cac.$construction.name],$interruptable=true,
+$upgradeplan=['turret_small_mg',event.param2,'turret_small_sg',event.param2,'turret_medium_pe',event.param2,'turret_medium_lb',event.param2,'turret_medium_sp',event.param2,'turret_missile_df',event.param2,'turret_missile_sm',event.param2,'shieldgenerator',event.param2,'shieldgenerator_cap',event.param2]
+]"/>
       </do_elseif>
       <do_elseif value="event.param == 'comm_architect_orders_detach'">
         <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
