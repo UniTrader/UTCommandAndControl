@@ -356,21 +356,39 @@
       
       <!-- after each building Step check if Personal for the Station is on board (primarily for now possibly needed Specialists) and transfer all subordinate Ships, too -->
       <!-- Move all Station personal on board over to the Station after building, extending and redeploying (only if not already present)-->
-      <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager"/>
-      <do_if value="$manager.exists and not $station.tradenpc.exists ">
-        <signal_objects object="$manager" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'manager'],$destination=$station,$job='manager',$interruptable=true]"/>
+      <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager" controlentity="false" multiple="ttrue"/>
+      <do_if value="$manager.count and not $station.tradenpc.exists ">
+        <do_all exact="$manager.count" counter="$i">
+          <do_if value="$manager.{$i}.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
+            <set_value name="$manager" exact="$manager.{$i}"/>
+            <signal_objects object="$manager" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'manager'],$destination=$station,$job='manager',$interruptable=true]"/>
+            <break/>
+          </do_if>
+        </do_all>
       </do_if>
       <do_else>
         <remove_value name="$manager"/>
       </do_else>
-      <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" controlentity="false"/>
-      <do_if value="$defensivenpc.exists and not $station.defencenpc.exists">
-        <signal_objects object="$defensivenpc" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'defense'],$destination=$station,$job='defense',$interruptable=true]"/>
+      <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" controlentity="false" multiple="true"/>
+      <do_if value="$defensivenpc.count and not $station.defencenpc.exists">
+        <do_all exact="$defensivenpc.count" counter="$i">
+          <do_if value="$defensivenpc.{$i}.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
+            <set_value name="$defensivenpc" exact="$defensivenpc.{$i}"/>
+            <signal_objects object="$defensivenpc" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'defense'],$destination=$station,$job='defense',$interruptable=true]"/>
+            <break/>
+          </do_if>
+        </do_all>
       </do_if>
       <do_if value="false" comment="add check for Station Engineer Mod (or add limited repair functionality to Engineers)">
         <find_object_component name="$engineer" object="this.ship" entitytype="entitytype.engineer" controlentity="false"/>
-        <do_if value="$engineer.exists and not $station.engineer.exists">
-          <signal_objects object="$engineer" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'engineer'],$destination=$station,$job='engineer',$interruptable=true]"/>
+        <do_if value="$engineer.count and not $station.engineer.exists">
+        <do_all exact="$engineer.count" counter="$i">
+          <do_if value="$engineer.{$i}.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
+            <set_value name="$engineer" exact="$engineer.{$i}"/>
+            <signal_objects object="$engineer" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'engineer'],$destination=$station,$job='engineer',$interruptable=true]"/>
+            <break/>
+          </do_if>
+        </do_all>
         </do_if>
       </do_if>
       <get_production_specialist_types name="$specialisttypes" object="$station" />

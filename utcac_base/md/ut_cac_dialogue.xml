@@ -942,6 +942,35 @@
             <add_player_choice_sub text="'Wait there'" position="6" section="comm_personal_transfer_jobselected" choiceparam="'standby'"/>
           </do_else>
         </do_elseif>
+        <do_elseif value="event.param == 'comm_personal_transfer_standby_as'">
+          <do_if value="$jobselected?">
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          </do_if>
+          <do_else>
+            <do_if value="$selectedobject.isclass.ship and $selectedobject.buildmodule.exists" comment="Is Constructionvessel?">
+              <!-- Standby for completed Construction as:
+              1 Manager
+              2 DO
+              3 Engineer
+              -->
+              <add_player_choice_sub text="'Standby - Manager'" position="1" section="comm_personal_transfer_jobselected" choiceparam="'standby manager'"/>
+              <add_player_choice_sub text="'Standby - Defense'" position="2" section="comm_personal_transfer_jobselected" choiceparam="'standby defense'"/>
+              <add_player_choice_sub text="'Standby - Engineer'" position="3" section="comm_personal_transfer_jobselected" choiceparam="'standby engineer'"/>
+            </do_if>
+            <do_elseif value="$selectedobject.isclass.station" comment="Is Shipyard?">
+                  <!-- Standby for completed Construction as:
+                  1 - Captain
+                  2 - DO
+                  3 - Engineer
+                  4 - Architect -->
+                  <add_player_choice_sub text="'Standby - Captain'" position="1" section="comm_personal_transfer_jobselected" choiceparam="'standby captain'"/>
+                  <add_player_choice_sub text="'Standby - Defense'" position="2" section="comm_personal_transfer_jobselected" choiceparam="'standby defense'"/>
+                  <add_player_choice_sub text="'Standby - Engineer'" position="3" section="comm_personal_transfer_jobselected" choiceparam="'standy engineer'"/>
+                  <add_player_choice_sub text="'Standby - Architect'" position="4" section="comm_personal_transfer_jobselected" choiceparam="'standby architect'"/>
+            </do_elseif>
+              <add_player_choice_sub text="'Just Wait there'" position="6" section="comm_personal_transfer_jobselected" choiceparam="'standby'"/>
+          </do_else>
+        </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer_jobselected'">
           <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$selectedobject.name,event.param2],$destination=$selectedobject,$job=event.param2,$interruptable=true]"/>
           <set_value name="$jobselected"/>
