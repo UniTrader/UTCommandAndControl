@@ -100,6 +100,9 @@
           <remove_value name="this.$ut_cac.$construction"/>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Architect'.[this.name,this.container.name]"/>
         </do_if>
+        <do_if value="this.hasownaccount and this.isplayerowned" comment="remove Actor Account (a new one will be set up if needed)">
+          <remove_actor_account actor="this" transfer="player.entity"/>
+        </do_if>
         
         <!-- use specific Dock when sending Actor to a Ship/Station -->
         <do_if value="$destination.isclass.container and not $dock">
@@ -278,6 +281,7 @@
       <do_if value="$job == 'captain'">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as Captain'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.commander"/>
+        <set_actor_account actor="this"/>
         <do_if value="$destination.pilot.exists">
           <!-- Captain already present - let new Captain do a soft takeover -->
           <do_if value="$destination.pilot.$orderlist?">
@@ -295,6 +299,7 @@
             </wait>
           </do_if>
           <do_else>
+            <remove_actor_account actor="$destination.pilot" transfer="this"/>
             <destroy_object object="$destination.pilot"/>
           </do_else>
         </do_if>
@@ -306,6 +311,7 @@
       <do_elseif value="$job == 'manager'">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as Manager'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.manager"/>
+        <set_actor_account actor="this"/>
         <do_if value="$destination.tradenpc.exists">
           <!-- Captain already present - let new Captain do a soft takeover -->
           <do_if value="$destination.tradenpc.$orderlist?">
@@ -323,6 +329,7 @@
             </wait>
           </do_if>
           <do_else>
+            <remove_actor_account actor="$destination.tradenpc" transfer="this"/>
             <destroy_object object="$destination.tradenpc"/>
           </do_else>
         </do_if>
@@ -420,6 +427,7 @@
       <do_elseif value="$job == 'architect'">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finalize as Architect'.[this.name,this.container.name]"/>
         <set_entity_type entity="this" type="entitytype.architect"/>
+        <set_actor_account actor="this"/>
         <do_if value="$destination.architect.exists">
           <!-- destination already has an Architect - soft takeover -->
           <do_if value="$destination.architect.$orderlist?">
@@ -437,6 +445,7 @@
             </wait>
           </do_if>
           <do_else>
+            <remove_actor_account actor="$destination.architect" transfer="this"/>
             <destroy_object object="$destination.architect"/>
           </do_else>
         </do_if>

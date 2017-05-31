@@ -68,6 +68,9 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as other Controlentity'.[this.name,this.container.name]"/>
       </do_if>
       
+      <!-- Transfer Leftover Money to successor -->
+      <remove_actor_account actor="this" transfer="$successor"/>
+      
       <!-- Signal new Employee for Takeover -->
       <signal_objects object="$successor" param="'ready for takeover'" param2="$old_orderlist" param3="$old_settings"/>
       
