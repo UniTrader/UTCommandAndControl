@@ -359,7 +359,7 @@
       <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager" controlentity="false" multiple="ttrue"/>
       <do_if value="$manager.count and not $station.tradenpc.exists ">
         <do_all exact="$manager.count" counter="$i">
-          <do_if value="$manager.{$i}.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
+          <do_if value="$manager.{$i}.$defaultorders.$script == 'ut.cac.orders.manager.default'">
             <set_value name="$manager" exact="$manager.{$i}"/>
             <signal_objects object="$manager" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Transfer to %1; mode: %2'.[$station.name,'manager'],$destination=$station,$job='manager',$interruptable=true]"/>
             <break/>
