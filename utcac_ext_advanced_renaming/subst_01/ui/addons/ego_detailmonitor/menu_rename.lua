@@ -67,6 +67,9 @@ function menu.buttonRenameSubordinatesSmallShips()
 	menu.renamesubordinates = "smallships"
 	Helper.confirmEditBoxInput(menu.selecttable, 1, 1)
 end
+function menu.TypeText(text)
+  TypeInEditBox(menu.selecttable, 1, 1,text)
+end
 -- UniTrader new Functions: Logo Setting (currently same as Cancel Menu)
 function menu.buttonSetLogoFromSuperior()
 	Helper.cancelEditBoxInput(menu.selecttable, 1, 1)
@@ -184,6 +187,16 @@ function menu.onShowMenu()
 		Helper.getEmptyCellDescriptor()
 	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
 	
+	-- Keyboard
+	setup:addSimpleRow({"Experimental Keyboard"}, nil, {5})
+	setup:addSimpleRow({ 
+		Helper.createButton(Helper.createButtonText("1", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText("2", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText("3", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText("4", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText("5", "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25)
+	}, nil, {1, 1, 1, 1, 1}, false, menu.transparent)
+	
 	-- Expressions Help - Static Info Text
 	if ( ReadText(5554302, 6) == "All" ) or ( ReadText(5554302, 6) == "Static" ) then
 		setup:addSimpleRow({Helper.getEmptyCellDescriptor()}, nil, {5})
@@ -273,6 +286,14 @@ function menu.onShowMenu()
 	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 1, menu.buttonRenameSubordinates)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 2, menu.buttonRenameSubordinatesBigShips)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 3, menu.buttonRenameSubordinatesSmallShips)
+	-- Experimental Keyboard Buttons
+	-- First Row Numbers
+	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 1, function () return TypeInEditBox(nil,"1") end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 2, function () return TypeInEditBox(nil,"2") end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 3, function () return TypeInEditBox(nil,"3") end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 4, function () return TypeInEditBox(nil,"4") end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 5, function () return TypeInEditBox(nil,"5") end)
+  
 	if false and ( extensionSettings["utfactionlogos"].enabled or extensionSettings["ws_329415910"].enabled ) and extensionSettings["utcac_ext_advanced_renaming_user"].enabled then
 		Helper.setButtonScript(menu, nil, menu.buttontable, 4, 1, menu.buttonSetLogoFromSuperior)
 		Helper.setButtonScript(menu, nil, menu.buttontable, 5, 1, menu.buttonSetLogoCurrent)
