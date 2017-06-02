@@ -75,7 +75,7 @@ end
 function menu.SetKeyMod(mod)
    if mod == "1" then
      --toggle Shift
-	 if menu.keymod & 1 then
+	 if (menu.keymod == 1) or  (menu.keymod == 3) or (menu.keymod == 5) or (menu.keymod == 7) then
 	   menu.keymod = menu.keymod - 1
        SetCellContent(menu.buttontable,Helper.createButton(Helper.createButtonText(ReadText(5554303, 510), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25) , 9, 1)
 	 else
@@ -83,15 +83,15 @@ function menu.SetKeyMod(mod)
        SetCellContent(menu.buttontable,Helper.createButton(Helper.createButtonText(ReadText(5554303, 511), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25) , 9, 1)
   elseif mod == "2" then
     --toggle Alt
-	 if menu.keymod & 2 then
+	 if (menu.keymod == 2) or (menu.keymod == 3) or (menu.keymod == 6) or (menu.keymod == 7) then
 	   menu.keymod = menu.keymod - 2
        SetCellContent(menu.buttontable,Helper.createButton(Helper.createButtonText(ReadText(5554303, 520), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25) , 9, 2)
 	 else
 	   menu.keymod = menu.keymod + 2
        SetCellContent(menu.buttontable,Helper.createButton(Helper.createButtonText(ReadText(5554303, 521), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25) , 9, 2)
-  elseif mod == "4" then
+  elseif (mod == "4") then
     --toggle Super
-	 if menu.keymod & 4 then
+	 if (menu.keymod == 4) or (menu.keymod == 5) or (menu.keymod == 6) or (menu.keymod == 7) then
 	   menu.keymod = menu.keymod - 4
        SetCellContent(menu.buttontable,Helper.createButton(Helper.createButtonText(ReadText(5554303, 540), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25) , 9, 4)
 	 else
