@@ -264,7 +264,7 @@ function menu.onShowMenu()
 	}, nil, {2, 2, 2, 2, 2}, false, menu.transparent)
 	
 	-- Keyboard
-	setup:addSimpleRow({"Keyboard"}, nil, {10})
+	setup:addSimpleRow({ReadText(5554302, 1200)}, nil, {10})
 	-- Numbeer Row
 	setup:addSimpleRow({ 
 		Helper.createButton(Helper.createButtonText(ReadText(5554303, 110), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
@@ -319,12 +319,39 @@ function menu.onShowMenu()
 	}, nil, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, false, menu.transparent)
 	-- Function Row
 	setup:addSimpleRow({ 
-		Helper.createButton(Helper.createButtonText(ReadText(5554303, 510), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
-		Helper.createButton(Helper.createButtonText(ReadText(5554303, 520), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
-		Helper.createButton(Helper.createButtonText(ReadText(5554303, 530), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
-		Helper.createButton(Helper.createButtonText(ReadText(5554303, 540), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
-		Helper.createButton(Helper.createButtonText(ReadText(5554303, 550), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1201), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1203), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1205), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1206), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 1208), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
 	}, nil, {2,2,2,2,2}, false, menu.transparent)
+	setup:addSimpleRow({Helper.getEmptyCellDescriptor()}, nil, {10})
+	
+	-- Colors
+	setup:addSimpleRow({ 
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2001)..ReadText(5554301, 2000), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2003)..ReadText(5554301, 2002), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2005)..ReadText(5554301, 2004), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2007)..ReadText(5554301, 2006), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2009)..ReadText(5554301, 2008), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2011)..ReadText(5554301, 2010), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2013)..ReadText(5554301, 2012), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2015)..ReadText(5554301, 2014), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2017)..ReadText(5554301, 2016), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2019)..ReadText(5554301, 2018), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25)
+	}, nil, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, false, menu.transparent)
+	setup:addSimpleRow({ 
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2021)..ReadText(5554301, 2020), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2025).."0"..ReadText(5554301, 2022), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554302, 2025), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2027)..ReadText(5554301, 2026), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2029)..ReadText(5554301, 2028), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2011)..ReadText(5554301, 2010), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2013)..ReadText(5554301, 2012), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2015)..ReadText(5554301, 2014), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2017)..ReadText(5554301, 2016), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25),
+		Helper.createButton(Helper.createButtonText(ReadText(5554301, 2019)..ReadText(5554301, 2018), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, true, 0, 0, 160, 25)
+	}, nil, {1, 1, 2, 1, 1, 1, 1, 1, 1}, false, menu.transparent)
 	
 	-- Expressions Help - Static Info Text
 	if ( ReadText(5554302, 6) == "All" ) or ( ReadText(5554302, 6) == "Static" ) then
@@ -413,8 +440,8 @@ function menu.onShowMenu()
 	Helper.setButtonScript(menu, nil, menu.buttontable, 1, 7, menu.buttonCancel)
   -- New Buttons by UniTrader
 	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 1, menu.buttonRenameSubordinates)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 2, menu.buttonRenameSubordinatesBigShips)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 3, menu.buttonRenameSubordinatesSmallShips)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 3, menu.buttonRenameSubordinatesBigShips)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 3, 5, menu.buttonRenameSubordinatesSmallShips)
 	-- Experimental Keyboard Buttons
 	--  Number Row
 	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 1, function () return TypeInEditBox(nil,ReadText(5554303, 110+menu.keymod)) end)
@@ -426,7 +453,7 @@ function menu.onShowMenu()
 	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 7, function () return TypeInEditBox(nil,ReadText(5554303, 170+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 8, function () return TypeInEditBox(nil,ReadText(5554303, 180+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 9, function () return TypeInEditBox(nil,ReadText(5554303, 190+menu.keymod)) end)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 0, function () return TypeInEditBox(nil,ReadText(5554303, 100+menu.keymod)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 5, 10, function () return TypeInEditBox(nil,ReadText(5554303, 100+menu.keymod)) end)
 	--  Top Row
 	Helper.setButtonScript(menu, nil, menu.buttontable, 6, 1, function () return TypeInEditBox(nil,ReadText(5554303, 210+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 6, 2, function () return TypeInEditBox(nil,ReadText(5554303, 220+menu.keymod)) end)
@@ -437,7 +464,7 @@ function menu.onShowMenu()
 	Helper.setButtonScript(menu, nil, menu.buttontable, 6, 7, function () return TypeInEditBox(nil,ReadText(5554303, 270+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 6, 8, function () return TypeInEditBox(nil,ReadText(5554303, 280+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 6, 9, function () return TypeInEditBox(nil,ReadText(5554303, 290+menu.keymod)) end)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 6, 0, function () return TypeInEditBox(nil,ReadText(5554303, 200+menu.keymod)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 6, 10, function () return TypeInEditBox(nil,ReadText(5554303, 200+menu.keymod)) end)
 	--  Middle Row
 	Helper.setButtonScript(menu, nil, menu.buttontable, 7, 1, function () return TypeInEditBox(nil,ReadText(5554303, 310+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 7, 2, function () return TypeInEditBox(nil,ReadText(5554303, 320+menu.keymod)) end)
@@ -448,7 +475,7 @@ function menu.onShowMenu()
 	Helper.setButtonScript(menu, nil, menu.buttontable, 7, 7, function () return TypeInEditBox(nil,ReadText(5554303, 370+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 7, 8, function () return TypeInEditBox(nil,ReadText(5554303, 380+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 7, 9, function () return TypeInEditBox(nil,ReadText(5554303, 390+menu.keymod)) end)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 7, 0, function () return TypeInEditBox(nil,ReadText(5554303, 300+menu.keymod)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 7, 10, function () return TypeInEditBox(nil,ReadText(5554303, 300+menu.keymod)) end)
 	--  Bottom Row
 	Helper.setButtonScript(menu, nil, menu.buttontable, 8, 1, function () return TypeInEditBox(nil,ReadText(5554303, 410+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 8, 2, function () return TypeInEditBox(nil,ReadText(5554303, 420+menu.keymod)) end)
@@ -459,13 +486,31 @@ function menu.onShowMenu()
 	Helper.setButtonScript(menu, nil, menu.buttontable, 8, 7, function () return TypeInEditBox(nil,ReadText(5554303, 470+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 8, 8, function () return TypeInEditBox(nil,ReadText(5554303, 480+menu.keymod)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 8, 9, function () return TypeInEditBox(nil,ReadText(5554303, 490+menu.keymod)) end)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 8, 0, function () return TypeInEditBox(nil,ReadText(5554303, 400+menu.keymod)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 8, 10, function () return TypeInEditBox(nil,ReadText(5554303, 400+menu.keymod)) end)
 	--  Function Row
-	Helper.setButtonScript(menu, nil, menu.buttontable, 9, 1, function () return TypeInEditBox(nil,ReadText(5554303, 110)) end)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 9, 3, function () return TypeInEditBox(nil,ReadText(5554303, 120)) end)
-	Helper.setButtonScript(menu, nil, menu.buttontable, 9, 5, function () return TypeInEditBox(nil,ReadText(5554303, 130)) end)
-	--Helper.setButtonScript(menu, nil, menu.buttontable, 9, 7, function () return TypeInEditBox(nil,ReadText(5554303, 140)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 9, 1, function () return menu.SetKeyMod(1)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 9, 3, function () return menu.SetKeyMod(2)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 9, 5, function () return TypeInEditBox(nil," ") end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 9, 7, function () return menu.SetKeyMod(4)) end)
 	Helper.setButtonScript(menu, nil, menu.buttontable, 9, 9, function () return TypeInEditBox(nil,"\8")end)
+	-- Color Buttons
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 1, function () return TypeInEditBox(nil,ReadText(5554301, 2001)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 2, function () return TypeInEditBox(nil,ReadText(5554301, 2003)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 3, function () return TypeInEditBox(nil,ReadText(5554301, 2005)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 4, function () return TypeInEditBox(nil,ReadText(5554301, 2007)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 5, function () return TypeInEditBox(nil,ReadText(5554301, 2009)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 6, function () return TypeInEditBox(nil,ReadText(5554301, 2011)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 7, function () return TypeInEditBox(nil,ReadText(5554301, 2013)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 8, function () return TypeInEditBox(nil,ReadText(5554301, 2015)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 9, function () return TypeInEditBox(nil,ReadText(5554301, 2017)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 11, 10, function () return TypeInEditBox(nil,ReadText(5554301, 2019)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 12, 1, function () return TypeInEditBox(nil,ReadText(5554301, 2021)) end)
+	Helper.setButtonScript(menu, nil, menu.buttontable, 12, 2, function () return TypeInEditBox(nil,ReadText(5554301, 2025).."0") end)
+	--Helper.setButtonScript(menu, nil, menu.buttontable, 12, 3, function () return TypeInEditBox(nil,ReadText(5554301, 2015)) end)
+	--Helper.setButtonScript(menu, nil, menu.buttontable, 12, 4, function () return TypeInEditBox(nil,ReadText(5554301, 2017)) end)
+	--Helper.setButtonScript(menu, nil, menu.buttontable, 12, 5, function () return TypeInEditBox(nil,ReadText(5554301, 2019)) end)
+	
+	
   
 	if false and ( extensionSettings["utfactionlogos"].enabled or extensionSettings["ws_329415910"].enabled ) and extensionSettings["utcac_ext_advanced_renaming_user"].enabled then
 		Helper.setButtonScript(menu, nil, menu.buttontable, 4, 1, menu.buttonSetLogoFromSuperior)
