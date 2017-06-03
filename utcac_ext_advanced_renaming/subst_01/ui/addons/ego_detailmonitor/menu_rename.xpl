@@ -30,25 +30,27 @@ end
 -- Menu member functions
 
 function menu.editboxUpdateText(_, text, textchanged)
-	-- UniTrader change: Mass renaming function added
-	if menu.renamesubordinates then
-		if menu.renamesubordinates == "all" then
-			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated" , menu.object , text )
-		elseif menu.renamesubordinates == "bigships" then
-			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - bigships" , menu.object , text )
-		elseif menu.renamesubordinates == "smallships" then
-			SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - smallships" , menu.object , text )
-		end
-	-- Renaming Function - now always renaming to force an update if needed
-	elseif menu.controlentity then
-		SetNPCBlackboard(menu.controlentity, "$unformatted_object_name" , text)
-		SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
-	-- UniTrader Changes end (next line was a if before, but i have some diffrent conditions)
-	elseif textchanged then
-		SetComponentName(menu.object, text)
-	end
-	Helper.closeMenuAndReturn(menu)
-	menu.cleanup()
+  if menu.editboxisactive then
+    -- UniTrader change: Mass renaming function added
+    if menu.renamesubordinates then
+      if menu.renamesubordinates == "all" then
+        SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated" , menu.object , text )
+      elseif menu.renamesubordinates == "bigships" then
+        SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - bigships" , menu.object , text )
+      elseif menu.renamesubordinates == "smallships" then
+        SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Subordinates Name Updated - smallships" , menu.object , text )
+      end
+    -- Renaming Function - now always renaming to force an update if needed
+    elseif menu.controlentity then
+      SetNPCBlackboard(menu.controlentity, "$unformatted_object_name" , text)
+      SignalObject(GetComponentData(menu.object, "galaxyid" ) , "Object Name Updated" , menu.object )
+    -- UniTrader Changes end (next line was a if before, but i have some diffrent conditions)
+    elseif textchanged then
+      SetComponentName(menu.object, text)
+    end
+    Helper.closeMenuAndReturn(menu)
+    menu.cleanup()
+  end
 end
 
 function menu.buttonOK()
@@ -71,7 +73,9 @@ end
 -- Functions for Keyboard
 function menu.TypeText(text)
 	local cell = GetCellContent(menu.selecttable, 1, 1)
-	ActivateEditBox(cell)
+	if not menu.editboxisactive then
+    Helper.activateEditBox(menu.selecttable, 1, 1)
+  end
   TypeInEditBox(nil,text)
 end
 function menu.SetKeyMod(mod)
@@ -581,6 +585,7 @@ function menu.onShowMenu()
 		Helper.setButtonScript(menu, nil, menu.buttontable, 5, 4, menu.buttonSetLogoPlayer_7)
 		Helper.setButtonScript(menu, nil, menu.buttontable, 5, 5, menu.buttonSetLogoPlayer_8)
 	end
+	menu.editboxisactive = true
 	-- End New Buttons by UniTrader
 	
 	menu.activateEditBox = true
@@ -595,6 +600,14 @@ function menu.onUpdate()
 	if menu.activateEditBox then
 		menu.activateEditBox = nil
 		Helper.activateEditBox(menu.selecttable, 1, 1)
+  end
+  if Helper.currentDefaultTableRow == 1 and not menu.editboxisactive then
+    menu.editboxisactive = true
+		Helper.activateEditBox(menu.selecttable, 1, 1)
+  elseif Helper.currentDefaultTableRow ~= 1 and menu.editboxisactive then
+    menu.editboxisactive = false
+    DeactivateDirectInput()
+    --SetCellContent(menu.selecttable,Helper.createButton(Helper.createButtonText(ReadText(5554303, 110+menu.keymod or "***"), "center", Helper.standardFont, Helper.standardFontSize, 255, 255, 255, 100), nil, false, ReadText(5554303, 110+menu.keymod) and true, 0, 0, 80, 25) , 2, 1)
 	end
 end
 
