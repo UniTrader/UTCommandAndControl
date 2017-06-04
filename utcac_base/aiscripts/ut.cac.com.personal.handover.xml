@@ -69,7 +69,8 @@
       </do_if>
       
       <!-- Transfer Leftover Money to successor -->
-      <remove_actor_account actor="this" transfer="$successor"/>
+      <transfer_money from="this" to="$successor" amount="this.money"/>
+      <remove_actor_account actor="this"/>
       
       <!-- Signal new Employee for Takeover -->
       <signal_objects object="$successor" param="'ready for takeover'" param2="$old_orderlist" param3="$old_settings"/>

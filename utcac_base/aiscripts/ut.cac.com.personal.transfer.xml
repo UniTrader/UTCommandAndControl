@@ -101,7 +101,7 @@
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Architect'.[this.name,this.container.name]"/>
         </do_if>
         <do_if value="this.hasownaccount and this.isplayerowned" comment="remove Actor Account (a new one will be set up if needed)">
-          <remove_actor_account actor="this" transfer="player.entity"/>
+          <remove_actor_account actor="this" transfer="true"/>
         </do_if>
         
         <!-- use specific Dock when sending Actor to a Ship/Station -->
@@ -299,7 +299,8 @@
             </wait>
           </do_if>
           <do_else>
-            <remove_actor_account actor="$destination.pilot" transfer="this"/>
+            <transfer_money from="$destination.pilot" to="this" amount="$destination.pilot.money"/>
+            <remove_actor_account actor="$destination.pilot"/>
             <destroy_object object="$destination.pilot"/>
           </do_else>
         </do_if>
@@ -329,7 +330,8 @@
             </wait>
           </do_if>
           <do_else>
-            <remove_actor_account actor="$destination.tradenpc" transfer="this"/>
+            <transfer_money from="$destination.tradenpc" to="this" amount="$destination.tradenpc.money"/>
+            <remove_actor_account actor="$destination.tradenpc"/>
             <destroy_object object="$destination.tradenpc"/>
           </do_else>
         </do_if>
@@ -445,7 +447,8 @@
             </wait>
           </do_if>
           <do_else>
-            <remove_actor_account actor="$destination.architect" transfer="this"/>
+            <transfer_money from="$destination.architect" to="this" amount="$destination.architect.money"/>
+            <remove_actor_account actor="$destination.architect"/>
             <destroy_object object="$destination.architect"/>
           </do_else>
         </do_if>
