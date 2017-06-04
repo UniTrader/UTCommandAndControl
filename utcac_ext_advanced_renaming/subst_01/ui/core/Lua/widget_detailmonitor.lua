@@ -1061,6 +1061,7 @@ function widgetSystem.onDirectTextInput(_, char)
 		else
 			editboxElement.text = editboxElement.text..tostring(char)
 		end
+		editboxElement.oldtext = editboxElement.text
 		setAttribute(getElement("Text", editboxElement.element), "textstring", editboxElement.text..(editboxElement.cursor and config.editbox.cursor or ""))
 	end
 end
@@ -7948,6 +7949,8 @@ ConfirmEditBoxInput          = widgetSystem.confirmEditBoxInput
 CancelEditBoxInput           = widgetSystem.cancelEditBoxInput
 ActivateEditBox              = widgetSystem.activateEditBox
 TypeInEditBox                = widgetSystem.onDirectTextInput
+ActivateDirectInput          = C.ActivateDirectInput
+DeactivateDirectInput        = C.DeactivateDirectInput
 DrawRect                     = function (...) return widgetSystem.queueShapeDraw("rectangle", ...) end
 HideRect                     = widgetSystem.hideRect
 HideAllRects                 = widgetSystem.hideRects
