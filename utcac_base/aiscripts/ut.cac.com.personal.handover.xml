@@ -63,12 +63,14 @@
         <signal_objects object="player.galaxy" param="'clone actor'" param2="this" param3="this.room.parent"/>
         <start_actor_transport actor="this"/>
       </do_if-->
-      <do_else>
+      <do_elseif value="this.container.defencenpc == this or this.container.engineer == this">
         <dismiss_control_entity object="this.container" actor="this"/>
         <!--start_actor_transport actor="this" target="this.room.parent"/-->
-        <add_actor_to_platform actor="this" dockingbay="this.room.parent"/>
-        <debug_text filter="general" chance="@this.$debug * 100 *0 +100" text="'%1 %2 Stop working as other Controlentity'.[this.name,this.container.name]"/>
-      </do_else>
+        <debug_text filter="general" chance="@this.$debug * 100 *0 +100" text="'%1 %2 Stop working as other Controlentity - clone+destroy'.[this.name,this.container.name]"/>
+        <signal_objects object="player.galaxy" param="'clone actor'" param2="this" param3="this.room.parent"/>
+        <wait exact="100ms"/>
+        <destroy_object object="this"/>
+      </do_elseif>
       
       <!-- Transfer Leftover Money to successor -->
       <transfer_money from="this" to="$successor" amount="this.money"/>
