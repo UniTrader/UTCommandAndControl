@@ -42,12 +42,6 @@
       <set_value name="$old_settings" exact="this.$ut_cac"/>
       <set_value name="this.$ut_cac" exact="table[]"/>
       
-      <!-- Wait for new Assignment -->
-      <remove_value name="this.$ut_cac.$orders_section" comment="no Orders until new Assignment!"/>
-      <remove_value name="this.$ut_cac.$settings_section" comment="no Settings until new Assignment!"/>
-      <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']" comment="failsafe in case something goes wrong"/>
-      <set_entity_type entity="this" type="entitytype.recruitment"/>
-      
       <!-- Ending current Job -->
       <do_if value="this.ship.pilot == this">
         <dismiss_pilot object="this.ship"/>
@@ -67,10 +61,16 @@
         <dismiss_control_entity object="this.container" actor="this"/>
         <!--start_actor_transport actor="this" target="this.room.parent"/-->
         <debug_text filter="general" chance="@this.$debug * 100 *0 +100" text="'%1 %2 Stop working as other Controlentity - clone+destroy'.[this.name,this.container.name]"/>
-        <signal_objects object="player.galaxy" param="'clone actor'" param2="this" param3="this.room.parent"/>
+        <!--signal_objects object="player.galaxy" param="'clone actor'" param2="this" param3="this.room.parent"/>
         <wait exact="100ms"/>
-        <destroy_object object="this"/>
+        <destroy_object object="this"/-->
       </do_elseif>
+      
+      <!-- Wait for new Assignment -->
+      <remove_value name="this.$ut_cac.$orders_section" comment="no Orders until new Assignment!"/>
+      <remove_value name="this.$ut_cac.$settings_section" comment="no Settings until new Assignment!"/>
+      <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']" comment="failsafe in case something goes wrong"/>
+      <set_entity_type entity="this" type="entitytype.recruitment"/>
       
       <!-- Transfer Leftover Money to successor -->
       <transfer_money from="this" to="$successor" amount="this.money"/>
