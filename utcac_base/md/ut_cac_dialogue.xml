@@ -534,7 +534,7 @@
           </do_else>
         </do_elseif>
         <do_elseif value="event.param == 'comm_subordinates_superior_selected'">
-          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Superior change to: %1 // %2'.[event.param2.name,event.param2.tradenpc.name], $new_superior=event.param2.station,$new_superiortype=event.param2.type,$job='captain',$interruptable=true]"/>
+          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname='Superior change to: %1 // %2'.[event.param2.{3}.name,event.param2.{3}.tradenpc.name], $new_superior=event.param2.{3},$new_superiortype=if event.param2.{3}.isclass.station or event.param2.{3}.buildmodule.exists then entitytype.manager else entitytype.commander,$interruptable=true]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
       </actions>

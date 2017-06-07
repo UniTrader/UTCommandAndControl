@@ -63,7 +63,7 @@
         in case of Travel with Big Ships use Transport Drone to Transfer to exchange Station -->
         <return/>
       </do_if>
-      <do_if value="typeof $job != datatype.string and typeof $job != datatype.keyword">
+      <do_if value="typeof $job != datatype.string and typeof $job != datatype.keyword and $job != null">
         <debug_text filter="error" text="'%1 %2 Job is not a String or Keyword (%3) but a %4 - aborting!'.[this.name,this.container.name,@$job,typeof $job]"/>
         <return/>
       </do_if>
@@ -530,9 +530,9 @@
       <do_elseif value="$job == 'custom'">
         <set_entity_type entity="this" type="$new_type"/>
       </do_elseif> 
-      <do_else>
+      <do_elseif value="$previoustype?">
         <set_entity_type entity="this" type="$previoustype"/>
-      </do_else>
+      </do_elseif>
     </actions>
   </attention>
   <on_abort>
