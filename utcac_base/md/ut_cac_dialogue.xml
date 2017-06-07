@@ -1067,57 +1067,62 @@ null
           <destroy_object object="event.object.container" explosion="false"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_data_details'">
-          <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Data Details for a %1'.[typeof event.param2], null, null , null , [ 40 , 210 , -1 ] ,  [] ,  [ 
+          <do_if value="event.name == 'event_conversation_returned_to_section'">
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          </do_if>
+          <do_else>
+            <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Data Details for a %1'.[typeof event.param2], null, null , null , [ 40 , 210 , -1 ] ,  [] ,  [ 
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 null , null , 
 [ 'button' , 'Details', 'comm_debug_data_details' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
 ] ]"/>
-          <do_if value="typeof event.param2 == datatype.table">
-            <set_value name="$keys" exact="event.param2.keys.list"/>
-            <do_all exact="$keys.count" counter="$i">
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ], 'comm_debug_data_details' , $keys.{$i} ] , 
+            <do_if value="typeof event.param2 == datatype.table">
+              <set_value name="$keys" exact="event.param2.keys.list"/>
+              <do_all exact="$keys.count" counter="$i">
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ], 'comm_debug_data_details' , $keys.{$i} ] , 
 [ 'text' , '' + ( typeof event.param2.{$keys.{$i}} ) ] ,
 [ 'text' , $keys.{$i} ] 
 ]"/>
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1, 2 ] , 'comm_debug_data_details' , event.param2.{$keys.{$i}} ] , 
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1, 2 ] , 'comm_debug_data_details' , event.param2.{$keys.{$i}} ] , 
 [ 'text' , '+>' ] ,
 [ 'text' , '' + event.param2.{$keys.{$i}} ]
 ]"/>
-            </do_all>
-            <remove_value name="$keys"/>
-          </do_if>
-          <do_elseif value="typeof event.param2 == datatype.list">
-            <do_all exact="event.param2.count" counter="$i">
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ] , 'comm_debug_data_details' , event.param2.{$i} ] , 
+              </do_all>
+              <remove_value name="$keys"/>
+            </do_if>
+            <do_elseif value="typeof event.param2 == datatype.list">
+              <do_all exact="event.param2.count" counter="$i">
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ] , 'comm_debug_data_details' , event.param2.{$i} ] , 
 [ 'text' , '' + ( typeof event.param2.{$i} ) ] ,
 [ 'text' , event.param2.{$i} ] 
 ]"/>
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1, 2 ] , 'comm_debug_data_details' , event.param2.{$i} ] , 
+                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1, 2 ] , 'comm_debug_data_details' , event.param2.{$i} ] , 
 [ 'text' , '+>' ] ,
 [ 'text' , '' + event.param2.{$i} ]
 ]"/>
-            </do_all>
-          </do_elseif>
-          <do_elseif value="@event.param2.isclass.component">
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2, 1 ] ] ,
+              </do_all>
+            </do_elseif>
+            <do_elseif value="@event.param2.isclass.component">
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2, 1 ] ] ,
 [ 'text' , 'value' ] ,
 [ 'text' , '' + event.param2 ] 
 ]"/>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2, 1 ] ] ,
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2, 1 ] ] ,
 [ 'text' , 'name' ] ,
 [ 'text' , '' + event.param2.name ] 
 ]"/>
-          </do_elseif>
-          <do_else>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3] ] , 
+            </do_elseif>
+            <do_else>
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3] ] , 
 [ 'text' , 'No Data Type for which further Details can be displayed' ] 
 ]"/>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ] ] , 
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ] ] , 
 [ 'text' , '' + ( typeof event.param2 ) ] ,
 [ 'text' , '' + event.param2 ] 
 ]"/>
+            </do_else>
+            <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
           </do_else>
-          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
         </do_elseif>
         <do_else>
           <debug_text filter="error" text="'%1 %2 Unknown Section: %3'.[player.age,event.object.name,event.param]"/>
