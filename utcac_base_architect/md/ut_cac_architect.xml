@@ -414,13 +414,13 @@ $upgradeplan=['turret_small_mg',event.param2,'turret_small_sg',event.param2,'tur
           <set_value name="$buildlocation" exact="event.param" />
           <start_conversation actor="event.object" conversation="OnBuildAction" type="unqueued" />
           <set_value name="$zone" exact="player.zone"/>
-          <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$interruptable=true]"/>
+          <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$moveable=false]"/>
           <signal_objects object="event.object.ship.pilot" param="'new order'" param2="$CaptainMoveOrder"/>
         </do_if>
         <do_elseif value="event.name == 'event_cue_signalled'">
           <set_value name="$buildlocation" exact="event.param.{1}" />
           <set_value name="$zone" exact="player.zone"/>
-          <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$interruptable=true]"/>
+          <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$moveable=false]"/>
           <signal_objects object="event.param.{2}.ship.pilot" param="'new order'" param2="$CaptainMoveOrder"/>
           <open_conversation_menu menu="BuilderMacrosMenu" param="[0, 0, event.param.{2}, event.param.{2}.ship, 1]" param2="event.param3"/>
           <set_conversation_return_section section="cArch_BuildAbort"/>
@@ -609,7 +609,7 @@ Rest is shared between all Actor types
                 <start_conversation actor="$actor" conversation="OnBuildAction" type="unqueued" />
                 <set_value name="$zone" exact="player.zone"/>
               </do_if>
-              <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$interruptable=true]"/>
+              <set_value name="$CaptainMoveOrder" exact="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Move to Building Position',$buildlocation=$buildlocation,$zone=$zone,$moveable=false]"/>
               <signal_objects object="$actor.ship.pilot" param="'new order'" param2="$CaptainMoveOrder"/>
             </do_if>
             

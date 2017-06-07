@@ -47,6 +47,8 @@ roughly based on move.buildership but with many changes
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Captain move to build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
       <!-- first aquire the Destination Zone and (rough) Position -->
       <do_if value="$station.exists">
+        <!-- Building Object decided - not interruptable anymore-->
+        <set_value name="$params.$interruptable" exact="false"/>
         <do_if value="not $station.buildingmodule">
           <!-- get the exact Position to move to -->
           <set_value name="$buildlocation" exact="$station.buildlocation"/>
@@ -56,11 +58,16 @@ roughly based on move.buildership but with many changes
           <remove_value name="this.$ut_cac.$orders_section" exact="'This Ship is attached to a Build Location and therefore not able to move.'"/>
           <remove_from_player_squad object="this.ship" chance="( this.ship.commander == player.primaryship )*100" comment="remove Ship from Player squad to remove build possibility from Space "/>
         </do_if>
+        <do_else>
+          <!-- ToDo: Undeploy previous Build Vessel (or abort if non-UTCaC) -->
+        </do_else>
       </do_if>
       <do_elseif value="$buildlocation">
         <!-- ToDo: Get Zone from actual Build Location to prevent errors -->
         <!--set_value name="$zone" exact="$buildlocation.component.zone"/-->
         <do_if value="$macro != null">
+          <!-- Building Object decided - not interruptable anymore-->
+          <set_value name="$params.$interruptable" exact="false"/>
           <!-- get the exact Position to move to -->
           <get_building_position position="$position" object="this.ship" macro="$macro" buildlocation="$buildlocation"/>
           <set_value name="$lookatpos" exact="$buildlocation.offset"/>
