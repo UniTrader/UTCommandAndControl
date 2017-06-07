@@ -7,7 +7,7 @@
     (Wages, Possible Orders and Settings etc.)"/>
   </documentation>
   <cues>
-    <cue name="Clone_Actor" instantiate="true">
+    <!--cue name="Clone_Actor" instantiate="true">
       <conditions>
         <event_object_signalled object="player.galaxy" param="'clone actor'"/>
       </conditions>
@@ -31,7 +31,7 @@
         <set_value name="$clone.$experience" exact="event.param2.$experience"/>
         <signal_cue_instantly cue="Actor_Init" param="$clone"/>
       </actions>
-    </cue>
+    </cue-->
     <cue name="Actor_Init" instantiate="true">
       <!-- This Cue is intended to put an Entity into the right State to perform its Job as a certain Entity Type. Also used when changing the Entity Type. does not reset Settings (except where it might interfer with function). if desired delete $actor.$ut_cac before (this also resets Skill Progress) -->
       <conditions>
@@ -85,6 +85,7 @@
             <do_if value="not $actor.$orderlist?">
               <do_if value="not $actor.$ut_cac.$defaultorders?">
                 <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
+                <set_entity_type entity="this" type="entitytype.recruitment"/>
               </do_if>
               <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
               <do_if value="$actor.room != player.room">
