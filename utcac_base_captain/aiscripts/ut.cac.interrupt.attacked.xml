@@ -32,7 +32,7 @@
           </check_all>
         </conditions>
         <actions>
-          <debug_text filter="general" text="'%1 %2 %3 Flee check Interrupt triggered, evaluated values:'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" text="'%1 %2 Flee check Interrupt triggered, evaluated values:'.[this.name,this.container.name]"/>
           <!-- set certain $params. values to default Values if not set -->
           <do_if value="not $params">
             <set_value name="$params" exact="table[]"/>
@@ -103,7 +103,7 @@
     </library>
   </interrupts>
   <actions>
-    <debug_text filter="general" text="'%1 %2 %3 Interrupt Started'.[player.age,this.name,this.container.name]"/>
+    <debug_text filter="general" text="'%1 %2 Interrupt Started'.[this.name,this.container.name]"/>
     <!-- make sure there is no bigship in front of us and just boost straight forward ( using Steering FCM to avoid unnecesary delays because of path calculation) -->
     <find_object name="$enemies_fleedirection" space="this.zone" multiple="true" functional="true">
       <match_distance object="this.container" max="10km"/>

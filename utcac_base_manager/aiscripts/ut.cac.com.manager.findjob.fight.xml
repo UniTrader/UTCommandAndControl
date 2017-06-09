@@ -20,11 +20,11 @@
       
       <!-- Input Validation -->
       <do_if value="not $entity.exists">
-        <debug_text filter="error" text="'%1 %2 %3 No Entity passed to give Fight Orders to - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No Entity passed to give Fight Orders to - aborting'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Finding Patrol for %4'.[player.age,this.name,this.container.name,$entity.name]"/>
+      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Finding Patrol for %3'.[this.name,this.container.name,$entity.name]"/>
       
       
       <set_command_action commandaction="commandaction.calculating"/>
@@ -38,17 +38,17 @@
         <do_all min="1" max="this.$ut_cac.$availablefightships.count + 2">
           <set_value name="$testship" exact="this.$ut_cac.$availablefightships.random"/>
           <do_if value="$entity.ship.distanceto.{$testship} le 15km and $testship.pilot.$orderlist.{1}.$script == 'ut.cac.com.captain.patrol'">
-            <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Will send escorting already Patroling Ship %4'.[player.age,this.name,this.container.name,$testship.name]"/>
+            <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Will send escorting already Patroling Ship %3'.[this.name,this.container.name,$testship.name]"/>
             <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.move.escort',$displayname='Escorting %1 (Manager)'.[if $testship.controlentity.$shortname then $testship.controlentity.$shortname else $testship.knownname],$escortee=$testship,$time=2h,$exitonneworder=true,$interruptable=true] ]"/>
             <return value="true"/>
           </do_if>
         </do_all>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Will send to Patrol %4'.[player.age,this.name,this.container.name,this.zone.name]"/>
+      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Will send to Patrol %3'.[this.name,this.container.name,this.zone.name]"/>
       <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.com.captain.patrol',$displayname='Patrolling %1 (Manager)'.[this.zone.knownname],$space=this.zone,$patroltime=3h,$exitonneworder=true,$interruptable=true] ]"/>
       
-      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Sent Ship %4 to patrol (locally)'.[player.age,this.name,this.container.name,$entity.ship.name]"/>
+      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Sent Ship %3 to patrol (locally)'.[this.name,this.container.name,$entity.ship.name]"/>
       <return value="true"/>
     </actions>
   </attention>

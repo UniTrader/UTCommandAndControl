@@ -10,7 +10,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2:\nevent.param= %3 event.param2= %4 event.param3= %5'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'comm_defense_settings_main'">
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <do_if value="event.name == 'event_conversation_next_section'">
@@ -131,7 +131,7 @@ Rest is shared between all Actor types
             </check_any>
           </conditions>
           <actions>
-            <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
             <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
               <do_if value="event.name == 'event_conversation_started'">
                 <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>

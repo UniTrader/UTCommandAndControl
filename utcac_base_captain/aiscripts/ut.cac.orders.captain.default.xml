@@ -15,7 +15,7 @@
       <!-- if there are outstanding Trade Orders: do trade. -->
       <get_trade_from_shoppinglist object="this.ship" result="$trade"/>
       <do_if value="$trade.exists and not ( this.$orderlist.{1}.$script == 'ut.cac.com.captain.performsingletraderun')">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Doing outstanding Trades'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Doing outstanding Trades'.[this.name,this.container.name]"/>
         <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (default)',$repeat=0,$interruptable=true]"/>
         <return/>
       </do_if>
@@ -37,14 +37,14 @@
         <set_value name="$params.$next_equipmentcheck" exact="player.age + 10min"/>
         <!-- if we have no fuel for even one Jump - go refueling first (intended to be only called on init if no Fuel is on board to speed things up - Manager will give this order frequently anyway) -->
         <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{this.sector}">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Refueling'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Refueling'.[this.name,this.container.name]"/>
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (default)',$undock=2,$interruptable=true]"/>
           <return/>
         </do_if>
         <!-- Check wheter we need some Drones (missing Cargo Drones for Trade & Mining Ships and missing mining Drones for Mining ships trigger re-droning Script every time, otherwise re-droning will be done if below 25% of capacity) -->
         <do_if value="this.ship.primarypurpose == objectpurpose.trade">
           <do_if value="this.ship.units.{unitcategory.transport}.count lt 5">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Restocking Drones (too few Cargon Drones)'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Restocking Drones (too few Cargon Drones)'.[this.name,this.container.name]"/>
             <run_script name="'ut.cac.com.captain.restockdrones'">
               <param name="onlysector" value="true"/>
             </run_script>
@@ -54,14 +54,14 @@
         <do_if value="$miningturret.exists or this.ship.primarypurpose == objectpurpose.mine">
           <remove_value name="$miningturret"/>
           <do_if value="this.ship.units.{unitcategory.transport}.count lt 5">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Restocking Drones (to few cargo Drones 2)'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Restocking Drones (to few cargo Drones 2)'.[this.name,this.container.name]"/>
             <run_script name="'ut.cac.com.captain.restockdrones'">
               <param name="onlysector" value="true"/>
             </run_script>
           </do_if>
           <do_if value="this.ship.cargo.tags.indexof.{tag.liquid}">
             <do_if value="this.ship.units.{unitcategory.gascollector}.count lt 5">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Restocking Drones (too few Gascollectors)'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Restocking Drones (too few Gascollectors)'.[this.name,this.container.name]"/>
               <run_script name="'ut.cac.com.captain.restockdrones'">
                 <param name="onlysector" value="true"/>
               </run_script>
@@ -69,7 +69,7 @@
           </do_if>
           <do_if value="this.ship.cargo.tags.indexof.{tag.bulk}">
             <do_if value="this.ship.units.{unitcategory.orecollector}.count lt 5">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Restocking Drones (too few Orecollectors)'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Restocking Drones (too few Orecollectors)'.[this.name,this.container.name]"/>
               <run_script name="'ut.cac.com.captain.restockdrones'">
                 <param name="onlysector" value="true"/>
               </run_script>
@@ -78,7 +78,7 @@
         </do_if>
         <remove_value name="$miningturret"/>
         <do_if value="this.ship.units.count lt this.ship.units.maxcount * 0.5">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Restocking Drones (too few overall Drones)'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Restocking Drones (too few overall Drones)'.[this.name,this.container.name]"/>
           <run_script name="'ut.cac.com.captain.restockdrones'">
             <param name="onlysector" value="true"/>
           </run_script>
@@ -87,7 +87,7 @@
       
       <!-- Cargobay (more than) half full without any other orders, so its dead weight - empty it. (Fuel ignored for this Purpose) -->
       <do_if value="this.ship.cargo.free lt (this.ship.cargo.capacity - this.ship.cargo.{ware.fuelcells}.count)/2">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Empty Cargo'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Empty Cargo'.[this.name,this.container.name]"/>
         <run_script name="'ut.cac.com.captain.emptycargo'">
           <param name="onlysector" value="true"/>
         </run_script>
@@ -96,20 +96,20 @@
       <!-- received new Maintinence Orders from himself - execute them first -->
       <!--wait exact="10ms" comment="wait for possible new Orders received by called Scripts"-->
       <do_if value="this.$orderlist.count gt 0">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Got Orders - Exiting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Got Orders - Exiting'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
       
       <!-- if we have an Orderlist to repeat and no Maintinence Tasks are outstanding add it to the Order List -->
       <do_if value="$params.$repeatorders?">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Repeating Looped Orders'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Repeating Looped Orders'.[this.name,this.container.name]"/>
         <set_value name="this.$orderlist" exact="$params.$repeatorders.clone"/>
         <return/>
       </do_if>
       
       <!-- Signal the Superior we are now Free and want something to do -->
       <do_if value="this.ship.commanderentity == player.entity" comment="Subordinate of the Player - currently not in my Plan, so either wait where you are (Trade Ships) or Patrol the current Sector (Battleships) until further Notice" >
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Ship is Player direct Subordinate - NYI!!!!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Ship is Player direct Subordinate - NYI!!!!'.[this.name,this.container.name]"/>
         <do_if value="this.ship.primarypurpose == objectpurpose.fight">
           <!-- Patrol for 1h in the Zone and then pester again -->
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname='Patrolling %1 (Self)'.[this.zone.knownname],$space=this.zone,$patroltime=1h,$exitonneworder=true,$interruptable=true]"/>
@@ -124,20 +124,20 @@
       <do_else>
         <!-- nothing to do - wait and add to Order request Group of Commander -->
         <do_if value="this.ship.commanderentity.exists">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calling Wait for Orders Script while calling Superior (primary case)'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Calling Wait for Orders Script while calling Superior (primary case)'.[this.name,this.container.name]"/>
         <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=10min,$interruptable=true]"/>
-          <debug_text filter="general" text="'%1 %2 %3 Sending request Orders Signal to %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.container.name]"/>
+          <debug_text filter="general" text="'%1 %2 Sending request Orders Signal to %3 %4'.[this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.container.name]"/>
           <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
         </do_if>
         <do_elseif value="this.$ut_cac.$commanderentity? and this.$ut_cac.$commanderentity.exists">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calling Wait for Orders Script while calling Superior(fallback case)'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Calling Wait for Orders Script while calling Superior(fallback case)'.[this.name,this.container.name]"/>
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for Orders (default)',$order='wait order',$time=10min,$interruptable=true]"/>
-          <debug_text filter="general" text="'%1 %2 %3 Sending request Orders Signal to %4 %5 (fallback case)'.[player.age,this.name,this.container.name,this.$ut_cac.$commanderentity.name,this.$ut_cac.$commanderentity.container.name]"/>
+          <debug_text filter="general" text="'%1 %2 Sending request Orders Signal to %3 %4 (fallback case)'.[this.name,this.container.name,this.$ut_cac.$commanderentity.name,this.$ut_cac.$commanderentity.container.name]"/>
           <signal_objects object="this.$ut_cac.$commanderentity" param="'request orders'" param2="this"/>
         </do_elseif>
         <do_elseif value="this.ship.primarypurpose == objectpurpose.fight">
           <!-- Patrol for 1h in the Zone and then pester again -->
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Patrolling Locally'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Patrolling Locally'.[this.name,this.container.name]"/>
           <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname='Patrolling %1 (Self)'.[this.zone.knownname],$space=this.zone,$patroltime=1h,$exitonneworder=true,$interruptable=true]"/>
         </do_elseif>
         <do_else comment="this.ship.primarypurpose == objectpurpose.trade">

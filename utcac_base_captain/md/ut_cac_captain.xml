@@ -10,7 +10,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2:\nevent.param= %3 event.param2= %4 event.param3= %5\nnew order:%6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3,@md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order?" comment="we have an Order to be given - return to Order Menu and let the calling MD File handle the rest.">
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
           <!-- delete temp values for Orders when returning -->
@@ -296,7 +296,7 @@ Rest is shared between all Actor types
             </check_any>
           </conditions>
           <actions>
-            <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
             <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
               <do_if value="event.name == 'event_conversation_started'">
                 <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>

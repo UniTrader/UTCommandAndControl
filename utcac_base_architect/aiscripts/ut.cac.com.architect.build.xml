@@ -37,14 +37,14 @@
         <do_if value="$params.$upgradeplan?">
           <set_value name="$upgradeplan" exact="$params.$upgradeplan"/>
         </do_if>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Architect build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Architect build script started with params: %3'.[this.name,this.container.name,$params]"/>
       </do_if>
       
       
       <!-- sanity checks -->
       <!-- must be on a builder Ship -->
       <do_if value="not this.ship.buildmodule.exists">
-        <debug_text filter="error" text="'%1 %2 %3 Architect is not on a builder Ship - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Architect is not on a builder Ship - aborting'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
       <!-- check if at least one needed Parameter combination is provided - check in order of priority -->
@@ -57,7 +57,7 @@
       </do_elseif>
       <do_elseif value="$sequence" comment="Extend existing Station (may also contain an $upgradeplan)">
         <do_if value="not this.ship.buildmodule.buildanchor">
-          <debug_text filter="error" text="'%1 %2 %3 Not Connected to a Build Location anymore - aborting (Extend Case)'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 Not Connected to a Build Location anymore - aborting (Extend Case)'.[this.name,this.container.name]"/>
           <return/>
         </do_if>
         <set_value name="$station" exact="this.ship.buildmodule.buildanchor"/>
@@ -65,14 +65,14 @@
       </do_elseif>
       <do_elseif value="$upgradeplan.count" comment="Upgrade Weapons of existing Station">
         <do_if value="not this.ship.buildmodule.buildanchor">
-          <debug_text filter="error" text="'%1 %2 %3 Not Connected to a Build Location anymore - aborting (Upgrade Case)'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 Not Connected to a Build Location anymore - aborting (Upgrade Case)'.[this.name,this.container.name]"/>
           <return/>
         </do_if>
-        <debug_text filter="error" text="'%1 %2 %3 Upgrading is still not implemented - abortin'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Upgrading is still not implemented - abortin'.[this.name,this.container.name]"/>
         <return/>
       </do_elseif>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 %3 Architect doesnt know which Station to build or deploy to or what to extend/Upgrade'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Architect doesnt know which Station to build or deploy to or what to extend/Upgrade'.[this.name,this.container.name]"/>
         <return/>
       </do_else>
       
@@ -85,7 +85,7 @@
       <do_if value="$buildlocation">
         <!-- check if the buildlocation is claimed by a CV and if not claim it -->
         <do_if value="$buildlocation.child.exists and $buildlocation.child.buildingmodule != this.ship.buildmodule">
-          <debug_text filter="error" text="'%1 %2 %3 Build Location already in use and CV assigned - aborting (initial check)'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 Build Location already in use and CV assigned - aborting (initial check)'.[this.name,this.container.name]"/>
           <return/>
         </do_if>
         
@@ -103,11 +103,11 @@
               <set_value name="this.ship.pilot.$orderlist.{$i}.$interruptable" exact="false"/>
               <signal_objects object="this.container" param="'Object Name Updated'"/>
               <do_if value="$i == 1">
-                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signalling Captain about new Plans'.[player.age,this.name,this.container.name]"/>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Signalling Captain about new Plans'.[this.name,this.container.name]"/>
                 <signal_objects object="this.ship.pilot" param="'Set Build Macro'"/>
               </do_if>
               <do_else>
-                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 changing queued Order about new Plans'.[player.age,this.name,this.container.name]"/>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 changing queued Order about new Plans'.[this.name,this.container.name]"/>
               </do_else>
               <set_value name="$changed_order" comment="only used in the 4th line from here to not give a new Order if there is already one"/>
               <break/>
@@ -115,7 +115,7 @@
           </do_all>
           <do_if value="not $changed_order?">
             <signal_objects object="this.ship.pilot" param="'new order'" param2="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname='Moving to Build Position for %1'.[$macro.name],$buildlocation=$buildlocation,$zone=$zone,$interruptable=false]"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Giving Moveto buildlocation Order with final Plans'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Giving Moveto buildlocation Order with final Plans'.[this.name,this.container.name]"/>
           </do_if>
           <do_else>
             <remove_value name="$changed_order"/>
@@ -123,7 +123,7 @@
           <set_value name="this.ship.pilot.$ut_cac.$defaultorders.$script" exact="'ut.cac.orders.captain.buildership'"/>
         </do_if>
         <do_else>
-          <debug_text filter="error" text="'%1 %2 %3 Builder Ship has no Pilot - aborting'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 Builder Ship has no Pilot - aborting'.[this.name,this.container.name]"/>
           <return/>
         </do_else>
         
@@ -142,12 +142,12 @@
         </wait>
          <set_value name="this.$ut_cac.$isactive" exact="1" comment="long-lasting action done - but still pay for the last period."/>
         <do_if value="$buildlocation.child.exists and $buildlocation.child.buildingmodule != this.ship.buildmodule">
-          <debug_text filter="error" text="'%1 %2 %3 Build Location already in use and CV assigned - aborting (move case)'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 Build Location already in use and CV assigned - aborting (move case)'.[this.name,this.container.name]"/>
           <return/>
         </do_if>
         <do_if value="$move_sucess == false">
           <do_if value="not $already_tried_moving?">
-            <debug_text filter="error" text="'%1 %2 %3 Builder Ship couldnt be moved to intended Location - try again'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="error" text="'%1 %2 Builder Ship couldnt be moved to intended Location - try again'.[this.name,this.container.name]"/>
             <set_value name="$already_tried_moving"/>
             <remove_build_location_claim buildlocation="$buildlocation"/>
             <resume label="move to buildlocation"/>
@@ -155,13 +155,13 @@
           <do_else>
             <remove_build_location_claim buildlocation="$buildlocation"/>
             <signal_objects object="this.ship" param="'CV undeployed'"/>
-            <debug_text filter="error" text="'%1 %2 %3 Builder Ship couldnt be moved to intended Location - abort'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="error" text="'%1 %2 Builder Ship couldnt be moved to intended Location - abort'.[this.name,this.container.name]"/>
             <return/>
           </do_else>
         </do_if>
         <do_elseif value="$move_sucess?"/>
         <do_else>
-          <debug_text filter="error" text="'%1 %2 %3 wait interrupted but no event triggered'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 wait interrupted but no event triggered'.[this.name,this.container.name]"/>
           <return/>
         </do_else>
         
@@ -171,7 +171,7 @@
         <!-- set Captain to a "Hold Position"-Command-Loop which checks every few hours if we are at the desired Position and if not re-adjust it -->
         
         
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Builder Ship is starting deployment'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Builder Ship is starting deployment'.[this.name,this.container.name]"/>
         <set_value name="$params.$displayname" exact="'Deploying Builder Ship'"/>
         <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Deploying Builder Ship'"/>
         <signal_objects object="this.container" param="'Object Name Updated'"/>
@@ -230,7 +230,7 @@
           </do_else>
         </do_elseif>
         <do_else>
-          <debug_text filter="error" text="'%1 %2 %3 Neither an empty build Location nor a Station to continue - aborting'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 Neither an empty build Location nor a Station to continue - aborting'.[this.name,this.container.name]"/>
           <return/>
         </do_else>
         <!-- signalling Manager in charge to find Trade Orders for Subordinates -->
@@ -277,7 +277,7 @@
         <!-- ToDo: Make sure we are still in building position!!! if not tell Pilot!!! -->
         <!-- check if we are still connected to the buildlocation -->
         <do_if value="not ( this.ship.buildmodule.buildanchor.buildingmodule == this.ship.buildmodule)">
-          <debug_text filter="error" text="'%1 %2 %3 Not connected to Build Location anymore'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 Not connected to Build Location anymore'.[this.name,this.container.name]"/>
           <return/>
         </do_if>
         <set_command_action commandaction="commandaction.standingby" />
@@ -311,7 +311,7 @@
           <remove_blocked_area blocker="this" zone="this.zone"/>
         </do_if>
         <do_else>
-          <debug_text filter="error" text="'%1 %2 %3 Trying to Upgrade Station %4 Sequence %5 over buildplan'.[player.age,this.name,this.container.name,$station.name,$sequence]"/>
+          <debug_text filter="error" text="'%1 %2 Trying to Upgrade Station %3 Sequence %4 over buildplan'.[this.name,this.container.name,$station.name,$sequence]"/>
           <return/>
         </do_else>
         <!-- wait till construction is done -->

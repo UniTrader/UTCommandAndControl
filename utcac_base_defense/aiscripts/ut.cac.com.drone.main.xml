@@ -160,7 +160,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
         <param name="destination" value="this.ship.commander" />
       </run_script>
       <!-- cleanup after docking - always assume it was succesful, but print error if needed -->
-      <debug_text filter="error" text="'%1 %2 %3 Drone did not dock - self-destruct!!'.[player.age,this.container.name,this.commander.name]"/>
+      <debug_text filter="error" text="'%1 %2 Drone did not dock - self-destruct!!'.[this.container.name,this.commander.name]"/>
       <add_units object="this.ship.commander" macro="this.ship.macro" exact="1" unavailable="false"/>
       <destroy_object object="this.ship" explosion="false"/>
       <return/>
@@ -190,7 +190,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
           <param name="pos" value="this.ship.position"/>
         </run_script>
       </do_if>
-      <debug_text filter="error" text="'%1 %2 %3 Remove Commander self destruct'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="error" text="'%1 %2 Remove Commander self destruct'.[this.name,this.container.name]"/>
       <destroy_object object="this.ship"/>
       <return/>
       <!-- ============================ -->
@@ -214,7 +214,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       </do_if>
       <do_else>
       </do_else>
-      <debug_text filter="error" text="'%1 %2 %3 Drone %4 %5 still exists after docking/destruct'.[player.age,this.name,this.container.name,this.ship.name,this.ship.zone.name]"/>
+      <debug_text filter="error" text="'%1 %2 Drone %3 %4 still exists after docking/destruct'.[this.name,this.container.name,this.ship.name,this.ship.zone.name]"/>
         <add_units object="this.ship.commander" macro="this.ship.macro" exact="1" unavailable="false"/>
       <destroy_object object="this.ship" explosion="false" />
     </actions>

@@ -33,18 +33,18 @@
       
       <!-- Input Validation -->
       <do_if value="not $entity.exists">
-        <debug_text filter="error" text="'%1 %2 %3 No Entity passed to give Mine Orders to - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No Entity passed to give Mine Orders to - aborting'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       <do_if value="not $range">
-        <debug_text filter="error" text="'%1 %2 %3 No Range passed to check for Ressources - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No Range passed to check for Ressources - aborting'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       <do_if value="not $ware">
         <set_value name="$ware" exact="$mininglist.{1}"/>
       </do_if>
       <do_if value="not $ware">
-        <debug_text filter="error" text="'%1 %2 %3 No Ware passed to find Mining Zone - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No Ware passed to find Mining Zone - aborting'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       
@@ -73,7 +73,7 @@
           <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually looking where to Mine wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
           <!-- found Ressource in Range - exit with success -->
           <do_if value="$zone.exists and ( $zone.hascontext.{$range.{$i}} or $zone == $range.{$i} )">
-            <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 Found wanted Ressource in Range:\nRange: %4 - Zone: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$zone]"/>
+            <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Found wanted Ressource in Range:\nRange: %3 - Zone: %4'.[this.name,this.container.name,$range.{$i}.knownname,$zone]"/>
             <do_if value="$range_w and $range_w.{$i}">
               <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , table[$script='ut.cac.com.captain.mining',$displayname='Mining in %1 (Manager)'.[$zone.knownname],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=true] , table[$script='ut.cac.move.generic',$displayname='Fly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] ]"/>
             </do_if>
@@ -91,7 +91,7 @@ table[$script='ut.cac.com.manager.findjob.assign.escort',$displayname='Gather Es
       </do_all>
       
       
-      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 %3 No Ressources found in Range - returning'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 No Ressources found in Range - returning'.[this.name,this.container.name]"/>
       <return value="false"/>
     </actions>
   </attention>

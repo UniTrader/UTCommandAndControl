@@ -127,7 +127,7 @@
         <check_value value="event.object.$ut_cac?"/>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.object.isplayerowned">
           <do_if value="event.name == 'event_conversation_started'">
             <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -179,7 +179,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2:\nevent.name= %3 event.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="not event.object.$orderlist?">
           <debug_text filter="error" text="'%1 No Orderlist!!! returning to prev Section!'.[event.object.name,event.param]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
@@ -367,7 +367,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <!--- ################################### -->
         <!--                        Connect Menu                          -->
         <!--- ################################### -->
@@ -621,7 +621,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <!--- ################################### -->
         <!--                       Personal Menu                          -->
         <!--- ################################### -->
@@ -1011,7 +1011,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2:\nevent.name = %3 event.param= %4 event.param2= %5 event.param3= %6'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'comm_debug_main'">
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Debug Menu for %1'.[event.object.name], null, null , null , [ 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , -1 ] ,  [] ,  [ 
 [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
@@ -1125,7 +1125,7 @@ null , null ,
           </do_else>
         </do_elseif>
         <do_else>
-          <debug_text filter="error" text="'%1 %2 Unknown Section: %3'.[player.age,event.object.name,event.param]"/>
+          <debug_text filter="error" text="'%1 %2 Unknown Section: %3'.[event.object.name,event.object.container.name,event.param]"/>
         </do_else>
       </actions>
     </cue>

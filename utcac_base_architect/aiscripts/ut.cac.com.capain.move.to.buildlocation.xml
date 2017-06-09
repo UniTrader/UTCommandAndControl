@@ -22,7 +22,7 @@ roughly based on move.buildership but with many changes
         <event_object_signalled object="this" param="'Set Build Macro'"/>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Move Builder Ship - received Updated Orders - restarting.'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Move Builder Ship - received Updated Orders - restarting.'.[this.name,this.container.name]"/>
         <abort_called_scripts resume="start"/>
       </actions>
     </handler>
@@ -44,7 +44,7 @@ roughly based on move.buildership but with many changes
           <set_value name="$station" exact="$params.$station"/>
         </do_if>
       </do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Captain move to build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Captain move to build script started with params: %3'.[this.name,this.container.name,$params]"/>
       <!-- first aquire the Destination Zone and (rough) Position -->
       <do_if value="$station.exists">
         <!-- Building Object decided - not interruptable anymore-->
@@ -54,7 +54,7 @@ roughly based on move.buildership but with many changes
           <set_value name="$buildlocation" exact="$station.buildlocation"/>
           <set_value name="$zone" exact="$station.zone"/>
           <get_building_position position="$position" object="this.ship" macro="$station.macro" buildlocation="$buildlocation"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to build location of existing station: \nstation macro: %4 position: %5'.[player.age,this.name,this.container.name,$station.name,$position]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving to build location of existing station: \nstation macro: %3 position: %4'.[this.name,this.container.name,$station.name,$position]"/>
           <remove_value name="this.$ut_cac.$orders_section" exact="'This Ship is attached to a Build Location and therefore not able to move.'"/>
           <remove_from_player_squad object="this.ship" chance="( this.ship.commander == player.primaryship )*100" comment="remove Ship from Player squad to remove build possibility from Space "/>
         </do_if>
@@ -71,7 +71,7 @@ roughly based on move.buildership but with many changes
           <!-- get the exact Position to move to -->
           <get_building_position position="$position" object="this.ship" macro="$macro" buildlocation="$buildlocation"/>
           <set_value name="$lookatpos" exact="$buildlocation.offset"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to build location: \nstation macro: %4 position: %5 lookat: %6'.[player.age,this.name,this.container.name,$macro.name,$position,$lookatpos]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving to build location: \nstation macro: %3 position: %4 lookat: %5'.[this.name,this.container.name,$macro.name,$position,$lookatpos]"/>
           <set_value name="this.$ut_cac.$orders_locked" exact="'This Ship is attached to a Build Location and therefore not able to move.'"/>
           <remove_from_player_squad object="this.ship" chance="( this.ship.commander == player.primaryship )*100" comment="remove Ship from Player squad to remove build possibility from Space "/>
         </do_if>
@@ -82,7 +82,7 @@ roughly based on move.buildership but with many changes
           </transform_position>
           <get_safe_pos result="$position" allowyaxis="true" zone="$zone" value="$position" radius="this.ship.size*2" ignored="this.ship"/>
           <set_value name="$lookatpos" exact="$buildlocation.offset"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to rough build location: \nposition: %4 lookat: %5'.[player.age,this.name,this.container.name,$position,$lookatpos]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving to rough build location: \nposition: %3 lookat: %4'.[this.name,this.container.name,$position,$lookatpos]"/>
         </do_else>
       </do_elseif>
       <do_if value="not $zone?">
@@ -102,18 +102,18 @@ roughly based on move.buildership but with many changes
         <param name="position" value="$safepos"/>
         <param name="lookat" value="$buildlocation.offset"/>
       </run_script>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moving to build location end: \n position: %4 rotation: %5'.[player.age,this.name,this.container.name,this.container.position,this.container.rotation]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving to build location end: \n position: %3 rotation: %4'.[this.name,this.container.name,this.container.position,this.container.rotation]"/>
       <do_if value="$buildlocation">
         <do_if value="$buildlocation.child">
           <!--Build location taken-->
           <signal_objects object="this.ship" param="'move.buildership'" param2="false"/>
-          <debug_text filter="error" text="'%1 %2 %3 Buildlocation already taken'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 Buildlocation already taken'.[this.name,this.container.name]"/>
         </do_if>
         <do_else>
           <!--Successfully reached build location - check if it was the rough location only before sending the sucess signal -->
           <do_if value="$macro != null">
             <signal_objects object="this.ship" param="'move.buildership'" param2="true"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moved to Buildlocation'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moved to Buildlocation'.[this.name,this.container.name]"/>
           </do_if>
         </do_else>
       </do_if>
@@ -121,12 +121,12 @@ roughly based on move.buildership but with many changes
         <do_if value="$station.buildingmodule">
           <!--Station already has a building module-->
           <signal_objects object="this.ship" param="'move.buildership'" param2="false"/>
-          <debug_text filter="error" text="'%1 %2 %3 Station already has a CV'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="error" text="'%1 %2 Station already has a CV'.[this.name,this.container.name]"/>
         </do_if>
         <do_else>
           <!--Successfully reached station-->
           <signal_objects object="this.ship" param="'move.buildership'" param2="true"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Moved to Station'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moved to Station'.[this.name,this.container.name]"/>
         </do_else>
       </do_elseif>
     </actions>

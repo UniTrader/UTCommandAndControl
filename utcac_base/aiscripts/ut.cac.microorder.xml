@@ -11,11 +11,11 @@
   </params>
   <attention min="unknown">
     <actions>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 doing microorder: %4'.[player.age,this.name,this.container.name,$params]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 doing microorder: %3'.[this.name,this.container.name,$params]"/>
       <set_command command="command.wait" />
       <set_command_action commandaction="commandaction.standingby"/>
       <do_if value="not ( typeof $params == datatype.table )">
-        <debug_text filter="error" text="'%1 %2 %3 Microorder passed was not a table'.[player.age,$actor.name,$actor.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Microorder passed was not a table'.[this.name,this.container.name]"/>
         <return>
           <retval name="repeat" value="false"/>
         </return>
@@ -89,7 +89,7 @@
       </do_elseif>
       <do_elseif value="$params.$order == null" comment="do-nothing order - eg used to terminate interrupt handlers"/>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 %3 Microorder passed was not a valid microorder:\n%4'.[player.age,this.name,this.container.name,$params]"/>
+        <debug_text filter="error" text="'%1 %2 Microorder passed was not a valid microorder:\n%3'.[this.name,this.container.name,$params]"/>
       </do_else>
       <return/>
     </actions>

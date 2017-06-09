@@ -43,7 +43,7 @@ roughly based on the experimental ut.cac.follow.verysimple
           <event_object_target_invalid object="this.ship" />
         </conditions>
         <actions>
-          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $escortee: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
+          <debug_text filter="error" text="'%1 %2 Target Invalid: %3 , $escortee: %4 - restarting'.[this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
           <abort_called_scripts />
           <resume label="start"/>
       </actions>
@@ -54,7 +54,7 @@ roughly based on the experimental ut.cac.follow.verysimple
         <event_object_destroyed object="$escortee"/>
       </conditions>
       <actions>
-        <debug_text filter="error" text="'%1 %2 %3 Escort Object destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 Escort Object destroyed: %3'.[this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
         <abort_called_scripts/>
         <return value="1"/>
       </actions>
@@ -114,7 +114,7 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
             <remove_from_group group="this.$escortgroup" object="this.ship"/>
             <remove_value name="this.$escortgroup"/>
             <add_to_group groupname="this.$escortgroup" object="this.ship"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (seperate in signal handler):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Escortgroup changed (seperate in signal handler):\nescortgroup: %3'.[this.name,this.container.name,this.$escortgroup]"/>
             <signal_objects object="this" param="'patrol aborted'" param2="$params" param3="this.escortgroup" delay="1s"/>
           </do_if>
           <do_else>
@@ -140,14 +140,14 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
         <!--<remove_value name="this.$escortgroup.indexof.{this.ship}" comment="remove from previous Group"/>
         <set_value name="this.$escortgroup" exact="event.param2" comment="set new Group"/>
         <set_value name="this.$escortgroup.{this.$escortgroup.count+1}" exact="this.ship" comment="register in new Group"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (seperate in signal handler 2):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Escortgroup changed (seperate in signal handler 2):\nescortgroup: %3'.[this.name,this.container.name,this.$escortgroup]"/>
         <check_value value="false" comment="to prevent actually triggering this Handler - we just modify a few Values, but dont want to trigger the handler"/>-->
       </conditions>
       <actions>
         <remove_from_group group="this.$escortgroup" object="this.ship" comment="remove from previous Group"/>
         <set_value name="this.$escortgroup" exact="event.param2" comment="set new Group"/>
         <add_to_group groupname="this.$escortgroup" object="this.ship" comment="register in new Group"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (seperate in signal handler 2):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Escortgroup changed (seperate in signal handler 2):\nescortgroup: %3'.[this.name,this.container.name,this.$escortgroup]"/>
       </actions>
     </handler>
     <handler comment="For Script Ending when Destination Zone is reached">
@@ -190,18 +190,18 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
       
       <!-- check input -->
       <do_if value="not $escortee.isoperational">
-        <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist: %4'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 Escort Object does not exist: %3'.[this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
         <return value="1"/>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$escortee: %4'.[player.age,this.name,this.container.name,$escortee.knownname]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started with Params:\n$escortee: %3'.[this.name,this.container.name,$escortee.knownname]"/>
       
       <label name="start"/>
       <remove_value name="$defending"/>
       <label name="fly to leader zone" />
       <!-- re - check input because it caused a Lockuop here (FIX CORE ISSUE BEHIND THIS AT SOME POINT!!! ) -->
       <do_if value="not $escortee.isoperational">
-        <debug_text filter="error" text="'%1 %2 %3 Escort Object does not exist (Case 2): %4'.[player.age,this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 Escort Object does not exist (Case 2): %3'.[this.name,this.container.name,event.param.knownname,$escortee.knownname]"/>
         <return value="1"/>
       </do_if>
       
@@ -219,13 +219,13 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
       <add_to_group groupname="$escortee.pilot.$escortgroup" group="this.$escortgroup"/>
       <remove_value name="this.$escortgroup"/>
       <set_value name="this.$escortgroup" exact="$escortee.pilot.$escortgroup"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (merge on start):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Escortgroup changed (merge on start):\nescortgroup: %3'.[this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'Escortgroup changed'"/>
       
       <!-- then add us to Suprior's "Available for other sudden Orders"-List if $escortee is also in there-->
       <do_if value="this.ship.commanderentity.$ut_cac.$availablefightships.indexof.{$escortee}">
         <add_to_group groupname="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Added us to Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Added us to Commanders Availableships List: %3 %4'.[this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
       </do_if>
       
       <label name="move" />
@@ -248,7 +248,7 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
       <do_else>
         <get_safe_pos result="$safepos" object="$escortee" radius="this.ship.size * 1.5" zone="$escortee.zone" />
       </do_else>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to nearby Escortee %4 // Our Pos: %5 %6 // Escortee Pos: %7 %8'.[player.age,this.name,this.container.name,$escortee.knownname,this.ship.zone.name,this.ship.position,$escortee.zone.name,$escortee.position]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Flying to nearby Escortee %3 // Our Pos: %4 %5 // Escortee Pos: %6 %7'.[this.name,this.container.name,$escortee.knownname,this.ship.zone.name,this.ship.position,$escortee.zone.name,$escortee.position]"/>
       <set_value name="this.$mayabortpath"/>
       <move_to object="this.ship" abortpath="false" destination="$escortee.zone" finishonapproach="true">
         <position value="$safepos"/>
@@ -270,14 +270,14 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
       <remove_from_group group="this.$escortgroup" object="this.ship"/>
       <remove_value name="this.$escortgroup"/>
       <add_to_group groupname="this.$escortgroup" object="this.ship"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (finish case):\n$escortee: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Escortgroup changed (finish case):\n$escortee: %3'.[this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'escortgroup changed'" param2="this.$escortgroup"/>
       
       
       <!-- Unregister from Suprior's "Available for other sudden Orders"-List (may not be part of it)-->
       <do_if value="this.ship.commanderentity.$ut_cac.$availablefightships?">
         <remove_from_group group="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Removed (?) us from Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Removed (?) us from Commanders Availableships List: %3 %4'.[this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
       </do_if>
       
     </actions>
@@ -287,12 +287,12 @@ event_object_enemy_found => Event for the specified object finding an enemy on i
       <remove_from_group group="this.$escortgroup" object="this.ship"/>
       <remove_value name="this.$escortgroup"/>
       <add_to_group groupname="this.$escortgroup" object="this.ship"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (on_abort case):\n$escortee: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Escortgroup changed (on_abort case):\n$escortee: %3'.[this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'escortgroup changed'" param2="this.$escortgroup"/>
       
       
       <!-- Unregister from Suprior's "Available for other sudden Orders"-List (may not be part of it)-->
       <remove_from_group group="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Removed (?) us from Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Removed (?) us from Commanders Availableships List: %3 %4'.[this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
   </on_abort>
 </aiscript>

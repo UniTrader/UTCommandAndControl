@@ -72,7 +72,7 @@ $params values:
           </conditions>
           <actions>
             <do_if value="$params.$debug_out_all?" comment="one drone logs success for everyone">
-              <debug_text filter="general" text="'%1 %2 %3 Missile %6 ( %7 ) intercept result: killer: %4 method: %5'.[player.age,this.name,this.container.name,@event.param.name,event.param2,event.object,event.object.name]"/>
+              <debug_text filter="general" text="'%1 %2 Missile %5 ( %6 ) intercept result: killer: %3 method: %4'.[this.name,this.container.name,@event.param.name,event.param2,event.object,event.object.name]"/>
             </do_if>
           </actions>
         </interrupt>
@@ -106,7 +106,7 @@ $params values:
       <do_else>
         <destroy_object object="this.ship" explosion="false" />
       </do_else>
-      <debug_text filter="error" text="'%1 %2 %3 Drone %4 %5 still exists after docking/destruct'.[player.age,this.name,this.container.name,this.ship.name,this.ship.zone.name]"/>
+      <debug_text filter="error" text="'%1 %2 Drone %3 %4 still exists after docking/destruct'.[this.name,this.container.name,this.ship.name,this.ship.zone.name]"/>
       <destroy_object object="this.ship" explosion="false" />
     </actions>
   </attention>

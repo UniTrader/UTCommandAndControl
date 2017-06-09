@@ -19,7 +19,7 @@
         <do_if value="event.param == 'attack'">
           <set_value name="$ordered_target" exact="event.param2"/>
           <add_to_group groupname="$enemies_g" object="event.param2"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Attack Signal received (Vanilla): %4'.[player.age,this.name,this.container.name,event.param2]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Attack Signal received (Vanilla): %3'.[this.name,this.container.name,event.param2]"/>
           <!-- param3 not used yet ( [ $allowothertargets , $checkrelation ] - both always true for this Script ) -->
           <do_if value="this.ship.distanceto.$ordered_target lt $combatrange">
             <abort_called_scripts resume="red"/>
@@ -43,7 +43,7 @@
             </do_all>
             <set_value name="$ordered_target" exact="null"/>
             <!-- return to battlestate green NOTE: can go back to yellow or red immediately-->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Ceasefire Signal received (Vanilla)\nparam:%3 param2:%4 param3:%5'.[this.name,this.container.name,event.param,event.param2,event.param3]"/>
             <abort_called_scripts resume="green"/>
           </do_if>
           <!-- if event.param2 = permanent - save behavior -> Change behavior to Missile Defense only (temporary)-->
@@ -64,7 +64,7 @@
               <set_value name="this.$ut_cac.$defensemode" exact="1"/>
             </do_if>
             <set_value name="$ordered_target" exact="null"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Permanent Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Permanent Ceasefire Signal received (Vanilla)\nparam:%3 param2:%4 param3:%5'.[this.name,this.container.name,event.param,event.param2,event.param3]"/>
           </do_elseif>
           <!-- if event.param2 = stop permanent - revert previous behavior -->
           <do_elseif value="event.param2 == 'stop permanent'">
@@ -72,7 +72,7 @@
             <do_if value="this.$ut_cac.$defensemode == 0">
               <set_value name="this.$ut_cac.$defensemode" exact="$original_mode"/>
             </do_if>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Stop Permanent Ceasefire Signal received (Vanilla)\nparam:%4 param2:%5 param3:%6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop Permanent Ceasefire Signal received (Vanilla)\nparam:%3 param2:%4 param3:%5'.[this.name,this.container.name,event.param,event.param2,event.param3]"/>
             <remove_value name="$original_mode"/>
           </do_elseif>
         </do_elseif>

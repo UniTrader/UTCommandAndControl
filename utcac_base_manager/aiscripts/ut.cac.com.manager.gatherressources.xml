@@ -27,7 +27,7 @@
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 manager Gather Script called with: \n%4'.[player.age,this.name,this.container.name,$params]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 manager Gather Script called with: \n%3'.[this.name,this.container.name,$params]"/>
       
       <!-- first check if we already started gathering Ressources and Jump forward to wait/gather part (in case this Script Yielded) -->
       <do_if value="$params.$gatherware?">
@@ -67,7 +67,7 @@
           </do_if>
         </do_all>
       </do_all>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Mineable List sorted:\n%4\n%5'.[player.age,this.name,this.container.name,$wareslist,$wareslist_prio]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Mineable List sorted:\n%3\n%4'.[this.name,this.container.name,$wareslist,$wareslist_prio]"/>
       
       <!-- nothing to mine - aborting -->
       <do_if value="$wareslist.count == 0">
@@ -90,7 +90,7 @@
       </do_if>
       <get_resource_gatherrate name="$gatherrate" refobject="this.container" zone="this.zone" ware="$wareslist.{1}" />
       <do_if value="$gatherrate" max="0">
-        <debug_text filter="error" text="'%1 %2 %3 Gatherrate is 0 (should not happen) - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Gatherrate is 0 (should not happen) - aborting'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
       <set_value name="$gatherrate" exact="$gatherrate / 3" comment="Station Gas Mining is only 30% as effective as it could be"/>
@@ -100,7 +100,7 @@
       <set_value name="$params.$gatherrate" exact="$gatherrate" />
       <set_value name="$params.$gatherware" exact="$wareslist.{1}" />
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Gathering started'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Gathering started'.[this.name,this.container.name]"/>
       <!-- launch drones to collect gas - only for show -->
       <!-- Better method, but owner faction not set-able, so using old method.. -->
       <!--do_if value="not $params.$gascollectormk1quota?">
@@ -155,7 +155,7 @@
       <do_if value="$gathered gt 0">
         <deplete_yield zone="this.zone" container="this.container" ware="$params.$gatherware" amount="$gathered" />
       </do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Gathered from previous run:\n%4 units of %5 in %6 seconds (%7 units/s)'.[player.age,this.name,this.container.name,$gathered, $params.$gatherware, $gathertime, $gatherrate]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Gathered from previous run:\n%3 units of %4 in %5 seconds (%6 units/s)'.[this.name,this.container.name,$gathered, $params.$gatherware, $gathertime, $gatherrate]"/>
       <remove_value name="$params.$gatherstart"/>
       <remove_value name="$params.$gatherware"/>
       <remove_value name="$params.$gatherrate"/>

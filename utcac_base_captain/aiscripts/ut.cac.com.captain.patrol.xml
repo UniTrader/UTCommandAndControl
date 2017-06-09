@@ -34,18 +34,18 @@
   </interrupts>
   <attention min="unknown">
     <actions>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$space: %4 , $zonetime: %5 , $patroltime: %6 , $patroltimeout: %7 , $exitonneworder: %8 '.[player.age,this.name,this.container.name,$space.knownname, $zonetime, $patroltime, $patroltimeout,$exitonneworder]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started with Params:\n$space: %3 , $zonetime: %4 , $patroltime: %5 , $patroltimeout: %6 , $exitonneworder: %7 '.[this.name,this.container.name,$space.knownname, $zonetime, $patroltime, $patroltimeout,$exitonneworder]"/>
       
       
       <!-- Check/Sanitize Input -->
       <do_if value="$space.isclass.zone or $space.isclass.sector or $space.isclass.cluster or $space.isclass.galaxy" negate="true">
-        <debug_text filter="error" text="'%1 %2 %3 Delivered $space %4 %5 is not a space!'.[player.age,this.name,this.container.name,$space.knownname,$space]"/>
+        <debug_text filter="error" text="'%1 %2 Delivered $space %3 %4 is not a space!'.[this.name,this.container.name,$space.knownname,$space]"/>
         <return/>
       </do_if>
       
       <!-- Exit if we got new Orders -->
       <do_if value="if $exitonneworder gt 1 then this.$orderlist.{$exitonneworder}? else $exitonneworder and this.$orderlist.{2}? ">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received New Orders - Exiting (start Case)'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Received New Orders - Exiting (start Case)'.[this.name,this.container.name]"/>
         <resume label="finish"/>
       </do_if>
       
@@ -53,7 +53,7 @@
       <do_if value="this.ship.commanderentity.$ut_cac?">
         <add_to_group groupname="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
       </do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Added us to Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Added us to Commanders Availableships List: %3 %4'.[this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
       
       <!-- determine until when we should Patrol (real time may be a few minutes longer to complete current Movement) -->
       <do_if value="not $patroltimeout">
@@ -79,13 +79,13 @@
       </do_else>
       
       <label name="start"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Patrol starts, Zones: %4'.[player.age,this.name,this.container.name,$zones]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Patrol starts, Zones: %3'.[this.name,this.container.name,$zones]"/>
       
       <do_while value="player.age lt $patroltimeout">
         <!-- Select Patrol Zone - currently taken randomly from given Space, but may later include priority Spaces -->
         <set_value name="$zone" exact="$zones.random"/>
         <do_if value="this.zone != $zone">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Flying to: %4'.[player.age,this.name,this.container.name,$zone.knownname]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Flying to: %3'.[this.name,this.container.name,$zone.knownname]"/>
           <run_script name="'ut.cac.move.generic'">
             <param name="destination" value="$zone" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
             <param name="endintargetspace" value="true" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
@@ -94,7 +94,7 @@
         </do_if>
         
         <set_value name="$zonetimeout" exact="player.age + $zonetime"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Patrolling: %4 until %5'.[player.age,this.name,this.container.name,$zone.knownname,$zonetimeout]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Patrolling: %3 until %4'.[this.name,this.container.name,$zone.knownname,$zonetimeout]"/>
         
         <do_while value="player.age lt $zonetimeout">
           
@@ -102,10 +102,10 @@
           <do_if value="$station.exists">
             <create_random_position_outside_boundingbox name="$safepos" component="$station" mindistance="0" maxdistance="$station.size / 3 "/>
             <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" zone="$zone" value="$safepos"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Found Station %4 - flying to waypoint nearby (distance: %5 , size: %6)'.[player.age,this.name,this.container.name,$station.knownname,$station.distanceto.{$safepos},$station.size]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found Station %3 - flying to waypoint nearby (distance: %4 , size: %5)'.[this.name,this.container.name,$station.knownname,$station.distanceto.{$safepos},$station.size]"/>
           </do_if>
           <do_else>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 No Station found - Patrolling Zone'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 No Station found - Patrolling Zone'.[this.name,this.container.name]"/>
             <create_random_position_in_boundingbox name="$safepos" component="$zone"/>
             <get_safe_pos result="$safepos" allowyaxis="true" radius="this.ship.size" zone="$zone" value="$safepos"/>
           </do_else>
@@ -127,15 +127,15 @@
         <remove_value name="this.$escortgroup"/>
       </do_if>
       <add_to_group groupname="this.$escortgroup" object="this.ship"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (on_abort case):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Escortgroup changed (on_abort case):\nescortgroup: %3'.[this.name,this.container.name,this.$escortgroup]"/>
       <signal_objects object="this" param="'patrol ends'" param2="$params" param3="this.$escortgroup"/>
       <!-- Unregister from Suprior's "Available for other sudden Orders"-List -->
       <do_if value="this.ship.commanderentity.$ut_cac.$availablefightships?">
         <remove_from_group group="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
       </do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Removed us from Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Removed us from Commanders Availableships List: %3 %4'.[this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Patrol ends'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Patrol ends'.[this.name,this.container.name]"/>
       
     </actions>
   </attention>
@@ -144,12 +144,12 @@
     <remove_from_group group="this.$escortgroup" object="this.ship"/>
     <remove_value name="this.$escortgroup"/>
     <add_to_group groupname="this.$escortgroup" object="this.ship"/>
-    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Escortgroup changed (on_abort case):\nescortgroup: %4'.[player.age,this.name,this.container.name,this.$escortgroup]"/>
+    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Escortgroup changed (on_abort case):\nescortgroup: %3'.[this.name,this.container.name,this.$escortgroup]"/>
     <signal_objects object="this" param="'patrol aborted'" param2="$params" param3="this.$escortgroup"/>
     <!-- Unregister from Suprior's "Available for other sudden Orders"-List -->
     <do_if value="this.ship.commanderentity.$ut_cac.$availablefightships?">
       <remove_from_group group="this.ship.commanderentity.$ut_cac.$availablefightships" object="this.ship"/>
     </do_if>
-    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Removed us from Commanders Availableships List: %4 %5'.[player.age,this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
+    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Removed us from Commanders Availableships List: %3 %4'.[this.name,this.container.name,this.ship.commanderentity.name,this.ship.commanderentity.$ut_cac.$availablefightships]"/>
   </on_abort>
   </aiscript>

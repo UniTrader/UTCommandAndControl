@@ -58,7 +58,7 @@ ToDo:
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $type: %5 , $ignorefuel: %6 , $leader: %7 , $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination.knownname,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started with Params:\n$destination: %3 , $type: %4 , $ignorefuel: %5 , $leader: %6 , $leader_preparegroup: %7'.[this.name,this.container.name,$destination.knownname,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
       
       <!-- if Jump Type hat not been set - use Entity default Value or fall back to general defaults depending on Faction -->
       <do_if value="not $type">
@@ -82,7 +82,7 @@ ToDo:
       </do_if>
       
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jump Script started with parameters:\n$destination: %4, $type: %5, $ignorefuel: %6, $leader: %7, $leader_preparegroup: %8'.[player.age,this.name,this.container.name,$destination,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Jump Script started with parameters:\n$destination: %3, $type: %4, $ignorefuel: %5, $leader: %6, $leader_preparegroup: %7'.[this.name,this.container.name,$destination,$type,$ignorefuel,$leader,$leader_preparegroup]"/>
       
       <!-- maybe use a light variant which only undocks and cancels boosters, not the other stuff with leaving formations etc. -->
       <!--run_script name="'ut.cac.move.free'" /-->
@@ -91,7 +91,7 @@ ToDo:
       <!-- sanitize Input -->
       <!-- abort in case we try to jump into a tube -->
       <do_if value="$destination.isclass.highway">
-        <debug_text filter="error" text="'%1 %2 %3 tried to Jump into Tube - aborting!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 tried to Jump into Tube - aborting!'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       <!-- in case the Destination is a Ship inside a Tube get its Exit Waypoint and jump as near as possible there -->
@@ -104,18 +104,18 @@ ToDo:
         </do_if>
       </do_if>
       <do_if value="not ( $destination.isclass.sector or @$destination.sector.exists ) or not this.sector.exists">
-        <debug_text filter="error" text="'%1 %2 %3 Jumpsectors invalid - aborting!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Jumpsectors invalid - aborting!'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       
       <!-- check if we really can do this Jump -->
       <find_object_component name="$jumpdrive" object="this.ship" class="class.jumpdrive" checkoperational="false"/>
       <do_if value="$jumpdrive == null">
-        <debug_text filter="error" text="'%1 %2 %3 No Jumpdrive - aborting!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No Jumpdrive - aborting!'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       <do_if value="not $jumpdrive.isoperational">
-        <debug_text filter="error" text="'%1 %2 %3 No operational Jumpdrive - wait till restored (will wait silently for now! )'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No operational Jumpdrive - wait till restored (will wait silently for now! )'.[this.name,this.container.name]"/>
         <wait>
           <interrupt>
             <conditions>
@@ -166,10 +166,10 @@ ToDo:
               </match_any>
             </find_object>
             <set_known object="@$beacon" known="true"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Selected Beacon in %3 randomly because we dont know about any beacons (Passing Case)'.[this.name,this.container.name,@$beacon.zone.knownname]"/>
           </do_if>
           <do_else>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon %4 from set of %5 (Passing Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Selected Beacon %3 from set of %4 (Passing Case)'.[this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
           </do_else>
         </do_if>
         <!-- we got a Jumpbeacon directly as Input - Use it -->
@@ -214,10 +214,10 @@ ToDo:
               </match_any>
             </find_object>
             <set_known object="@$beacon" known="true"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon in %4 randomly because we dont know about any beacons (Final Approach Case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Selected Beacon in %3 randomly because we dont know about any beacons (Final Approach Case)'.[this.name,this.container.name,@$beacon.zone.knownname]"/>
           </do_if>
           <do_else>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Beacon %4 from set of %5 (final Approach case)'.[player.age,this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Selected Beacon %3 from set of %4 (final Approach case)'.[this.name,this.container.name,@$beacon.zone.knownname,$beacons]"/>
           </do_else>
         </do_else>
       </do_if>
@@ -251,7 +251,7 @@ ToDo:
             <find_object name="$beacon" space="$space"/>
           </do_if>
         </do_if>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Selected Random Beacon %4'.[player.age,this.name,this.container.name,$beacon.knownname]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Selected Random Beacon %3'.[this.name,this.container.name,$beacon.knownname]"/>
       </do_if>
       <do_if value="$type == 'object'">
         <set_value name="$beacon" exact="$destination"/>
@@ -265,7 +265,7 @@ ToDo:
       </do_if>
       
       <do_if value="not $beacon.exists">
-        <debug_text filter="error" text="'%1 %2 %3 Jumping Aborted - no valid beacon Found (should not be possible) $destination: %4'.[player.age,this.name,this.container.name,$destination.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 Jumping Aborted - no valid beacon Found (should not be possible) $destination: %3'.[this.name,this.container.name,$destination.knownname]"/>
       </do_if>
       
       <set_command_action commandaction="commandaction.jumping" param="$destination" />
@@ -273,19 +273,19 @@ ToDo:
         <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination Beacon: %4 in %5 // %6'.[player.age,this.name,this.container.name,$beacon.knownname,$beacon.sector.knownname,$beacon.zone.knownname]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination Beacon: %3 in %4 // %5'.[this.name,this.container.name,$beacon.knownname,$beacon.sector.knownname,$beacon.zone.knownname]"/>
       
       <!-- if leader is already jumping try to keep up if possible or just exit -->
       <do_if value="$leader_ready">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Leader already jumping, performing fast jump'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Leader already jumping, performing fast jump'.[this.name,this.container.name]"/>
         <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{$destination}">
           <!-- not enough fuel, give up-->
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not enough Fuel, give up'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Not enough Fuel, give up'.[this.name,this.container.name]"/>
           <return/>
         </do_if>
         <do_if value="$jumpdrive.cooldowntimeleft gt 0">
           <!-- not cooled down, give up-->
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not cooled Down, give up'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Not cooled Down, give up'.[this.name,this.container.name]"/>
           <return/>
         </do_if>
         <!-- we can jump immediately -->
@@ -312,7 +312,7 @@ ToDo:
       <!-- Slow Jumpdrive Charge in case we dont have enough Fuel - fuel check and refueling are somewhere else -->
       <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{$destination}">
         <!-- not enough fuel, don't use fuel and delay the jump -->
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Not enough Fuel, slow charge'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Not enough Fuel, slow charge'.[this.name,this.container.name]"/>
         <set_value name="$ignorefuel" exact="true"/>
         <!-- slow charge jump effects - will be removed just before firing up the JD -->
         <do_if value="$slowchargeeffect?">
@@ -337,7 +337,7 @@ ToDo:
       <!-- Leader of Group Jump - wait till everyone is ready and give the Start Signal -->
       <do_if value="not $leader.exists">
         <do_while value="$leader_preparegroup.count">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be ready\nPreparegroup: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Waiting for followers to be ready\nPreparegroup: %3 ( %4 Members )'.[this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
           <wait max="1min">
             <interrupt>
               <conditions>
@@ -349,7 +349,7 @@ ToDo:
               <actions>
                 <do_if value="event.name == 'event_object_changed_zone'">
                   <!-- what the hell? someone we are waiting for has flown away or jumped without telling anyone - Kick him out of Group! -->
-                  <debug_text filter="error" text="'%1 %2 %3 What the Hell? Follower %4 switched Zones or Jumped without telling anyone! - Dont wait for that ******'.[player.age,this.name,this.container.name,event.object.knownname]"/>
+                  <debug_text filter="error" text="'%1 %2 What the Hell? Follower %3 switched Zones or Jumped without telling anyone! - Dont wait for that ******'.[this.name,this.container.name,event.object.knownname]"/>
                   <remove_from_group group="$leader_preparegroup" object="event_object"/>
                 </do_if>
               </actions>
@@ -372,12 +372,12 @@ ToDo:
             <actions>
               <do_if value="event.name == 'event_object_changed_zone'">
                 <!-- what the hell? the leader has flown away or jumped without telling anyone - Abort! -->
-                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 switched Zones or Jumped without telling anyone! - Aborting'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+                <debug_text filter="error" text="'%1 %2 What the Hell? Jump Leader %3 switched Zones or Jumped without telling anyone! - Aborting'.[this.name,this.container.name,$leader.knownname]"/>
                 <return/>
               </do_if>
               <do_if value="event.param2.{2} != $destination">
                 <!-- what the hell? the leader boosts to a diffrent place than announcde - Abort! -->
-                <debug_text filter="error" text="'%1 %2 %3 What the Hell? Jump Leader %4 Jumps to a diffrent Place than initially announced! - Aborting'.[player.age,this.name,this.container.name,$leader.knownname]"/>
+                <debug_text filter="error" text="'%1 %2 What the Hell? Jump Leader %3 Jumps to a diffrent Place than initially announced! - Aborting'.[this.name,this.container.name,$leader.knownname]"/>
                 <return/>
               </do_if>
             </actions>
@@ -392,7 +392,7 @@ ToDo:
       <signal_objects object="this.ship" param="'travel jump start'" param2="[ if $leader then $leader else this.ship , $beacon ]" param3="$leader_preparegroup"/>
       <add_to_group object="this.ship" groupname="$leader_preparegroup"/>
 
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Charging Jump Drive! 10 Precent, 20, 30....'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Charging Jump Drive! 10 Precent, 20, 30....'.[this.name,this.container.name]"/>
       <!-- actually JUMP!!! -->
       <do_if value="this.ship == player.ship">
         <!-- cache Assets of destination if player is on board to make transition smooth -->
@@ -461,10 +461,10 @@ ToDo:
         </wait>
       </do_if>
       <do_if value="$result">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Sucessfully Jumped'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sucessfully Jumped'.[this.name,this.container.name]"/>
       </do_if>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 %3 Jump failed!!!! Possible Reasons:\nFuel: %4 of %5 Jumpdrive Name:%6, Cooldown: %7 operational: %8 Firstresult: %9\nPerforming Fallback Warp'.[player.age,this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational,@$firstresul]"/>
+        <debug_text filter="error" text="'%1 %2 Jump failed!!!! Possible Reasons:\nFuel: %3 of %4 Jumpdrive Name:%5, Cooldown: %6 operational: %7 Firstresult: %8\nPerforming Fallback Warp'.[this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational,@$firstresul]"/>
         <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3, result: %4\ncooldowntimes: 1: %5, 2: %6, 3: %7 4: %8   Player Zone: %9'.[this.zone.name,$beacon.zone.name,$beacon.name,@$result,$debug_cooldowntime1,$debug_cooldowntime2,$debug_cooldowntime3,$debug_cooldowntime4,player.zone.name]"/>
         <stop_moving object="this.ship" immediate="true"/>
         <warp object="this.ship" zone="$beacon.zone">
@@ -485,7 +485,7 @@ ToDo:
       
       <!-- all Jump done - remove from wait group and wait till leader continues -->
       <remove_from_group group="$leader_preparegroup" object="this.ship"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jump done, Blocking Group: %4'.[player.age,this.name,this.container.name,$leader_preparegroup]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Jump done, Blocking Group: %3'.[this.name,this.container.name,$leader_preparegroup]"/>
       <do_if value="$leader.exists">
         <signal_objects object="$leader" param="'preparegroup shrunk'"/>
       </do_if>
@@ -494,7 +494,7 @@ ToDo:
       <!-- We have Arrived - As Leader wait till all Followers are there, too before progressing -->
       <do_if value="not $leader.exists">
         <do_while value="$leader_preparegroup.count">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Waiting for followers to be to Arrive\nBlocking Group: %4 ( %5 Members )'.[player.age,this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Waiting for followers to be to Arrive\nBlocking Group: %3 ( %4 Members )'.[this.name,this.container.name,$leader_preparegroup,$leader_preparegroup.count]"/>
           <wait max="1min">
             <interrupt>
               <conditions>

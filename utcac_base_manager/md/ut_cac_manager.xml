@@ -9,7 +9,7 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6 slot= %7'.[player.age,event.object.name,event.name,event.param,event.param2,event.param3,@$slot]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <!--- ################################### -->
         <!--                       Settings Menu                          -->
         <!--- ################################### -->
@@ -340,7 +340,7 @@ Rest is shared between all Actor types
             </check_any>
           </conditions>
           <actions>
-            <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 Conversation step:\nevent.name= %3 ,event.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
             <do_if value="event.name == 'event_conversation_started'">
               <show_help position="8" custom="'Hint: You can ALWAYS go back one level with [Esc]'" duration="3s" log="false"/>
               <do_if value="$actor.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -388,7 +388,7 @@ Rest is shared between all Actor types
             </check_any>
           </conditions>
           <actions>
-            <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6 slot= %7'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3,@$slot]"/>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
             <!--- ################################### -->
             <!--                       Settings Menu                          -->
             <!--- ################################### -->
@@ -631,7 +631,7 @@ Rest is shared between all Actor types
           </conditions>
           <delay exact="1ms"/>
           <actions>
-            <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Actor_Transport_complete triggered'.[player.age,$actor.name,event.name]"/>
+            <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 Actor_Transport_complete triggered'.[player.age,$actor.name,event.name]"/>
             <reset_cue cue="Assigned_as_control_entity"/>
             <reset_cue cue="this"/>
           </actions>
@@ -639,7 +639,7 @@ Rest is shared between all Actor types
         <cue name="Assigned_as_control_entity" version="21">
           <actions>
             <do_if value="($actor.container.isclass.station or ( $actor.ship.buildmodule? and $actor.ship.architect? ) ) and ( $actor.container.controlentity.{$actor.type} == $actor or not @$actor.container.controlentity.{$actor.type})">
-              <debug_text filter="general" text="'%1 %2 %3 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
+              <debug_text filter="general" text="'%1 %2 Assigned_as_control_entity triggered'.[player.age,$actor.name,event.name]"/>
               <!-- (re)start Order List progression on Arrival -->
               <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
               <do_if value="$actor.container.isclass.station and not ( $actor == @$actor.container.controlentity.{$actor.type} ) ">
@@ -648,7 +648,7 @@ Rest is shared between all Actor types
               </do_if>
             </do_if>
             <do_else>
-              <debug_text filter="general" text="'%1 %2 %3 Assigned_as_control_entity canceled by itself'.[player.age,$actor.name,event.name]"/>
+              <debug_text filter="general" text="'%1 %2 Assigned_as_control_entity canceled by itself'.[player.age,$actor.name,event.name]"/>
               <cancel_cue cue="this"/>
             </do_else>
           </actions>
@@ -663,7 +663,7 @@ Rest is shared between all Actor types
                 <event_object_signalled object="$actor" param="'remote_transport_started'"/>
               </conditions>
               <actions>
-                <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 Removed_from_Assignment triggered'.[player.age,$actor.name,event.name]"/>
+                <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 Removed_from_Assignment triggered'.[player.age,$actor.name,event.name]"/>
               </actions>
             </cue-->
             <cue name="GatherCVSubordinates" onfail="cancel">
@@ -672,7 +672,7 @@ Rest is shared between all Actor types
               </conditions>
               <delay exact="100ms"/>
               <actions>
-                <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3 GatherCVSubordinates triggered'.[player.age,$actor.name,event.name]"/>
+                <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 GatherCVSubordinates triggered'.[player.age,$actor.name,event.name]"/>
                 <set_value name="$subordinates" exact="$actor.ship.subordinates"/>
                 <do_all exact="$subordinates.count" counter="$i">
                   <do_if value="not ( $subordinates.{$i}.commanderentity == $actor.ship.defencenpc )">
@@ -696,7 +696,7 @@ Rest is shared between all Actor types
                 </check_all>
               </conditions>
               <actions>
-                <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 %3:\nevent.param= %4 event.param2= %5 event.param3= %6'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
+                <debug_text filter="general" chance="@$actor.$debug * 100" text="'%1 %2 :\nevent.param= %3 event.param2= %4 event.param3= %5'.[player.age,$actor.name,event.name,event.param,event.param2,event.param3]"/>
                 <!-- Re-Adjust Wanted Amount for Fuel Cells (consumable, but neither involved in the Production nor in Trading ) - keep a complete refill for everyone in storage -->
                 <!-- re-calculation only necesary for bigger Ships (also taking into account that there will be possibly M Ships with JD) -->
                 <!-- This Snippet is also in ut.cac.com.architect.build because the part here doestn seem to trigger properly on CVs and after transferring Architect -->

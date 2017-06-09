@@ -36,7 +36,7 @@
     <actions>
       <!-- verify input-->
       <do_if value="not $range">
-        <debug_text filter="error" text="'%1 %2 %3 No Range defined - Aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No Range defined - Aborting'.[this.name,this.container.name]"/>
         <return>
           <retval name="buyoffer" value="null" />
           <retval name="selloffer" value="null" />
@@ -45,7 +45,7 @@
       </do_if>
       <!-- if no valid Warelist was passed get one from other sources -->
       <do_if value="not $warelist or not $warelist.count">
-        <debug_text filter="error" text="'%1 %2 %3 No Warelist passed ( %4 ) - Aborting'.[player.age,this.name,this.container.name,$warelist]"/>
+        <debug_text filter="error" text="'%1 %2 No Warelist passed ( %3 ) - Aborting'.[this.name,this.container.name,$warelist]"/>
         <return>
           <retval name="buyoffer" value="null" />
           <retval name="selloffer" value="null" />
@@ -65,11 +65,11 @@
           <append_to_list name="$selloffers" exact="$selloffers_add.{$j}"/>
         </do_all>
         <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
-        <debug_text filter="general" text="'%1 %2 %3 Found Sell Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$selloffers_add]"/>
+        <debug_text filter="general" text="'%1 %2 Found Sell Offers in %3\n: %4'.[this.name,this.container.name,$range.{$i}.knownname,$selloffers_add]"/>
       </do_all>
       
       <wait exact="1ms"/>
-      <debug_text filter="general" text="'%1 %2 %3 Sell Offer Search Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
+      <debug_text filter="general" text="'%1 %2 Sell Offer Search Time: %3'.[this.name,this.container.name,player.age - $timer]"/>
       <set_value name="$timer" exact="player.age"/>
       
       <!-- find sell Offers - temporary stored  sorted by Ware-->
@@ -87,17 +87,17 @@
           </do_else>
         </do_all>
         <!--wait exact="3s" comment="to spread load for frequent Searches"/-->
-        <debug_text filter="general" text="'%1 %2 %3 Found Buy Offers in %4\n: %5'.[player.age,this.name,this.container.name,$range.{$i}.knownname,$buyoffers_add]"/>
+        <debug_text filter="general" text="'%1 %2 Found Buy Offers in %3\n: %4'.[this.name,this.container.name,$range.{$i}.knownname,$buyoffers_add]"/>
       </do_all>
       
       <wait exact="1ms"/>
-      <debug_text filter="general" text="'%1 %2 %3 Buy Offer Search Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
+      <debug_text filter="general" text="'%1 %2 Buy Offer Search Time: %3'.[this.name,this.container.name,player.age - $timer]"/>
       <set_value name="$timer" exact="player.age"/>
       
       <!-- filter buy and sell offers to remove completely unsuitable ones here ###### -->
       
       <!--<wait exact="1ms"/>
-      <debug_text filter="general" text="'%1 %2 %3 Filter Time: %4'.[player.age,this.name,this.container.name,player.age - $timer]"/>
+      <debug_text filter="general" text="'%1 %2 Filter Time: %3'.[this.name,this.container.name,player.age - $timer]"/>
       <set_value name="$timer" exact="player.age"/>-->
       
       <!-- match best sell and Buy Offers -->
@@ -122,12 +122,12 @@
             <set_value name="$waypoint_profit" exact="$estimated_profit / $total_path"/>
             <do_if value="$besttrade.{5} lt $waypoint_profit">
               <set_value name="$besttrade" exact="[ $selloffers.{$i} , $checkoffers.{$j} , $estimated_profit , $total_path , $waypoint_profit ]"/>
-              <debug_text filter="general" text="'%1 %2 %3 Found Trade: \n%4'.[player.age,this.name,this.container.name,$besttrade]"/>
+              <debug_text filter="general" text="'%1 %2 Found Trade: \n%3'.[this.name,this.container.name,$besttrade]"/>
             </do_if>
           </do_all>
         </do_if>
         <wait exact="1ms"/>
-        <debug_text filter="general" text="'%1 %2 %3 Match Offers Tim for offer %5: %4'.[player.age,this.name,this.container.name,player.age - $timer , $selloffers.{$i}]"/>
+        <debug_text filter="general" text="'%1 %2 Match Offers Tim for offer %4: %3'.[this.name,this.container.name,player.age - $timer , $selloffers.{$i}]"/>
         <set_value name="$timer" exact="player.age"/>
       </do_all>
       

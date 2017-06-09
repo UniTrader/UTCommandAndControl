@@ -9,7 +9,7 @@
           <check_value value="$exitonneworder and this.$orderlist.{$exitonneworder}?"/>
         </conditions>
         <actions>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received new Order - Exiting (interrupt case)'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Received new Order - Exiting (interrupt case)'.[this.name,this.container.name]"/>
           <abort_called_scripts resume="finish"/>
         </actions>
       </handler>
@@ -18,7 +18,7 @@
           <event_object_signalled object="this" param="'new order received'" param2="2"/>
         </conditions>
         <actions>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Received new Order - Yielding (interrupt case)'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Received new Order - Yielding (interrupt case)'.[this.name,this.container.name]"/>
           <set_value name="this.$orderlist.{3}" operation="insert" exact="this.$orderlist.{1}"/>
           <abort_called_scripts resume="finish"/>
         </actions>
@@ -41,11 +41,11 @@
         </check_any>
       </conditions>
       <actions>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 %4:\nevent.param= %5 event.param2= %6 event.param3= %7'.[player.age,this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2:\nevent.param= %4 event.param2= %5 event.param3= %6'.[this.name,this.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'new order' or event.param == 'interrupt order' or event.param == 'request orders'">
           <do_if value="event.param == 'request orders'">
             <!-- ToDo: make this more specific/handle more cases -->
-            <debug_text filter="general" text="'%1 %2 %3 Received request Orders Signal from %4 %5'.[player.age,this.name,this.container.name,event.param2.name,event.param2.container.name]"/>
+            <debug_text filter="general" text="'%1 %2 Received request Orders Signal from %3 %4'.[this.name,this.container.name,event.param2.name,event.param2.container.name]"/>
             <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.manager.findjob',$displayname='Find Job (Subordinate Request)',$entity=event.param2,$interruptable=false] ]"/>
             <set_value name="$order_pos" exact="0"/>
           </do_if>
@@ -125,7 +125,7 @@
           <do_if value="$order_pos and ( if this.$orderlist.{$order_pos}.$interruptable? then this.$orderlist.{$order_pos}.$interruptable else true )"> 
             <!-- check if an abort Script was defined and execute it -->
             <do_if value="this.$orderlist.{$order_pos}.$abortscript?">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Executing Abort Script %3 for Order Pos %4'.[player.age,this.name,this.$orderlist.{$order_pos}.$abortscript,$order_pos]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Executing Abort Script %3 for Order Pos %4'.[this.name,this.container.name,this.$orderlist.{$order_pos}.$abortscript,$order_pos]"/>
               <run_interrupt_script name="this.$orderlist.{$order_pos}.$abortscript">
                  <param name="params" value="this.$orderlist.{$order_pos}"/>
                  <param name="order_pos" value="$order_pos"/>
@@ -134,7 +134,7 @@
             </do_if>
             <!-- remove Order from Orderlist if its not the first one - otherwise let the next_order Signal handle this -->
             <do_if value="$order_pos gt 1">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Removing Order %3 on Order Pos %4'.[player.age,this.name,this.$orderlist.{$order_pos}.$abortscript?,$order_pos]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Removing Order %3 on Order Pos %4'.[this.name,this.container.name,this.$orderlist.{$order_pos},$order_pos]"/>
               <remove_value name="this.$orderlist.{$order_pos}"/>
               <remove_value name="$order_pos"/>
             </do_if>
@@ -170,7 +170,7 @@
       
       <!-- check if we have a default Orders Script and Error-abort if not (this thing is necesary for function)-->
       <do_if value="not this.$ut_cac.$defaultorders.$script?">
-        <debug_text filter="error" text="'%1 %2 %3 No default Orders Script - Abort'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No default Orders Script - Abort'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
       
@@ -193,7 +193,7 @@
       <wait exact="100ms"/>
       <!-- fulfill all Orders in List in their order -->
       <do_while value="this.$orderlist.count gt 0">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Command Queue: ( %4 Entries )\n%5'.[player.age,this.name,this.container.name,this.$orderlist.count,this.$orderlist]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Command Queue: ( %3 Entries )\n%4'.[this.name,this.container.name,this.$orderlist.count,this.$orderlist]"/>
         <set_value name="$order" exact="this.$orderlist.{1}"/>
         <do_if value="typeof $order == datatype.table">
           <signal_objects object="this.container" param="'Object Name Updated'"/>
@@ -202,7 +202,7 @@
           </run_script>
         </do_if>
         <do_else>
-          <debug_text filter="error" text="'%1 %2 %3 Order is not a Table - Skipping: %4'.[player.age,this.name,this.container.name,$order]"/>
+          <debug_text filter="error" text="'%1 %2 Order is not a Table - Skipping: %3'.[this.name,this.container.name,$order]"/>
         </do_else>
         <!-- If current first Order is still the same as before executing it - remove it from Orderlist so we can continue with the next one - after that wait a split-second to prevent Freezes should something go wrong -->
         <!-- (if its a diffrent Order the first Order was moved or replaced, which should cause an abort of it and a the new first Order should be executed immediately) -->
@@ -217,14 +217,14 @@
         <!-- limit looking up default orders to once per minute -->
         <set_value name="$next_default_order_call" exact="player.age + 1s"/>
         <!-- no outstanding direct orders - call defined Default Orders Script to get new ones -->
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Calling Default Orders Script'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Calling Default Orders Script'.[this.name,this.container.name]"/>
         <run_script name="this.$ut_cac.$defaultorders.$script">
           <param name="params" value="this.$ut_cac.$defaultorders"/>
         </run_script>
         <resume label="start"/>
       </do_if>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 %3 Waiting because Default Orders is overused - defaultorderscript: %4'.[player.age,this.name,this.container.name,this.$ut_cac.$defaultorders]"/>
+        <debug_text filter="error" text="'%1 %2 Waiting because Default Orders is overused - defaultorderscript: %3'.[this.name,this.container.name,this.$ut_cac.$defaultorders]"/>
         <wait exact="$next_default_order_call - player.age + 1s"/>
         <resume label="start"/>
       </do_else>

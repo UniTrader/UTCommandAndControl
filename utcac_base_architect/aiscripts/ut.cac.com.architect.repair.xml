@@ -25,14 +25,14 @@
         <do_if value="$params.$stage?">
           <set_value name="$stage" exact="$params.$stage"/>
         </do_if>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Architect build script started with params: %4'.[player.age,this.name,this.container.name,$params]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Architect build script started with params: %3'.[this.name,this.container.name,$params]"/>
       </do_if>
       
       
       <!-- sanity checks -->
       <!-- must be on a builder Ship -->
       <do_if value="not this.ship.buildmodule.exists">
-        <debug_text filter="error" text="'%1 %2 %3 Architect is not on a builder Ship - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Architect is not on a builder Ship - aborting'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
       
@@ -53,7 +53,7 @@
           <set_value name="$targetcondition" exact="1.0 / $component.maxhull"/>
         </do_elseif>
         <do_else>
-          <debug_text filter="error" text="'%1 %2 %3 No Valid $targetcondition string passed ( %4 ) - aborting'.[player.age,this.name,this.container.name,$targetcondition]"/>
+          <debug_text filter="error" text="'%1 %2 No Valid $targetcondition string passed ( %3 ) - aborting'.[this.name,this.container.name,$targetcondition]"/>
           <return/>
         </do_else>
       </do_if>
@@ -70,7 +70,7 @@
       </do_elseif>
       <do_elseif value="$targetcondition gt 0.0 and $targetcondition le 1.0" comment="Value already in expected Range - no need to change it"/>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 %3 No Valid $targetcondition passed - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No Valid $targetcondition passed - aborting'.[this.name,this.container.name]"/>
         <return/>
       </do_else>
       

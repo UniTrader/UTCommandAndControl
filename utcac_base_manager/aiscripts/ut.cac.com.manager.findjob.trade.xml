@@ -15,7 +15,7 @@
       </do_if>
       <remove_value name="$params"/>
       <do_if value="not $entity.exists">
-        <debug_text filter="error" text="'%1 %2 %3 No Entity passed to give Trade Orders to - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 No Entity passed to give Trade Orders to - aborting'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
       
@@ -69,12 +69,12 @@
       </do_elseif>
       <!-- fallback case: ship can neither jump nor enter tubes - restricted to Zone Trade -->
       <do_else>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Fallback: Zone Range'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Fallback: Zone Range'.[this.name,this.container.name]"/>
         <set_value name="$range" exact="[this.zone]"/>
       </do_else>
       <set_value name="$range_w" exact="this.$ut_cac.$range_w"/>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Finding Trade order for: %4 on %5 in range %6'.[player.age,this.name,this.container.name,$entity.name,$entity.container.name,$range]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Finding Trade order for: %3 on %4 in range %5'.[this.name,this.container.name,$entity.name,$entity.container.name,$range]"/>
       
       <!-- get List of Wares traded by Station and order them by Wanted Amount Ratio - their priority (inverse value for selled Wares -->
       <create_list name="$wareslist"/>
@@ -637,7 +637,7 @@
           <do_if value="$wareslist_buysell.{$i} == 'buy buildingmaterial'">
             <set_value name="$minamount" exact="1" />
             <!-- check if we can get Build Material from the Homebase -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching Homebase for Construction stuff, Ware: %4'.[player.age,this.name,this.container.name,$ware.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Searching Homebase for Construction stuff, Ware: %3'.[this.name,this.container.name,$ware.name]"/>
             <find_sell_offer result="$selloffer" buyer="$ConstructionVessel" seller="this.container" wares="$ware"/>
           </do_if>
           <do_else>
@@ -649,7 +649,7 @@
             <!-- check all Ranges if there is an Offer there -->
             <do_all exact="$range.count" counter="$j" reverse="false">
               <do_if value="$range.{$j} != null" comment="ignore empty slots">
-                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching %4 for Sell Offers, Ware: %5, Max Price: %6'.[player.age,this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Searching %3 for Sell Offers, Ware: %4, Max Price: %5'.[this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
                 <do_if value="this.container.istraderestricted">
                   <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
                     <offeramount min="$minamount"/>
@@ -799,7 +799,7 @@ table[$script='ut.cac.com.manager.findjob.assign.escort',$displayname='Gather Es
           <!-- check all Ranges if there is an Offer there -->
           <do_all exact="$range.count" counter="$j" reverse="false">
             <do_if value="$range.{$j} != null" comment="ignore empty slots">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Searching %4 for Buy Offers, Ware: %5, Min Price: %6'.[player.age,this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Searching %3 for Buy Offers, Ware: %4, Min Price: %5'.[this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
               <do_if value="this.container.istraderestricted">
                 <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
                   <offeramount min="$minamount"/>

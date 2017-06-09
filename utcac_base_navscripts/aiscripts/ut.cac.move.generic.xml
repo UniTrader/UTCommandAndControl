@@ -42,7 +42,7 @@
     </do_if>
     <!-- confirm that Destination is Valid - will be re-checked and exited in beginning of main Script -->
     <do_if value="not $destination.exists">
-      <debug_text filter="general" text="'%1 %2 %3 Destination not existent: %4 %5'.[player.age,this.name,this.container.name,@$destination,@$destination.knownname]"/>
+      <debug_text filter="general" text="'%1 %2 Destination not existent: %3 %4'.[this.name,this.container.name,@$destination,@$destination.knownname]"/>
     </do_if>
   </init>
   <interrupts>
@@ -84,10 +84,10 @@
           </check_all>
         </conditions>
         <actions>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Signal on Leader received:\nparam: %4 , param2: %5 , param3: %6'.[player.age,this.name,this.container.name,event.param,event.param2,event.param3]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Signal on Leader received:\nparam: %3 , param2: %4 , param3: %5'.[this.name,this.container.name,event.param,event.param2,event.param3]"/>
           <do_if value="event.param == 'travel dockat'">
             <do_if value="$follow_position?">
-              <debug_text filter="error" text="'%1 %2 %3 $follow_position already set! ( %4 ) Do not use this Var when using ut_cac_follow_signalling!!! Overriding Var!'.[ player.age,this.name,this.container.name,$follow_position]"/>
+              <debug_text filter="error" text="'%1 %2 $follow_position already set! ( %3 ) Do not use this Var when using ut_cac_follow_signalling!!! Overriding Var!'.[this.name,this.container.name,$follow_position]"/>
             </do_if>
             <!-- Leader attempts to Dock somewhere - Fly to near position outside Bounding Box -->
             <create_position_outside_boundingbox name="$follow_position" component="event.param2.{1}" distance="this.ship.size">
@@ -161,7 +161,7 @@
         <event_object_target_invalid object="this.ship"/>
       </conditions>
       <actions>
-        <debug_text filter="error" text="'%1 %2 %3 Target Invalid: Current Zone: %4 , Invalid Target: %5 $destination: %6 - restarting'.[player.age,this.name,this.container.name,this.zone.knownname,event.param.knownname,@$destination.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 Target Invalid: Current Zone: %3 , Invalid Target: %4 $destination: %5 - restarting'.[this.name,this.container.name,this.zone.knownname,event.param.knownname,@$destination.knownname]"/>
         <abort_called_scripts/>
         <resume label="start"/>
       </actions>
@@ -172,7 +172,7 @@
         <event_object_destroyed object="@$destination" comment="script will check immediately that destination is valid at start"/>
       </conditions>
       <actions>
-        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,@$destination.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 Destination destroyed: %3'.[this.name,this.container.name,event.param.knownname,@$destination.knownname]"/>
         <abort_called_scripts/>
         <return value="1"/>
       </actions>
@@ -189,11 +189,11 @@
       <actions>
         <do_if value="$destination.zone == this.zone">
           <!-- Somehow check if there is a movement Step currently in progress before exit-ing? -->
-          <debug_text filter="general" text="'%1 %2 %3 Catchup Sucessful on Zone Change in %4 - exiting'.[player.age,this.name,this.container.name,this.zone.name]"/>
+          <debug_text filter="general" text="'%1 %2 Catchup Sucessful on Zone Change in %3 - exiting'.[this.name,this.container.name,this.zone.name]"/>
           <return/>
         </do_if>
         <do_if value="event.object == $destination">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Object changed Zone - trying to catch up: $targetspace: %4 $destination.pilot.$waypoint: %5 $destination.zone: %6'.[player.age,this.name,this.container.name,$targetspace.name,@$destination.pilot.$waypoint.name,$destination.zone.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Object changed Zone - trying to catch up: $targetspace: %3 $destination.pilot.$waypoint: %4 $destination.zone: %5'.[this.name,this.container.name,$targetspace.name,@$destination.pilot.$waypoint.name,$destination.zone.name]"/>
           <abort_called_scripts resume="start"/>
         </do_if>
       </actions>
@@ -202,7 +202,7 @@
   </interrupts>
   <attention min="unknown">
     <actions>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$destination: %4 , $position: %5 , $rotation: %6 , $lookat: %7  , $endintargetspace: %8'.[player.age,this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$endintargetspace]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started with Params:\n$destination: %3 , $position: %4 , $rotation: %5 , $lookat: %6  , $endintargetspace: %7'.[this.name,this.container.name,$destination.knownname,$position,$rotation,$lookat,$endintargetspace]"/>
       
       <set_value name="$bigship" exact="this.ship.isclass.ship_xl or this.ship.isclass.ship_l"/>
       
@@ -213,7 +213,7 @@
       -->
       
       <do_if value="not $destination.exists">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination does not exist - aborting'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination does not exist - aborting'.[this.name,this.container.name]"/>
         <return value="2"/>
       </do_if>
       
@@ -229,7 +229,7 @@
       
       <!-- if destination is a Space (galaxy, Cluster, Sector, Zone) use it as targetspace, otherwise get its Zone as first Destination and care about the fine movements only in the last step -->
       <do_if value="$destination.isclass.galaxy or $destination.isclass.cluster or $destination.isclass.sector or $destination.isclass.zone">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is a Space - Move until we have the right Context'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination is a Space - Move until we have the right Context'.[this.name,this.container.name]"/>
         <set_value name="$targetspace" exact="$destination"/>
       </do_if>
       <do_elseif value="$destination.isclass.ship">
@@ -238,16 +238,16 @@
           <do_if value="$targetspace.isclass.gate">
             <set_value name="$targetspace" exact="$targetspace.destination"/>
           </do_if>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is a Ship which has announced its next movement Step - follow it to %4 to meet up'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination is a Ship which has announced its next movement Step - follow it to %3 to meet up'.[this.name,this.container.name,$targetspace.knownname]"/>
         </do_if>
         <do_else>
           <set_value name="$targetspace" exact="$destination.zone"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is a Ship ( %5  // %6 ) which didnt announce its movement intention - Fly to its Zone %4'.[player.age,this.name,this.container.name,$targetspace.knownname,$destination.knownname,$destination.pilot.knownname]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination is a Ship ( %4  // %5 ) which didnt announce its movement intention - Fly to its Zone %3'.[this.name,this.container.name,$targetspace.knownname,$destination.knownname,$destination.pilot.knownname]"/>
         </do_else>
       </do_elseif>
       <do_else>
         <set_value name="$targetspace" exact="$destination.zone"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Destination is an Object - First move into right Zone, but regulary check if the Destination Object switched Zones'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination is an Object - First move into right Zone, but regulary check if the Destination Object switched Zones'.[this.name,this.container.name]"/>
       </do_else>
       
       <set_value name="this.$destination" exact="$destination" comment="announce our Destinatio to Followers to ease Navigation"/>
@@ -272,12 +272,12 @@
       <!-- then check if we maybe already have the right Context in which case we can just exit / go to the fine movements -->
       <do_if value="this.ship.hascontext.{$targetspace}">
         <do_if value="$destination == $targetspace and $endintargetspace">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Already has right Context - Exit without movement'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Already has right Context - Exit without movement'.[this.name,this.container.name]"/>
           <return/>
         </do_if>
         <do_elseif value="$endintargetspace">
           <do_if value="$destination.pilot.$waypoint? and $destination.zone != this.zone">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Waiting for Target to arrive there, too'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Is already in the right Zone - Waiting for Target to arrive there, too'.[this.name,this.container.name]"/>
             <wait>
               <interrupt>
                 <conditions>
@@ -287,13 +287,13 @@
             </wait>
           </do_if>
           <do_else>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Exit without movement'.[player.age,this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Is already in the right Zone - Exit without movement'.[this.name,this.container.name]"/>
           </do_else>
           <return/>
         </do_elseif>
         <do_else>
           <!-- ToDo: Fine Movements -->
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Is already in the right Zone - Skipping to fine movement'.[player.age,this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Is already in the right Zone - Skipping to fine movement'.[this.name,this.container.name]"/>
           <resume label="fine movement"/>
         </do_else>
       </do_if>
@@ -313,7 +313,7 @@
           <find_sector name="$pathend" space="$targetspace"/>
         </do_elseif>
         <do_else>
-          <debug_text filter="error" text="'%1 %2 %3 Targetspace is not a Space! %4! trying to get its Sector...'.[player.age,this.name,this.container.name,$targetspace.knownname]"/>
+          <debug_text filter="error" text="'%1 %2 Targetspace is not a Space! %3! trying to get its Sector...'.[this.name,this.container.name,$targetspace.knownname]"/>
           <set_value name="$pathend" exact="$targetspace.sector"/>
         </do_else>
         <get_jump_path component="$waypoints" multiple="true" start="this.sector" end="$pathend"/>
@@ -323,7 +323,7 @@
         
         <!-- For Testing: print the full Path to Debuglog -->
         <do_if value="@this.$debug">
-          <set_value name="$LogMessage" exact="'%1 %2 %3 Jump Path:'.[player.age,this.name,this.container.name]"/>
+          <set_value name="$LogMessage" exact="'%1 %2 Jump Path:'.[this.name,this.container.name]"/>
           <do_all exact="$waypoints.count" counter="$i">
             <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname]"/>
           </do_all>
@@ -361,7 +361,7 @@
         
         <!-- For Testing: print the full Path to Debuglog -->
         <do_if value="@this.$debug">
-          <set_value name="$LogMessage" exact="'%1 %2 %3 Jump Path cleared:'.[player.age,this.name,this.container.name]"/>
+          <set_value name="$LogMessage" exact="'%1 %2 Jump Path cleared:'.[this.name,this.container.name]"/>
           <do_all exact="$waypoints.count" counter="$i">
             <set_value name="$LogMessage" exact="'%1\n%2 - %3 // %4 // %5'.[$LogMessage,$i,$waypoints.{$i}.class,$waypoints.{$i}.knownname,@$waypoints.{$i}.cluster.knownname]"/>
           </do_all>
@@ -380,7 +380,7 @@
           <do_if value="this.$waypoint.isclass.sector">
             <!-- check if InCluster-Boost is allowed and makes sense ( = faster than slow JD charge ) -->
             <do_if value="@this.$ut_cac.$clusterboost and global.$ship_boost_speed.{this.ship.macro}? and ( global.$ship_boost_speed.{this.ship.macro} / this.ship.distanceto.{this.$waypoint} ) lt 600m">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Attempting to boost to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Attempting to boost to %3'.[this.name,this.container.name,this.$waypoint.knownname]"/>
               <!-- BOOST!! -->
               <run_script name="'ut.cac.move.boost'" sinceversion="30">
                 <param name="destination" value="this.$waypoint"/>
@@ -390,7 +390,7 @@
               </do_if>
             </do_if>
             <do_if value="not this.ship.hascontext.{this.$waypoint}" comment="didnt attemt to IC-Boost or IC-Boost failed">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Jumping to %3'.[this.name,this.container.name,this.$waypoint.knownname]"/>
               <!-- JUMP!! -->
               <run_script name="'ut.cac.move.jump'" result="$result">
                 <param name="destination" value="this.$waypoint"/>
@@ -406,7 +406,7 @@
             <!-- Jump to Gate sector -->
             <find_object name="$beacon" space="this.$waypoint.zone" class="class.jumpbeacon" knownto="this.owner" checkoperational="true" chance="@this.$ut_cac.$insectorjump * 100" comment="if beacon is in Target Zone consider IS-Jump"/>
             <do_if value="this.sector != this.$waypoint.sector or @$beacon.exists">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Jumping to nearest Jumpbeacon to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Jumping to nearest Jumpbeacon to %3 for gate passage'.[this.name,this.container.name,this.$waypoint.knownname]"/>
               <run_script name="'ut.cac.move.jump'" result="$result">
                 <param name="destination" value="this.$waypoint.zone"/>
               </run_script>
@@ -418,7 +418,7 @@
             
             <!-- Boost to Gate Position -->
             <do_if value="this.zone != this.$waypoint.zone or this.ship.distanceto.{this.$waypoint} gt 7km">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Boosting near to %4 for gate passage'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Boosting near to %3 for gate passage'.[this.name,this.container.name,this.$waypoint.knownname]"/>
               <run_script name="'ut.cac.move.boost'">
                 <param name="destination" value="this.$waypoint"/>
                 <param name="position" value="position.[0m,0m,0-(this.ship.size + this.$waypoint.size)]" comment="relative to destination! (including its rotation)"/>
@@ -431,7 +431,7 @@
             <remove_value name="$waypointposition"/>
             
             <!-- Move through Gate -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 moving through Gate in %4'.[player.age,this.name,this.container.name,this.$waypoint.zone.knownname]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 moving through Gate in %3'.[this.name,this.container.name,this.$waypoint.zone.knownname]"/>
             <run_script name="'ut.cac.move.gate2'">
               <param name="gate" value="this.$waypoint"/>
             </run_script>
@@ -444,7 +444,7 @@
             <!-- next is the Target Zone/Sector - First jump to the closest Beacon (if necesary), then go to Fine Movement for the Destination (with Boosting) -->
             <!-- ToDo: check ii we could save a bit time with IS-Jumping-->
             <do_if value="this.$waypoint.sector != this.sector or @this.$ut_cac.$insectorjump">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Last Waypoint, Jumping to closest Zone %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Last Waypoint, Jumping to closest Zone %3'.[this.name,this.container.name,this.$waypoint.knownname]"/>
               <run_script name="'ut.cac.move.jump'" result="$result">
                 <param name="destination" value="this.$waypoint"/>
               </run_script>
@@ -457,7 +457,7 @@
             <return/>
           </do_elseif>
           <do_if value="this.ship.hascontext.{$targetspace}">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 We have Destination Context in %4'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 We have Destination Context in %3'.[this.name,this.container.name,this.$waypoint.knownname]"/>
             <!-- we have reached the Target Space (which is a Sector or Cluster) - Exit -->
             <return/>
           </do_if>
@@ -468,11 +468,11 @@
             <resume label="start"/>
           </do_if>
         </do_while>
-        <debug_text filter="error" text="'%1 %2 %3 This Part should NEVER be reached!!! last waypoint: %4, destination: %5 - Restarting'.[player.age,this.name,this.container.name,this.$waypoint.knownname,$destination.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 This Part should NEVER be reached!!! last waypoint: %3, destination: %4 - Restarting'.[this.name,this.container.name,this.$waypoint.knownname,$destination.knownname]"/>
         <resume label="start"/>
       </do_if>
       <do_else>
-        <debug_text filter="general" text="'%1 %2 %3 Small Ships not implemented yet - defaulting to vanilla movement script'.[player.age,this.name,this.container.name,this.$waypoint.knownname]"/>
+        <debug_text filter="general" text="'%1 %2 Small Ships not implemented yet - defaulting to vanilla movement script'.[this.name,this.container.name,this.$waypoint.knownname]"/>
         <run_script name="'move.generic'">
           <param name="destination" value="$destination" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
           <param name="position" value="$position" comment="position is treated as an offset to destination. Default: safe position on [0,0,0] of destination"/>

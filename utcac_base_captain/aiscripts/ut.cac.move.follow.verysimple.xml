@@ -33,7 +33,7 @@
           <event_object_target_invalid object="this.ship" />
         </conditions>
         <actions>
-          <debug_text filter="error" text="'%1 %2 %3 Target Invalid: %4 , $object: %5 - restarting'.[player.age,this.name,this.container.name,event.param.knownname,$object.knownname]"/>
+          <debug_text filter="error" text="'%1 %2 Target Invalid: %3 , $object: %4 - restarting'.[this.name,this.container.name,event.param.knownname,$object.knownname]"/>
           <abort_called_scripts />
           <resume label="start"/>
       </actions>
@@ -44,7 +44,7 @@
         <event_object_destroyed object="$object"/>
       </conditions>
       <actions>
-        <debug_text filter="error" text="'%1 %2 %3 Destination destroyed: %4'.[player.age,this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
+        <debug_text filter="error" text="'%1 %2 Destination destroyed: %3'.[this.name,this.container.name,event.param.knownname,$destination.knownname]"/>
         <abort_called_scripts/>
         <return value="1"/>
       </actions>
@@ -54,7 +54,7 @@
   <attention min="unknown">
     <actions>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$object: %4'.[player.age,this.name,this.container.name,$object.knownname]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started with Params:\n$object: %3'.[this.name,this.container.name,$object.knownname]"/>
       
       <label name="fly to leader zone" />
       

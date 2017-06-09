@@ -41,21 +41,21 @@
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Script started with Params:\n$gate: %4 ; $cleargate: %5 $formationlist: %6'.[player.age,this.name,this.container.name,$gate,$cleargate,@$formationlist]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started with Params:\n$gate: %3 ; $cleargate: %4 $formationlist: %5'.[this.name,this.container.name,$gate,$cleargate,@$formationlist]"/>
       
       <label name="start"/>
       
       <!-- then check if the Input and Situation is Valid  -->
       <do_if value="not $gate.exists or not $gate.isclass.gate">
-        <debug_text filter="error" text="'%1 %2 %3 Gate not existent or not a gate - aborting!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Gate not existent or not a gate - aborting!'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
       <do_if value="not $gate.isactive">
-        <debug_text filter="error" text="'%1 %2 %3 Trying to pass inactive Gate - aborting!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Trying to pass inactive Gate - aborting!'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
       <do_if value="this.zone != $gate.zone">
-        <debug_text filter="error" text="'%1 %2 %3 Not in Gate Zone - aborting!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Not in Gate Zone - aborting!'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
       
@@ -80,17 +80,17 @@
       <!-- Note: the Table must always have a first entry which is reserved for the Ship currently flying into the Gate - set to null if currently no Ship is passing. -->
       <do_if value="not global.$gate_queue?">
         <set_value name="global.$gate_queue" exact="table[{$gate}=[]]"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Creating Global Gate Passage Table: %4 current Gate: %5'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Global Gate Passage Table: %3 current Gate: %4'.[this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
       </do_if>
       <do_elseif value="not global.$gate_queue.{$gate}?">
         <set_value name="global.$gate_queue.{$gate}" exact="[]"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Adding Gate to Global Gate Passage Table: %4 current Gate: %5'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Adding Gate to Global Gate Passage Table: %3 current Gate: %4'.[this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
       </do_elseif>
       
       <!-- Register in Gate Queue, Create Passage Group to keep a Group of Ships together after Passage and tell Followers our Position so they can add themselves before us if required -->
       <do_if value="not $queue_position">
         <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
-          <debug_text filter="error" text="'%1 %2 %3 Already Registered in Gate Queue on Script Start - removing %4'.[player.age,this.name,this.container.name,global.$gate_queue.{$gate}.indexof.{this.ship}]"/>
+          <debug_text filter="error" text="'%1 %2 Already Registered in Gate Queue on Script Start - removing %3'.[this.name,this.container.name,global.$gate_queue.{$gate}.indexof.{this.ship}]"/>
           <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
         </do_if>
         <append_to_list name="global.$gate_queue.{$gate}" exact="this.ship"/>
@@ -112,7 +112,7 @@
       <set_value name="$queue_position" exact="global.$gate_queue.{$gate}.indexof.{this.ship}"/>
       
       <do_if value="not $queue_position">
-        <debug_text filter="error" text="'%1 %2 %3 Not in Gate Queue - Restarting!'.[player.age,this.name,this.container.name]"/>
+        <debug_text filter="error" text="'%1 %2 Not in Gate Queue - Restarting!'.[this.name,this.container.name]"/>
         <resume label="start"/>
       </do_if>
       <!-- calculate Target Distance BEHIND the Gate (therefore subtract) -->
@@ -163,18 +163,18 @@
       <set_value name="$continuepath" exact="2" comment="re-enable soft-advancing queue and also set it persistent"/>
       <set_avoid_collisions object="this.ship" enabled="false" comment="disable collision avoidance while in queue to avoid other ships pushing us out and delaying everything"/>
       <do_if value="$queue_position == 1">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reached Wait Pos in front of queue - Flying into Gate now.'.[player.age,this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Reached Wait Pos in front of queue - Flying into Gate now.'.[this.knownname,this.container.knownname,global.$gate_queue,$gate]"/>
         <resume label="pass gate"/>
       </do_if>
       <do_elseif value="this.ship.distanceto.{$gate} lt global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate}" comment="we are closer to the Gate than the Ship before us - swap positions to avoid delays">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reached Wait Pos and Ship in front is farther away than we - swapping pos\nOther Ship: %4; Distance: %5 Our Distance: %6'.[player.age,this.knownname,this.container.knownname,global.$gate_queue.{$gate}.{$queue_position - 1}.name,global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate},this.ship.distanceto.{$gate}]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Reached Wait Pos and Ship in front is farther away than we - swapping pos\nOther Ship: %3; Distance: %4 Our Distance: %5'.[this.knownname,this.container.knownname,global.$gate_queue.{$gate}.{$queue_position - 1}.name,global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate},this.ship.distanceto.{$gate}]"/>
         <set_value name="global.$gate_queue.{$gate}.{$queue_position}" exact="global.$gate_queue.{$gate}.{$queue_position - 1}"/>
         <set_value name="global.$gate_queue.{$gate}.{$queue_position - 1}" exact="this.ship"/>
         <signal_objects object="global.$gate_queue.{$gate}.{$queue_position}" param="'travel gate update'" comment="queue changed - signal the Ship we just changed positions with specifically"/>
         <resume label="fly to prep pos"/>
       </do_elseif>
       <do_else>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Reached Wait Pos and Ship in front is closer than we - waiting\nOther Ship: %4; Distance: %5 Our Distance: %6'.[player.age,this.knownname,this.container.knownname,global.$gate_queue.{$gate}.{$queue_position - 1}.name,global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate},this.ship.distanceto.{$gate}]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Reached Wait Pos and Ship in front is closer than we - waiting\nOther Ship: %3; Distance: %4 Our Distance: %5'.[this.knownname,this.container.knownname,global.$gate_queue.{$gate}.{$queue_position - 1}.name,global.$gate_queue.{$gate}.{$queue_position - 1}.distanceto.{$gate},this.ship.distanceto.{$gate}]"/>
         <wait max="5min" comment="just in case the Signal doesnt trigger properly">
         <interrupt>
           <conditions>
@@ -217,7 +217,7 @@
         </do_else>
       </do_while>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 Passing Gate'.[player.age,this.name,this.container.name]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Passing Gate'.[this.name,this.container.name]"/>
       
       <do_if value="this.ship == player.ship">
         <!-- cache Assets of destination if player is on board to make transition smooth -->
@@ -233,7 +233,7 @@
             <event_object_changed_cluster object="this.ship" />
           </conditions>
           <actions>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (moved through gate)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 just changed from cluster %3 to cluster %4 (moved through gate)'.[this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
             <set_value name="$moveintogate" exact="false" />
           </actions>
         </interrupt>
@@ -253,7 +253,7 @@
               <event_object_changed_cluster object="this.ship" />
             </conditions>
             <actions>
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 %3 just changed from cluster %4 to cluster %5 (wait)'.[player.age,this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 just changed from cluster %3 to cluster %4 (wait)'.[this.name,this.container.name,$gate.zone.knownname,event.param2.knownname, event.param.knownname]"/>
             </actions>
           </interrupt>
           <on_attentionchange>
@@ -274,7 +274,7 @@
         <remove_value name="global.$gate_queue.{$gate}.{1}"/>
       </do_if>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 %3 Just passed the Gate and wanted to clear queue, but our Position was not 1 but %4'.[player.age,this.name,this.container.name,global.$gate_queue.{$gate}.indexof.{this.ship}]"/>
+        <debug_text filter="error" text="'%1 %2 Just passed the Gate and wanted to clear queue, but our Position was not 1 but %3'.[this.name,this.container.name,global.$gate_queue.{$gate}.indexof.{this.ship}]"/>
         <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
         <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
           <debug_text filter="error" text="'And also %1'.[global.$gate_queue.{$gate}.indexof.{this.ship}]"/>
@@ -354,7 +354,7 @@
     <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
       <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
       <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
-        <debug_text filter="error" text="'%1 %2 %3 Abort Case Occuied mote than one queue Slot, additional one: %4'.[player.age,this.name,this.container.name,global.$gate_queue.{$gate}.indexof.{this.ship}]"/>
+        <debug_text filter="error" text="'%1 %2 Abort Case Occupied mote than one queue Slot, additional one: %3'.[this.name,this.container.name,global.$gate_queue.{$gate}.indexof.{this.ship}]"/>
         <remove_value name="global.$gate_queue.{$gate}.{global.$gate_queue.{$gate}.indexof.{this.ship}}"/>
         <do_if value="global.$gate_queue.{$gate}.indexof.{this.ship}">
           <debug_text filter="error" text="'And also %1 (2nd check)'.[global.$gate_queue.{$gate}.indexof.{this.ship}]"/>
