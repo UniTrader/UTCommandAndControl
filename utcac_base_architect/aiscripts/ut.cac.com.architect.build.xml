@@ -206,7 +206,6 @@
           <destroy_object object="this.$ut_cac.$construction" explosion="false"/>
           <set_value name="this.$ut_cac.$construction" exact="this.ship.buildmodule.buildanchor"/>
           <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.name]"/>
-          <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Constructing %1'.[$macro.name]"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
           <set_command_action commandaction="commandaction.repairingto" param="$station" />
           <set_trade_restrictions object="this.ship" restricted="false"/>
@@ -304,8 +303,7 @@
         <do_if value="$stage le $station.completebuildplan.{$sequence}.stage">
           <create_build_plan macro="$station.macro" buildplan="$Buildplan" buildplanlist="[[$sequence,$stage]]" upgradeplanlist="$upgradeplan" />
           <add_build_plan buildmodule="this.ship.buildmodule" buildplan="$Buildplan" updatebuild="true" />
-          <set_value name="$params.$displayname" exact="'Constructing %1'.[$macro.buildpurposemacro.{$Buildplan}.name]"/>
-          <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="'Constructing %1 ( %2%3 )'.[$macro.buildpurposemacro.{$Buildplan}.name,$sequence,$stage]"/>
+          <set_value name="$params.$displayname" exact="'Constructing %1 ( %2%3 )'.[$macro.buildpurposemacro.{$Buildplan}.name,$sequence,$stage]"/>
           <set_command_action commandaction="commandaction.repairingto" param="$macro.buildpurposemacro.{buildplan.[$sequence,$stage]}" />
           <signal_objects object="this.container" param="'Object Name Updated'"/>
           <remove_blocked_area blocker="this" zone="this.zone"/>
