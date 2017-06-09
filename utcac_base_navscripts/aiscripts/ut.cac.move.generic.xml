@@ -89,11 +89,17 @@
             <do_if value="$follow_position?">
               <debug_text filter="error" text="'%1 %2 $follow_position already set! ( %3 ) Do not use this Var when using ut_cac_follow_signalling!!! Overriding Var!'.[this.name,this.container.name,$follow_position]"/>
             </do_if>
-            <!-- Leader attempts to Dock somewhere - Fly to near position outside Bounding Box -->
-            <create_position_outside_boundingbox name="$follow_position" component="event.param2.{1}" distance="this.ship.size">
-              <position value="event.param2.{3}"/>
-            </create_position_outside_boundingbox>
-            <get_safe_pos result="$follow_position" radius="this.ship.size" allowyaxis="true" value="$follow_position" ignored="this.ship" zone="event.param2.{1}.zone" min="$object.size * 2"/>
+            <do_if value="event.param2.{1}.isclass.station">
+              <!-- Leader attempts to Dock somewhere - Fly to near position outside Bounding Box (Case for docking on Stations) -->
+              <create_position_outside_boundingbox name="$follow_position" component="event.param2.{1}" distance="this.ship.size">
+                <position value="event.param2.{3}"/>
+              </create_position_outside_boundingbox>
+              <get_safe_pos result="$follow_position" radius="this.ship.size" allowyaxis="true" value="$follow_position" ignored="this.ship" zone="event.param2.{1}.zone"/>
+            </do_if>
+            <do_else>
+              <!-- Leader attempts to Dock somewhere - Fly to near position outside Bounding Box (Case for docking on CVs or other Ships) -->
+              <get_safe_pos result="$follow_position" radius="this.ship.size" allowyaxis="true" value="event.param2.{3}" ignored="this.ship" zone="event.param2.{1}.zone"/>
+            </do_else>
             <run_interrupt_script name="'ut.cac.move.to.pos'" abortscripts="true" resume="start">
               <param name="destination" value="event.param2.{1}.zone"/>
               <param name="position" value="$follow_position"/>
