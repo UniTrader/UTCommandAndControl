@@ -97,11 +97,11 @@
           </do_if>
           <set_value name="$genericuiparam" exact="
 [ 0 , 0 , 'Range Managment for %1'.[event.object.container.name], 'Select Range to Modify', null , if $selectedcell? then $selectedcell else null , [ if event.object.$ut_cac.$range.count ge 10 then 50 else 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,  [] ,  
-[ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_manager_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , [ 'button' ,  'Remove' , 'comm_manager_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Old Managment Menu', 'comm_manager_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] ] ]"/>
+[ [ 'button' , '\033RBack' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_manager_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , [ 'button' ,  'Remove' , 'comm_manager_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , '\033ROld Managment Menu', 'comm_manager_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] ] ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 1 , 1 , 1 , 1 ] ] , 
 [ 'text' , '' ] , 
-[ 'text' , 'Available Points for Ranges: ' + $totalrangepoints + '   Remaining Points: ' + $rangepoints ] , 
-[ 'text' , 'Navigation Skill:' ] , [ 'stars' , event.object.skill.navigation], 
+[ 'text' , '\033RAvailable Points for Ranges: ' + $totalrangepoints + '   Remaining Points: ' + $rangepoints ] , 
+[ 'text' , '\033RNavigation Skill:' ] , [ 'stars' , event.object.skill.navigation], 
 [ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  100 ] 
 ]"/>
           <do_all exact="event.object.$ut_cac.$range.count" counter="$i" reverse="false">
@@ -110,16 +110,16 @@
 [ 'button' , if event.object.$ut_cac.$range_j.{$i} then '\033BJ' else 'J' , 'comm_manager_settings_range_toggle_jump' , null , true , $i , true ] , 
 [ 'button' , if event.object.$ut_cac.$range_h.{$i} then '\033GH' else 'H' , 'comm_manager_settings_range_toggle_highway' , null  , true , $i , true ] , 
 [ 'text' ,  event.object.$ut_cac.$range.{$i}.name + ( if @event.object.$ut_cac.$range_w.{$i} then ( ' via ' + event.object.$ut_cac.$range_w.{$i}.name ) else '' ) ] , 
-[ 'button' , 'Move Down' , 'comm_manager_settings_range_move_down' , null , true , $i , true ] , 
-[ 'button' , 'Change' , 'comm_manager_settings_range_change' , null , true , $i ] , 
+[ 'button' , '\033RMove Down' , 'comm_manager_settings_range_move_down' , null , true , $i , true ] , 
+[ 'button' , '\033RChange' , 'comm_manager_settings_range_change' , null , true , $i ] , 
 [ 'button' , if @event.object.$ut_cac.$range_w.{$i} then 'Mod Waypoint' else 'Set Waypoint' , 'comm_manager_settings_range_change_waypoint' , null , true , $i] ]"/>
           </do_all>
           <!-- remove last move down Entry -->
           <set_value name="$genericuiparam.{8}.{$genericuiparam.{8}.count}.{6}" exact="null"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 3 ] ] , 
 [ 'text' , '#' ] , 
-[ 'text' , 'Add new Range Setting' ] , 
-[ 'button' , 'Select Space or Station' , 'comm_manager_settings_range_change' , null , true , event.object.$ut_cac.$range.count + 1 ] 
+[ 'text' , '\033RAdd new Range Setting' ] , 
+[ 'button' , '\033RSelect Space or Station' , 'comm_manager_settings_range_change' , null , true , event.object.$ut_cac.$range.count + 1 ] 
 ]"/>
           <remove_value name="$selectedcell"/>
           <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>

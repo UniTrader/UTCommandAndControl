@@ -95,7 +95,7 @@
             <do_if value="this.ship.commander.cargo.{ware.fuelcells}.count ge $buyamount">
               <create_trade_offer name="$selloffer" seller="this.ship.commander" object="this.ship.commander" amount="$buyamount" ware="ware.fuelcells" price="0Cr" playeronly="true"/>
               <add_buy_order object="this.ship" trade="$selloffer" amount="$buyamount" price="0Cr"/>
-              <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Refuel (From Homebase)',$undock=2,$interruptable=true]"/>
+              <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RRefuel (From Homebase)',$undock=2,$interruptable=true]"/>
               <remove_trade_offer object="this.container" tradeoffer="$selloffer"/>
               <resume label="finish"/>
             </do_if>
@@ -135,7 +135,7 @@
       <transfer_money from="if this.ship.commanderentity.exists then  this.ship.commanderentity else  this.$ut_cac.$commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Transferred %1 ( %2 * %3 )Credits from Commander (%5) to pay, current account: %4'.[$buyamount * $selloffer.unitprice , $buyamount , $selloffer.unitprice , this.money,this.ship.commanderentity.name]"/>
       <add_buy_order object="this.ship" trade="$selloffer" amount="$buyamount" price="$selloffer.unitprice"/>
-      <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Refuel (Buy from Offer)',$undock=2,$interruptable=true]"/>
+      <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RRefuel (Buy from Offer)',$undock=2,$interruptable=true]"/>
       
       <label name="finish"/>
       <!-- This Script is finished - Check if it makes sense to Undock and Continue with next Order -->

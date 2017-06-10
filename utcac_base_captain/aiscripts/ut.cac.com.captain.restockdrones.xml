@@ -99,7 +99,7 @@
             </do_else>
             <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 Adding Offer to Trade List (same Zone):\n%3'.[this.name,this.container.name,$selloffers.{$i}]"/>
             <add_buy_order object="this.ship" trade="$selloffers.{$i}" amount="$amount" price="$selloffers.{$i}.unitprice" unbundle="true"/>
-            <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Restock Drones)',$repeat=0]"/>
+            <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RTraderun (Restock Drones)',$repeat=0]"/>
             <remove_value name="$selloffers.{$i}"/>
             <do_if value="$mindistindex">
               <set_value name="$mindistindex" operation="subtract" comment="to keep them in sync"/>
@@ -144,7 +144,7 @@
           </do_else>
           <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 Adding Offer to Trade List (mindist):\n%3'.[this.name,this.container.name,$selloffers.{$mindistindex}]"/>
           <add_buy_order object="this.ship" trade="$selloffers.{$mindistindex}" amount="$amount" price="$selloffers.{$mindistindex}.unitprice" unbundle="true"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Traderun (Restock Drones)',$command=command.freetrade]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RTraderun (Restock Drones)',$command=command.freetrade]"/>
           <set_value name="$currentzone" exact="$selloffers.{$mindistindex}.owner.zone"/>
           <remove_value name="$selloffers.{$mindistindex}"/>
         </do_if>

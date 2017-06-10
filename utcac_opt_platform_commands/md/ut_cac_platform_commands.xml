@@ -481,10 +481,10 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               </do_else>
               <add_player_choice position="1" text="{5554102,165}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_attack" choiceparam="$selectedobject"/>
               <!--do_if value="global.$utcac.$enemy_priority?" comment="Check if the Global Ignorelist is available">
-                <add_player_choice position="2" text="'Global: Prioritytarget: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
+                <add_player_choice position="2" text="'\033RGlobal: Prioritytarget: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_set_prioritytarget" choiceparam="$selectedobject"/>
               </do_if>
               <do_if value="global.$utcac.$enemy_ignorelist?" comment="Check if the Global Ignorelist is available">
-                <add_player_choice position="3" text="'Global: Ignore: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
+                <add_player_choice position="3" text="'\033RGlobal: Ignore: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_global_ignoreobject" choiceparam="$selectedobject"/>
               </do_if-->
               <add_player_choice position="4" text="{5554102,158}.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_moveto" choiceparam="$selectedobject"/>
               <add_player_choice position="5" text="{5554102,166}.[$selectedobject.wares.list.{1}.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_mine" choiceparam="[$selectedobject.wares.list.{1},$selectedobject.zone]" selectable="$miningship"/>
@@ -530,7 +530,7 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_if value="@$selectedobject.station.products.list.indexof.{ware.fuelcells}">
                 <add_player_choice position="5" text="{5554102,178}" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="ut_cac_pc_refuel" choiceparam="player.money"/>
               </do_if>
-              <!--add_player_choice position="5" text="'Flee from: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
+              <!--add_player_choice position="5" text="'\033RFlee from: %1'.[$selectedobject.name]" tooltip="{5554102,162}.[player.ship.distanceto.{$selectedobject}]" section="PC_Move_FlyTo_selected" choiceparam="$selectedobject"/-->
             </do_elseif>
             <do_else>
               <add_player_choice position="1" text="'Unknown Object Type'" section="null" selectable="false"/>
@@ -685,10 +685,10 @@ rotation.[0deg,90deg,0deg], rotation.[0deg,-90deg,0deg]]"/>
               <do_elseif value="event.param == 'ut_cac_pc_direct_control'">
                 <!-- Section to perform a UT CAC Orderlist compatible Script without need for Orderlist (will be used if available though) -->
                 <do_if value="player.ship.pilot.$orderlist?">
-                  <signal_objects object="player.ship.pilot" param="'interrupt order'" param2="table[$script='player.direct.control',$displayname='Direct Player Control',$exitonneworder=true]"/>
+                  <signal_objects object="player.ship.pilot" param="'interrupt order'" param2="table[$script='player.direct.control',$displayname='\033RDirect Player Control',$exitonneworder=true]"/>
                 </do_if>
                 <do_else>
-                  <signal_objects object="player.ship" param="'run script'" param2="table[$script='player.direct.control',$displayname='Direct Player Control']"/>
+                  <signal_objects object="player.ship" param="'run script'" param2="table[$script='player.direct.control',$displayname='\033RDirect Player Control']"/>
                 </do_else>
                 <remove_value name="$commandtarget"/>
                 <reset_cue cue="Ship_Docked"/>

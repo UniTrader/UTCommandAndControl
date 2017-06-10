@@ -515,12 +515,12 @@ Which Orders are available depends on entity Type
 [ 0 , 0 ,
 'Personal Information for %1'.[$actor.name], null, null , null , [ 175 , 110 , 175 , 110 , 175 , 110 , 175 , -1 ] ,
  [] ,
- [ [ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
-    [ 'button' ,  'Remove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , 'Old Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
+ [ [ 'button' , '\033RBack' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
+    [ 'button' , '\033RRemove' , 'comm_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , '\033ROld Managment Menu', 'comm_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
 ] ]"/>
           <!-- Skill Part of the Menu  -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 , 2 ] ] ,
-[ 'text' , 'Skills' ] , [ 'text' , 'Combinedskill: ' ] , [ 'statusbar' , $actor.combinedskill , 100 , 255 , 100 ,  100 ] ]"/>
+[ 'text' , '\033RSkills' ] , [ 'text' , '\033RCombinedskill: ' ] , [ 'statusbar' , $actor.combinedskill , 100 , 255 , 100 ,  100 ] ]"/>
           <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
           <!-- Create Lines for Primary Skills -->
           <set_value name="$primaryskills" exact="$actor.type.skilltypes"/>
@@ -587,7 +587,7 @@ Which Orders are available depends on entity Type
           <remove_value name="$line2"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 6 ] ] ,
-[ 'text' , 'Special Abilities' ] , [ 'text' , '\033#FF000000#Not implemented yet, just reserving the Space here' ] ]"/>
+[ 'text' , '\033RSpecial Abilities' ] , [ 'text' , '\033#FF000000#Not implemented yet, just reserving the Space here' ] ]"/>
           
           <!-- End Skill Part of the Menu -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
@@ -596,37 +596,37 @@ Which Orders are available depends on entity Type
             <set_value name="$accountpercentage" exact="[ 80 * $actor.money / ($actor.container.productionmoney + $actor.container.wantedmoney + $actor.container.buildanchor.wantedmoney), 100].min "
             comment="100-%-Point is at 80% filling of the Bar. less than 50% are indcated by a red bar, less than 100% by yellow, and above that green"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 , 2 ] ] ,
-[ 'text' , 'Account' + ( if $actor.hasownaccount then ' (Main)' else ' (Shared)' ) ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
+[ 'text' , '\033RAccount' + ( if $actor.hasownaccount then ' (Main)' else ' (Shared)' ) ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
             <remove_value name="$accountpercantage"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] ,
-[ 'button' , 'Min: ' + $actor.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , [ 'button' , 'Current: ' + $actor.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , [ 'button' , 'Max ' + $actor.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] , [ 'text' , '' ] ]"/>
+[ 'button' , '\033RMin: ' + $actor.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , [ 'button' , '\033RCurrent: ' + $actor.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , [ 'button' , '\033RMax ' + $actor.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] , [ 'text' , '' ] ]"/>
             <set_value name="$wantedmoney" exact="$actor.container.productionmoney + $actor.container.wantedmoney + $actor.container.buildanchor.wantedmoney"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] ,
-[ 'text' , 'Required Money:'] , [ 'text' , $wantedmoney.formatted.default] , [ 'button' , 'Give Amount' , 'comm_personal_money_transfer' , null , ( $actor.money lt $wantedmoney ) and (($wantedmoney - $actor.money) le player.money ) , $wantedmoney - $actor.money , true ] , [ 'text' , '' ] ]"/>
+[ 'text' , '\033RRequired Money:'] , [ 'text' , $wantedmoney.formatted.default] , [ 'button' , '\033RGive Amount' , 'comm_personal_money_transfer' , null , ( $actor.money lt $wantedmoney ) and (($wantedmoney - $actor.money) le player.money ) , $wantedmoney - $actor.money , true ] , [ 'text' , '' ] ]"/>
           </do_if>
           <do_else>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] ,
-[ 'text' , 'Account not available'] , [ 'statusbar' , 100 , 50 , 50 , 50 ,  100 ] ]"/>
+[ 'text' , '\033RAccount not available'] , [ 'statusbar' , 100 , 50 , 50 , 50 ,  100 ] ]"/>
           </do_else>
           <!-- End Money Part of the Menu -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
           <!-- Begin of Personal Transfer Part -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 8 ] ] ,
-[ 'text' , 'Workplace Managment' ] ]"/>
+[ 'text' , '\033RWorkplace Managment' ] ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] ,
-[ 'button' , if $actor.exists then 'Stop Working' else 'Start Working' , 'comm_personal_work_toggle' , null , false , 0  , true ] , [ 'button' , 'Work on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , [ 'button' , 'Standby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] , [ 'text' , '' ] ]"/>
+[ 'button' , if $actor.exists then 'Stop Working' else 'Start Working' , 'comm_personal_work_toggle' , null , false , 0  , true ] , [ 'button' , '\033RWork on.. as..' , 'comm_personal_transfer_work' , null , false , 20  , true ] , [ 'button' , '\033RStandby on...' , 'comm_personal_transfer_standby' , null , false , 40  , true ] , [ 'text' , '' ] ]"/>
                         <!--TO DO: Standby Check here-->
           <!-- End of Transfer Part -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]" />
           <!-- begin of Pester Level Settings -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 4 ] ] ,
-[ 'text' , ' Pester Level: ' + $actor.$ut_cac.$loglevel ] , [ 'text' , 'Log Level: ' + $actor.$ut_cac.$loglevel ] ]"/>
+[ 'text' , '\033R Pester Level: ' + $actor.$ut_cac.$loglevel ] , [ 'text' , '\033RLog Level: ' + $actor.$ut_cac.$loglevel ] ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] ,
-[ 'button' , 'Set Pester to 0' , 'comm_personal_pester_set' , null , true , 0  , true ] , [ 'button' , 'Set Pester to 20' , 'comm_personal_pester_set' , null , true , 20  , true ] , [ 'button' , 'Set Log to 0' , 'comm_personal_log_set' , null , true , 0  , true ] , [ 'button' , 'Set Log to 20' , 'comm_personal_log_set' , null , true , 20  , true ] ]"/>
+[ 'button' , '\033RSet Pester to 0' , 'comm_personal_pester_set' , null , true , 0  , true ] , [ 'button' , '\033RSet Pester to 20' , 'comm_personal_pester_set' , null , true , 20  , true ] , [ 'button' , '\033RSet Log to 0' , 'comm_personal_log_set' , null , true , 0  , true ] , [ 'button' , '\033RSet Log to 20' , 'comm_personal_log_set' , null , true , 20  , true ] ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] ,
-[ 'button' , 'Set Pester to 40' , 'comm_personal_pester_set' , null , true , 40  , true ] , [ 'button' , 'Set Pester to 60' , 'comm_personal_pester_set' , null , true , 60  , true ] , [ 'button' , 'Set Log to 40' , 'comm_personal_log_set' , null , true , 40  , true ] , [ 'button' , 'Set Log to 60' , 'comm_personal_log_set' , null , true , 60  , true ] ]"/>
+[ 'button' , '\033RSet Pester to 40' , 'comm_personal_pester_set' , null , true , 40  , true ] , [ 'button' , '\033RSet Pester to 60' , 'comm_personal_pester_set' , null , true , 60  , true ] , [ 'button' , '\033RSet Log to 40' , 'comm_personal_log_set' , null , true , 40  , true ] , [ 'button' , '\033RSet Log to 60' , 'comm_personal_log_set' , null , true , 60  , true ] ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ]  , 
-[ 'button' , 'Set Pester to 80' , 'comm_personal_pester_set' , null , true , 80  , true ] ,  [ 'button' , 'Set Pester to 100' , 'comm_personal_pester_set' , null , true , 100  , true ] , [ 'button' , 'Set Log to 80' , 'comm_personal_log_set' , null , true , 80  , true ] ,  [ 'button' , 'Set Log to 100' , 'comm_personal_log_set' , null , true , 100  , true ] ]"/>
+[ 'button' , '\033RSet Pester to 80' , 'comm_personal_pester_set' , null , true , 80  , true ] ,  [ 'button' , '\033RSet Pester to 100' , 'comm_personal_pester_set' , null , true , 100  , true ] , [ 'button' , '\033RSet Log to 80' , 'comm_personal_log_set' , null , true , 80  , true ] ,  [ 'button' , '\033RSet Log to 100' , 'comm_personal_log_set' , null , true , 100  , true ] ]"/>
           <!-- End of Pester Level Settings -->
           
           <open_conversation_menu menu="ut_genericui" param="$genericuiparam" />
@@ -682,7 +682,7 @@ Which Orders are available depends on entity Type
               => For Shipyards also Offer Standby for Ship Positions (and possibly by Extension double-Standby for CVs) -->
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer_jobselected'">
-          <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.common.transfer',$displayname='Transfer to %1'.[event.param2.name],$job=false,$interruptable=true]"/>
+          <signal_objects object="$actor" param="'new order'" param2="table[$script='ut.cac.com.common.transfer',$displayname='\033RTransfer to %1'.[event.param2.name],$job=false,$interruptable=true]"/>
           
         </do_elseif>
         <!-- Log/Pesterlevel Actions -->
@@ -1309,10 +1309,10 @@ Which Orders are available depends on entity Type
             <set_value name="$actor.$ut_cac.$range" exact="[$actor.sector]"/>
             <set_value name="$actor.$ut_cac.$range_j" exact="[$actor.sector]"/>
             <set_value name="$actor.$ut_cac.$range_h" exact="[$actor.sector]"/>
-            <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default',$displayname='Default']"/>
+            <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default',$displayname='\033RDefault']"/>
           </do_if>
           <do_elseif value="$actor.type == entitytype.pilot">
-            <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default',$displayname='Default']"/>
+            <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.captain.default',$displayname='\033RDefault']"/>
           </do_elseif>
           <do_elseif value="$actor.type == entitytype.commander">
           </do_elseif>

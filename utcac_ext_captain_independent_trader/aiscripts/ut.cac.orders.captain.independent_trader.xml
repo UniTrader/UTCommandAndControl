@@ -15,7 +15,7 @@
       <!-- if there are outstanding Trade Orders: do trade. -->
       <get_trade_from_shoppinglist object="this.ship" result="$trade"/>
       <do_if value="$trade.exists">
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (default)',$repeat=0,$interruptable=true]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RPerform Trade (default)',$repeat=0,$interruptable=true]"/>
         <return/>
       </do_if>
       
@@ -36,7 +36,7 @@
         <set_value name="$params.$next_equipmentcheck" exact="player.age + 10min"/>
         <!-- if we have no fuel for even one Jump - go refueling first -->
         <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{this.sector}">
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (default)',$undock=2,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='\033RRefuel (default)',$undock=2,$interruptable=true]"/>
           <return/>
         </do_if>
         <!-- Check wheter we need some Drones (missing Cargo Drones for Trade & Mining Ships and missing mining Drones for Mining ships trigger re-droning Script every time, otherwise re-droning will be done if below 25% of capacity) -->
@@ -193,20 +193,20 @@
         <add_ware_reservation object="$selloffer.owner" result="$reserved" ware="$selloffer.ware" entity="this" amount="$amount" replace="true" duration="1h" type="sell"/>
         
         <do_if value="this.$orderlist">
-          <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$usecustomtrade=true,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Self)',$undock=0,$usecustomtrade=true,$interruptable=true ]]"/>
+          <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RPerform Trade (Self)',$undock=0,$usecustomtrade=true,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RPerform Trade (Self)',$undock=0,$usecustomtrade=true,$interruptable=true ]]"/>
           <get_jump_cost result="$jumpcost1" ship="this.ship" start="this.ship.sector" end="$buyoffer.owner.sector"/>
           <get_jump_cost result="$jumpcost2" ship="this.ship" start="$buyoffer.owner.sector" end="$selloffer.owner.sector"/>
           <do_if value="($jumpcost1 + $jumpcost2 + 100) gt this.ship.cargo.{ware.fuelcells}.count">
-            <set_value name="$new_orders.{1}" operation="insert" exact="table[$script='ut.cac.com.captain.refuel',$displayname='Refuel (Self)',$undock=1,$interruptable=true]"/>
+            <set_value name="$new_orders.{1}" operation="insert" exact="table[$script='ut.cac.com.captain.refuel',$displayname='\033RRefuel (Self)',$undock=1,$interruptable=true]"/>
           </do_if>
           <signal_objects object="this" param="'new order'" param2="$new_orders"/>
         </do_if>
       </do_if>
       <do_else>
         <!-- no Traderun found - for now wait a bit, but in further Versions Explore a bit to get more Trade Offers when trying the next time -->
-        <set_value name="$new_orders" exact="[table[$script='ut.cac.microorder',$displayname='Wait for better Offers',$order='wait minmax',$mintime=10min,$maxtime=15min,$interruptable=true]]"/>
+        <set_value name="$new_orders" exact="[table[$script='ut.cac.microorder',$displayname='\033RWait for better Offers',$order='wait minmax',$mintime=10min,$maxtime=15min,$interruptable=true]]"/>
         <do_if value="this.ship.parkedat">
-          <set_value name="$new_orders.{1}" operation="insert" exact="table[$script='ut.cac.move.undock',$displayname='Undock',$interruptable=false]"/>
+          <set_value name="$new_orders.{1}" operation="insert" exact="table[$script='ut.cac.move.undock',$displayname='\033RUndock',$interruptable=false]"/>
         </do_if>
         <signal_objects object="this" param="'new order'" param2="$new_orders"/>
       </do_else>
@@ -239,16 +239,16 @@
         </do_if>
         <add_buy_order object="this.ship" trade="$selloffer" amount="$amount" price="$selloffer.unitprice"/>
         <add_sell_order object="this.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
-        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=2,$interruptable=true]  ]"/>
+        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RPerform Trade (Independent)',$undock=1,$interruptable=true] , table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RPerform Trade (Independent)',$undock=2,$interruptable=true]  ]"/>
       </do_if>
       <do_elseif value="$buyoffer.available">
         <set_value name="$amount" exact="[$selloffer.amount , $buyoffer.amount , this.ship.cargo.{$selloffer.ware}.free , ( this.commanderentity.money + this.money ) / $selloffer.unitprice ].min"/>
         <add_sell_order object="this.ship" trade="$buyoffer" amount="$amount" price="$buyoffer.unitprice"/>
-        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='Perform Trade (Independent)',$undock=2,$interruptable=true] ]"/>
+        <signal_objects object="this" param="'new order'" param2="[ table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RPerform Trade (Independent)',$undock=2,$interruptable=true] ]"/>
       </do_elseif>
       <do_else>
         <!-- nothing to do - wait till better Offers are available -->
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='Wait for better Offers',$order='wait minmax',$mintime=1min,$maxtime=10min,$interruptable=true]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='\033RWait for better Offers',$order='wait minmax',$mintime=1min,$maxtime=10min,$interruptable=true]"/>
       </do_else>
       
       <!-- #### End Hook to Vanilla Scripts - to be rewritten ### -->
