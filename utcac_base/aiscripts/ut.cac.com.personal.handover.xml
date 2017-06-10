@@ -47,24 +47,19 @@
         <dismiss_pilot object="this.ship"/>
         <stop_moving object="this.ship" immediate="true"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Pilot'.[this.name,this.container.name]"/>
+        <signal_objects object="$successor" param="'ready for takeover'" param2="$old_orderlist" param3="$old_settings"/>
       </do_if>
-      <!--do_if value="this.container.defencenpc == this">
+      <do_if value="this.container.defencenpc == this">
         <cease_fire object="this.container"/>
         <dismiss_control_entity object="this.container" actor="this"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as DO - removing oneself for now!!!'.[this.name,this.container.name]"/>
-        <!- - ToDo: Find out how to properly dismiss DO and remove the following Lines - ->
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as DO'.[this.name,this.container.name]"/>
         <signal_objects object="$successor" param="'ready for takeover'" param2="$old_orderlist" param3="$old_settings"/>
-        <signal_objects object="player.galaxy" param="'clone actor'" param2="this" param3="this.room.parent"/>
-        <start_actor_transport actor="this"/>
-      </do_if-->
-      <do_elseif value="this.container.defencenpc == this or this.container.engineer == this">
+      </do_if>
+      <do_else>
         <dismiss_control_entity object="this.container" actor="this"/>
-        <!--start_actor_transport actor="this" target="this.room.parent"/-->
-        <debug_text filter="general" chance="@this.$debug * 100 *0 +100" text="'%1 %2 Stop working as other Controlentity - clone+destroy'.[this.name,this.container.name]"/>
-        <!--signal_objects object="player.galaxy" param="'clone actor'" param2="this" param3="this.room.parent"/>
-        <wait exact="100ms"/>
-        <destroy_object object="this"/-->
-      </do_elseif>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as other Controlentity'.[this.name,this.container.name]"/>
+        <signal_objects object="$successor" param="'ready for takeover'" param2="$old_orderlist" param3="$old_settings"/>
+      </do_else>
       
       <!-- Wait for new Assignment -->
       <remove_value name="this.$ut_cac.$orders_section" comment="no Orders until new Assignment!"/>
