@@ -141,11 +141,11 @@
               </do_else>
             </do_if>
           </do_if>
-          <add_player_choice_sub text="{5554104,1}" position="1" section="comm_orders_main"/>
-          <add_player_choice_sub text="{5554104,2}" position="2" section="comm_settings_main" selectable="event.object.$ut_cac.$settings_section?"/>
-          <add_player_choice_sub text="{5554104,3}" position="3" section="comm_connect_main"/>
-          <add_player_choice_sub text="{5554104,4}" position="4" section="comm_subordinates_main"/>
-          <add_player_choice_sub text="{5554104,5}" position="5" section="comm_personal_main"/>
+          <add_player_choice_sub text="{5554103,1}" position="1" section="comm_orders_main"/>
+          <add_player_choice_sub text="{5554103,2}" position="2" section="comm_settings_main" selectable="event.object.$ut_cac.$settings_section?"/>
+          <add_player_choice_sub text="{5554103,3}" position="3" section="comm_connect_main"/>
+          <add_player_choice_sub text="{5554103,4}" position="4" section="comm_subordinates_main"/>
+          <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
         </do_if>
         <do_else>
           <do_if value="event.name == 'event_conversation_started'">
@@ -158,15 +158,15 @@
               <add_npc_line speaker="event.object" line="[1,2,5,1001,1003].random" hidechoices="false" comment="Hey, there! | Comms channel open. | How can I help? | Comms opened, Sir. | Coming in loud and clear. What's the matter?"/>
             </do_else>
           </do_if>
-          <add_player_choice_sub text="{5554104,1}" position="1" section="comm_services_main" selectable="false"/>
-          <add_player_choice_sub text="{5554104,2}" position="2" section="comm_hire_main" selectable="false"/>
-          <add_player_choice_sub text="{5554104,3}" position="3" section="comm_guidiance_main" selectable="false"/>
-          <add_player_choice_sub text="{5554104,4}" position="4" section="comm_subordinates_main" selectable="false"/>
-          <add_player_choice_sub text="{5554104,5}" position="5" section="comm_personal_main"/>
+          <add_player_choice_sub text="'\033RAsk for Services'" position="1" section="comm_services_main" selectable="false"/>
+          <add_player_choice_sub text="'\033RI want to Hire you'" position="2" section="comm_hire_main" selectable="false"/>
+          <add_player_choice_sub text="'\033RWhere can i find...'" position="3" section="comm_guidiance_main" selectable="false"/>
+          <add_player_choice_sub text="'\033RSmalltalk?'" position="4" section="comm_subordinates_main" selectable="false"/>
+          <add_player_choice_sub text="{5554103,5}" position="5" section="comm_personal_main"/>
         </do_else>
-        <add_player_choice_sub text="'\033RDEBUG'" position="6" section="comm_debug_main"/>
+        <add_player_choice_sub text="'DEBUG'" position="6" section="comm_debug_main"/>
         <set_conversation_return_section section="comm_goodbye"/>
-        <!--add_player_choice_return text="{5554104,6}" position="close"/-->
+        <!--add_player_choice_return text="{5554103,6}" position="close"/-->
       </actions>
     </cue>
     <!-- First Player Employee Specific Stuff -->
@@ -186,23 +186,22 @@
         </do_if>
         <do_elseif value="event.param == 'comm_orders_main'">
         <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
-          <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Orders for %1 on %2'.[event.object.name,event.object.container.name], null, null , if $selectedcell? then $selectedcell else null , [  if event.object.$orderlist.count ge 10 then 50 else 30 , -1 , 30 , 150 ] ,  [] , [ 
-[ 'button' , '\033RBack' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
-[ 'button' , '\033RCancel all Queued Orders' , 'comm_orders_cancel_all' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , false , true] , 
-[ 'button' , '\033RInsert Order' , 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_Y' , event.object.$ut_cac.$orders_section? , null , true ] , 
-[ 'button' , '\033RAppend Order', 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_X' , event.object.$ut_cac.$orders_section? , 0 , false ] 
+          <set_value name="$genericuiparam" exact=" [ 0 , 0 , {5554103,100}.[event.object.name,event.object.container.name], null, null , if $selectedcell? then $selectedcell else null , [  if event.object.$orderlist.count ge 10 then 50 else 30 , -1 , 30 , 150 ] ,  [] , [ 
+[ 'button' , {5554103,8} , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
+[ 'button' , '\033RCancel all Queued Orders (to be discontinued!!)' , 'comm_orders_cancel_all' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , false , true] , 
+[ 'button' , {5554103,101} , 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_Y' , event.object.$ut_cac.$orders_section? , null , true ] , 
+[ 'button' , {5554103,102} , 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_X' , event.object.$ut_cac.$orders_section? , 0 , false ] 
 ] ]"/>
           <do_if value="not event.object.$ut_cac.$orders_section? and event.object.$ut_cac.$defaultorders.$script == 'ut.cac.orders.endlesswait' and @event.object.$orderlist.{1}.$order == 'wait order'" comment="Employee is waiting for another Assignment - replace Order Button with Assignment one">
-            <set_value name="$genericuiparam.{9}.{3}" exact="[ 'button' , '\033RWork here as...' , 'comm_personal_transfer_objectselected' , 'INPUT_STATE_DETAILMONITOR_X' , true , [0,0,player.entity.container] , false ]"/>
-            <set_value name="$genericuiparam.{9}.{4}" exact="[ 'button' , '\033RNew Assignment' , 'comm_personal_transfer' , 'INPUT_STATE_DETAILMONITOR_X' , true , null , true ]"/>
+            <set_value name="$genericuiparam.{9}.{3}" exact="[ 'button' , {5554103,515} , 'comm_personal_transfer_objectselected' , 'INPUT_STATE_DETAILMONITOR_X' , true , [0,0,player.entity.container] , false ]"/>
+            <set_value name="$genericuiparam.{9}.{4}" exact="[ 'button' , {5554103,516} , 'comm_personal_transfer' , 'INPUT_STATE_DETAILMONITOR_X' , true , null , true ]"/>
           </do_if>
-          <!--<append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 1 , 1 , 1 , 1 ] ] , [ 'text' , '' ] , [ 'text' , '\033RAvailable Points for Ranges: ' + $totalrangepoints + '   Remaining Points: ' + $rangepoints ] , [ 'text' , '\033RNavigation Skill:' ] , [ 'stars' , event.object.skill.navigation], [ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  100 ] ]"/>-->
           <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1] , null , $i] , 
 [ 'text' , $i + '.' ] , 
 [ 'text' , event.object.$orderlist.{$i}.$displayname ] , 
 [ 'button' , 'V' , 'comm_orders_mod' , null , ( if event.object.$orderlist.{$i}.$moveable? then event.object.$orderlist.{$i}.$moveable else true ) and ( if $i == 1 and event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true ) , [ 'move down' , $i , event.object.$orderlist.{$i}.$script ] , true ] , 
-[ 'button' , '\033RCancel' , 'comm_orders_mod' , null , if event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true , [ 'cancel' , $i , event.object.$orderlist.{$i}.$script ] , true] 
+[ 'button' , {5554103,103} , 'comm_orders_mod' , null , if event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true , [ 'cancel' , $i , event.object.$orderlist.{$i}.$script ] , true] 
 ]"/>
           </do_all>
           <!-- remove last move down Entry, or add a Placeholder Entry to prevent the menü from bugging out -->
@@ -378,66 +377,66 @@
           </do_if>
           <!-- Slot1: Defense Officer -->
           <do_if value="event.object.container.defencenpc.exists">
-            <add_player_choice_subconv text="{5554104,31}.[event.object.container.defencenpc.name]" position="1" conversation="default" actor="event.object.container.defencenpc" selectable="event.object.container.defencenpc != event.object"/>
+            <add_player_choice_subconv text="{5554103,31}.[event.object.container.defencenpc.name]" position="1" conversation="default" actor="event.object.container.defencenpc" selectable="event.object.container.defencenpc != event.object"/>
           </do_if>
           <do_elseif value="@event.object.container.buildingmodule.container.defencenpc.exists">
-            <add_player_choice_subconv text="{5554104,31}.[event.object.container.buildingmodule.container.defencenpc.name]" position="1" conversation="default" actor="event.object.container.buildingmodule.container.defencenpc" selectable="event.object.container.buildingmodule.container.defencenpc != event.object"/>
+            <add_player_choice_subconv text="{5554103,31}.[event.object.container.buildingmodule.container.defencenpc.name]" position="1" conversation="default" actor="event.object.container.buildingmodule.container.defencenpc" selectable="event.object.container.buildingmodule.container.defencenpc != event.object"/>
           </do_elseif>
           <do_elseif value="@event.object.container.buildmodule.buildanchor.defencenpc.exists">
-            <add_player_choice_subconv text="{5554104,31}.[event.object.container.buildmodule.buildanchor.defencenpc.name]" position="1" conversation="default" actor="event.object.container.buildmodule.buildanchor.defencenpc" selectable="event.object.container.buildmodule.buildanchor.defencenpc != event.object"/>
+            <add_player_choice_subconv text="{5554103,31}.[event.object.container.buildmodule.buildanchor.defencenpc.name]" position="1" conversation="default" actor="event.object.container.buildmodule.buildanchor.defencenpc" selectable="event.object.container.buildmodule.buildanchor.defencenpc != event.object"/>
           </do_elseif>
           <!-- Slot2: Engineer -->
           <do_if value="event.object.container.engineer.exists">
-            <add_player_choice_subconv text="{5554104,32}.[event.object.container.engineer.name]" position="2" conversation="default" actor="event.object.container.engineer" selectable="event.object.container.engineer != event.object"/>
+            <add_player_choice_subconv text="{5554103,32}.[event.object.container.engineer.name]" position="2" conversation="default" actor="event.object.container.engineer" selectable="event.object.container.engineer != event.object"/>
           </do_if>
           <do_elseif value="@event.object.container.buildingmodule.container.engineer.exists">
-            <add_player_choice_subconv text="{5554104,32}.[event.object.container.buildingmodule.container.engineer.name]" position="2" conversation="default" actor="event.object.container.buildingmodule.container.engineer" selectable="event.object.container.buildingmodule.container.engineer != event.object"/>
+            <add_player_choice_subconv text="{5554103,32}.[event.object.container.buildingmodule.container.engineer.name]" position="2" conversation="default" actor="event.object.container.buildingmodule.container.engineer" selectable="event.object.container.buildingmodule.container.engineer != event.object"/>
           </do_elseif>
           <do_elseif value="@event.object.container.buildmodule.buildanchor.engineer.exists">
-            <add_player_choice_subconv text="{5554104,32}.[event.object.container.buildmodule.buildanchor.engineer.name]" position="2" conversation="default" actor="event.object.container.buildmodule.buildanchor.engineer" selectable="event.object.container.buildmodule.buildanchor.engineer != event.object"/>
+            <add_player_choice_subconv text="{5554103,32}.[event.object.container.buildmodule.buildanchor.engineer.name]" position="2" conversation="default" actor="event.object.container.buildmodule.buildanchor.engineer" selectable="event.object.container.buildmodule.buildanchor.engineer != event.object"/>
           </do_elseif>
           <!-- Slot3: Architect -->
           <do_if value="event.object.container.architect.exists">
-            <add_player_choice_subconv text="{5554104,33}.[event.object.container.architect.name]" position="3" conversation="default" actor="event.object.container.architect" selectable="event.object.container.architect != event.object"/>
+            <add_player_choice_subconv text="{5554103,33}.[event.object.container.architect.name]" position="3" conversation="default" actor="event.object.container.architect" selectable="event.object.container.architect != event.object"/>
           </do_if>
           <do_elseif value="@event.object.container.buildingmodule.container.architect.exists">
-            <add_player_choice_subconv text="{5554104,33}.[event.object.container.buildingmodule.container.architect.name]" position="3" conversation="default" actor="event.object.container.buildingmodule.container.architect" selectable="event.object.container.buildingmodule.container.architect != event.object"/>
+            <add_player_choice_subconv text="{5554103,33}.[event.object.container.buildingmodule.container.architect.name]" position="3" conversation="default" actor="event.object.container.buildingmodule.container.architect" selectable="event.object.container.buildingmodule.container.architect != event.object"/>
           </do_elseif>
           <do_elseif value="@event.object.container.buildmodule.buildanchor.architect.exists">
-            <add_player_choice_subconv text="{5554104,33}.[event.object.container.buildmodule.buildanchor.architect.name]" position="3" conversation="default" actor="event.object.container.buildmodule.buildanchor.architect" selectable="event.object.container.buildmodule.buildanchor.architect != event.object"/>
+            <add_player_choice_subconv text="{5554103,33}.[event.object.container.buildmodule.buildanchor.architect.name]" position="3" conversation="default" actor="event.object.container.buildmodule.buildanchor.architect" selectable="event.object.container.buildmodule.buildanchor.architect != event.object"/>
           </do_elseif>
           <!-- Slot4: Superior -->
           <do_if value="event.object.container.commanderentity.exists">
-            <add_player_choice_subconv text="{5554104,34}.[event.object.container.commanderentity.name]" position="4" conversation="default" actor="event.object.container.commanderentity" selectable="event.object.container.commanderentity != event.object and event.object.container.commanderentity != player.entity"/>
+            <add_player_choice_subconv text="{5554103,34}.[event.object.container.commanderentity.name]" position="4" conversation="default" actor="event.object.container.commanderentity" selectable="event.object.container.commanderentity != event.object and event.object.container.commanderentity != player.entity"/>
           </do_if>
           <do_elseif value="@event.object.container.buildingmodule.container.architect.exists">
-            <add_player_choice_subconv text="{5554104,34}.[event.object.container.buildingmodule.container.commanderentity.name]" position="4" conversation="default" actor="event.object.container.buildingmodule.container.commanderentity" selectable="event.object.container.buildingmodule.container.commanderentity != event.object"/>
+            <add_player_choice_subconv text="{5554103,34}.[event.object.container.buildingmodule.container.commanderentity.name]" position="4" conversation="default" actor="event.object.container.buildingmodule.container.commanderentity" selectable="event.object.container.buildingmodule.container.commanderentity != event.object"/>
           </do_elseif>
           <do_elseif value="@event.object.container.buildmodule.buildanchor.architect.exists">
-            <add_player_choice_subconv text="{5554104,34}.[event.object.container.buildmodule.buildanchor.commanderentity.name]" position="4" conversation="default" actor="event.object.container.buildmodule.buildanchor.commanderentity" selectable="event.object.container.buildmodule.buildanchor.commanderentity != event.object"/>
+            <add_player_choice_subconv text="{5554103,34}.[event.object.container.buildmodule.buildanchor.commanderentity.name]" position="4" conversation="default" actor="event.object.container.buildmodule.buildanchor.commanderentity" selectable="event.object.container.buildmodule.buildanchor.commanderentity != event.object"/>
           </do_elseif>
           <do_if value="event.object.container.pilot.exists">
-            <add_player_choice_subconv text="{5554104,35}.[event.object.container.pilot.name]" position="5" conversation="default" actor="event.object.container.pilot" selectable="event.object.container.pilot != event.object"/>
+            <add_player_choice_subconv text="{5554103,35}.[event.object.container.pilot.name]" position="5" conversation="default" actor="event.object.container.pilot" selectable="event.object.container.pilot != event.object"/>
           </do_if>
           <!-- Slot5: Pilot/Captain/Manager -->
           <do_elseif value="event.object.container.tradenpc.exists">
-            <add_player_choice_subconv text="{5554104,36}.[event.object.container.tradenpc.name]" position="5" conversation="default" actor="event.object.container.tradenpc" selectable="event.object.container.tradenpc != event.object"/>
+            <add_player_choice_subconv text="{5554103,36}.[event.object.container.tradenpc.name]" position="5" conversation="default" actor="event.object.container.tradenpc" selectable="event.object.container.tradenpc != event.object"/>
           </do_elseif>
           <do_elseif value="event.object.container.buildingmodule.container.pilot.exists">
-            <add_player_choice_subconv text="{5554104,35}.[event.object.container.buildingmodule.container.pilot.name]" position="5" conversation="default" actor="event.object.container.buildingmodule.container.pilot" selectable="event.object.container.buildingmodule.container.pilot != event.object"/>
+            <add_player_choice_subconv text="{5554103,35}.[event.object.container.buildingmodule.container.pilot.name]" position="5" conversation="default" actor="event.object.container.buildingmodule.container.pilot" selectable="event.object.container.buildingmodule.container.pilot != event.object"/>
           </do_elseif>
           <do_elseif value="event.object.container.buildingmodule.container.tradenpc.exists">
-            <add_player_choice_subconv text="{5554104,36}.[event.object.container.buildingmodule.container.tradenpc.name]" position="5" conversation="default" actor="event.object.container.buildingmodule.container.tradenpc" selectable="event.object.container.buildingmodule.container.tradenpc != event.object"/>
+            <add_player_choice_subconv text="{5554103,36}.[event.object.container.buildingmodule.container.tradenpc.name]" position="5" conversation="default" actor="event.object.container.buildingmodule.container.tradenpc" selectable="event.object.container.buildingmodule.container.tradenpc != event.object"/>
           </do_elseif>
           <do_elseif value="event.object.container.buildmodule.buildanchor.pilot.exists">
-            <add_player_choice_subconv text="{5554104,35}.[event.object.container.buildmodule.buildanchor.pilot.name]" position="5" conversation="default" actor="event.object.container.buildmodule.buildanchor.pilot" selectable="event.object.container.buildmodule.buildanchor.pilot != event.object"/>
+            <add_player_choice_subconv text="{5554103,35}.[event.object.container.buildmodule.buildanchor.pilot.name]" position="5" conversation="default" actor="event.object.container.buildmodule.buildanchor.pilot" selectable="event.object.container.buildmodule.buildanchor.pilot != event.object"/>
           </do_elseif>
           <do_elseif value="event.object.container.buildmodule.buildanchor.tradenpc.exists">
-            <add_player_choice_subconv text="{5554104,36}.[event.object.container.buildmodule.buildanchor.tradenpc.name]" position="5" conversation="default" actor="event.object.container.buildmodule.buildanchor.tradenpc" selectable="event.object.container.buildmodule.buildanchor.tradenpc != event.object"/>
+            <add_player_choice_subconv text="{5554103,36}.[event.object.container.buildmodule.buildanchor.tradenpc.name]" position="5" conversation="default" actor="event.object.container.buildmodule.buildanchor.tradenpc" selectable="event.object.container.buildmodule.buildanchor.tradenpc != event.object"/>
           </do_elseif>
           <!-- Slot6: Subordinates -->
-          <add_player_choice_sub text="{5554104,37}.[event.object.container.subordinates.{event.object.type}.count]" position="6" section="comm_connect_subordinates" selectable="event.object.container.subordinates.{event.object.type}.count" confidence="[event.object.container.subordinates.{event.object.type}.count - 1,5].min"/>
-          <add_player_choice_return text="{5554104,7}" position="close"/>
+          <add_player_choice_sub text="{5554103,37}.[event.object.container.subordinates.{event.object.type}.count]" position="6" section="comm_connect_subordinates" selectable="event.object.container.subordinates.{event.object.type}.count" confidence="[event.object.container.subordinates.{event.object.type}.count - 1,5].min"/>
+          <add_player_choice_return text="{5554103,7}" position="close"/>
         </do_if>
         <do_elseif value="event.param == 'comm_connect_subordinates'">
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -446,22 +445,22 @@
           <do_all exact="[event.object.container.subordinates.{event.object.type}.count,6].min" counter="$i">
             <do_if value="event.object.container.subordinates.{event.object.type}.{$i}.isclass.station">
               <do_if value="event.object.container.subordinates.{event.object.type}.{$i}.tradenpc.exists">
-                <add_player_choice_subconv text="{5554104,35}.[event.object.container.subordinates.{event.object.type}.{$i}.tradenpc.name]" position="$i" conversation="default" actor="event.object.container.subordinates.{event.object.type}.{$i}.tradenpc"/>
+                <add_player_choice_subconv text="{5554103,36}.[event.object.container.subordinates.{event.object.type}.{$i}.tradenpc.name]" position="$i" conversation="default" actor="event.object.container.subordinates.{event.object.type}.{$i}.tradenpc"/>
               </do_if>
             </do_if>
             <do_elseif value="event.object.container.subordinates.{event.object.type}.{$i}.isclass.ship">
               <do_if value="event.object.container.subordinates.{event.object.type}.{$i}.pilot.exists">
-                <add_player_choice_subconv text="{5554104,36}.[event.object.container.subordinates.{event.object.type}.{$i}.pilot.name]" position="$i" conversation="default" actor="event.object.container.subordinates.{event.object.type}.{$i}.pilot"/>
+                <add_player_choice_subconv text="{5554103,35}.[event.object.container.subordinates.{event.object.type}.{$i}.pilot.name]" position="$i" conversation="default" actor="event.object.container.subordinates.{event.object.type}.{$i}.pilot"/>
               </do_if>
             </do_elseif>
           </do_all>
-          <add_player_choice_return text="{5554104,7}" position="6" returnparam="'no change'"/>
-          <add_player_choice_return text="{5554104,7}" position="close" returnparam="'no change'"/>
+          <add_player_choice_return text="{5554103,7}" position="6" returnparam="'no change'"/>
+          <add_player_choice_return text="{5554103,7}" position="close" returnparam="'no change'"/>
         </do_elseif>
         <!-- ToDo: Use this Snippet once again to make a new Conversation which doesnt return to the old one on cmpletion -->
         <do_elseif value="event.param == 'comm_connect_selected'">
           <!-- CHOICE SNIPPET (Example)-->
-          <add_player_choice text="{5554104,35}.[event.object.container.subordinates.{event.object.type}.{$i}.pilot.name]" position="$i" section="comm_connect_selected" choiceparam="event.object.container.subordinates.{event.object.type}.{$i}.pilot" selectable="event.object.container.subordinates.{event.object.type}.{$i}.pilot != event.object"/>
+          <!--add_player_choice text="{5554104,35}.[event.object.container.subordinates.{event.object.type}.{$i}.pilot.name]" position="$i" section="comm_connect_selected" choiceparam="event.object.container.subordinates.{event.object.type}.{$i}.pilot" selectable="event.object.container.subordinates.{event.object.type}.{$i}.pilot != event.object"/-->
           <!-- /CHOICE SNIPPET -->
           <!-- Cancel this Conversation and start a new one with the desired Person -->
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -496,13 +495,13 @@
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
             <add_npc_line speaker="event.object" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           </do_if>
-          <add_player_choice text="{5554104,41}" position="1" section="comm_subordinates_take_playersquad" selectable="player.primaryship.subordinates.{1}? and event.object.isclass.station"/>
-          <add_player_choice text="{5554104,42}" position="2" section="comm_subordinates_add_subordinate" selectable="false"/>
-          <add_player_choice_sub text="{5554104,43}" position="3" section="comm_subordinates_take_shipsquad" selectable="false" comment="not implemented yet"/>
-          <add_player_choice text="{5554104,44}" position="4" section="comm_subordinates_transfer_to_playersquad" selectable="false" comment="no practical usage for this yet"/>
-          <add_player_choice text="{5554104,45}" position="5" section="comm_subordinates_superior_select" selectable="event.object.container.isclass.ship"/>
-          <add_player_choice_return text="{5554104,7}" position="6" />
-          <add_player_choice_return text="{5554104,7}" position="close" />
+          <add_player_choice text="{5554103,41}" position="1" section="comm_subordinates_take_playersquad" selectable="player.primaryship.subordinates.{1}? and event.object.isclass.station"/>
+          <add_player_choice text="{5554103,42}" position="2" section="comm_subordinates_add_subordinate" selectable="false"/>
+          <add_player_choice_sub text="{5554103,43}" position="3" section="comm_subordinates_take_shipsquad" selectable="false" comment="not implemented yet"/>
+          <add_player_choice text="{5554103,44}" position="4" section="comm_subordinates_transfer_to_playersquad" selectable="false" comment="no practical usage for this yet"/>
+          <add_player_choice text="{5554103,45}" position="5" section="comm_subordinates_superior_select" selectable="event.object.container.isclass.ship"/>
+          <add_player_choice_return text="{5554103,7}" position="6" />
+          <add_player_choice_return text="{5554103,7}" position="close" />
         </do_if>
         <do_elseif value="event.param == 'comm_subordinates_take_playersquad'">
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
@@ -626,14 +625,14 @@
         <!--                       Personal Menu                          -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_personal_main'">
-          <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Personal Information for %1'.[event.object.name], null, null , null , [ 175 , 110 , 175 , 110 , 175 , 110 , 175 , -1 ] ,  [] ,  [ 
-[ 'button' , '\033RBack' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
+          <set_value name="$genericuiparam" exact=" [ 0 , 0 , {5554103,500}.[event.object.name], null, null , null , [ 175 , 110 , 175 , 110 , 175 , 110 , 175 , -1 ] ,  [] ,  [ 
+[ 'button' , {5554103,8} , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_BACK' , false , null , true] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_Y' , false , null , true ] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_X' , false , null , true ] 
 ] ]"/>
           <!-- Skill Part of the Menu  -->
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 3 , 2 ] ] , [ 'text' , '\033RSkills' ] , [ 'text' , '\033RCombinedskill for current Profession: ' ] , [ 'statusbar' , event.object.combinedskill , 0  , 255 , 0 ,  100 ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 3 , 2 ] ] , [ 'text' , {5554103,501} ] , [ 'text' , {5554103,502} ] , [ 'statusbar' , event.object.combinedskill , 0  , 255 , 0 ,  100 ] ]"/>
           <set_value name="$skillist" exact="[ skilltype.boarding , skilltype.combat , skilltype.engineering , skilltype.leadership , skilltype.management , skilltype.morale , skilltype.navigation , skilltype.science ]"/>
           <!-- Create Lines for Primary Skills -->
           <set_value name="$combinedcells1" exact="[1,1,1,1,1,1,1,1]"/>
@@ -721,7 +720,7 @@
           <remove_value name="$line2"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 6 ] ] , 
-[ 'text' , '\033RSpecial Abilities' ] , [ 'text' , '\033#FF000000#Not implemented yet, just reserving the Space here' ] 
+[ 'text' , {5554103,503} ] , [ 'text' , '\033#FF000000#Not implemented yet, just reserving the Space here' ] 
 ]"/>
           <!-- End Skill Part of the Menu -->
           
@@ -730,34 +729,35 @@
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
             <!-- Account Part of the Menu -->
             <do_if value="event.object.money and event.object.money != player.money">
+              <!-- ToDo: Refine Calculation to include Money needed by outstanding Orders -->
               <set_value name="$accountpercentage" exact="[ 80 * event.object.money / (event.object.container.productionmoney + event.object.container.wantedmoney + event.object.container.buildanchor.wantedmoney), 100].min " comment="100-%-Point is at 80% filling of the Bar. less than 50% are indcated by a red bar, less than 100% by yellow, and above that green"/>
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 , 2 ] ] , [ 'text' , '\033RAccount' + ( if event.object.hasownaccount then ' (Main)' else ' (Shared)' ) ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 , 2 ] ] , [ 'text' , if event.object.hasownaccount then {5554103,504} else {5554103,505} ) ] , [ 'statusbar' , $accountpercentage , if ( $accountpercentage lt 80 ) then 255 else 0 ,  if ( $accountpercentage gt 40 ) then 255 else 0 , 0 , 100 ] ]"/>
               <remove_value name="$accountpercantage"/>
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , '\033RMin: ' + event.object.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , 
-[ 'button' , '\033RCurrent: ' + event.object.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , 
-[ 'button' , '\033RMax ' + event.object.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] , 
-[ 'text' , '' ] 
+[ 'button' , {5554103,506} + event.object.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , 
+[ 'button' , {5554103,507} + event.object.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , 
+[ 'button' , {5554103,508} + event.object.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] , 
+[ 'text' , {5554103,509} ] 
 ]"/>
               <set_value name="$wantedmoney" exact="event.object.container.productionmoney + event.object.container.wantedmoney + @event.object.container.buildanchor.wantedmoney"/>
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'text' , '\033RRequired Money:'] , 
+[ 'text' , {5554103,510}] , 
 [ 'text' , $wantedmoney.formatted.default] , 
-[ 'button' , '\033RGive Amount' , 'comm_personal_money_transfer' , null , ( event.object.money lt $wantedmoney ) and (($wantedmoney - event.object.money) le player.money ) , $wantedmoney - event.object.money , true ] , 
+[ 'button' , {5554103,511} , 'comm_personal_money_transfer' , null , ( event.object.money lt $wantedmoney ) and (($wantedmoney - event.object.money) le player.money ) , $wantedmoney - event.object.money , true ] , 
 [ 'text' , '' ] 
 ]"/>
             </do_if>
             <do_else>
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] , [ 'text' , '\033RNo own Account'] , [ 'statusbar' , 100 , 50 , 50 , 50 ,  100 ] ]"/>
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 2 ] ] , [ 'text' , {5554103,512}] , [ 'statusbar' , 100 , 50 , 50 , 50 ,  100 ] ]"/>
             </do_else>
             <!-- End Money Part of the Menu -->
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
             <!-- Begin of Personal Transfer Part -->
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 8 ] ] , [ 'text' , '\033RWorkplace Managment' ] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 8 ] ] , [ 'text' , {5554103,513} ] ]"/>
 <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , if ( event.object.$defaultorders? and not @event.object.$defaultorders.$inactive ) then 'Stop Working' else 'Start Working' , 'comm_personal_work_toggle' , null , event.object.$defaultorders? , 0  , true ] , 
-[ 'button' , '\033RWork on.. as..' , 'comm_personal_transfer' , null , true , null , true ] , 
+[ 'button' , if ( event.object.$defaultorders? and not @event.object.$defaultorders.$inactive ) then {5554103,514} else {5554103,515} , 'comm_personal_work_toggle' , null , event.object.$defaultorders? , 0  , true ] , 
+[ 'button' , {5554103,516} , 'comm_personal_transfer' , null , true , null , true ] , 
 [ 'text' , '' ] 
 ]"/>
             <!--TO DO: Standby Check here-->
@@ -766,21 +766,21 @@
             <!-- begin of Pester Level Settings -->
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 4 ] ] , [ 'text' , '\033R Pester Level: ' + event.object.$ut_cac.$loglevel ] , [ 'text' , '\033RLog Level: ' + event.object.$ut_cac.$loglevel ] ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , '\033RSet Pester to 0' , 'comm_personal_pester_set' , null , true , 0  , true ] , 
-[ 'button' , '\033RSet Pester to 20' , 'comm_personal_pester_set' , null , true , 20  , true ] , 
-[ 'button' , '\033RSet Log to 0' , 'comm_personal_log_set' , null , true , 0  , true ] , 
-[ 'button' , '\033RSet Log to 20' , 'comm_personal_log_set' , null , true , 20  , true ] ]"/>
+[ 'button' , {5554103,517}.[0] , 'comm_personal_pester_set' , null , true , 0  , true ] , 
+[ 'button' , {5554103,517}.[20] , 'comm_personal_pester_set' , null , true , 20  , true ] , 
+[ 'button' , {5554103,518}.[0] , 'comm_personal_log_set' , null , true , 0  , true ] , 
+[ 'button' , {5554103,518}.[20] , 'comm_personal_log_set' , null , true , 20  , true ] ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , '\033RSet Pester to 40' , 'comm_personal_pester_set' , null , true , 40  , true ] , 
-[ 'button' , '\033RSet Pester to 60' , 'comm_personal_pester_set' , null , true , 60  , true ] , 
-[ 'button' , '\033RSet Log to 40' , 'comm_personal_log_set' , null , true , 40  , true ] , 
-[ 'button' , '\033RSet Log to 60' , 'comm_personal_log_set' , null , true , 60  , true ] 
+[ 'button' , {5554103,517}.[40] , 'comm_personal_pester_set' , null , true , 40  , true ] , 
+[ 'button' , {5554103,517}.[60] , 'comm_personal_pester_set' , null , true , 60  , true ] , 
+[ 'button' , {5554103,518}.[40] , 'comm_personal_log_set' , null , true , 40  , true ] , 
+[ 'button' , {5554103,518}.[60] , 'comm_personal_log_set' , null , true , 60  , true ] 
 ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , '\033RSet Pester to 80' , 'comm_personal_pester_set' , null , true , 80  , true ] , 
-[ 'button' , '\033RSet Pester to 100' , 'comm_personal_pester_set' , null , true , 100  , true ] , 
-[ 'button' , '\033RSet Log to 80' , 'comm_personal_log_set' , null , true , 80  , true ] ,  
-[ 'button' , '\033RSet Log to 100' , 'comm_personal_log_set' , null , true , 100  , true ] 
+[ 'button' , {5554103,517}.[80] , 'comm_personal_pester_set' , null , true , 80  , true ] , 
+[ 'button' , {5554103,517}.[100] , 'comm_personal_pester_set' , null , true , 100  , true ] , 
+[ 'button' , {5554103,518}.[80] , 'comm_personal_log_set' , null , true , 80  , true ] ,  
+[ 'button' , {5554103,518}.[100] , 'comm_personal_log_set' , null , true , 100  , true ] 
 ]"/>
             <!-- End of Pester Level Settings -->
           </do_if>
@@ -856,9 +856,9 @@
                 2 DO
                 3 Engineer
                 -->
-                <add_player_choice_sub text="'\033RCaptain'" position="1" section="comm_personal_transfer_jobselected" choiceparam="'captain'"/>
-                <add_player_choice_sub text="'\033RDefense'" position="2" section="comm_personal_transfer_jobselected" choiceparam="'defense'"/>
-                <add_player_choice_sub text="'\033REngineer'" position="3" section="comm_personal_transfer_jobselected" choiceparam="'engineer'"/>
+                <add_player_choice_sub text="{5554103,551}" position="1" section="comm_personal_transfer_jobselected" choiceparam="'captain'"/>
+                <add_player_choice_sub text="{5554103,552}" position="2" section="comm_personal_transfer_jobselected" choiceparam="'defense'"/>
+                <add_player_choice_sub text="{5554103,553}" position="3" section="comm_personal_transfer_jobselected" choiceparam="'engineer'"/>
                 <do_if value="$selectedobject.buildmodule.exists" comment="Is Constructionvessel?">
                   <!-- 4 Architect-->
                   <!-- 5 Standby for Station completion - new sub-Menu:
@@ -866,10 +866,10 @@
                             .2 DO
                             .3 Engineer
                   -->
-                  <add_player_choice_sub text="'\033RArchitect'" position="4" section="comm_personal_transfer_jobselected" choiceparam="'architect'"/>
+                  <add_player_choice_sub text="{5554103,554}" position="4" section="comm_personal_transfer_jobselected" choiceparam="'architect'"/>
                   <do_if value="$selectedobject.buildmodule.buildanchor.isconstruction or not $selectedobject.buildmodule.buildanchor.exists">
-                    <add_player_choice_sub text="'\033RManager'" position="5" section="comm_personal_transfer_jobselected" choiceparam="'manager'"/>
-                    <add_player_choice_sub text="'\033RWait till construction complete as..'" position="6" section="comm_personal_transfer_standby_as"/>
+                    <add_player_choice_sub text="{5554103,555}" position="5" section="comm_personal_transfer_jobselected" choiceparam="'manager'"/>
+                    <add_player_choice_sub text="{5554103,560}" position="6" section="comm_personal_transfer_standby_as"/>
                   </do_if>
                 </do_if>
                 <do_else>
@@ -882,7 +882,7 @@
                   </do_all>
                   <do_if value="$dock_found.exists">
                     <!-- 5 Pilot (for contained small Ships - Functionality not present yet - just reserving the slot -->
-                    <add_player_choice_sub text="'\033RPilot for Fighters'" position="5" section="comm_personal_transfer_jobselected" choiceparam="'carrier pilot'" selectable="false" tooltip="'Not Implemented Yet'"/>
+                    <add_player_choice_sub text="{5554103,559}" position="5" section="comm_personal_transfer_jobselected" choiceparam="'carrier pilot'" selectable="false" tooltip="'Not Implemented Yet'"/>
                   </do_if>
                   <remove_value name="$dock_found"/>
                 </do_else>
@@ -893,9 +893,9 @@
                 2 DO (2 or 3-seater only, and only when there are Turrets!)
                 3 Engineer (2 or 3-seater only)
                 -->
-                <add_player_choice_sub text="'\033RPilot'" position="1" section="comm_personal_transfer_jobselected" choiceparam="'pilot'"/>
-                <add_player_choice_sub text="'\033RDefense'" position="2" section="comm_personal_transfer_jobselected" choiceparam="'defense'" selectable="false" tooltip="'Not Implemented Yet'"/>
-                <add_player_choice_sub text="'\033REngineer'" position="3" section="comm_personal_transfer_jobselected" choiceparam="'engineer'" selectable="false" tooltip="'Not Implemented Yet'"/>
+                <add_player_choice_sub text="{5554103,556}" position="1" section="comm_personal_transfer_jobselected" choiceparam="'pilot'"/>
+                <add_player_choice_sub text="{5554103,552}" position="2" section="comm_personal_transfer_jobselected" choiceparam="'defense'" selectable="false" tooltip="'Not Implemented Yet'"/>
+                <add_player_choice_sub text="{5554103,553}" position="3" section="comm_personal_transfer_jobselected" choiceparam="'engineer'" selectable="false" tooltip="'Not Implemented Yet'"/>
               </do_elseif>
               <do_elseif value="$selectedobject.isclass.station">
                 <!-- Jobs:
@@ -903,12 +903,12 @@
                 2 DO
                 3 Engineer
                 -->
-                <add_player_choice_sub text="'\033RManager'" position="1" section="comm_personal_transfer_jobselected" choiceparam="'manager'"/>
-                <add_player_choice_sub text="'\033RDefense'" position="2" section="comm_personal_transfer_jobselected" choiceparam="'defense'"/>
-                <add_player_choice_sub text="'\033REngineer'" position="3" section="comm_personal_transfer_jobselected" choiceparam="'engineer'"/>
+                <add_player_choice_sub text="{5554103,555}" position="1" section="comm_personal_transfer_jobselected" choiceparam="'manager'"/>
+                <add_player_choice_sub text="{5554103,552}" position="2" section="comm_personal_transfer_jobselected" choiceparam="'defense'"/>
+                <add_player_choice_sub text="{5554103,553}" position="3" section="comm_personal_transfer_jobselected" choiceparam="'engineer'"/>
                 <do_if value="$selectedobject.canbuildships">
                   <!-- 5 Standby for constructed Ships -->
-                  <add_player_choice_sub text="'\033RWait till construction complete as..'" position="5" section="comm_personal_transfer_standby_as"/>
+                  <add_player_choice_sub text="{5554103,560}" position="5" section="comm_personal_transfer_standby_as"/>
                 </do_if>
               </do_elseif>
             </do_if>
@@ -917,17 +917,17 @@
                 <!-- Jobs:
                 5 Trade Agent
                 -->
-                <add_player_choice_sub text="'\033RTrade Agent'" position="5" section="comm_personal_transfer_jobselected" choiceparam="'tradeagent'"/>
+                <add_player_choice_sub text="{5554103,557}" position="5" section="comm_personal_transfer_jobselected" choiceparam="'tradeagent'"/>
                 <do_if value="$selectedobject.canbuildships" comment="Big">
                   <!-- Standby for completed Construction as:
                   1 - Captain
                   2 - DO
                   3 - Engineer
                   4 - Architect -->
-                  <add_player_choice_sub text="'\033RStandby - Captain'" position="1" section="comm_personal_transfer_jobselected" choiceparam="'standby captain'"/>
-                  <add_player_choice_sub text="'\033RStandby - Defense'" position="2" section="comm_personal_transfer_jobselected" choiceparam="'standby defense'"/>
-                  <add_player_choice_sub text="'\033RStandby - Engineer'" position="3" section="comm_personal_transfer_jobselected" choiceparam="'standy engineer'"/>
-                  <add_player_choice_sub text="'\033RStandby - Architect'" position="4" section="comm_personal_transfer_jobselected" choiceparam="'standby architect'"/>
+                  <add_player_choice_sub text="{5554103,560}.[{5554103,551}]" position="1" section="comm_personal_transfer_jobselected" choiceparam="'standby captain'"/>
+                  <add_player_choice_sub text="{5554103,560}.[{5554103,552}]" position="2" section="comm_personal_transfer_jobselected" choiceparam="'standby defense'"/>
+                  <add_player_choice_sub text="{5554103,560}.[{5554103,553}]" position="3" section="comm_personal_transfer_jobselected" choiceparam="'standy engineer'"/>
+                  <add_player_choice_sub text="{5554103,560}.[{5554103,554}]" position="4" section="comm_personal_transfer_jobselected" choiceparam="'standby architect'"/>
                 </do_if>
               </do_if>
               <do_elseif value="$selectedobject.isconstructionvessel">
@@ -935,12 +935,12 @@
                 4 Standby as Trade Agent for completed Station
                 5 Trade Agent
                 -->
-                <add_player_choice_sub text="'\033RStandby - Trade Agent'" position="4" section="comm_personal_transfer_jobselected" choiceparam="'standby tradeagent'"/>
-                <add_player_choice_sub text="'\033RTrade Agent'" position="5" section="comm_personal_transfer_jobselected" choiceparam="'tradeagent'"/>
+                <add_player_choice_sub text="{5554103,560}.[{5554103,557}]" position="4" section="comm_personal_transfer_jobselected" choiceparam="'standby tradeagent'"/>
+                <add_player_choice_sub text="{5554103,557}" position="5" section="comm_personal_transfer_jobselected" choiceparam="'tradeagent'"/>
               </do_elseif>
             </do_else>
             <!-- 6 Standby on Object -->
-            <add_player_choice_sub text="'\033RWait there'" position="6" section="comm_personal_transfer_jobselected" choiceparam="'standby'"/>
+            <add_player_choice_sub text="{5554103,562}" position="6" section="comm_personal_transfer_jobselected" choiceparam="'standby'"/>
           </do_else>
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer_standby_as'">
@@ -954,9 +954,9 @@
               2 DO
               3 Engineer
               -->
-              <add_player_choice_sub text="'\033RStandby - Manager'" position="1" section="comm_personal_transfer_jobselected" choiceparam="'standby manager'"/>
-              <add_player_choice_sub text="'\033RStandby - Defense'" position="2" section="comm_personal_transfer_jobselected" choiceparam="'standby defense'"/>
-              <add_player_choice_sub text="'\033RStandby - Engineer'" position="3" section="comm_personal_transfer_jobselected" choiceparam="'standby engineer'"/>
+              <add_player_choice_sub text="{5554103,560}.[{5554103,555}]" position="1" section="comm_personal_transfer_jobselected" choiceparam="'standby manager'"/>
+              <add_player_choice_sub text="{5554103,560}.[{5554103,552}]" position="2" section="comm_personal_transfer_jobselected" choiceparam="'standby defense'"/>
+              <add_player_choice_sub text="{5554103,560}.[{5554103,553}]" position="3" section="comm_personal_transfer_jobselected" choiceparam="'standby engineer'"/>
             </do_if>
             <do_elseif value="$selectedobject.isclass.station" comment="Is Shipyard?">
                   <!-- Standby for completed Construction as:
@@ -964,12 +964,12 @@
                   2 - DO
                   3 - Engineer
                   4 - Architect -->
-                  <add_player_choice_sub text="'\033RStandby - Captain'" position="1" section="comm_personal_transfer_jobselected" choiceparam="'standby captain'"/>
-                  <add_player_choice_sub text="'\033RStandby - Defense'" position="2" section="comm_personal_transfer_jobselected" choiceparam="'standby defense'"/>
-                  <add_player_choice_sub text="'\033RStandby - Engineer'" position="3" section="comm_personal_transfer_jobselected" choiceparam="'standy engineer'"/>
-                  <add_player_choice_sub text="'\033RStandby - Architect'" position="4" section="comm_personal_transfer_jobselected" choiceparam="'standby architect'"/>
+                  <add_player_choice_sub text="{5554103,560}.[{5554103,551}]" position="1" section="comm_personal_transfer_jobselected" choiceparam="'standby captain'"/>
+                  <add_player_choice_sub text="{5554103,560}.[{5554103,552}]" position="2" section="comm_personal_transfer_jobselected" choiceparam="'standby defense'"/>
+                  <add_player_choice_sub text="{5554103,560}.[{5554103,553}]" position="3" section="comm_personal_transfer_jobselected" choiceparam="'standy engineer'"/>
+                  <add_player_choice_sub text="{5554103,560}.[{5554103,554}]" position="4" section="comm_personal_transfer_jobselected" choiceparam="'standby architect'"/>
             </do_elseif>
-              <add_player_choice_sub text="'\033RJust Wait there'" position="6" section="comm_personal_transfer_jobselected" choiceparam="'standby'"/>
+              <add_player_choice_sub text="{5554103,562}" position="6" section="comm_personal_transfer_jobselected" choiceparam="'standby'"/>
           </do_else>
         </do_elseif>
         <do_elseif value="event.param == 'comm_personal_transfer_jobselected'">
