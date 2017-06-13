@@ -11,9 +11,6 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="destination" default="null" comment="New Workplace OBJECT. if you also want a specific Dock then pass it as dock,set tos null to use hierarchy change only"/>
     <param name="dock" default="null" comment="The Dock the Entity should be on finally. Primarily intended for Standby on Shipyards, defaults to Admin Dock (Stations) or Landing Pad (Ships). 'random' also supported. (maybe support tags?), set to null for hierarchy change only"/>
-    <param name="new_superior" default="null" comment="New Superior - used for Hierarchy changes, not personal Transfer. will be applied after arriving at Workplace (and, if its a Ship, move it there)"/>
-    <param name="new_superiortype" default="null" comment="New Superiortype - used for Hierarchy changes, not personal Transfer. will be applied after arriving at Workplace (and, if its a Ship, move it there)"/>
-    <param name="new_superior_skipnav" default="false" comment="Skip moving to new Superior for hierarchy changes"/>
     <param name="job" default="'standby'" comment="the Job the NPC should perform when arrived. Will set the existing one to Standby if its replacing one. custom is also available to pass a new defaultorders Script and entitytype directly"/>
     <param name="new_type" default="null" comment="if the new Job is not directly implemented in this Script pass the new fitting entity type here."/>
     <param name="new_defaultorders" default="null" comment="New defaultorders Scripts table. used in the case of a custom next job."/>
@@ -27,15 +24,6 @@
         </do_if>
         <do_if value="$params.$dock?">
           <set_value name="$dock" exact="$params.$dock"/>
-        </do_if>
-        <do_if value="$params.$new_superior?">
-          <set_value name="$new_superior" exact="$params.$new_superior"/>
-        </do_if>
-        <do_if value="$params.$new_superiortype?">
-          <set_value name="$new_superiortype" exact="$params.$new_superiortype"/>
-        </do_if>
-        <do_if value="$params.$new_superior_skipnav?">
-          <set_value name="$new_superior_skipnav" exact="$params.$new_superior_skipnav"/>
         </do_if>
         <do_if value="$params.$job?">
           <set_value name="$job" exact="$params.$job"/>
@@ -53,7 +41,7 @@
   <attention min="unknown">
     <actions>
       <!-- Validate Input and get missing Values -->
-      <do_if value="not $destination.exists and not $new_superior.exists">
+      <do_if value="not $destination.exists">
         <debug_text filter="error" text="'%1 %2 Destination and new Superior does not exist - aborting!'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
@@ -74,207 +62,180 @@
       <remove_value name="this.$ut_cac.$settings_section" comment="no Settings until this arrived at his assigned Workplace!"/>
       <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']" comment="failsafe in case something goes wrong"/>
       
-      <!-- Fly to new Assignment (if given) -->
-      <do_if value="$destination.exists">
-        <!-- dismiss Control Entity if assigned -->
-        <do_if value="this.container.pilot == this">
-          <dismiss_pilot object="this.container"/>
-          <!--dismiss_control_entity object="this.container" actor="this"/-->
-          <stop_moving object="this.ship"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Pilot'.[this.name,this.container.name]"/>
+      <!-- Fly to new Assignment -->
+      <!-- dismiss Control Entity if assigned -->
+      <do_if value="this.container.pilot == this">
+        <dismiss_pilot object="this.container"/>
+        <!--dismiss_control_entity object="this.container" actor="this"/-->
+        <stop_moving object="this.ship"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Pilot'.[this.name,this.container.name]"/>
+      </do_if>
+      <do_if value="this.container.defencenpc == this">
+        <dismiss_control_entity object="this.container" actor="this"/>
+        <cease_fire object="this.ship"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as DO'.[this.name,this.container.name]"/>
+      </do_if>
+      <do_if value="this.container.engineer == this">
+        <dismiss_control_entity object="this.container" actor="this"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Engineer'.[this.name,this.container.name]"/>
+      </do_if>
+      <do_if value="this.container.tradenpc == this">
+        <dismiss_control_entity object="this.container" actor="this"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Manager'.[this.name,this.container.name]"/>
+      </do_if>
+      <do_if value="this.container.architect == this">
+        <dismiss_control_entity object="this.container" actor="this"/>
+        <remove_value name="this.$ut_cac.$construction"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Architect'.[this.name,this.container.name]"/>
+      </do_if>
+      <do_if value="this.hasownaccount and this.isplayerowned" comment="remove Actor Account (a new one will be set up if needed)">
+        <remove_actor_account actor="this" transfer="true"/>
+      </do_if>
+      
+      <!-- use specific Dock when sending Actor to a Ship/Station -->
+      <do_if value="$destination.isclass.container and not $dock">
+        <do_if value="$destination.isclass.station">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination is a Station - Attempting to use Administrative dock'.[this.name,this.container.name]"/>
+          <set_value name="$dock" exact="'administrative'"/>
         </do_if>
-        <do_if value="this.container.defencenpc == this">
-          <dismiss_control_entity object="this.container" actor="this"/>
-          <cease_fire object="this.ship"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as DO'.[this.name,this.container.name]"/>
+        <do_else>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination is a Ship (?) - Attempting to use random dock'.[this.name,this.container.name]"/>
+          <set_value name="$dock" exact="'random'"/>
+        </do_else>
+      </do_if>
+      
+      <!-- Get Target Dock -->
+      <do_if value="typeof $dock == datatype.string or typeof $dock == datatype.keyword">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Locating Dock, type %3'.[this.name,this.container.name,$dock]"/>
+        <do_if value="$dock == 'random'">
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" numfreeactorslots="1" />
         </do_if>
-        <do_if value="this.container.engineer == this">
-          <dismiss_control_entity object="this.container" actor="this"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Engineer'.[this.name,this.container.name]"/>
+        <do_elseif value="$dock == 'build'">
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.build" numfreeactorslots="1" />
+        </do_elseif>
+        <do_elseif value="$dock == 'trade'">
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.trade" numfreeactorslots="1" />
+        </do_elseif>
+        <do_elseif value="$dock == 'drones'">
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.drones" numfreeactorslots="1" />
+        </do_elseif>
+        <do_elseif value="$dock == 'ships'">
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.ships" numfreeactorslots="1" />
+        </do_elseif>
+        <do_elseif value="$dock == 'repair'">
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.repair" numfreeactorslots="1" />
+        </do_elseif>
+        <do_elseif value="$dock == 'ammo'">
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.ammo" numfreeactorslots="1" />
+        </do_elseif>
+        <do_elseif value="$dock == 'bar'">
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.bar" numfreeactorslots="1" />
+        </do_elseif>
+        <do_elseif value="$dock == 'administrative'">
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.administrative" numfreeactorslots="1" />
+        </do_elseif>
+        <do_if value="typeof $dock == datatype.string or typeof $dock == datatype.keyword or $dock == null or not $dock.numfreeactorslots">
+          <!-- Fallback: Random Dock -->
+          <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" numfreeactorslots="1" />
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Random Fallback'.[this.name,this.container.name,$dock,$destination.name]"/>
         </do_if>
-        <do_if value="this.container.tradenpc == this">
-          <dismiss_control_entity object="this.container" actor="this"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Manager'.[this.name,this.container.name]"/>
-        </do_if>
-        <do_if value="this.container.architect == this">
-          <dismiss_control_entity object="this.container" actor="this"/>
-          <remove_value name="this.$ut_cac.$construction"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Architect'.[this.name,this.container.name]"/>
-        </do_if>
-        <do_if value="this.hasownaccount and this.isplayerowned" comment="remove Actor Account (a new one will be set up if needed)">
-          <remove_actor_account actor="this" transfer="true"/>
-        </do_if>
-        
-        <!-- use specific Dock when sending Actor to a Ship/Station -->
-        <do_if value="$destination.isclass.container and not $dock">
-          <do_if value="$destination.isclass.station">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination is a Station - Attempting to use Administrative dock'.[this.name,this.container.name]"/>
-            <set_value name="$dock" exact="'administrative'"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 selected %3'.[this.name,this.container.name,$dock]"/>
+      </do_if>
+      <do_if value="not $dock or typeof $dock == datatype.string or typeof $dock == datatype.keyword">
+        <!-- use Default Dock on Object on arrival -->
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Dock not existent ( %3 ) - nulling'.[this.name,this.container.name,@$dock]"/>
+        <set_value name="$dock" exact="null"/>
+      </do_if>
+      <do_else>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Dock Used: %3'.[this.name,this.container.name,@$dock]"/>
+      </do_else>
+      
+      <!-- save current entity type in case it has to be restored-->
+      <set_value name="$previoustype" exact="this.type"/>
+      
+      
+      <!-- wait till Player has finished Conversation, its annoying when NPC just disappears -->
+      <do_if value="player.isinconversation">
+        <wait>
+          <interrupt>
+            <conditions>
+              <event_conversation_finished actor="this"/>
+            </conditions>
+          </interrupt>
+        </wait>
+        <wait exact="2s"/>
+      </do_if>
+      
+      
+      <do_if value="$destination == this.container">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Already on right Container, no Transport needed'.[this.name,this.container.name]"/>
+        <do_if value="@$dock.component.exists">
+          <do_if value="$dock.component.parent == this.room.parent and not (this.container.defencenpc == this)">
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Already on right Platform - no Movement.'.[this.name,this.container.name]"/>
           </do_if>
           <do_else>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Destination is a Ship (?) - Attempting to use random dock'.[this.name,this.container.name]"/>
-            <set_value name="$dock" exact="'random'"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving Actor to Dock %3'.[this.name,this.container.name,$dock]"/>
+            <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
           </do_else>
         </do_if>
         
-        <!-- Get Target Dock -->
-        <do_if value="typeof $dock == datatype.string or typeof $dock == datatype.keyword">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Locating Dock, type %3'.[this.name,this.container.name,$dock]"/>
-          <do_if value="$dock == 'random'">
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" numfreeactorslots="1" />
+      </do_if>
+      <!-- Get Means of Transport and use it to Destination -->
+      <!-- Get Destination of Ships in current Zone and if one fits - Hitchhike -->
+      <!-- Use Unused Ship at current Container and fly it to Destination -->
+      <do_else>
+        <!-- Simple fallback case: Create a Temp Ship (base it on Cluster?), fly it to Destination,  Destroy it -->
+        <set_entity_type entity="this" type="entitytype.pilot" comment="convert to an type who is able to pilot ships"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Transport Ship'.[this.name,this.container.name]"/>
+        <create_ship name="$transport_ship" dock="this.container" capturable="false" sellable="false" group="albion_light_fighter">
+          <pilot actor="this"/>
+        </create_ship>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Created Transport Ship, Results:\nTransport Ship: %3 ; Pilot: %4'.[this.name,this.container.name,@$transport_ship.name,@this.ship.pilot.name]"/>
+        
+        <!-- Fly Ship to Destination -->
+        <run_script name="'move.generic'">
+          <param name="destination" value="$destination" />
+          <param name="endintargetzone" value="true" />
+        </run_script>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moved to Destination Zone'.[this.name,this.container.name]"/>
+        
+        <!-- (attempt to) Dock at Destination -->
+        <run_script name="'move.dockat'" result="$dockresult">
+          <param name="destination" value="$destination" />
+        </run_script>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Docked at Target: %3'.[this.name,this.container.name,$dockresult]"/>
+        
+        <!-- Assuming we have docked at Destination - transfer NPC, Destroy Ship, move to common Finish Part -->
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving Actor into Target, Destroying Ship'.[this.name,this.container.name]"/>
+        <set_value name="$success" exact="false"/>
+        <do_if value="@$dock.component.exists">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Attempting to put actor into %3 on %4'.[this.name,this.container.name,$dock,$destination.name]"/>
+          <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
+        </do_if>
+        <do_if value="not $success">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Attempting to put actor on %3 '.[this.name,this.container.name,$destination.name]"/>
+          <add_actor_to_room actor="this" object="$destination" result="$success" />
+        </do_if>
+        <do_if value="not $success or not this.container">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Putting actor into dock/station not succesful - trying fallback.. ($success: %3, container: %4'.[this.name,@this.container.name,$success,@$actor.container.name]"/>
+          <!-- ok, adding actor to originally intended platform did not work, try to find another one -->
+          <find_dock_location container="$destination" name="$dock" numfreeactorslots="1" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.administrative" />
+          <do_if value="not $dock">
+            <find_dock_location container="$destination" name="$dock" numfreeactorslots="1" size="player.primaryship.docksize" />
           </do_if>
-          <do_elseif value="$dock == 'build'">
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.build" numfreeactorslots="1" />
-          </do_elseif>
-          <do_elseif value="$dock == 'trade'">
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.trade" numfreeactorslots="1" />
-          </do_elseif>
-          <do_elseif value="$dock == 'drones'">
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.drones" numfreeactorslots="1" />
-          </do_elseif>
-          <do_elseif value="$dock == 'ships'">
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.ships" numfreeactorslots="1" />
-          </do_elseif>
-          <do_elseif value="$dock == 'repair'">
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.repair" numfreeactorslots="1" />
-          </do_elseif>
-          <do_elseif value="$dock == 'ammo'">
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.ammo" numfreeactorslots="1" />
-          </do_elseif>
-          <do_elseif value="$dock == 'bar'">
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.bar" numfreeactorslots="1" />
-          </do_elseif>
-          <do_elseif value="$dock == 'administrative'">
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.administrative" numfreeactorslots="1" />
-          </do_elseif>
-          <do_if value="typeof $dock == datatype.string or typeof $dock == datatype.keyword or $dock == null or not $dock.numfreeactorslots">
-            <!-- Fallback: Random Dock -->
-            <find_dock_location name="$dock" container="$destination" size="player.primaryship.docksize" numfreeactorslots="1" />
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Random Fallback'.[this.name,this.container.name,$dock,$destination.name]"/>
-          </do_if>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 selected %3'.[this.name,this.container.name,$dock]"/>
-        </do_if>
-        <do_if value="not $dock or typeof $dock == datatype.string or typeof $dock == datatype.keyword">
-          <!-- use Default Dock on Object on arrival -->
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Dock not existent ( %3 ) - nulling'.[this.name,this.container.name,@$dock]"/>
-          <set_value name="$dock" exact="null"/>
-        </do_if>
-        <do_else>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Dock Used: %3'.[this.name,this.container.name,@$dock]"/>
-        </do_else>
-        
-        <!-- save current entity type in case it has to be restored-->
-        <set_value name="$previoustype" exact="this.type"/>
-        
-        
-        <!-- wait till Player has finished Conversation, its annoying when NPC just disappears -->
-        <do_if value="player.isinconversation">
-          <wait>
-            <interrupt>
-              <conditions>
-                <event_conversation_finished actor="this"/>
-              </conditions>
-            </interrupt>
-          </wait>
-          <wait exact="2s"/>
-        </do_if>
-        
-        
-        <do_if value="$destination == this.container">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Already on right Container, no Transport needed'.[this.name,this.container.name]"/>
-          <do_if value="@$dock.component.exists">
-            <do_if value="$dock.component.parent == this.room.parent and not (this.container.defencenpc == this)">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Already on right Platform - no Movement.'.[this.name,this.container.name]"/>
-            </do_if>
-            <do_else>
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving Actor to Dock %3'.[this.name,this.container.name,$dock]"/>
-              <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
-            </do_else>
-          </do_if>
-          
-        </do_if>
-        <!-- Get Means of Transport and use it to Destination -->
-        <!-- Get Destination of Ships in current Zone and if one fits - Hitchhike -->
-        <!-- Use Unused Ship at current Container and fly it to Destination -->
-        <do_else>
-          <!-- Simple fallback case: Create a Temp Ship (base it on Cluster?), fly it to Destination,  Destroy it -->
-          <set_entity_type entity="this" type="entitytype.pilot" comment="convert to an type who is able to pilot ships"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Transport Ship'.[this.name,this.container.name]"/>
-          <create_ship name="$transport_ship" dock="this.container" capturable="false" sellable="false" group="albion_light_fighter">
-            <pilot actor="this"/>
-          </create_ship>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Created Transport Ship, Results:\nTransport Ship: %3 ; Pilot: %4'.[this.name,this.container.name,@$transport_ship.name,@this.ship.pilot.name]"/>
-          
-          <!-- Fly Ship to Destination -->
-          <run_script name="'move.generic'">
-            <param name="destination" value="$destination" />
-            <param name="endintargetzone" value="true" />
-          </run_script>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moved to Destination Zone'.[this.name,this.container.name]"/>
-          
-          <!-- (attempt to) Dock at Destination -->
-          <run_script name="'move.dockat'" result="$dockresult">
-            <param name="destination" value="$destination" />
-          </run_script>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Docked at Target: %3'.[this.name,this.container.name,$dockresult]"/>
-          
-          <!-- Assuming we have docked at Destination - transfer NPC, Destroy Ship, move to common Finish Part -->
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving Actor into Target, Destroying Ship'.[this.name,this.container.name]"/>
-          <set_value name="$success" exact="false"/>
-          <do_if value="@$dock.component.exists">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Attempting to put actor into %3 on %4'.[this.name,this.container.name,$dock,$destination.name]"/>
+          <do_if value="$dock">
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Attempting to put actor into %3  on %4 '.[this.name,@this.container.name,$dock,$destination.name]"/>
             <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
           </do_if>
-          <do_if value="not $success">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Attempting to put actor on %3 '.[this.name,this.container.name,$destination.name]"/>
-            <add_actor_to_room actor="this" object="$destination" result="$success" />
-          </do_if>
-          <do_if value="not $success or not this.container">
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Putting actor into dock/station not succesful - trying fallback.. ($success: %3, container: %4'.[this.name,@this.container.name,$success,@$actor.container.name]"/>
-            <!-- ok, adding actor to originally intended platform did not work, try to find another one -->
-            <find_dock_location container="$destination" name="$dock" numfreeactorslots="1" size="player.primaryship.docksize" dockpopulationtype="dockpopulationtype.administrative" />
-            <do_if value="not $dock">
-              <find_dock_location container="$destination" name="$dock" numfreeactorslots="1" size="player.primaryship.docksize" />
-            </do_if>
-            <do_if value="$dock">
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Attempting to put actor into %3  on %4 '.[this.name,@this.container.name,$dock,$destination.name]"/>
-              <add_actor_to_platform actor="this" dockingbay="$dock.component" result="$success" />
-            </do_if>
-          </do_if>
-          <do_if value="not $success or not this.container">
-            <debug_text filter="error" text="'%1 %2 Moving Actor into Destination was not successful. $dock: %3 $destination: %4'.[this.name,this.container.name,@$dock,@$destination.name]"/>
-            <destroy_object object="$transport_ship" explosion="false"/>
-            <destroy_object object="this" explosion="false"/>
-            <return/>
-          </do_if>
+        </do_if>
+        <do_if value="not $success or not this.container">
+          <debug_text filter="error" text="'%1 %2 Moving Actor into Destination was not successful. $dock: %3 $destination: %4'.[this.name,this.container.name,@$dock,@$destination.name]"/>
           <destroy_object object="$transport_ship" explosion="false"/>
-        </do_else>
-      </do_if>
-      
-      
-      <!-- switch to new Superior if passed -->
-      <do_if value="$new_superior.exists">
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Assigning to new Superior %3'.[this.name,this.container.name,$new_superior.name]"/>
-        <do_if value="$new_superiortype">
-          <set_object_commander object="this.ship" commander="$new_superior" type="$new_superiortype"/>
+          <destroy_object object="this" explosion="false"/>
+          <return/>
         </do_if>
-        <do_else>
-          <set_object_commander object="this.ship" commander="$new_superior"/>
-        </do_else>
-        
-        <!-- Exit if we skip Navigation -->
-        <do_if value="$new_superior_skipnav ">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Received New Orders - Exiting (start Case)'.[this.name,this.container.name]"/>
-          <resume label="finish"/>
-        </do_if>
-        
-        <!-- move to new superior -->
-        <run_script name="'ut.cac.move.generic'">
-          <param name="destination" value="$new_superior" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
-          <param name="endintargetspace" value="true" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
-          <param name="exitonneworder" value="false" comment="This Script should interrupt, not the called Script!!!"/>
-        </run_script>
-      </do_if>
+        <destroy_object object="$transport_ship" explosion="false"/>
+      </do_else>
       
       
       <label name="finish"/>  

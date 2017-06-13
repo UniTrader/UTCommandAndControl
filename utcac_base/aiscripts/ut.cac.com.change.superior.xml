@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.com.personal.transfer" version="30" priority="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+  by  UniTrader
+
+  Script to handle Transfers of Personal to a certain Place and assign their new Job (or set them on Standby properly)
+  
+  Intended to be used together with md.UT_CAC_Events.Change_Workplace (used to finalize the Workplace change)
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="new_superior" default="null" comment="New Superior - used for Hierarchy changes, not personal Transfer. will be applied after arriving at Workplace (and, if its a Ship, move it there)"/>
+    <param name="new_superiortype" default="null" comment="New Superiortype - used for Hierarchy changes, not personal Transfer. will be applied after arriving at Workplace (and, if its a Ship, move it there)"/>
+    <param name="skipnav" default="false" comment="Skip moving to new Superior for hierarchy changes"/>
+    <param name="new_defaultorders" default="null" comment="New defaultorders Scripts table. will override the old one on Arrival. If set to true a default fitting to the new Superior will be used, otherwise the current one will be kept."/>
+    
+  </params>
+  <init>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$destination?">
+          <set_value name="$destination" exact="$params.$destination"/>
+        </do_if>
+        <do_if value="$params.$new_superior?">
+          <set_value name="$new_superior" exact="$params.$new_superior"/>
+        </do_if>
+        <do_if value="$params.$new_superiortype?">
+          <set_value name="$new_superiortype" exact="$params.$new_superiortype"/>
+        </do_if>
+        <do_if value="$params.$skipnav?">
+          <set_value name="$skipnav" exact="$params.$skipnav"/>
+        </do_if>
+        <do_if value="$params.$new_defaultorders?">
+          <set_value name="$new_defaultorders" exact="$params.$new_defaultorders"/>
+        </do_if>
+      </do_if>
+  </init>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <!-- Validate Input and get missing Values -->
+      <do_if value="not $new_superior.exists">
+        <debug_text filter="error" text="'%1 %2 new Superior does not exist - aborting!'.[this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started'.[this.name,this.container.name]"/>
+      <set_value name="$params.$interruptable" exact="false" comment="Order may not be stopped anymore!"/>
+      <!--remove_value name="this.$ut_cac.$orders_section" comment="no Orders until this arrived at his assigned Workplace!"/>
+      <remove_value name="this.$ut_cac.$settings_section" comment="no Settings until this arrived at his assigned Workplace!"/>
+      <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']" comment="failsafe in case something goes wrong"/-->
+      
+      <!-- switch to new Superior -->
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Assigning to new Superior %3'.[this.name,this.container.name,$new_superior.name]"/>
+      <do_if value="$new_superiortype">
+        <set_object_commander object="this.ship" commander="$new_superior" type="$new_superiortype"/>
+      </do_if>
+      <do_else>
+        <set_object_commander object="this.ship" commander="$new_superior"/>
+      </do_else>
+      
+      <!-- Exit if we skip Navigation -->
+      <do_if value="$new_superior_skipnav ">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Skipping Navigation'.[this.name,this.container.name]"/>
+        <resume label="finish"/>
+      </do_if>
+      
+      <!-- move to new superior -->
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving to new Superior'.[this.name,this.container.name]"/>
+      <run_script name="'ut.cac.move.generic'">
+        <param name="destination" value="$new_superior" comment="can be a space or an object in a zone. Providing Sector and Cluster will attempt to find the nearest zone"/>
+        <param name="endintargetspace" value="true" comment="complete this script if we have the correct Space context, no matter where (may be Cluster, Sector or Zone, will resolve to Zone if an Object is the destination)"/>
+        <param name="exitonneworder" value="false" comment="This Script should interrupt, not the called Script!!!"/>
+      </run_script>
+      
+      
+      <label name="finish"/>  
+      <!-- Finalize - change defaultorders Script -->
+      <do_if value="$new_defaultorders == true">
+        <!--currently unused -->
+      </do_if>
+      <do_elseif value="typeof $new_defaultorders == datatype.table">
+        <set_value name="this.$ut_cac.$defaultorders" exact="$new_defaultorders"/>
+      </do_elseif>
+    </actions>
+  </attention>
+  <on_abort>
+  </on_abort>
+</aiscript>
