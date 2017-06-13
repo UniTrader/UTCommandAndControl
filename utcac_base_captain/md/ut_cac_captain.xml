@@ -71,13 +71,13 @@
           <!-- ToDo: Write the related Order - i am currently just reserving the Slot here so i will not use it for something else -->
           <do_if value="event.param2.exists">
             <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="[
-table[$script='ut.cac.microorder',$displayname='\033RHN\033X Retreat',$order='wait exact',$time=10s,$interruptable=true] ,
-table[$script='ut.cac.move.generic',$displayname='\033RReturn to %1'.[event.param2.knownname],$destination=event.param2,$endintargetspace=true,$interruptable=true] ,
-table[$script='ut.cac.microorder',$displayname='\033RWait (2h)',$order='wait exact',$time=2h,$interruptable=true,$exitonneworder=true]
+table[$script='ut.cac.microorder',$displayname={5554103,21000},$order='wait exact',$time=10s,$interruptable=true] ,
+table[$script='ut.cac.move.generic',$displayname={5554103,21001}.[event.param2.knownname],$destination=event.param2,$endintargetspace=true,$interruptable=true] ,
+table[$script='ut.cac.microorder',$displayname={5554103,20002}.[1h.formatted.default],$order='wait exact',$time=2h,$interruptable=true,$exitonneworder=true]
 ]"/>
           </do_if>
           <do_else>
-            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.microorder',$displayname='\033RHN\033X Retreat',$order='wait exact',$time=10s,$interruptable=true]"/>
+            <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.microorder',$displayname={5554103,21000},$order='wait exact',$time=10s,$interruptable=true]"/>
         </do_else>
         <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         <debug_text filter="error" text="'%1 Retreat Function not implemented yet!!!'.[event.object]"/>
@@ -93,7 +93,7 @@ table[$script='ut.cac.microorder',$displayname='\033RWait (2h)',$order='wait exa
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
           </do_if>
-          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.captain.patrol',$displayname='\033RPatrolling %1'.[event.param2.{3}.knownname],$space=event.param2.{3},$patroltime=$patroltime,$interruptable=true]"/>
+          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.com.captain.patrol',$displayname={5554103,21002}.[event.param2.{3}.knownname],$space=event.param2.{3},$patroltime=$patroltime,$interruptable=true]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_flyto_object'">
@@ -112,7 +112,7 @@ table[$script='ut.cac.microorder',$displayname='\033RWait (2h)',$order='wait exa
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
           </do_if>
-          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.move.generic',$displayname='\033RFly to %1'.[event.param2.{3}.knownname],$destination=event.param2.{3},$endintargetspace=true,$interruptable=true]"/>
+          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.move.generic',$displayname={5554103,21003}.[event.param2.{3}.knownname],$destination=event.param2.{3},$endintargetspace=true,$interruptable=true]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_follow'">
@@ -123,7 +123,7 @@ table[$script='ut.cac.microorder',$displayname='\033RWait (2h)',$order='wait exa
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
           </do_if>
-          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.move.follow.verysimple',$displayname='\033RFollow %1'.[if event.param2.{3}.controlentity.$shortname then event.param2.{3}.controlentity.$shortname else event.param2.{3}.knownname],$object=event.param2.{3},$interruptable=true]"/>
+          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.move.follow.verysimple',$displayname={5554103,21004}.[if event.param2.{3}.controlentity.$shortname then event.param2.{3}.controlentity.$shortname else event.param2.{3}.knownname],$object=event.param2.{3},$interruptable=true]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_escort'">
@@ -135,7 +135,7 @@ table[$script='ut.cac.microorder',$displayname='\033RWait (2h)',$order='wait exa
           <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
             <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation" />
           </do_if>
-          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.move.escort',$displayname='\033REscort %1'.[if event.param2.{3}.controlentity.$shortname then event.param2.{3}.controlentity.$shortname else event.param2.{3}.knownname],$escortee=event.param2.{3},$interruptable=true]"/>
+          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.move.escort',$displayname={5554103,21005}.[if event.param2.{3}.controlentity.$shortname then event.param2.{3}.controlentity.$shortname else event.param2.{3}.knownname],$escortee=event.param2.{3},$interruptable=true]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_signals'">
@@ -150,11 +150,11 @@ table[$script='ut.cac.microorder',$displayname='\033RWait (2h)',$order='wait exa
           <add_player_choice text="{5554104,1326}" position="6" section="comm_captain_orders_wait_signal_selected" choiceparam="[0LF,0LF,event.object.ship.commander]" />
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_send_signal_selected'">
-          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.microorder',$order='signalobject',$interruptable=true,$displayname='\033RSend Signal to %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
+          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.microorder',$order='signalobject',$interruptable=true,$displayname={5554103,21003}.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_orders_wait_signal_selected'">
-          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.microorder',$order='wait signal',$interruptable=true,$displayname='\033RWait for Signal on %1'.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
+          <set_value name="md.UT_CAC_Dialogue.Comm_Common_Orders.$new_order" exact="table[$script='ut.cac.microorder',$order='wait signal',$interruptable=true,$displayname={5554103,21004}.[event.param2.{3}.knownname],$signalobject=event.param2.{3},$signalparam='0x62656570']"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         
