@@ -39,14 +39,14 @@
           <set_value name="$testship" exact="this.$ut_cac.$availablefightships.random"/>
           <do_if value="$entity.ship.distanceto.{$testship} le 15km and $testship.pilot.$orderlist.{1}.$script == 'ut.cac.com.captain.patrol'">
             <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Will send escorting already Patroling Ship %3'.[this.name,this.container.name,$testship.name]"/>
-            <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname='\033RRefuel (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.move.escort',$displayname='\033REscorting %1 (Manager)'.[if $testship.controlentity.$shortname then $testship.controlentity.$shortname else $testship.knownname],$escortee=$testship,$time=2h,$exitonneworder=true,$interruptable=true] ]"/>
+            <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname={5554103,21006},$undock=2,$interruptable=true] , table[$script='ut.cac.move.escort',$displayname={5554103,21005}.[if $testship.controlentity.$shortname then $testship.controlentity.$shortname else $testship.knownname],$escortee=$testship,$time=2h,$exitonneworder=true,$interruptable=true] ]"/>
             <return value="true"/>
           </do_if>
         </do_all>
       </do_if>
       
       <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Will send to Patrol %3'.[this.name,this.container.name,this.zone.name]"/>
-      <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname='\033RRefuel (Manager)',$undock=2,$interruptable=true] , table[$script='ut.cac.com.captain.patrol',$displayname='\033RPatrolling %1 (Manager)'.[this.zone.knownname],$space=this.zone,$patroltime=3h,$exitonneworder=true,$interruptable=true] ]"/>
+      <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.com.captain.refuel',$displayname={5554103,21006},$undock=2,$interruptable=true] , table[$script='ut.cac.com.captain.patrol',$displayname={5554103,21002}.[this.zone.knownname],$space=this.zone,$patroltime=3h,$exitonneworder=true,$interruptable=true] ]"/>
       
       <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Sent Ship %3 to patrol (locally)'.[this.name,this.container.name,$entity.ship.name]"/>
       <return value="true"/>

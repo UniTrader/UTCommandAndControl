@@ -90,9 +90,9 @@
           <debug_text filter="general" chance="100" text="'%1 %2 No Boost Speed known for Other Ship %3 - assuming it is suitable for now (should sort itself out quickly)'.[this.name,this.container.name, $ship.knownname]"/>
         </do_else>
         <debug_text filter="general" chance="100" text="'%1 %2 Assigned %3'.[this.name,this.container.name, $ship.knownname]"/>
-        <signal_objects object="$ship.pilot" param="'new order'" param2="table[$displayname='\033REscorting %1 (Manager)'.[if $escortee.controlentity.$shortname then $escortee.controlentity.$shortname else $escortee.name],$script='ut.cac.move.escort',$escortee=$escortee,$destination=$destination,$interruptable=true]"/>
+        <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.escort',$displayname={5554103,21005}.[if $escortee.controlentity.$shortname then $escortee.controlentity.$shortname else $escortee.name],$escortee=$escortee,$destination=$destination,$interruptable=true]"/>
         <do_if value="$return_waypoint">
-          <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
+          <signal_objects object="$ship.pilot" param="'new order'" param2="table[$script='ut.cac.move.generic',$displayname={5554103,21003}.[$return_waypoint.name],$destination=$return_waypoint,$endintargetspace=true,$exitonneworder=true]"/>
         </do_if>
         <set_value name="$escortcount" operation="add"/>
         <remove_value name="$availableships.{$availableships.indexof.{$ship}}"/>

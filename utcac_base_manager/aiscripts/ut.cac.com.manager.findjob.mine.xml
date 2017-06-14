@@ -75,15 +75,15 @@
           <do_if value="$zone.exists and ( $zone.hascontext.{$range.{$i}} or $zone == $range.{$i} )">
             <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Found wanted Ressource in Range:\nRange: %3 - Zone: %4'.[this.name,this.container.name,$range.{$i}.knownname,$zone]"/>
             <do_if value="$range_w and $range_w.{$i}">
-              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.move.generic',$displayname='\033RFly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , table[$script='ut.cac.com.captain.mining',$displayname='\033RMining in %1 (Manager)'.[$zone.knownname],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=true] , table[$script='ut.cac.move.generic',$displayname='\033RFly to Waypoint %1'.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] ]"/>
+              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.move.generic',$displayname={5554103,21003}.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , table[$script='ut.cac.com.captain.mining',$displayname={5554103,21008}.[$zone.knownname,$ware.name],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=true] , table[$script='ut.cac.move.generic',$displayname={5554103,21003}.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] ]"/>
             </do_if>
             <do_else>
-              <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.mining',$displayname='\033RMining in %1 (Manager)'.[$zone.knownname],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=true]"/>
+              <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.mining',$displayname={5554103,21008}.[$zone.knownname,$ware.name],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=true]"/>
             </do_else>
             <!-- Request Escort if Ware Value is greater than half the Ship Value and Mining somewhere else than the current Zone (which should be patrolled anyway)-->
             <do_if value="$amount * $ware.maxprice gt $entity.ship.value *0.3 and this.zone != $zone">
               <signal_objects object="this" param="'new order'" param2="[ 
-table[$script='ut.cac.com.manager.findjob.assign.escort',$displayname='\033RGather Escort for  %1'.[if $entity.ship.controlentity.$shortname then $entity.ship.controlentity.$shortname else $entity.ship.name],$escortee=$entity.ship,$destination=this.zone] ]"/>
+table[$script='ut.cac.com.manager.findjob.assign.escort',$displayname={5554103,25002}.[if $entity.ship.controlentity.$shortname then $entity.ship.controlentity.$shortname else $entity.ship.name],$escortee=$entity.ship,$destination=this.zone] ]"/>
             </do_if>
             <return value="true"/>
           </do_if>

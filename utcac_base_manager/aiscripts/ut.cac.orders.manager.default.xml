@@ -41,7 +41,7 @@
         </do_all>
         <do_if value="$mineable_ressources.count">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found Mineable Ressources: \n%3'.[this.name,this.container.name,$mineable_ressources]"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.gatherressources',$displayname='\033RGather Ressources (default)',$wareslist=$mineable_ressources,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.gatherressources',$displayname={5554103,25000},$wareslist=$mineable_ressources,$interruptable=true]"/>
           <set_value name="$next_miningstep" exact="player.age + 1min"/>
         </do_if>
         <do_else>
@@ -56,7 +56,7 @@
       <!-- if there is not much else to do and we are assigned to a Station - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
       <do_if value="this.container.isclass.station and ( this.$orderlist.count lt 1 and player.age gt $next_zonetrade and not this.$ut_cac.$currenttrade )">
         <set_value name="$next_zonetrade" exact="player.age + 7min"/>
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname='\033RPerform Zonetrade (default)',$repeat=false,$interruptable=true]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname={5554103,25001},$repeat=false,$interruptable=true]"/>
       </do_if>
       
       <!-- wait two Frames to give the Signals time to be executed (if any) in preperation for the Check if there are any Orders to be executed-->
@@ -64,7 +64,7 @@
       <wait max="50ms"/>
       
       <do_if value="this.$orderlist.count == 0">
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='\033RWait for Orders (default)',$order='wait order',$time=1h,$interruptable=true]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname={5554301,20005},$order='wait order',$time=1h,$interruptable=true]"/>
       </do_if>
       
       <return/>
