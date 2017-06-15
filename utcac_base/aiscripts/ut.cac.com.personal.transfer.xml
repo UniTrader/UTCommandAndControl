@@ -60,6 +60,7 @@
       <set_value name="$params.$interruptable" exact="false" comment="Order may not be stopped anymore!"/>
       <remove_value name="this.$ut_cac.$orders_section" comment="no Orders until this arrived at his assigned Workplace!"/>
       <remove_value name="this.$ut_cac.$settings_section" comment="no Settings until this arrived at his assigned Workplace!"/>
+      <remove_value name="this.$ut_cac.$find_job_for_subordinate" comment="No Orders for Subordinates unless efined by Workplace"/>
       <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']" comment="failsafe in case something goes wrong"/>
       
       <!-- Fly to new Assignment -->
@@ -303,6 +304,7 @@
         </do_if>
         <assign_trade_manager actor="this" object="$destination"/>
         <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
+        <set_value name="this.$ut_cac.$find_job_for_subordinate" exact="table[$script='ut.cac.com.manager.findjob']"/>
         <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
         <set_value name="this.$ut_cac.$settings_section" exact="'comm_manager_settings'"/>
       </do_elseif>

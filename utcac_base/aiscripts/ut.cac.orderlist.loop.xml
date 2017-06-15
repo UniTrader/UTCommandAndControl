@@ -45,9 +45,15 @@
         <do_if value="event.param == 'new order' or event.param == 'interrupt order' or event.param == 'request orders'">
           <do_if value="event.param == 'request orders'">
             <!-- ToDo: make this more specific/handle more cases -->
-            <debug_text filter="general" text="'%1 %2 Received request Orders Signal from %3 %4'.[this.name,this.container.name,event.param2.name,event.param2.container.name]"/>
-            <set_value name="$new_orders" exact="[ table[$script='ut.cac.com.manager.findjob',$displayname={5554103,20007}.[event.param2.name],$entity=event.param2,$interruptable=false] ]"/>
-            <set_value name="$order_pos" exact="0"/>
+            <do_if value="this.$ut_cac.$find_job_for_subordinate?">
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Received request Orders Signal from %3 %4'.[this.name,this.container.name,event.param2.name,event.param2.container.name]"/>
+              <set_value name="$new_orders" exact="[ table[$script=this.$ut_cac.$find_job_for_subordinate,$displayname={5554103,20007}.[event.param2.name],$entity=event.param2,$interruptable=false] ]"/>
+              <set_value name="$order_pos" exact="0"/>
+            </do_if>
+            <do_else>
+              <debug_text filter="error" text="'%1 %2 Received request Orders Signal from %3 %4, but no findjob Script - aborting Interrupt!'.[this.name,this.container.name,event.param2.name,event.param2.container.name]"/>
+              <run_interrupt_script abortscripts="false" name="'return_null'"/>
+            </do_else>
           </do_if>
           <do_else>
             <do_if value="typeof event.param2 == datatype.list" negate="true">
