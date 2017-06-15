@@ -14,92 +14,18 @@
         <!--                       Settings Menu                          -->
         <!--- ################################### -->
         <do_if value="event.param == 'comm_manager_settings'">
-          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
-            <do_if value="event.name == 'event_conversation_next_section' and event.param == 'comm_manager_settings_main'">
-              <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail"/>
-              <add_npc_line speaker="event.object" line="[4110,4111].random" hidechoices="false" comment="Here you go."/>
-            </do_if>
-            <do_elseif value="event.name == 'event_conversation_returned_to_section'">
-              <do_if value="event.param2 == 'no change'">
-                <add_npc_line speaker="player.entity" line="[1220,1410,1612,1713,1714].random" hidechoices="false" comment="No, I changed my mind.|Never mind that, do what you want.|Never mind that, do what you want.|Never mind that.|Well, maybe some other time."/>
-              </do_if>
-              <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation"/>
-            </do_elseif>
-          </do_if>
-          <!-- #### Maybe a check is required here to see if Itaros' Gerneicui is available? if yes call comm_manager_settings_range_genericui instead -->
-          <add_player_choice_sub text="if event.object.skill.navigation ge 1 then {5554104,241} else {5554104,242}" position="1" section="comm_manager_settings_range_genericui" selectable="event.object.skill.navigation ge 1"/>
-          <add_player_choice_sub text="if event.object.container.istraderestricted then {5554104,243} else {5554104,244}" position="2" section="comm_manager_settings_trade_restriction"/>
-          <add_player_choice_sub text="{5554104,245}" position="3" section="comm_manager_settings_trade_legality"/>
-          <add_player_choice_return text="{5554104,7}" position="6"/>
-          <add_player_choice_return text="{5554104,7}" position="close"/>
-        </do_if>
-        <do_elseif value="event.param == 'comm_manager_settings_range'">
-          <do_if value="event.object.$ut_cac.$pesterlevel gt param.ut_cac.pesterlevel.$mayspeak">
-            <add_npc_line speaker="event.object" line="[1012,1013,1018,1019].random" hidechoices="false" comment="generic confirmation"/>
-          </do_if>
-          <!--resize_list list="event.object.$ut_cac.$range" count="param.ut_cac.rangelimits.{event.object.skill.navigation}.{6}"/-->
-          <resize_list list="event.object.$ut_cac.$range_h" count="event.object.$ut_cac.$range.count"/>
-          <resize_list list="event.object.$ut_cac.$range_j" count="event.object.$ut_cac.$range.count"/>
-          <resize_list list="event.object.$ut_cac.$range_w" count="event.object.$ut_cac.$range.count"/>
-          <do_all exact="event.object.$ut_cac.$range.count" counter="$i">
-            <!-- Text Block is for apporiate Coloring of Range Entry - see also deactivated doif/elseif version below (wanted to try stacked inline ifs :D )-->
-            <do_if value="event.object.$ut_cac.$range.{$i}">
-              <set_value name="$choicetext" exact="
-              if event.object.$ut_cac.$range_h.{$i} then
-                ( if event.object.$ut_cac.$range_j.{$i} then
-                  '\033G%1\033X'.[event.object.$ut_cac.$range.{$i}.name] else
-                  '\033Y%1\033X'.[event.object.$ut_cac.$range.{$i}.name] )
-                else
-                  ( if event.object.$ut_cac.$range_j.{$i} then
-                    '\033B%1\033X'.[event.object.$ut_cac.$range.{$i}.name] else
-                    '\033A%1\033X'.[event.object.$ut_cac.$range.{$i}.name] )"/>
-              <do_if value="event.object.$ut_cac.$range_w.{$i}">
-                <set_value name="$choicetext" exact="'%1 via %2'.[$choicetext,event.object.$ut_cac.$range_w.{$i}.name]"/>
-              </do_if>
-            </do_if>
-            <do_else>
-              <set_value name="$choicetext" exact="'&gt; &gt; unused &lt; &lt;\033X'"/>
-            </do_else>
-            <add_player_choice_sub position="$i" section="comm_manager_settings_range_mod" choiceparam="$i" text="$choicetext"/>
-            <do_if value="false">
-              <do_if value="event.object.$ut_cac.$range.{$i}">
-                <!-- jump and highway Range Slot -->
-                <do_if value="event.object.$ut_cac.$range_h.indexof.{event.object.$ut_cac.$range.{$i}} and event.object.$ut_cac.$range_h.indexof.{event.object.$ut_cac.$range.{$i}}">
-                  <add_player_choice_sub text="'\033G%1\033X'.[event.object.$ut_cac.$range.{$i}.name]" position="$i" section="comm_manager_settings_range_mod" choiceparam="$i"/>
-                </do_if>
-                <!-- jump Range Slot -->
-                <do_elseif value="event.object.$ut_cac.$range_j.indexof.{event.object.$ut_cac.$range.{$i}}">
-                  <add_player_choice_sub text="'\033B%1\033X'.[event.object.$ut_cac.$range.{$i}.name]" position="$i" section="comm_manager_settings_range_mod" choiceparam="$i"/>
-                </do_elseif>
-                <!-- highway Range Slot -->
-                <do_elseif value="event.object.$ut_cac.$range_h.indexof.{event.object.$ut_cac.$range.{$i}}">
-                  <add_player_choice_sub text="'\033Y%1\033X'.[event.object.$ut_cac.$range.{$i}.name]" position="$i" section="comm_manager_settings_range_mod" choiceparam="$i"/>
-                </do_elseif>
-                <!-- only passthrough Range -->
-                <do_else>
-                  <add_player_choice_sub text="'\033A%1\033X'.[event.object.$ut_cac.$range.{$i}.name]" position="$i" section="comm_manager_settings_range_mod" choiceparam="$i"/>
-                </do_else>
-              </do_if>
-              <!-- unused Range Slot -->
-              <do_else>
-                <add_player_choice_sub text="'\033A&gt; &gt; unused &lt; &lt;\033X'" position="$i" section="comm_manager_settings_range_mod" choiceparam="$i"/>
-              </do_else>
-            </do_if>
-          </do_all>
-          <add_player_choice_return text="{5554104,7}" position="6"/>
-          <add_player_choice_return text="{5554104,7}" position="close"/>
-        </do_elseif>
-        <do_elseif value="event.param == 'comm_manager_settings_range_genericui'">
           <include_actions ref="md.UT_CAC_Lib.Verify_Range"/>
           <do_if value="@$selectedcell.{1} gt event.object.$ut_cac.$range.count + 1">
             <set_value name="$selectedcell.{1}" exact="event.object.$ut_cac.$range.count + 2"/>
             <set_value name="$selectedcell.{2}" exact="5"/>
           </do_if>
+          <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
           <set_value name="$genericuiparam" exact="
-[ 0 , 0 , 'Range Managment for %1'.[event.object.container.name], 'Select Range to Modify', null , if $selectedcell? then $selectedcell else null , [ if event.object.$ut_cac.$range.count ge 10 then 50 else 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,  [] ,  
+[ 0 , 0 , {5554301,104}.[event.object.name,event.object.container.name], 'Select Range to Modify', null , if $selectedcell? then $selectedcell else null , [ if event.object.$ut_cac.$range.count ge 10 then 50 else 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,  [] ,  
 [ [ 'button' , {5554103,8} , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_manager_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , [ 'button' ,  'Remove' , 'comm_manager_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , '\033ROld Managment Menu', 'comm_manager_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] ] ]"/>
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3 , 1 , 1 , 1 , 1 ] ] , 
-[ 'text' , '' ] , 
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 7 ] ] , [ 'text' , {5554301,15000} ] 
+]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 4 , 1 , 1 , 1 ] ] , 
 [ 'text' , {5554103,15001}.[$totalrangepoints,$rangepoints] ] , 
 [ 'text' , {5554103,15001} ] , [ 'stars' , event.object.skill.navigation], 
 [ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  100 ] 
@@ -121,10 +47,22 @@
 [ 'text' , {5554103,15011} ] , 
 [ 'button' , {5554103,15012} , 'comm_manager_settings_range_change' , null , true , event.object.$ut_cac.$range.count + 1 ] 
 ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 7 ] ] , [ 'text' , {5554301,15013} ] 
+]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 6 , 1 ] ] , 
+[ 'text' , {5554103,15014} ] , 
+[ 'button' , if event.object.container.istraderestricted then {5554103,15015} else {5554103,15016} , 'comm_manager_settings_trade_restriction_toggle' , null , true , null , true ] 
+]"/>
+          <!-- Add Ware-specific Exceptions here -->
+          <!-- Contraband Setting -->
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 2 ] ] , 
+[ 'text' , {5554103,15020} ] , 
+[ 'button' , {5554103,15021+event.object.$ut_cac.$legality} , 'comm_manager_settings_trade_legality_switch' , null , true , null , true ] 
+]"/>
           <remove_value name="$selectedcell"/>
           <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
           <add_conversation_view view="closeupdetailmonitor"/>
-        </do_elseif>
+        </do_if>
         <do_elseif value="event.param == 'comm_manager_settings_range_toggle_jump'">
           <do_if value="event.object.$ut_cac.$range_j.{event.param2}">
             <set_value name="event.object.$ut_cac.$range_j.{event.param2}" exact="null"/>
@@ -229,7 +167,7 @@
           </do_else>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
-        <do_elseif value="event.param == 'comm_manager_settings_trade_restriction'">
+        <do_elseif value="event.param == 'comm_manager_settings_trade_restriction_toggle'">
           <!-- currently this is a simple Toggle between restricted and non-restricted, but planning to change this to a finer definition consisting of own only, own+allied, own+allied+friend, own+allied+friend+neutral and own+allied+friend+neutral+docking allowed -->
           <do_if value="event.object.container.istraderestricted">
             <set_trade_restrictions object="event.object.container" restricted="false"/>
@@ -239,16 +177,11 @@
           </do_else>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
-        <do_elseif value="event.param == 'comm_manager_settings_trade_legality'">
-          <add_player_choice text="{5554104,2431}" position="1" section="comm_manager_settings_trade_legality_set" choiceparam="3"/>
-          <add_player_choice text="{5554104,2432}" position="2" section="comm_manager_settings_trade_legality_set" choiceparam="2" selectable="event.object.skill.morale ge 2"/>
-          <add_player_choice text="{5554104,2433}" position="3" section="comm_manager_settings_trade_legality_set" choiceparam="1" selectable="event.object.skill.morale ge 3"/>
-          <add_player_choice text="{5554104,2434}" position="4" section="comm_manager_settings_trade_legality_set" choiceparam="0" selectable="event.object.skill.morale ge 4"/>
-          <add_player_choice_return text="{5554104,7}" position="6"/>
-          <add_player_choice_return text="{5554104,7}" position="close"/>
-        </do_elseif>
-        <do_elseif value="event.param == 'comm_manager_settings_trade_legality_set'">
-          <set_value name="event.object.$ut_cac.$legality" exact="event.param2"/>
+        <do_elseif value="event.param == 'comm_manager_settings_trade_legality_switch'">
+          <set_value name="event.object.$ut_cac.$legality" operation="add"/>
+          <do_if value="event.object.$ut_cac.$legality gt 4">
+            <set_value name="event.object.$ut_cac.$legality" exact="0"/>
+          </do_if>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
       </actions>
