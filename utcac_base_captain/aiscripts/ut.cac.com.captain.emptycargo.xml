@@ -88,7 +88,7 @@
           <!-- Offer is in current Zone - just add it to the Trade Orders -->
           <do_if value="$buyoffers.{$i}.owner.zone == $currentzone">
             <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$buyoffers.{$i}.ware}.count" price="$buyoffers.{$i}.unitprice"/>
-            <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554301,21009},$repeat=0]"/>
+            <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21009},$repeat=0]"/>
             <remove_value name="$buyoffers.{$i}"/>
             <do_if value="$mindistindex">
               <set_value name="$mindistindex" operation="subtract" comment="to keep them in sync"/>
@@ -116,7 +116,7 @@
         <do_if value="$mindistindex">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Adding Buy Offer to Trade List:\n%3'.[this.name,this.container.name,$buyoffers.{$mindistindex}]"/>
           <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$buyoffers.{$mindistindex}.ware}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554301,21009},$command=command.freetrade]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21009},$command=command.freetrade]"/>
           <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.owner.zone"/>
           <remove_value name="$buyoffers.{$mindistindex}"/>
           <set_value name="$mindistindex" exact="null"/>

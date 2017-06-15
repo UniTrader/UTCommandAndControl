@@ -99,7 +99,7 @@
           <do_all exact="this.ship.pilot.$orderlist.count" counter="$i">
             <do_if value="this.ship.pilot.$orderlist.{$i}.$script == 'ut.cac.com.captain.move.to.buildlocation'">
               <set_value name="this.ship.pilot.$orderlist.{$i}.$macro" exact="$macro"/>
-              <set_value name="this.ship.pilot.$orderlist.{$i}.$displayname" exact="{5554301,24011}.[$macro.name]"/>
+              <set_value name="this.ship.pilot.$orderlist.{$i}.$displayname" exact="{5554103,24011}.[$macro.name]"/>
               <set_value name="this.ship.pilot.$orderlist.{$i}.$interruptable" exact="false"/>
               <signal_objects object="this.container" param="'Object Name Updated'"/>
               <do_if value="$i == 1">
@@ -114,7 +114,7 @@
             </do_if>
           </do_all>
           <do_if value="not $changed_order?">
-            <signal_objects object="this.ship.pilot" param="'new order'" param2="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname={5554301,24011}.[$macro.name],$macro=$macro,$buildlocation=$buildlocation,$zone=$zone,$interruptable=false]"/>
+            <signal_objects object="this.ship.pilot" param="'new order'" param2="table[$script='ut.cac.com.captain.move.to.buildlocation',$displayname={5554103,24011}.[$macro.name],$macro=$macro,$buildlocation=$buildlocation,$zone=$zone,$interruptable=false]"/>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Giving Moveto buildlocation Order with final Plans'.[this.name,this.container.name]"/>
           </do_if>
           <do_else>
@@ -172,8 +172,8 @@
         
         
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Builder Ship is starting deployment'.[this.name,this.container.name]"/>
-        <set_value name="$params.$displayname" exact="{5554301,24012}"/>
-        <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="{5554301,24013}.[$macro.name]"/>
+        <set_value name="$params.$displayname" exact="{5554103,24012}"/>
+        <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="{5554103,24013}.[$macro.name]"/>
         <signal_objects object="this.container" param="'Object Name Updated'"/>
         <!-- deploy, if no Station exists start construction, if Station exists assign to it and resume construction -->
         <do_if value="not $buildlocation.child.exists">
@@ -205,7 +205,7 @@
           <set_value name="$station" exact="this.ship.buildmodule.buildanchor"/>
           <destroy_object object="this.$ut_cac.$construction" explosion="false"/>
           <set_value name="this.$ut_cac.$construction" exact="this.ship.buildmodule.buildanchor"/>
-          <set_value name="$params.$displayname" exact="{5554301,24000}.[$macro.name]"/>
+          <set_value name="$params.$displayname" exact="{5554103,24000}.[$macro.name]"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
           <set_command_action commandaction="commandaction.repairingto" param="$station" />
           <set_trade_restrictions object="this.ship" restricted="false"/>
@@ -303,7 +303,7 @@
         <do_if value="$stage le $station.completebuildplan.{$sequence}.stage">
           <create_build_plan macro="$station.macro" buildplan="$Buildplan" buildplanlist="[[$sequence,$stage]]" upgradeplanlist="$upgradeplan" />
           <add_build_plan buildmodule="this.ship.buildmodule" buildplan="$Buildplan" updatebuild="true" />
-          <set_value name="$params.$displayname" exact="{5554301,24002}.[$macro.buildpurposemacro.{$Buildplan}.name,$sequence,$stage]"/>
+          <set_value name="$params.$displayname" exact="{5554103,24002}.[$macro.buildpurposemacro.{$Buildplan}.name,$sequence,$stage]"/>
           <set_command_action commandaction="commandaction.repairingto" param="$macro.buildpurposemacro.{buildplan.[$sequence,$stage]}" />
           <signal_objects object="this.container" param="'Object Name Updated'"/>
           <remove_blocked_area blocker="this" zone="this.zone"/>
@@ -359,7 +359,7 @@
         <do_all exact="$manager.count" counter="$i">
           <do_if value="$manager.{$i}.$defaultorders.$script == 'ut.cac.orders.manager.default'">
             <set_value name="$manager" exact="$manager.{$i}"/>
-            <signal_objects object="$manager" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554301,20000}.[$station.name,'manager'],$destination=$station,$job='manager',$interruptable=true]"/>
+            <signal_objects object="$manager" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'manager'],$destination=$station,$job='manager',$interruptable=true]"/>
             <break/>
           </do_if>
         </do_all>
@@ -372,7 +372,7 @@
         <do_all exact="$defensivenpc.count" counter="$i">
           <do_if value="$defensivenpc.{$i}.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
             <set_value name="$defensivenpc" exact="$defensivenpc.{$i}"/>
-            <signal_objects object="$defensivenpc" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554301,20000}.[$station.name,'defense'],$destination=$station,$job='defense',$interruptable=true]"/>
+            <signal_objects object="$defensivenpc" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'defense'],$destination=$station,$job='defense',$interruptable=true]"/>
             <break/>
           </do_if>
         </do_all>
@@ -383,7 +383,7 @@
         <do_all exact="$engineer.count" counter="$i">
           <do_if value="$engineer.{$i}.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
             <set_value name="$engineer" exact="$engineer.{$i}"/>
-            <signal_objects object="$engineer" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554301,20000}.[$station.name,'engineer'],$destination=$station,$job='engineer',$interruptable=true]"/>
+            <signal_objects object="$engineer" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'engineer'],$destination=$station,$job='engineer',$interruptable=true]"/>
             <break/>
           </do_if>
         </do_all>
@@ -480,7 +480,7 @@
       
       <!-- WIP !!!! -->
       <label name="finish"/>
-      <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="{5554301,24014}"/>
+      <set_value name="this.ship.pilot.$orderlist.{1}.$displayname" exact="{5554103,24014}"/>
       <signal_objects object="this.container" param="'Object Name Updated'"/>
       <signal_objects object="$station" param="'Object Name Updated'"/>
       
