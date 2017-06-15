@@ -16,7 +16,7 @@
       <get_trade_from_shoppinglist object="this.ship" result="$trade"/>
       <do_if value="$trade.exists and not ( this.$orderlist.{1}.$script == 'ut.cac.com.captain.performsingletraderun')">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Doing outstanding Trades'.[this.name,this.container.name]"/>
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname='\033RPerform Trade (default)',$repeat=0,$interruptable=true]"/>
+        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554301,21009},$repeat=0,$interruptable=true]"/>
         <return/>
       </do_if>
       
@@ -38,7 +38,7 @@
         <!-- if we have no fuel for even one Jump - go refueling first (intended to be only called on init if no Fuel is on board to speed things up - Manager will give this order frequently anyway) -->
         <do_if value="this.ship.cargo.{ware.fuelcells}.count lt this.ship.jumpcostto.{this.sector}">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Refueling'.[this.name,this.container.name]"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname='\033RRefuel (default)',$undock=2,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.refuel',$displayname={5554301,21006},$undock=2,$interruptable=true]"/>
           <return/>
         </do_if>
         <!-- Check wheter we need some Drones (missing Cargo Drones for Trade & Mining Ships and missing mining Drones for Mining ships trigger re-droning Script every time, otherwise re-droning will be done if below 25% of capacity) -->
@@ -112,12 +112,12 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Ship is Player direct Subordinate - NYI!!!!'.[this.name,this.container.name]"/>
         <do_if value="this.ship.primarypurpose == objectpurpose.fight">
           <!-- Patrol for 1h in the Zone and then pester again -->
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname='\033RPatrolling %1 (Self)'.[this.zone.knownname],$space=this.zone,$patroltime=1h,$exitonneworder=true,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname={5554301,21002}.[this.zone.knownname],$space=this.zone,$patroltime=1h,$exitonneworder=true,$interruptable=true]"/>
           <return/>
         </do_if>
         <do_else comment="this.ship.primarypurpose == objectpurpose.trade">
           <!-- wait at current Position until given a new Order, pester again after 1h -->
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='\033RWait for Orders (Self)',$order='wait order',$time=1h,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname={5554301,20005},$order='wait order',$time=1h,$interruptable=true]"/>
           <return/>
         </do_else>
       </do_if>
@@ -131,18 +131,18 @@
         </do_if>
         <do_elseif value="this.$ut_cac.$commanderentity? and this.$ut_cac.$commanderentity.exists">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Calling Wait for Orders Script while calling Superior(fallback case)'.[this.name,this.container.name]"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='\033RWait for Orders (default)',$order='wait order',$time=10min,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname={5554301,20005},$order='wait order',$time=10min,$interruptable=true]"/>
           <debug_text filter="general" text="'%1 %2 Sending request Orders Signal to %3 %4 (fallback case)'.[this.name,this.container.name,this.$ut_cac.$commanderentity.name,this.$ut_cac.$commanderentity.container.name]"/>
           <signal_objects object="this.$ut_cac.$commanderentity" param="'request orders'" param2="this"/>
         </do_elseif>
         <do_elseif value="this.ship.primarypurpose == objectpurpose.fight">
           <!-- Patrol for 1h in the Zone and then pester again -->
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Patrolling Locally'.[this.name,this.container.name]"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname='\033RPatrolling %1 (Self)'.[this.zone.knownname],$space=this.zone,$patroltime=1h,$exitonneworder=true,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.patrol',$displayname={5554301,21002}.[this.zone.knownname],$space=this.zone,$patroltime=1h,$exitonneworder=true,$interruptable=true]"/>
         </do_elseif>
         <do_else comment="this.ship.primarypurpose == objectpurpose.trade">
           <!-- wait at current Position until given a new Order, pester again after 1h -->
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname='\033RWait (Self)',$order='wait order',$time=1h,$interruptable=true]"/>
+          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.microorder',$displayname={5554301,20005},$order='wait order',$time=1h,$interruptable=true]"/>
         </do_else>
       </do_else>
       
