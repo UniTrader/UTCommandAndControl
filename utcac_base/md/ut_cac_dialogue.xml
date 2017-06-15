@@ -84,7 +84,7 @@
             <!-- If Orderlist is not set up yet: Start Orderlist Loop, and set endless waiting as default Order (this assumes the NPC has no Job yet)-->
             <do_if value="not $actor.$orderlist?">
               <do_if value="not $actor.$ut_cac.$defaultorders?">
-                <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.endlesswait']"/>
+                <set_value name="$actor.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.standby']"/>
                 <set_entity_type entity="$actor" type="entitytype.recruitment"/>
               </do_if>
               <start_script object="$actor" name="'ut.cac.orderlist.loop'"/>
@@ -192,7 +192,7 @@
 [ 'button' , {5554103,101} , 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_Y' , event.object.$ut_cac.$orders_section? , null , true ] , 
 [ 'button' , {5554103,102} , 'comm_orders_add' , 'INPUT_STATE_DETAILMONITOR_X' , event.object.$ut_cac.$orders_section? , 0 , false ] 
 ] ]"/>
-          <do_if value="not event.object.$ut_cac.$orders_section? and event.object.$ut_cac.$defaultorders.$script == 'ut.cac.orders.endlesswait' and @event.object.$orderlist.{1}.$order == 'wait order'" comment="Employee is waiting for another Assignment - replace Order Button with Assignment one">
+          <do_if value="not event.object.$ut_cac.$orders_section? and event.object.$ut_cac.$defaultorders.$script == 'ut.cac.orders.standby' and @event.object.$orderlist.{1}.$order == 'wait order'" comment="Employee is waiting for another Assignment - replace Order Button with Assignment one">
             <set_value name="$genericuiparam.{9}.{3}" exact="[ 'button' , {5554103,515} , 'comm_personal_transfer_objectselected' , 'INPUT_STATE_DETAILMONITOR_X' , true , [0,0,player.entity.container] , false ]"/>
             <set_value name="$genericuiparam.{9}.{4}" exact="[ 'button' , {5554103,516} , 'comm_personal_transfer' , 'INPUT_STATE_DETAILMONITOR_X' , true , null , true ]"/>
           </do_if>
