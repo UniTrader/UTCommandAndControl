@@ -29,7 +29,7 @@
           <do_else>
             <set_value name="$radarcount" exact="0"/>
           </do_else>
-          <set_value name="$rangepoints" exact="($rangecost.$freepoints + $actor.skill.navigation * $rangecost.$points_per_star) * ( 1 + $radarcount * $rangecost.$radarbonus )"/>
+          <set_value name="$rangepoints" exact="($rangecost.$freepoints + event.object.skill.navigation * $rangecost.$points_per_star) * ( 1 + $radarcount * $rangecost.$radarbonus )"/>
           <do_if value="$rangepoints == 0">
             <debug_text filter="error" text="'%1 %2 $rangepoints has a zero Value  - defaulting to 1'.[event.object.name,event.object.container.name]"/>
             <set_value name="$rangepoints" exact="1"/>
@@ -44,25 +44,25 @@
                 </do_if>
                 <do_else>
                  <append_to_list name="$removal_message" exact="'%1 removed - not enough Range Points remaining (%2 of %3)'.[event.object.$ut_cac.$range.{$i}.name,$rangepoints,$rangecost.{event.object.$ut_cac.$range.{$i}.class}]"/>
-                 <set_value name="$actor.$ut_cac.$range.{$i}" exact="null"/>
+                 <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
                 </do_else>
               </do_if>
               <do_else>
                 <append_to_list name="$removal_message" exact="'%1 removed - not of recognized Range Class (%2)'.[event.object.$ut_cac.$range.{$i}.name,event.object.$ut_cac.$range.{$i}.class]"/>
-                <set_value name="$actor.$ut_cac.$range.{$i}" exact="null"/>
+                <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
               </do_else>
             </do_if>
             <do_else>
               <append_to_list name="$removal_message" exact="'%1 removed - does not exist'.[event.object.$ut_cac.$range.{$i}.name]"/>
-              <set_value name="$actor.$ut_cac.$range.{$i}" exact="null"/>
+              <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
             </do_else>
           </do_all>
           <do_all exact="event.object.$ut_cac.$range.count" counter="$i" reverse="true">
             <do_if value="event.object.$ut_cac.$range.{$i} == null">
               <remove_value name="event.object.$ut_cac.$range.{$i}"/>
-              <remove_value name="$actor.$ut_cac.$range_j.{$i}"/>
-              <remove_value name="$actor.$ut_cac.$range_h.{$i}"/>
-              <remove_value name="$actor.$ut_cac.$range_w.{$i}"/>
+              <remove_value name="event.object.$ut_cac.$range_j.{$i}"/>
+              <remove_value name="event.object.$ut_cac.$range_h.{$i}"/>
+              <remove_value name="event.object.$ut_cac.$range_w.{$i}"/>
             </do_if>
           </do_all>
           
