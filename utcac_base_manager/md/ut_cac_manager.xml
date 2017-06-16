@@ -19,13 +19,24 @@
             <set_value name="$selectedcell.{1}" exact="event.object.$ut_cac.$range.count + 2"/>
             <set_value name="$selectedcell.{2}" exact="5"/>
           </do_if>
+          <set_value name="$rangecost" exact="param.ut_cac.rangecost"/>
+          <!-- apply radar Bonus for all Radar Components -->
+          <do_if value="$actor.station.exists">
+            <find_object_component name="$radarcount" object="$actor.station" class="class.radar" multiple="true"/>
+            <set_value name="$radarcount" exact="$radarcount.count"/>
+          </do_if>
+          <do_else>
+            <set_value name="$radarcount" exact="0"/>
+          </do_else>
+          <set_value name="$rangepoints" exact="($rangecost.$freepoints + $actor.skill.navigation * $rangecost.$points_per_star) * ( 1 + $radarcount * $rangecost.$radarbonus )"/>
+          <set_value name="$totalrangepoints" exact="$rangepoints"/>
           <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
           <set_value name="$genericuiparam" exact="
 [ 0 , 0 , {5554103,104}.[event.object.name,event.object.container.name], 'Select Range to Modify', null , if $selectedcell? then $selectedcell else null , [ if event.object.$ut_cac.$range.count ge 10 then 50 else 30 , 30 , 30 , -1 , 150 , 150 , 200 ] ,  [] ,  
 [ [ 'button' , {5554103,8} , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_manager_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , [ 'button' ,  'Remove' , 'comm_manager_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , '\033ROld Managment Menu', 'comm_manager_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] ] ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 7 ] ] , [ 'text' , {5554103,15000} ] 
 ]"/>
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 4 , 1 , 1 , 1 ] ] , 
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 4 , 2 , 1 ] ] , 
 [ 'text' , {5554103,15001}.[$totalrangepoints,$rangepoints] ] , 
 [ 'text' , {5554103,15001} ] , [ 'stars' , event.object.skill.navigation], 
 [ 'statusbar' , 100 * $rangepoints / $totalrangepoints , 100 , 255 , 100 ,  100 ] 
