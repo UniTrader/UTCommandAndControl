@@ -64,6 +64,12 @@
               <remove_value name="event.object.$ut_cac.$range_w.{$i}"/>
             </do_if>
           </do_all>
+          <do_if value="event.object.$ut_cac.$range.count == 0">
+            <debug_text filter="error" text="'%1 %2 No Ranges in Range List - defaulting to Sector only'.[event.object.name,event.object.container.name]"/>
+            <append_to_list name="event.object.$ut_cac.$range" exact="event.object.sector"/>
+            <append_to_list name="event.object.$ut_cac.$range_j" exact="event.object.sector"/>
+            <append_to_list name="event.object.$ut_cac.$range_h" exact="event.object.sector"/>
+          </do_if>
           
           
           <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
