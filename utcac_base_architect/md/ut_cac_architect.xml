@@ -20,13 +20,13 @@
           <do_if value="event.object.$ut_cac.$construction? and event.object.$ut_cac.$construction.exists">
             <!-- directly present Upgrade Menu -->
 <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
-            <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Orders for %1'.[event.object.name], null, null , null , [ -1 , 200 , 200 , 200 , 200 , 200 ] ,  [] ,  [ 
+            <set_value name="$genericuiparam" exact=" [ 0 , 0 , {5554103,100}.[event.object.name,event.object.container.name], null, null , null , [ -1 , 200 , 200 , 200 , 200 , 200 ] ,  [] ,  [ 
 [ 'button' , {5554103,8} , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_BACK' , false , null , true] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_Y' , false , null , true ] , 
 [ 'button' , 'unused' , 'comm_personal_' , 'INPUT_STATE_DETAILMONITOR_X' , false , null , true ] 
 ] ]"/>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , {5554103,13001}.[event.object.$ut_cac.$construction.name] ] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , {5554103,14001}.[event.object.$ut_cac.$construction.name] ] ]"/>
             <do_if value="not md.UT_CAC_Dialogue.Comm_Common_Orders.$insert_pos" comment="Sheduling Extensions is only Possible at the End of the Orderlist">
               <do_all exact="event.object.$ut_cac.$construction.completebuildplan.sequences.count" counter="$i" reverse="true">
                 <set_value name="$sequence" exact="event.object.$ut_cac.$construction.completebuildplan.sequences.{$i}"/>
@@ -49,10 +49,10 @@
                 else if $purposemacro.isclass.destructible then '\033R'
                 else '\033B'"/>
                 <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 1 , 1 ] ] ,
-[ 'text' , {5554103,13002}.[$colorcode,$purposemacro.name,$sequence,$next_stage] ] ,
-[ 'button' , {5554103,13003} , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage , 0.0 ] , true ],
-[ 'button' , {5554103,13004} , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage , 0.5 ] , true ],
-[ 'button' , {5554103,13005} , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage , 1.0 ] , true ]
+[ 'text' , {5554103,14002}.[$colorcode,$purposemacro.name,$sequence,$next_stage] ] ,
+[ 'button' , {5554103,14003} , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage , 0.0 ] , true ],
+[ 'button' , {5554103,14004} , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage , 0.5 ] , true ],
+[ 'button' , {5554103,14005} , 'comm_architect_orders_extend_selected' , false , true , [ $sequence , $next_stage , 1.0 ] , true ]
 ]"/>
               </do_all>
               <remove_value name="$purposemacro"/>
@@ -62,14 +62,14 @@
             </do_if>
             <do_else>
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 6 ] ] ,
-[ 'text' , {5554103,13006} ]
+[ 'text' , {5554103,14006} ]
 ]"/>
             </do_else>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , {5554103,13007} ] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , {5554103,14007} ] ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 4,1,1 ] ] ,
-[ 'text' , {5554103,13008} ] ,
-[ 'button' , {5554103,13004} , 'comm_architect_orders_upgrade_selected' , false , true , 0.5 , true ],
-[ 'button' , {5554103,13005} , 'comm_architect_orders_upgrade_selected' , false , true , 1.0 , true ]
+[ 'text' , {5554103,14008} ] ,
+[ 'button' , {5554103,14004} , 'comm_architect_orders_upgrade_selected' , false , true , 0.5 , true ],
+[ 'button' , {5554103,14005} , 'comm_architect_orders_upgrade_selected' , false , true , 1.0 , true ]
 ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 6 ] ] ,
 [ 'text' , ''+event.object.$ut_cac.$construction.currentbuildplan ]
@@ -85,17 +85,17 @@
               </match_any>
             </find_object_component>
             <do_if value="$RepairableParts.count">
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3, 2 ] ] , [ 'text' , {5554103,13010} ] , [ 'text' , {5554103,13011}.[$RepairableParts.count] ] ]"/>
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 3, 2 ] ] , [ 'text' , {5554103,14010} ] , [ 'text' , {5554103,14011}.[$RepairableParts.count] ] ]"/>
               <do_all exact="$RepairableParts.count" counter="$i">
                 <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
-[ 'text' , {5554103,13012}.[$i,$RepairableParts.{$i}.knownname,$RepairableParts.{$i}.hullpercentage ] ] ,
+[ 'text' , {5554103,14012}.[$i,$RepairableParts.{$i}.knownname,$RepairableParts.{$i}.hullpercentage ] ] ,
 null
 ]"/>
               </do_all>
             </do_if>
-            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , {5554103,13013} ] ]"/>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 ] ] , [ 'text' , {5554103,14013} ] ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 1 ] ] ,
-[ 'text' , {5554103,13014} ] ,
+[ 'text' , {5554103,14014} ] ,
 [ 'button' , {5554103,9} , 'comm_architect_orders_detach' , null , true , null , true  ]
 ]"/>
             <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
