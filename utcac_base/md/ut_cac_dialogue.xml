@@ -510,7 +510,7 @@
           <do_all exact="player.primaryship.subordinates.count" counter="$i" reverse="true">
             <do_if value="player.primaryship.subordinates.{$i}.pilot.$orderlist?">
               <set_value name="player.primaryship.subordinates.{$i}.pilot.$debug" exact="@event.object.$debug"/>
-              <signal_objects object="player.primaryship.subordinates.{$i}.pilot" param="'new order'" param2="table[$script='ut.cac.com.change.superior',$displayname={5554103,20001}.[event.object.station.name,event.object.name], $new_superior=event.object.station,$new_superiortype=event.object.type,$interruptable=true]"/>
+              <signal_objects object="player.primaryship.subordinates.{$i}.pilot" param="'new order'" param2="table[$script='ut.cac.com.change.superior',$displayname={5554103,20001}.[event.object.station.name,event.object.name], $new_superior=event.object.station,$new_superiorentity=event.object,$interruptable=true]"/>
             </do_if>
           </do_all>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
@@ -533,7 +533,18 @@
           </do_else>
         </do_elseif>
         <do_elseif value="event.param == 'comm_subordinates_superior_selected'">
-          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.change.superior',$displayname={5554103,20001}.[event.param2.{3}.name,event.param2.{3}.tradenpc.name], $new_superior=event.param2.{3},$new_superiortype=if event.param2.{3}.isclass.station or event.param2.{3}.buildmodule.exists then entitytype.manager else entitytype.commander,$interruptable=true]"/>
+          <do_if value="event.param2.{3}.isclass.ship">
+            <do_if value="event.param2.{3}.buildmodule">
+              <find_object_compone name="$superiorentity" entitytype="entitytype.manager" object="event.param2.{3}" />
+            </do_if>
+            <do_else>
+              <set_value name="$superiorentity" exact="$event.param2.{3}.controlentity.{entitytype.commander}"/>
+            </do_else>
+          </do_if>
+          <do_else>
+            <set_value name="$superiorentity" exact="event.param2.{3}.controlentity.{entitytype.manager}"/> 
+          </do_else>
+          <signal_objects object="event.object" param="'new order'" param2="table[$script='ut.cac.com.change.superior',$displayname={5554103,20001}.[event.param2.{3}.name,event.param2.{3}.tradenpc.name], $new_superior=event.param2.{3},$new_superiortype=,$interruptable=true]"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
       </actions>

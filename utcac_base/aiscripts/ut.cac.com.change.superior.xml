@@ -11,6 +11,7 @@
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="new_superior" default="null" comment="New Superior - used for Hierarchy changes, not personal Transfer. will be applied after arriving at Workplace (and, if its a Ship, move it there)"/>
     <param name="new_superiortype" default="null" comment="New Superiortype - used for Hierarchy changes, not personal Transfer. will be applied after arriving at Workplace (and, if its a Ship, move it there)"/>
+    <param name="new_superiorentity" default="null" comment="Overrides New Superiortype if present"/>
     <param name="skipnav" default="false" comment="Skip moving to new Superior for hierarchy changes"/>
     <param name="new_defaultorders" default="null" comment="New defaultorders Scripts table. will override the old one on Arrival. If set to true a default fitting to the new Superior will be used, otherwise the current one will be kept."/>
     
@@ -26,6 +27,9 @@
         </do_if>
         <do_if value="$params.$new_superiortype?">
           <set_value name="$new_superiortype" exact="$params.$new_superiortype"/>
+        </do_if>
+        <do_if value="$params.$new_superiorentity?">
+          <set_value name="$new_superiorentity" exact="$params.$new_superiorentity"/>
         </do_if>
         <do_if value="$params.$skipnav?">
           <set_value name="$skipnav" exact="$params.$skipnav"/>
@@ -45,6 +49,13 @@
         <return/>
       </do_if>
       
+      <do_if value="$new_superiorentity.exists">
+        <set_value name="$new_superiortype" exact="$new_superiorentity.type"/>
+      </do_if>
+      
+      
+      <remove_value name="this.$ut_cac.$commanderentity"/>
+      
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started'.[this.name,this.container.name]"/>
       <set_value name="$params.$interruptable" exact="false" comment="Order may not be stopped anymore!"/>
       <!--remove_value name="this.$ut_cac.$orders_section" comment="no Orders until this arrived at his assigned Workplace!"/>
@@ -54,7 +65,13 @@
       <!-- switch to new Superior -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Assigning to new Superior %3'.[this.name,this.container.name,$new_superior.name]"/>
       <do_if value="$new_superiortype">
-        <set_object_commander object="this.ship" commander="$new_superior" type="$new_superiortype"/>
+        <do_if value="$new_superior.controlentity.{$new_superiortype}.exists">
+          <set_object_commander object="this.ship" commander="$new_superior" type="$new_superiortype"/>
+        </do_if>
+        <do_else>
+          <set_object_commander object="this.ship" commander="$new_superior"/>
+          <set_value name="this.$ut_cac.$commanderentity" exact="$new_superiorentity"/>
+        </do_else>
       </do_if>
       <do_else>
         <set_object_commander object="this.ship" commander="$new_superior"/>
