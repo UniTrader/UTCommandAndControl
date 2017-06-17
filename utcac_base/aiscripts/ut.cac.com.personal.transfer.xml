@@ -200,8 +200,8 @@
             <safepos object="this.container" allowyaxis="true"/> 
           </create_ship>
         </do_else>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Created Transport Ship, Results:\nTransport Ship: %3 ; Pilot: %4 ; Dockingslof found: %5'.[this.name,this.container.name,@$transport_ship.name,@this.ship.pilot.name,$tmp_dockingslot]"/>
         <remove_value name="$tmp_dockingslot"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Created Transport Ship, Results:\nTransport Ship: %3 ; Pilot: %4'.[this.name,this.container.name,@$transport_ship.name,@this.ship.pilot.name]"/>
         
         <!-- Fly Ship to Destination -->
         <run_script name="'move.generic'">
@@ -211,7 +211,7 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moved to Destination Zone'.[this.name,this.container.name]"/>
         
         <!-- Dock at Destination or move close to the Destination Object -->
-        <find_dock_location name="$tmp_dockingslot" container="this.container" size="tag.dock_s" />
+        <find_dock_location name="$tmp_dockingslot" container="this.container" size="this.ship.docksize"/>
         <do_if value="$tmp_dockingslot.exists">
           <run_script name="'move.dockat'" result="$dockresult">
             <param name="destination" value="$destination" />
@@ -222,8 +222,8 @@
           <param name="destination" value="$destination" />
         </run_script>
         </do_else>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Docked at Target: %3 ; Dockingslof found: %4'.[this.name,this.container.name,@$dockresult,$tmp_dockingslot]"/>
         <remove_value name="$tmp_dockingslot"/>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Docked at Target: %3'.[this.name,this.container.name,$dockresult]"/>
         
         <!-- Assuming we have docked at Destination - transfer NPC, Destroy Ship, move to common Finish Part -->
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moving Actor into Target, Destroying Ship'.[this.name,this.container.name]"/>
