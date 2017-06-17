@@ -188,9 +188,21 @@
         <!-- Simple fallback case: Create a Temp Ship (base it on Cluster?), fly it to Destination,  Destroy it -->
         <set_entity_type entity="this" type="entitytype.pilot" comment="convert to an type who is able to pilot ships"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Transport Ship'.[this.name,this.container.name]"/>
-        <create_ship name="$transport_ship" dock="this.container" capturable="false" sellable="false" group="albion_light_fighter">
-          <pilot actor="this"/>
-        </create_ship>
+        <find_object_component name="$dockingbay" object="this.container" class="class.dockingbay">
+          <match_dock size="tag.dock_s" />
+        </find_object_component>
+        <do_if value="$dockingbay.exists">
+          <create_ship name="$transport_ship" dock="this.container" capturable="false" sellable="false" group="albion_light_fighter">
+            <pilot actor="this"/>
+          </create_ship>
+        </do_if>
+        <do_else>
+          <create_ship name="$transport_ship" zone="this.zone" capturable="false" sellable="false" group="albion_light_fighter">
+            <safepos object="this.container" allowyaxis="true"/> 
+            <pilot actor="this"/>
+          </create_ship>
+        </do_else>
+        <remove_value name="$dockingbay"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Created Transport Ship, Results:\nTransport Ship: %3 ; Pilot: %4'.[this.name,this.container.name,@$transport_ship.name,@this.ship.pilot.name]"/>
         
         <!-- Fly Ship to Destination -->
@@ -200,10 +212,21 @@
         </run_script>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moved to Destination Zone'.[this.name,this.container.name]"/>
         
-        <!-- (attempt to) Dock at Destination -->
-        <run_script name="'move.dockat'" result="$dockresult">
+        <!-- Dock at Destination or move close to the Destination Object -->
+        <find_object_component name="$dockingbay" object="this.container" class="class.dockingbay">
+          <match_dock size="tag.dock_s" />
+        </find_object_component>
+        <do_if value="$dockingbay.exists">
+          <run_script name="'move.dockat'" result="$dockresult">
+            <param name="destination" value="$destination" />
+          </run_script>
+        </do_if>
+        <do_else>
+        <run_script name="'move.generic'">
           <param name="destination" value="$destination" />
         </run_script>
+        </do_else>
+        <remove_value name="$dockingbay"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Docked at Target: %3'.[this.name,this.container.name,$dockresult]"/>
         
         <!-- Assuming we have docked at Destination - transfer NPC, Destroy Ship, move to common Finish Part -->
