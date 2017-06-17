@@ -195,9 +195,10 @@
           </create_ship>
         </do_if>
         <do_else>
-          <create_ship name="$transport_ship" zone="this.container.zone" capturable="false" sellable="false" group="albion_light_fighter">
+          <create_position name="$position" object="this.container" space="this.zone"/>
+          <create_ship name="$transport_ship" zone="this.zone" capturable="false" sellable="false" group="albion_light_fighter">
             <pilot actor="this"/>
-            <safepos value="this.container.position" allowyaxis="true" /> 
+            <safepos value="$position" allowyaxis="true" /> 
           </create_ship>
         </do_else>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Created Transport Ship, Results:\nTransport Ship: %3 ; Pilot: %4 ; Dockingslof found: %5'.[this.name,this.container.name,@$transport_ship.name,@this.ship.pilot.name,$tmp_dockingslot]"/>
@@ -211,7 +212,7 @@
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Moved to Destination Zone'.[this.name,this.container.name]"/>
         
         <!-- Dock at Destination or move close to the Destination Object -->
-        <find_dock_location name="$tmp_dockingslot" container="this.container" size="this.ship.docksize"/>
+        <find_dock_location name="$tmp_dockingslot" container="this.container" size="tag.dock_s"/>
         <do_if value="$tmp_dockingslot != null">
           <run_script name="'move.dockat'" result="$dockresult">
             <param name="destination" value="$destination" />
