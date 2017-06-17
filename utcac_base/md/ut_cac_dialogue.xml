@@ -200,8 +200,8 @@
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1] , null , $i] , 
 [ 'text' , $i + '.' ] , 
 [ 'text' , event.object.$orderlist.{$i}.$displayname ] , 
-[ 'button' , 'V' , 'comm_orders_mod' , null , ( if event.object.$orderlist.{$i}.$moveable? then event.object.$orderlist.{$i}.$moveable else true ) and ( if $i == 1 and event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true ) , [ 'move down' , $i , event.object.$orderlist.{$i}.$script ] , true ] , 
-[ 'button' , {5554103,103} , 'comm_orders_mod' , null , if event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true , [ 'cancel' , $i , event.object.$orderlist.{$i}.$script ] , true] 
+[ 'button' , 'V' , 'comm_orders_mod' , false , ( if event.object.$orderlist.{$i}.$moveable? then event.object.$orderlist.{$i}.$moveable else true ) and ( if $i == 1 and event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true ) , [ 'move down' , $i , event.object.$orderlist.{$i}.$script ] , true ] , 
+[ 'button' , {5554103,103} , 'comm_orders_mod' , false , if event.object.$orderlist.{$i}.$interruptable? then event.object.$orderlist.{$i}.$interruptable else true , [ 'cancel' , $i , event.object.$orderlist.{$i}.$script ] , true] 
 ]"/>
           </do_all>
           <!-- remove last move down Entry, or add a Placeholder Entry to prevent the menü from bugging out -->
@@ -737,16 +737,16 @@
 ]"/>
               <remove_value name="$accountpercantage"/>
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , {5554103,506} + event.object.minbudget.formatted.default , 'comm_personal_money_minbudget' , null , true , null , true] , 
-[ 'button' , {5554103,507} + event.object.money.formatted.default , 'comm_personal_money_transfer' , null , true , null , true] , 
-[ 'button' , {5554103,508} + event.object.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , null , true , null , true ] , 
+[ 'button' , {5554103,506} + event.object.minbudget.formatted.default , 'comm_personal_money_minbudget' , false , true , null , true] , 
+[ 'button' , {5554103,507} + event.object.money.formatted.default , 'comm_personal_money_transfer' , false , true , null , true] , 
+[ 'button' , {5554103,508} + event.object.maxbudget.formatted.default , 'comm_personal_money_maxbudget' , false , true , null , true ] , 
 [ 'text' , {5554103,509} ] 
 ]"/>
               <set_value name="$wantedmoney" exact="event.object.container.productionmoney + event.object.container.wantedmoney + @event.object.container.buildanchor.wantedmoney"/>
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
 [ 'text' , {5554103,510} ] , 
 [ 'text' , $wantedmoney.formatted.default ] , 
-[ 'button' , {5554103,511} , 'comm_personal_money_transfer' , null , ( event.object.money lt $wantedmoney ) and (($wantedmoney - event.object.money) le player.money ) , $wantedmoney - event.object.money , true ] , 
+[ 'button' , {5554103,511} , 'comm_personal_money_transfer' , false , ( event.object.money lt $wantedmoney ) and (($wantedmoney - event.object.money) le player.money ) , $wantedmoney - event.object.money , true ] , 
 [ 'text' , '' ] 
 ]"/>
             </do_if>
@@ -759,8 +759,8 @@
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 8 ] ] , [ 'text' , {5554103,513} ] ]"/>
 <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , if ( event.object.$defaultorders? and not @event.object.$defaultorders.$inactive ) then {5554103,514} else {5554103,515} , 'comm_personal_work_toggle' , null , event.object.$defaultorders? , 0  , true ] , 
-[ 'button' , {5554103,516} , 'comm_personal_transfer' , null , true , null , true ] , 
+[ 'button' , if ( event.object.$defaultorders? and not @event.object.$defaultorders.$inactive ) then {5554103,514} else {5554103,515} , 'comm_personal_work_toggle' , false , event.object.$defaultorders? , 0  , true ] , 
+[ 'button' , {5554103,516} , 'comm_personal_transfer' , false , true , null , true ] , 
 [ 'text' , '' ] 
 ]"/>
             <!--TO DO: Standby Check here-->
@@ -769,21 +769,21 @@
             <!-- begin of Pester Level Settings -->
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 4 , 4 ] ] , [ 'text' , {5554103,519}.[event.object.$ut_cac.$pesterlevel] ] , [ 'text' , {5554103,520}.[event.object.$ut_cac.$loglevel] ] ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , {5554103,517}.[0] , 'comm_personal_pester_set' , null , true , 0  , true ] , 
-[ 'button' , {5554103,517}.[20] , 'comm_personal_pester_set' , null , true , 20  , true ] , 
-[ 'button' , {5554103,518}.[0] , 'comm_personal_log_set' , null , true , 0  , true ] , 
-[ 'button' , {5554103,518}.[20] , 'comm_personal_log_set' , null , true , 20  , true ] ]"/>
+[ 'button' , {5554103,517}.[0] , 'comm_personal_pester_set' , false , true , 0  , true ] , 
+[ 'button' , {5554103,517}.[20] , 'comm_personal_pester_set' , false , true , 20  , true ] , 
+[ 'button' , {5554103,518}.[0] , 'comm_personal_log_set' , false , true , 0  , true ] , 
+[ 'button' , {5554103,518}.[20] , 'comm_personal_log_set' , false , true , 20  , true ] ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , {5554103,517}.[40] , 'comm_personal_pester_set' , null , true , 40  , true ] , 
-[ 'button' , {5554103,517}.[60] , 'comm_personal_pester_set' , null , true , 60  , true ] , 
-[ 'button' , {5554103,518}.[40] , 'comm_personal_log_set' , null , true , 40  , true ] , 
-[ 'button' , {5554103,518}.[60] , 'comm_personal_log_set' , null , true , 60  , true ] 
+[ 'button' , {5554103,517}.[40] , 'comm_personal_pester_set' , false , true , 40  , true ] , 
+[ 'button' , {5554103,517}.[60] , 'comm_personal_pester_set' , false , true , 60  , true ] , 
+[ 'button' , {5554103,518}.[40] , 'comm_personal_log_set' , false , true , 40  , true ] , 
+[ 'button' , {5554103,518}.[60] , 'comm_personal_log_set' , false , true , 60  , true ] 
 ]"/>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 2 , 2 , 2 ] ] , 
-[ 'button' , {5554103,517}.[80] , 'comm_personal_pester_set' , null , true , 80  , true ] , 
-[ 'button' , {5554103,517}.[100] , 'comm_personal_pester_set' , null , true , 100  , true ] , 
-[ 'button' , {5554103,518}.[80] , 'comm_personal_log_set' , null , true , 80  , true ] ,  
-[ 'button' , {5554103,518}.[100] , 'comm_personal_log_set' , null , true , 100  , true ] 
+[ 'button' , {5554103,517}.[80] , 'comm_personal_pester_set' , false , true , 80  , true ] , 
+[ 'button' , {5554103,517}.[100] , 'comm_personal_pester_set' , false , true , 100  , true ] , 
+[ 'button' , {5554103,518}.[80] , 'comm_personal_log_set' , false , true , 80  , true ] ,  
+[ 'button' , {5554103,518}.[100] , 'comm_personal_log_set' , false , true , 100  , true ] 
 ]"/>
             <!-- End of Pester Level Settings -->
           </do_if>
@@ -1017,7 +1017,7 @@
         <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <do_if value="event.param == 'comm_debug_main'">
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Debug Menu for %1'.[event.object.name], null, null , null , [ 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , -1 ] ,  [] ,  [ 
-[ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
+[ 'button' , 'Back' , false , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 [ 'button' , 'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
 [ 'button' , 'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , 
 [ 'button' , 'Details', 'comm_debug_data_details' , 'INPUT_STATE_DETAILMONITOR_X' , true ] 
@@ -1075,7 +1075,7 @@ null
           </do_if>
           <do_else>
             <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Data Details for a %1'.[typeof event.param2], null, null , null , [ 40 , 210 , -1 ] ,  [] ,  [ 
-[ 'button' , 'Back' , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
+[ 'button' , 'Back' , false , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 null , null , 
 [ 'button' , 'Details', 'comm_debug_data_details' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
 ] ]"/>

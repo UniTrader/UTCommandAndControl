@@ -87,31 +87,31 @@
           <do_all exact="event.object.$ut_cac.$range.count" counter="$i" reverse="false">
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 , 1 , 1 , 1 , 1 , 1 ] , null , $i] ,  
 [ 'text' , $i + '.' ] , 
-[ 'button' , if event.object.$ut_cac.$range_j.{$i} then {5554103,15003} else {5554103,15004} , 'comm_manager_settings_range_toggle_jump' , null , true , $i , true ] , 
-[ 'button' , if event.object.$ut_cac.$range_h.{$i} then {5554103,15005} else {5554103,15006} , 'comm_manager_settings_range_toggle_highway' , null  , true , $i , true ] , 
+[ 'button' , if event.object.$ut_cac.$range_j.{$i} then {5554103,15003} else {5554103,15004} , 'comm_manager_settings_range_toggle_jump' , false , true , $i , true ] , 
+[ 'button' , if event.object.$ut_cac.$range_h.{$i} then {5554103,15005} else {5554103,15006} , 'comm_manager_settings_range_toggle_highway' , false , true , $i , true ] , 
 [ 'text' , event.object.$ut_cac.$range.{$i}.name + ( if @event.object.$ut_cac.$range_w.{$i} then ( ' via ' + event.object.$ut_cac.$range_w.{$i}.name ) else '' ) ] , 
-[ 'button' , {5554103,15007} , 'comm_manager_settings_range_move_down' , null , true , $i , true ] , 
-[ 'button' , {5554103,15008} , 'comm_manager_settings_range_change' , null , true , $i ] , 
-[ 'button' , if @event.object.$ut_cac.$range_w.{$i} then {5554103,15009} else {5554103,15010} , 'comm_manager_settings_range_change_waypoint' , null , true , $i] ]"/>
+[ 'button' , {5554103,15007} , 'comm_manager_settings_range_move_down' , false , true , $i , true ] , 
+[ 'button' , {5554103,15008} , 'comm_manager_settings_range_change' , false , true , $i ] , 
+[ 'button' , if @event.object.$ut_cac.$range_w.{$i} then {5554103,15009} else {5554103,15010} , 'comm_manager_settings_range_change_waypoint' , false , true , $i] ]"/>
           </do_all>
           <!-- remove last move down Entry -->
           <set_value name="$genericuiparam.{8}.{$genericuiparam.{8}.count}.{6}" exact="null"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 3 ] ] , 
 [ 'text' , '#' ] , 
 [ 'text' , {5554103,15011} ] , 
-[ 'button' , {5554103,15012} , 'comm_manager_settings_range_change' , null , true , event.object.$ut_cac.$range.count + 1 ] 
+[ 'button' , {5554103,15012} , 'comm_manager_settings_range_change' , false , true , event.object.$ut_cac.$range.count + 1 ] 
 ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 7 ] ] , [ 'text' , {5554103,15013} ] 
 ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 6 , 1 ] ] , 
 [ 'text' , {5554103,15014} ] , 
-[ 'button' , if event.object.container.istraderestricted then {5554103,15015} else {5554103,15016} , 'comm_manager_settings_trade_restriction_toggle' , null , true , null , true ] 
+[ 'button' , if event.object.container.istraderestricted then {5554103,15015} else {5554103,15016} , 'comm_manager_settings_trade_restriction_toggle' , false , true , null , true ] 
 ]"/>
           <!-- Add Ware-specific Exceptions here -->
           <!-- Contraband Setting -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 5 , 2 ] ] , 
 [ 'text' , {5554103,15020} ] , 
-[ 'button' , readtext.{5554103}.{15021+event.object.$ut_cac.$legality} , 'comm_manager_settings_trade_legality_switch' , null , true , null , true ] 
+[ 'button' , readtext.{5554103}.{15021+event.object.$ut_cac.$legality} , 'comm_manager_settings_trade_legality_switch' , false , true , null , true ] 
 ]"/>
           <remove_value name="$selectedcell"/>
           <include_actions ref="md.UT_CAC_Lib.Debug_Custom_UI" chance="@event.object.$debug * 100"/>
