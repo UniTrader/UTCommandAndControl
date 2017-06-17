@@ -39,17 +39,17 @@
                   <set_value name="$rangepoints" operation="subtract" exact="$rangecost.{event.object.$ut_cac.$range.{$i}.class}"/>
                 </do_if>
                 <do_else>
-                  <append_to_list name="$removed_ranges" exact="{5554103,15025}.[event.object.$ut_cac.$range.{$i}]"/>
+                  <append_to_list name="$removed_ranges" exact="{5554103,15025}.[event.object.$ut_cac.$range.{$i}.name]"/>
                   <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
                 </do_else>
               </do_if>
               <do_else>
-                <append_to_list name="$removed_ranges" exact="{5554103,15026}.[event.object.$ut_cac.$range.{$i}]"/>
+                <append_to_list name="$removed_ranges" exact="{5554103,15026}.[event.object.$ut_cac.$range.{$i}.name]"/>
                 <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
               </do_else>
             </do_if>
             <do_else>
-              <append_to_list name="$removed_ranges" exact="{5554103,15027}.[event.object.$ut_cac.$range.{$i}]"/>
+              <append_to_list name="$removed_ranges" exact="{5554103,15027}.[event.object.$ut_cac.$range.{$i}.name]"/>
               <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
             </do_else>
           </do_all>
@@ -63,6 +63,7 @@
           </do_all>
           <do_if value="event.object.$ut_cac.$range.count == 0">
             <debug_text filter="error" text="'%1 %2 No Ranges in Range List - defaulting to Sector only'.[event.object.name,event.object.container.name]"/>
+              <set_value name="$removed_ranges.{1}" exact="{5554103,15028}.[event.object.sector.name]"/>
             <append_to_list name="event.object.$ut_cac.$range" exact="event.object.sector"/>
             <append_to_list name="event.object.$ut_cac.$range_j" exact="event.object.sector"/>
             <append_to_list name="event.object.$ut_cac.$range_h" exact="event.object.sector"/>
