@@ -31,6 +31,7 @@
           </do_if>
           <set_value name="$totalrangepoints" exact="$rangepoints"/>
           <!-- doing two passes here - first validating Ranges and nulling wrong entries, then removing null entries - removign them immediately would skip checking a few -->
+          <set_value name="$removed_ranges" exact="[]"/>
           <do_all exact="event.object.$ut_cac.$range.count" counter="$i" reverse="false">
             <do_if value="event.object.$ut_cac.$range.{$i}.exists">
               <do_if value="event.object.$ut_cac.$range.{$i}.isclass.{$rangecost.keys.list}">
@@ -38,17 +39,17 @@
                   <set_value name="$rangepoints" operation="subtract" exact="$rangecost.{event.object.$ut_cac.$range.{$i}.class}"/>
                 </do_if>
                 <do_else>
-                 <!--append_to_list name="$removal_message" exact="'%1 removed - not enough Range Points remaining (%2 of %3)'.[event.object.$ut_cac.$range.{$i}.name,$rangepoints,$rangecost.{event.object.$ut_cac.$range.{$i}.class}]"/-->
-                 <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
+                  <append_to_list name="$removed_ranges" exact="{5554103,15025}.[event.object.$ut_cac.$range.{$i}]"/>
+                  <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
                 </do_else>
               </do_if>
               <do_else>
-                <!--append_to_list name="$removal_message" exact="'%1 removed - not of recognized Range Class (%2)'.[event.object.$ut_cac.$range.{$i}.name,event.object.$ut_cac.$range.{$i}.class]"/-->
+                <append_to_list name="$removed_ranges" exact="{5554103,15026}.[event.object.$ut_cac.$range.{$i}]"/>
                 <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
               </do_else>
             </do_if>
             <do_else>
-              <!--append_to_list name="$removal_message" exact="'%1 removed - does not exist'.[event.object.$ut_cac.$range.{$i}.name]"/-->
+              <append_to_list name="$removed_ranges" exact="{5554103,15027}.[event.object.$ut_cac.$range.{$i}]"/>
               <set_value name="event.object.$ut_cac.$range.{$i}" exact="null"/>
             </do_else>
           </do_all>
@@ -92,6 +93,10 @@
           </do_all>
           <!-- remove last move down Entry -->
           <set_value name="$genericuiparam.{8}.{$genericuiparam.{8}.count}.{6}" exact="null"/>
+          <do_all exact="$removed_ranges.count" counter="$i">
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 7 ] ] , [ 'text' , $removed_ranges.{$i} ] ]"/>
+          </do_all>
+          <remove_value name="$removed_ranges"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 3 ] ] , 
 [ 'text' , '#' ] , 
 [ 'text' , {5554103,15011} ] , 
