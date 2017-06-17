@@ -189,7 +189,7 @@
         <set_entity_type entity="this" type="entitytype.pilot" comment="convert to an type who is able to pilot ships"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Transport Ship'.[this.name,this.container.name]"/>
         <find_dock_location name="$tmp_dockingslot" container="this.container" size="tag.dock_s" />
-        <do_if value="$tmp_dockingslot.exists">
+        <do_if value="$tmp_dockingslot != null">
           <create_ship name="$transport_ship" dock="this.container" capturable="false" sellable="false" group="albion_light_fighter">
             <pilot actor="this"/>
           </create_ship>
@@ -197,7 +197,7 @@
         <do_else>
           <create_ship name="$transport_ship" zone="this.zone" capturable="false" sellable="false" group="albion_light_fighter">
             <pilot actor="this"/>
-            <safepos object="this.container" allowyaxis="true"/> 
+            <safepos object="this.container.position" space="this.zone" allowyaxis="true"/> 
           </create_ship>
         </do_else>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Created Transport Ship, Results:\nTransport Ship: %3 ; Pilot: %4 ; Dockingslof found: %5'.[this.name,this.container.name,@$transport_ship.name,@this.ship.pilot.name,$tmp_dockingslot]"/>
@@ -212,7 +212,7 @@
         
         <!-- Dock at Destination or move close to the Destination Object -->
         <find_dock_location name="$tmp_dockingslot" container="this.container" size="this.ship.docksize"/>
-        <do_if value="$tmp_dockingslot.exists">
+        <do_if value="$tmp_dockingslot != null">
           <run_script name="'move.dockat'" result="$dockresult">
             <param name="destination" value="$destination" />
           </run_script>
