@@ -161,6 +161,66 @@ table[$script='ut.cac.microorder',$displayname={5554103,20002}.[(1h).formatted.d
       </actions>
     </cue>
     
+    <cue name="Settings" instantiate="true">
+      <conditions>
+        <check_any>
+          <event_conversation_next_section sectionprefix="comm_captain_settings"/>
+          <event_conversation_returned_to_section sectionprefix="comm_captain_settings"/>
+        </check_any>
+      </conditions>
+      <actions>
+        <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <!--- ################################### -->
+        <!--                       Settings Menu                          -->
+        <!--- ################################### -->
+        <do_if value="event.param == 'comm_captain_settings'">
+          <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
+          <set_value name="$genericuiparam" exact="
+[ 0 , 0 , {5554103,104}.[event.object.name,event.object.container.name], null , null , null , [ -1 , 200 ] ,  [] ,  
+[ [ 'button' , {5554103,8} , null , 'INPUT_STATE_DETAILMONITOR_B' , true ] , [ 'button' , 'UNUSED' , 'comm_manager_settings_range_toggle_jump' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , [ 'button' ,  'Remove' , 'comm_manager_settings_range_remove' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , [ 'button' , '\033ROld Managment Menu', 'comm_manager_settings_range_mod' , 'INPUT_STATE_DETAILMONITOR_X' , true ] ] ]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 2 ] ] , [ 'text' , {5554103,11500} ] 
+]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 ] ] , 
+[ 'text' , {5554103,11501} ] , 
+[ 'button' , if $actor.$ut_cac.$insectorjump then {5554103,10002} else {5554103,10003} , 'comm_captain_settings_is_jump_toggle' ] 
+]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 ] ] , 
+[ 'text' , {5554103,11502} ] , 
+[ 'button' , if $actor.$ut_cac.$jumptype == 'random' then {5554103,15004} else if $actor.$ut_cac.$jumptype == 'auto' then {5554103,15005} else {5554103,15003} , 'comm_captain_settings_jump_type_switch' ] 
+]"/>
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 ] ] , 
+[ 'text' , {5554103,11506} ] , 
+[ 'button' , if $actor.$ut_cac.$clusterboost then {5554103,10002} else {5554103,10003} , 'comm_captain_settings_ic_boost_toggle' ] 
+]"/>
+          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
+          <add_conversation_view view="closeupdetailmonitor"/>
+        </do_if>
+        <do_elseif value="event.param == 'comm_captain_settings_is_jump_toggle'">
+          <set_value name="$actor.$ut_cac.$insectorjump" exact="not $actor.$ut_cac.$insectorjump"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_settings_jump_type_switch'">
+          <do_if value="$actor.$ut_cac.$jumptype == 'beacon'">
+            <set_value name="$actor.$ut_cac.$jumptype" exact="'random'"/>
+          </do_if>
+          <do_elseif value="$actor.$ut_cac.$jumptype == 'random'">
+            <set_value name="$actor.$ut_cac.$jumptype" exact="'auto'"/>
+          </do_elseif>
+          <do_elseif value="$actor.$ut_cac.$jumptype == 'auto'">
+            <set_value name="$actor.$ut_cac.$jumptype" exact="'beacon'"/>
+          </do_elseif>
+          <do_else>
+            <set_value name="$actor.$ut_cac.$jumptype" exact="'beacon'"/>
+          </do_else>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_captain_settings_ic_boost_toggle'">
+          <set_value name="$actor.$ut_cac.$clusterboost" exact="not $actor.$ut_cac.$clusterboost"/>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+      </actions>
+    </cue>
+    
     
     <cue name="Main" instantiate="true" namespace="this" version="20">
       <conditions>
