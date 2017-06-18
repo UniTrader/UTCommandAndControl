@@ -1026,12 +1026,13 @@
       </conditions>
       <actions>
         <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
+        <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
         <do_if value="event.param == 'comm_debug_main'">
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Debug Menu for %1'.[event.object.name], null, null , null , [ 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , -1 ] ,  [] ,  [ 
 [ 'button' , 'Back' , false , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 [ 'button' , 'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
 [ 'button' , 'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_Y' , true , null , true ] , 
-[ 'button' , 'Details', 'comm_debug_data_details' , 'INPUT_STATE_DETAILMONITOR_X' , true ] 
+[ 'button' , 'UNUSED', '' , 'INPUT_STATE_DETAILMONITOR_X' , true , null , true ] 
 ] ]"/>
           <!-- Local Variables  -->
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 10 ] ] , [ 'text' , 'Debug Functions' ] ]"/>
@@ -1042,17 +1043,18 @@
 [ 'button' , 'Debug: ' + @event.object.$debug , 'comm_debug_toggle' , false , true ] , 
 [ 'button' , 'Remove Object' , 'comm_debug_cleanup_object' , false , true] 
 ]"/>
-          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 4 , 2 , 2 , 2 ] ] , 
+          <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 1 , 2 , 2 , 2 ] ] , 
 [ 'button' , 'Debug Text Page 5554103' , 'comm_debug_lang_file' , false , true , 5554103 ] , 
-null , null , null
+null , null , null ,
+[ 'button' , 'Show Config Var' , 'comm_debug_data_details' , false , true , event.object.$ut_cac ] 
 ]"/>
           <do_if value="event.object.$orderlist?">
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 10 ] ] , [ 'text' , 'Orderlist Details' ] ]"/>
             <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 3 , 6 ], 'comm_debug_data_details' , @event.object.$orderlist.{$i} ] ,  
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 3 , 6 ], 'comm_debug_data_details' ] ,  
 [ 'text' , 'i:%1 e:%2'.[@event.object.$orderlist.{$i}.$interruptable , @event.object.$orderlist.{$i}.$exitonneworder] ] , 
 [ 'text' , @event.object.$orderlist.{$i}.$script ] , 
-[ 'text' , @event.object.$orderlist.{$i}.$displayname ] 
+[ 'button' , '@event.object.$orderlist.{$i}.$displayname' , 'comm_debug_data_details' , false , true , @event.object.$orderlist.{$i} ] 
 ]"/>
             </do_all>
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 1 , 3 , 6] ] ,  
