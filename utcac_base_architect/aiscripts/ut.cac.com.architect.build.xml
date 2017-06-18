@@ -130,7 +130,7 @@
         <!-- wait for Arrival Signal or other claims for the buildlocation -->
         <!-- regulary check if Buildlocation is still free (to do: write own Script for the Pilot which moves this responsibiliy to him )-->
         <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
-        <wait>
+        <wait resume="true">
           <interrupt>
             <conditions>
               <event_object_signalled object="this.ship" param="'move.buildership'"/>
@@ -189,7 +189,7 @@
             <boundingbox max="$macro.boundingbox.max" center="$macro.boundingbox.center" />
           </check_is_area_obstructed>
           <do_while value="$obstructed" >
-            <wait exact="10s"/>
+            <wait exact="10s" resume="true"/>
             <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$macro">
               <position value="$buildlocation.offset" space="this.zone"/>
               <rotation value="$buildlocation.rotation"/>
@@ -244,7 +244,7 @@
         <!-- wait till construction is done -->
         <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
         <do_while value="$station.isconstruction">
-          <wait>
+          <wait resume="true">
             <interrupt>
               <conditions>
                 <check_any>
@@ -291,7 +291,7 @@
           <boundingbox max="$station.macro.boundingbox.max" center="$station.macro.boundingbox.center" />
         </check_is_area_obstructed>
         <do_while value="$obstructed" >
-          <wait exact="10s"/>
+          <wait exact="10s" resume="true"/>
           <check_is_area_obstructed name="$obstructed" zone="this.zone" excluded="this.ship" macro="$station.macro">
             <position value="$station.buildlocation.offset" space="this.zone"/>
             <rotation value="$station.buildlocation.rotation"/>
@@ -314,7 +314,7 @@
         </do_else>
         <!-- wait till construction is done -->
         <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
-        <wait>
+        <wait resume="true">
           <interrupt>
             <conditions>
               <event_build_finished object="this.ship"/>
@@ -341,7 +341,7 @@
         <build_object_upgrades buildmodule="this.ship.buildmodule" sequence="''" stage="0" buildplan="$Buildplan" updatebuild="true"/>
         <!-- wait till construction is done -->
         <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
-        <wait>
+        <wait resume="true">
           <interrupt>
             <conditions>
               <event_build_finished object="this.ship"/>
@@ -413,7 +413,7 @@
           <do_if value="$specialist.exists">
             <do_if value="this.container.attention ge attention.visible">
               <start_actor_transport actor="$specialist" target="$station"/>
-              <wait exact="1s" comment="to avoid simultaneous starts and arrivals"/>
+              <wait exact="1s" comment="to avoid simultaneous starts and arrivals" resume="true"/>
             </do_if>
             <do_else>
               <add_actor_to_platform actor="$specialist" dockingbay="$dock.component"/>
@@ -431,7 +431,7 @@
         <do_all exact="$subordinates.count" counter="$i">
           <set_object_commander object="$subordinates.{$i}" commander="$station" type="entitytype.manager"/>
           <set_value name="$fuelcells_targetamount" exact="[$subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
-          <wait exact="1s"/>
+          <wait exact="1s" resume="true"/>
         </do_all>
         <set_value name="$manager.$ut_cac.$consumables.{ware.fuelcells}.$target" exact="$fuelcells_targetamount"/>
       </do_if>
@@ -446,7 +446,7 @@
           <set_value name="$transferamount" exact="[ (this.ship.units.{unitcategory.transport}.count - 20) , this.ship.availableunits.{unitcategory.transport}.count ].min"/>
           <do_all exact="$transferamount">
             <launch_drone name="$drone" object="$dronelaunchbays.random" group="unitcategory.transport" exact="1"/>
-            <wait min="2.5s" max="3.5s"/>
+            <wait min="2.5s" max="3.5s" resume="true"/>
             <do_if value="$drone.isoperational">
               <remove_units object="this.ship" macro="$drone.macro" exact="1" unavailable="true"/>
               <add_units object="$station" macro="$drone.macro" exact="1" unavailable="true"/>
@@ -462,7 +462,7 @@
           <set_value name="$transferamount" exact="this.ship.availableunits.{unitcategory.gascollector}.count"/>
           <do_all exact="$transferamount">
             <launch_drone name="$drone" object="$dronelaunchbays.random" group="unitcategory.gascollector" exact="1"/>
-            <wait min="2.5s" max="3.5s"/>
+            <wait min="2.5s" max="3.5s" resume="true"/>
             <do_if value="$drone.isoperational">
               <remove_units object="this.ship" macro="$drone.macro" exact="1" unavailable="true"/>
               <add_units object="$station" macro="$drone.macro" exact="1" unavailable="true"/>
