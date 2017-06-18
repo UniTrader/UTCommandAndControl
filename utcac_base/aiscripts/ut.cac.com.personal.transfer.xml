@@ -14,7 +14,7 @@
     <param name="job" default="'standby'" comment="the Job the NPC should perform when arrived. Will set the existing one to Standby if its replacing one. custom is also available to pass a new defaultorders Script and entitytype directly"/>
     <param name="new_type" default="null" comment="if the new Job is not directly implemented in this Script pass the new fitting entity type here."/>
     <param name="new_defaultorders" default="null" comment="New defaultorders Scripts table. used in the case of a custom next job."/>
-    
+    <param name="keepaccount" default="false" comment="the Entity keeps its account during Transfer instead of removing and re-creating it"/>
   </params>
   <init>
       <!-- first decode the $params to the Variables -->
@@ -33,6 +33,9 @@
         </do_if>
         <do_if value="$params.$new_defaultorders?">
           <set_value name="$new_defaultorders" exact="$params.$new_defaultorders"/>
+        </do_if>
+        <do_if value="$params.$keepaccount?">
+          <set_value name="$keepaccount" exact="$params.$keepaccount"/>
         </do_if>
       </do_if>
   </init>
@@ -89,7 +92,7 @@
         <remove_value name="this.$ut_cac.$construction"/>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Stop working as Architect'.[this.name,this.container.name]"/>
       </do_if>
-      <do_if value="this.hasownaccount and this.isplayerowned" comment="remove Actor Account (a new one will be set up if needed)">
+      <do_if value="this.hasownaccount and this.isplayerowned and not $keepaccount" comment="remove Actor Account (a new one will be set up if needed)">
         <remove_actor_account actor="this" transfer="true"/>
       </do_if>
       
