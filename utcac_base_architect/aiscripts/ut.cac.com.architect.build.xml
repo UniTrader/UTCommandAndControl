@@ -356,54 +356,48 @@
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Build Complete - Transfer Contents'.[this.name,this.container.name,$manager]"/>
       <!-- after each building Step check if Personal for the Station is on board (primarily for now possibly needed Specialists) and transfer all subordinate Ships, too -->
       <!-- Move all Station personal on board over to the Station after building, extending and redeploying (only if not already present)-->
-      <find_object_component name="$managers" object="this.ship" entitytype="entitytype.manager" multiple="true"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found Managers: %3'.[this.name,this.container.name,$manager]"/>
-      <do_if value="$managers.count and not $station.tradenpc.exists ">
-        <do_all exact="$managers.count" counter="$i">
-          <do_if value="$managers.{$i}.$ut_cac.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
-            <set_value name="$manager" exact="$managers.{$i}"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Manager %3 over to construction %4'.[this.name,this.container.name,$manager.name,$station.name]"/>
-            <signal_objects object="$manager" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'manager'],$destination=$station,$job='manager',$keepaccount=true,$interruptable=true]"/>
-            <break/>
+      <find_object_component name="$waiting_employees" object="this.ship" entitytype="entitytype.recruitment" multiple="true"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Waiting Employees: %3'.[this.name,this.container.name,$waiting_employees]"/>
+      <set_value name="$manager" exact="null"/>
+      <set_value name="$defensivenpc" exact="null"/>
+      <set_value name="$engineer" exact="null"/>
+      <do_all exact="$waiting_employees.count" counter="$i">
+        <do_if value="$waiting_employees.{$i}.$ut_cac.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
+          <do_if value="$waiting_employees.{$i}.$ut_cac.$defaultorders.$type == 'manager'">
+            <set_value name="$manager" exact="$waiting_employees.{$i}"/>
           </do_if>
-          <do_elseif value="$managers.{$i}.$ut_cac.$defaultorders.$script == 'ut.cac.orders.manager.default'">
-            <set_value name="$active_manager" exact="$managers.{$i}"/>
+          <do_elseif value="$waiting_employees.{$i}.$ut_cac.$defaultorders.$type == 'defense'">
+            <set_value name="$defensivenpc" exact="$waiting_employees.{$i}"/>
           </do_elseif>
-        </do_all>
-        <do_if value="not $manager?">
-          <set_value name="$manager" exact="$active_manager"/>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Active Manager %3 over to Construction %4'.[this.name,this.container.name,$manager.name,$station.name]"/>
-          <signal_objects object="$manager" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'manager'],$destination=$station,$job='manager',$keepaccount=true,$interruptable=true]"/>
+          <do_elseif value="$waiting_employees.{$i}.$ut_cac.$defaultorders.$type == 'engineer'">
+            <set_value name="$engineer" exact="$waiting_employees.{$i}"/>
+          </do_elseif>
         </do_if>
-      </do_if>
-      <remove_value name="$managers"/>
-      <remove_value name="$active_manager"/>
-      <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" multiple="true"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found DOs: %3'.[this.name,this.container.name,$defensivenpc]"/>
-      <do_if value="$defensivenpc.count and not $station.defencenpc.exists">
-        <do_all exact="$defensivenpc.count" counter="$i">
-          <do_if value="$defensivenpc.{$i}.$ut_cac.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
-            <set_value name="$defensivenpc" exact="$defensivenpc.{$i}"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Engineer %3 over'.[this.name,this.container.name,$defensivenpc.name]"/>
-            <signal_objects object="$defensivenpc" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'defense'],$destination=$station,$job='defense',$interruptable=true]"/>
-            <break/>
+      </do_all>
+      <!-- fallback: use active Manager -->
+      <do_if value="not $manager.exists">
+        <find_object_component name="$managers" object="this.ship" entitytype="entitytype.manager" multiple="true"/>
+        <do_all exact="$managers.count" counter="$i">
+          <do_if value="$managers.{$i}.$ut_cac.$defaultorders.$script == 'ut.cac.orders.manager.default'">
+            <set_value name="$manager" exact="$managers.{$i}"/>
           </do_if>
         </do_all>
+        <remove_value name="$managers"/>
       </do_if>
-      <do_if value="false" comment="add check for Station Engineer Mod (or add limited repair functionality to Engineers)">
-      <find_object_component name="$engineer" object="this.ship" entitytype="entitytype.engineer" multiple="true"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found Engineers: %3'.[this.name,this.container.name,$engineer]"/>
-        <do_if value="$engineer.count and not $station.engineer.exists">
-        <do_all exact="$engineer.count" counter="$i">
-          <do_if value="$engineer.{$i}.$ut_cac.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
-            <set_value name="$engineer" exact="$engineer.{$i}"/>
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Engineer %3 over'.[this.name,this.container.name,$engineer.name]"/>
-            <signal_objects object="$engineer" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'engineer'],$destination=$station,$job='engineer',$interruptable=true]"/>
-            <break/>
-          </do_if>
-        </do_all>
-        </do_if>
+      
+      <do_if value="$manager.exists and not $station.tradenpc.exists ">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Manager %3 over to construction %4'.[this.name,this.container.name,$manager.name,$station.name]"/>
+        <signal_objects object="$manager" param="'new order'" param2="[ table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'manager'],$destination=$station,$job='manager',$keepaccount=true,$interruptable=true] , table[$script='ut.cac.microorder', $displayname='\033RSignal Arrival',$order='signalobject',$signalobject=$station,$param='manager arrived'] ]"/>
       </do_if>
+      <do_if value="$defensivenpc.exists and not $station.defencenpc.exists">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send DO %3 over over to construction %4'.[this.name,this.container.name,$defensivenpc.name,$station.name]"/>
+        <signal_objects object="$defensivenpc" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'defense'],$destination=$station,$job='defense',$interruptable=true]"/>
+      </do_if>
+      <do_if value="$engineer.exists and not $station.engineer.exists">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Engineer %3 over over to construction %4'.[this.name,this.container.name,$engineer.name,$station.name]"/>
+        <signal_objects object="$engineer" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'engineer'],$destination=$station,$job='engineer',$interruptable=true]"/>
+      </do_if>
+      
       <get_production_specialist_types name="$specialisttypes" object="$station" />
       <do_all exact="$specialisttypes.count" counter="$i">
         <!-- only ne specialist per type allowed -->
@@ -430,6 +424,10 @@
         <set_value name="$subordinates" exact="this.ship.subordinates.clone"/>
         <do_all exact="$subordinates.count" counter="$i">
           <set_object_commander object="$subordinates.{$i}" commander="$station" type="entitytype.manager"/>
+          <remove_value name="$subordinates.{$i}.$commanderentity"/>
+          <do_if value="$manager.exists">
+            <signal_objects object="$subordinates.{$i}.pilot" param="'new order'" param2=" table[$script='ut.cac.microorder', $displayname='\033RWait for Manager Arrival',$order='wait signal',$signalobject=$station,$param='manager arrived'] "/>
+          </do_if>
           <set_value name="$fuelcells_targetamount" exact="[$subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
           <wait exact="1s" resume="true"/>
         </do_all>
