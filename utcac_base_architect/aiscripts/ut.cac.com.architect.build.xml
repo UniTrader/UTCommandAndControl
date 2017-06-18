@@ -352,13 +352,17 @@
       </do_elseif>
       
       
+      <label name="transfercontents"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Build Complete - Transfer Contents'.[this.name,this.container.name,$manager]"/>
       <!-- after each building Step check if Personal for the Station is on board (primarily for now possibly needed Specialists) and transfer all subordinate Ships, too -->
       <!-- Move all Station personal on board over to the Station after building, extending and redeploying (only if not already present)-->
       <find_object_component name="$manager" object="this.ship" entitytype="entitytype.manager" controlentity="false" multiple="true"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found Managers: %3'.[this.name,this.container.name,$manager]"/>
       <do_if value="$manager.count and not $station.tradenpc.exists ">
         <do_all exact="$manager.count" counter="$i">
           <do_if value="$manager.{$i}.$defaultorders.$script == 'ut.cac.orders.manager.default'">
             <set_value name="$manager" exact="$manager.{$i}"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Manager %3 over'.[this.name,this.container.name,$manager.name]"/>
             <signal_objects object="$manager" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'manager'],$destination=$station,$job='manager',$interruptable=true]"/>
             <break/>
           </do_if>
@@ -368,10 +372,12 @@
         <remove_value name="$manager"/>
       </do_else>
       <find_object_component name="$defensivenpc" object="this.ship" entitytype="entitytype.defencecontrol" controlentity="false" multiple="true"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found DOs: %3'.[this.name,this.container.name,$defensivenpc]"/>
       <do_if value="$defensivenpc.count and not $station.defencenpc.exists">
         <do_all exact="$defensivenpc.count" counter="$i">
           <do_if value="$defensivenpc.{$i}.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
             <set_value name="$defensivenpc" exact="$defensivenpc.{$i}"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Engineer %3 over'.[this.name,this.container.name,$defensivenpc.name]"/>
             <signal_objects object="$defensivenpc" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'defense'],$destination=$station,$job='defense',$interruptable=true]"/>
             <break/>
           </do_if>
@@ -379,10 +385,12 @@
       </do_if>
       <do_if value="false" comment="add check for Station Engineer Mod (or add limited repair functionality to Engineers)">
         <find_object_component name="$engineer" object="this.ship" entitytype="entitytype.engineer" controlentity="false"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found Engineers: %3'.[this.name,this.container.name,$engineer]"/>
         <do_if value="$engineer.count and not $station.engineer.exists">
         <do_all exact="$engineer.count" counter="$i">
           <do_if value="$engineer.{$i}.$defaultorders.$script == 'ut.cac.orders.standby.for.construction'">
             <set_value name="$engineer" exact="$engineer.{$i}"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Engineer %3 over'.[this.name,this.container.name,$engineer.name]"/>
             <signal_objects object="$engineer" param="'new order'" param2="table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'engineer'],$destination=$station,$job='engineer',$interruptable=true]"/>
             <break/>
           </do_if>
@@ -422,7 +430,6 @@
       </do_if>
       
       
-      <label name="transfercontents"/>
       <!-- Transfer Drones which can be used by the Station (but keep enough in CV to be able to continue regular operations) -->
       <!-- ToDo: Move the Drones by launching them and Docking them at the Station instead of simply adding and removing -->
       <do_if value="this.container.attention ge attention.visible">
