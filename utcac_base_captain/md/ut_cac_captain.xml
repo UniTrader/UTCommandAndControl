@@ -182,31 +182,31 @@ table[$script='ut.cac.microorder',$displayname={5554103,20002}.[(1h).formatted.d
 ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 ] ] , 
 [ 'text' , {5554103,11501} ] , 
-[ 'button' , if event.object.$ut_cac.$insectorjump then {5554103,10002} else {5554103,10003} , 'comm_captain_settings_is_jump_toggle' ] 
+[ 'button' , if @event.object.$ut_cac.$insectorjump then {5554103,10002} else {5554103,10003} , 'comm_captain_settings_is_jump_toggle' , false , true ] 
 ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 ] ] , 
 [ 'text' , {5554103,11502} ] , 
-[ 'button' , if event.object.$ut_cac.$jumptype == 'random' then {5554103,11504} else if event.object.$ut_cac.$jumptype == 'auto' then {5554103,11505} else {5554103,11503} , 'comm_captain_settings_jump_type_switch' ] 
+[ 'button' , if @event.object.$ut_cac.$jumptype == 'random' then {5554103,11504} else if @event.object.$ut_cac.$jumptype == 'auto' then {5554103,11505} else {5554103,11503} , 'comm_captain_settings_jump_type_switch' , false , true ] 
 ]"/>
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1 , 1 ] ] , 
 [ 'text' , {5554103,11506} ] , 
-[ 'button' , if event.object.$ut_cac.$clusterboost then {5554103,10002} else {5554103,10003} , 'comm_captain_settings_ic_boost_toggle' ] 
+[ 'button' , if @event.object.$ut_cac.$clusterboost then {5554103,10002} else {5554103,10003} , 'comm_captain_settings_ic_boost_toggle' , false , true ] 
 ]"/>
           <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
           <add_conversation_view view="closeupdetailmonitor"/>
         </do_if>
         <do_elseif value="event.param == 'comm_captain_settings_is_jump_toggle'">
-          <set_value name="event.object.$ut_cac.$insectorjump" exact="not event.object.$ut_cac.$insectorjump"/>
+          <set_value name="event.object.$ut_cac.$insectorjump" exact="not @event.object.$ut_cac.$insectorjump"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_settings_jump_type_switch'">
-          <do_if value="event.object.$ut_cac.$jumptype == 'beacon'">
+          <do_if value="@event.object.$ut_cac.$jumptype == 'beacon'">
             <set_value name="event.object.$ut_cac.$jumptype" exact="'random'"/>
           </do_if>
-          <do_elseif value="event.object.$ut_cac.$jumptype == 'random'">
+          <do_elseif value="@event.object.$ut_cac.$jumptype == 'random'">
             <set_value name="event.object.$ut_cac.$jumptype" exact="'auto'"/>
           </do_elseif>
-          <do_elseif value="event.object.$ut_cac.$jumptype == 'auto'">
+          <do_elseif value="@event.object.$ut_cac.$jumptype == 'auto'">
             <set_value name="event.object.$ut_cac.$jumptype" exact="'beacon'"/>
           </do_elseif>
           <do_else>
@@ -215,7 +215,7 @@ table[$script='ut.cac.microorder',$displayname={5554103,20002}.[(1h).formatted.d
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_captain_settings_ic_boost_toggle'">
-          <set_value name="event.object.$ut_cac.$clusterboost" exact="not event.object.$ut_cac.$clusterboost"/>
+          <set_value name="event.object.$ut_cac.$clusterboost" exact="not @event.object.$ut_cac.$clusterboost"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
       </actions>
