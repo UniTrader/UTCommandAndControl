@@ -387,7 +387,7 @@
       
       <do_if value="$manager.exists and not $station.tradenpc.exists ">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send Manager %3 over to construction %4'.[this.name,this.container.name,$manager.name,$station.name]"/>
-        <signal_objects object="$manager" param="'new order'" param2="[ table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'manager'],$destination=$station,$job='manager',$keepaccount=true,$interruptable=true] , table[$script='ut.cac.microorder', $displayname='\033RSignal Arrival',$order='signalobject',$signalobject=$station,$param='manager arrived'] ]"/>
+        <signal_objects object="$manager" param="'new order'" param2="[ table[$script='ut.cac.com.personal.transfer',$displayname={5554103,20000}.[$station.name,'manager'],$destination=$station,$job='manager',$keepaccount=true,$interruptable=true] , table[$script='ut.cac.microorder', $displayname='\033RSignal Arrival',$order='signalobject',$signalobject=$station,$signalparam='manager arrived'] ]"/>
       </do_if>
       <do_if value="$defensivenpc.exists and not $station.defencenpc.exists">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Send DO %3 over over to construction %4'.[this.name,this.container.name,$defensivenpc.name,$station.name]"/>
@@ -426,7 +426,7 @@
           <set_object_commander object="$subordinates.{$i}" commander="$station" type="entitytype.manager"/>
           <remove_value name="$subordinates.{$i}.$commanderentity"/>
           <do_if value="$manager.exists">
-            <signal_objects object="$subordinates.{$i}.pilot" param="'new order'" param2=" table[$script='ut.cac.microorder', $displayname='\033RWait for Manager Arrival',$order='wait signal',$signalobject=$station,$param='manager arrived'] "/>
+            <signal_objects object="$subordinates.{$i}.pilot" param="'new order'" param2=" table[$script='ut.cac.microorder', $displayname='\033RWait for Manager Arrival',$order='wait signal',$signalobject=$station,$signalparam='manager arrived'] "/>
           </do_if>
           <set_value name="$fuelcells_targetamount" exact="[$subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
           <wait exact="1s" resume="true"/>
