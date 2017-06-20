@@ -34,7 +34,7 @@ Script to Dock or Park an Object
         </do_if>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started with Params:\n$destination: %3'.[this.name,this.container.name,$destination]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started with Params: $destination: %3'.[this.name,this.container.name,$destination]"/>
       
       <!-- Verify Input and Situation -->
 <!-- => no Movement out of Zone
@@ -143,12 +143,13 @@ Script to Dock or Park an Object
           <!-- if first in queue: find Dock Slot where no Ship is waiting for and register to dock there (also un-register from common queue) -->
           <do_if value="$park_queue.{$destination}.{1} == this.ship">
             <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Possible Parkslots: %3'.[this.name,this.container.name,$slots]"/>
             <do_all exact="$slots.count" counter="$i">
               <do_if value="$slots.{$i}.component.isoperational and ( ( not $park_queue.{$slots.{$i}.component}? ) or ( not $park_queue.{$slots.{$i}.component}.exists ) or ( not ( $park_queue.{$slots.{$i}.component}.sector == this.sector ) ) )">
                 <set_value name="$park_queue.{$slots.{$i}.component}" exact="this.ship"/>
                 <set_value name="$parkslot" exact="$slots.{$i}"/>
                 <remove_value name="$park_queue.{$destination}.{$park_queue.{$destination}.indexof.{this.ship}}"/>
-                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sorted into Parkslot: %3 \n%4'.[this.name,this.container.name,$parkslot,$park_queue]"/>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sorted into Parkslot: %3'.[this.name,this.container.name,$parkslot]"/>
                 <break/>
               </do_if>
             </do_all>
@@ -156,7 +157,7 @@ Script to Dock or Park an Object
           <do_if value="$parkslot">
             <break/>
           </do_if>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 No Parkslot to wait for - using Station Queue: %3 \n%4'.[this.name,this.container.name,$parkslot,$park_queue]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 No Parkslot to wait for - using Station Queue: %4'.[this.name,this.container.name,$park_queue]"/>
           <wait max="5min">
             <interrupt>
               <conditions>
@@ -168,7 +169,7 @@ Script to Dock or Park an Object
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Park queue next'.[this.name,this.container.name]"/>
         </do_while>
         
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Got Parking Slot: %3 - Moving to secondary Approach Pos. Park Queue:\n%4'.[this.name,this.container.name,$parkslot,$park_queue]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Got Parking Slot: %3 - Moving to secondary Approach Pos. Park Queue: %4'.[this.name,this.container.name,$parkslot,$park_queue]"/>
         
         <!-- move to an approach pos near the Dock to minimize final Parking Time - basically its a more far out approach pos..  -->
         <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkslot else 'Parking Pos 1'" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
@@ -217,7 +218,7 @@ Script to Dock or Park an Object
                   <do_if value="$success">
                     <set_value name="$parkslot" exact="event.param2"/>
                     <set_value name="$move_to_approach_pos_first"/>
-                    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Changed Parkslot: %3 \n%4'.[this.name,this.container.name,$parkslot,$park_queue]"/>
+                    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Changed Parkslot: %3 queue: %4'.[this.name,this.container.name,$parkslot,$park_queue]"/>
                   </do_if>
                 </do_if>
               </actions>
@@ -334,6 +335,7 @@ Script to Dock or Park an Object
         </do_if>
       </do_if>
       <!-- Signal next Ship in Queue to move to Advance -->
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sending Parking Queue Update'.[this.name,this.container.name]"/>
       <signal_objects object="$parkslot.component" param="'parking queue update'" param2="$parkslot"/>
       <signal_objects object="$destination" param="'parking queue update'" param2="$parkslot" delay="1s"/>
       
@@ -362,6 +364,7 @@ Script to Dock or Park an Object
     </do_if>
     <disconnect_from_trade_location ship="this.ship" />
     <!-- Signal next Ship in Queue to move to Advance -->
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sending Parking Queue Update (Abort Case)'.[this.name,this.container.name]"/>
     <signal_objects object="$parkslot.component" param="'parking queue update'" param2="$parkslot"/>
     <signal_objects object="$destination" param="'parking queue update'" param2="$parkslot" delay="1s"/>
     <set_avoid_collisions object="this.ship" enabled="true" />
