@@ -95,7 +95,10 @@ Defensemodes regulate how active the Ship reacts to enemies:
       <conditions>
         <check_any>
           <check_all>
-            <event_object_attacked object="this.ship"/>
+            <check_any>
+              <event_object_attacked object="this.ship"/>
+              <event_object_attacked group="$alldrones"/>
+            </check_any>
             <!-- Event for the specified object being attacked (object = attacked object, param = attacker, param2 = kill method, param3 = attacked component) -->
             <check_value value="this.$ut_cac.$defensemode ge 2"/>
             <check_value value="this.ship.mayattack.{event.param}"/>
@@ -134,11 +137,9 @@ Defensemodes regulate how active the Ship reacts to enemies:
             <set_value name="$randominterceptors" exact="if this.ship.distanceto.{event.param2} gt this.ship.size * 1.5 then 0 else [ 10 , $drones_missiledefense.count / 3 ].min"/>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Launching Missile Defense Drone %3 plus %7 random ones to intercept %5 (start distance %6 ) - from set \n%4'.[this.name,this.container.name,$drones_missiledefense.{$index},$drones_missiledefense,event.param2,this.ship.distanceto.{event.param2},$randominterceptors]"/>
             <signal_objects object="$drones_missiledefense.{$index}" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true,$debug_out_all=true]"/>
-            <remove_from_group object="$drones_missiledefense.{$index}" group="$drones_missiledefense"/>
             <do_all exact="$randominterceptors">
               <set_value name="$newinterceptor" exact="$drones_missiledefense.random"/>
               <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.singleattackrun',$target=event.param2,$kamikaze=true]"/>
-              <remove_from_group object="$newinterceptor" group="$drones_missiledefense"/>
             </do_all>
           </do_if>
           <do_else>
