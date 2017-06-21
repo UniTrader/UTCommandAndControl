@@ -108,7 +108,7 @@ Script to Dock or Park an Object
       </do_if>
       
       <!-- first try to get a free  a Parking Spot for the correct Offer and if found park there -->
-      <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship"  />
+      <!--find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship"  />
       <do_if value="$parkslot and $parkslot.component.isoperational">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Got Park Slot: %3 on %4'.[this.name,this.container.name,$parkslot,$destination.knownname]"/>
         <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'First Found Parkslot'" result="$success" />
@@ -118,9 +118,10 @@ Script to Dock or Park an Object
         </do_if>
       </do_if>
       <do_else>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Park Slot not existent or operational, removing it and waiting for queue clearing: %3 %4'.[this.name,this.container.name,@$parkslot,@$parkslot.component]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Park Slot not existent or operational, removing it and waiting for queue clearing: %3'.[this.name,this.container.name,$docking_coordinator.$park_queue]"/>
         <set_value name="$parkslot" exact="false"/>
-      </do_else>
+      </do_else-->
+      <set_value name="$parkslot" exact="false"/>
       
       <!-- if no Park Slot is free register in general Park Queue and wait till you are first to find a Park pos -->
       <!-- create Park Queue if necesary (turn it into a global Table? ) -->
@@ -164,9 +165,12 @@ Script to Dock or Park an Object
                 <event_object_signalled object="$destination" param="'parking queue update'"/>
                 <check_value  value="$park_queue.{$destination}.{1} == this.ship"/>
               </conditions>
+              <actions>
+                <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Park queue update Signal'.[this.name,this.container.name]"/>
+              </actions>
             </interrupt>
           </wait>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Park queue next'.[this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Park queue re-check.[this.name,this.container.name]"/>
         </do_while>
         
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Got Parking Slot: %3 - Moving to secondary Approach Pos. Park Queue: %4'.[this.name,this.container.name,$parkslot,$park_queue]"/>
