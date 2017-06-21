@@ -94,11 +94,19 @@ Script to Dock or Park an Object
       </do_if>
       
       <!-- check for existing Slots -->
-      <find_tradeoffer_parking_slot name="$slot_exists" object="$destination" includeoccupied="true" check="true" />
-      <do_if value="not $slot_exists">
+      <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" check="true" multiple="true" />
+      <do_if value="not $slots.{1}">
         <debug_text filter="error" text="'%1 %2 No Parking Spot - Abort'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
+      <do_if value="$slots.{1}.component == $slots.{2}.component" comment="Workaround for cases where there are multiple Trade Offers foe one Dock (eg on CVs)">
+        <do_if value="$docking_coordinator.exists">
+          <do_if value="not $docking_coordinator.$prefferedparkslot?">
+            <set_value name="$docking_coordinator.$prefferedparkslot" exact="$slots.{1}"/>
+          </do_if>
+        </do_if>
+      </do_if>
+      <remove_value name="$slots"/>
       
       <label name="wait for parking slot"/>
       
@@ -143,7 +151,12 @@ Script to Dock or Park an Object
           
           <!-- if first in queue: find Dock Slot where no Ship is waiting for and register to dock there (also un-register from common queue) -->
           <do_if value="$park_queue.{$destination}.{1} == this.ship">
-            <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
+            <do_if value="not $docking_coordinator.$prefferedparkslot?">
+              <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
+            </do_if>
+            <do_else>
+              <set_value name="$slots" exact="[$docking_coordinator.$prefferedparkslot]"/>
+            </do_else>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Possible Parkslots: %3'.[this.name,this.container.name,$slots]"/>
             <do_all exact="$slots.count" counter="$i">
               <do_if value="$slots.{$i}.component.isoperational and ( ( not $park_queue.{$slots.{$i}.component}? ) or ( not $park_queue.{$slots.{$i}.component}.exists ) or ( not ( $park_queue.{$slots.{$i}.component}.sector == this.sector ) ) )">
@@ -257,7 +270,12 @@ Script to Dock or Park an Object
           </wait>
           <!-- fallback in case signalling didnt work -->
           <do_if value="not $success">
-            <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship" />
+            <do_if value="not $docking_coordinator.$prefferedparkslot?">
+              <find_tradeoffer_parking_slot name="$parkslot" object="$destination" trade="$tradeoffer" refobject="this.ship" />
+            </do_if>
+            <do_else>
+              <set_value name="$parkslot" exact="$docking_coordinator.$prefferedparkslot"/>
+            </do_else>
             <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'Unpark Signal 3'" result="$success" />
           </do_if>
         </do_while>
