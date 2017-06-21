@@ -95,7 +95,7 @@ Script to Dock or Park an Object
       
       <!-- check for existing Slots -->
       <find_tradeoffer_parking_slot name="$slots" object="$destination" includeoccupied="true" check="true" multiple="true" />
-      <do_if value="not $slots.{1}">
+      <do_if value="not $slots.count">
         <debug_text filter="error" text="'%1 %2 No Parking Spot - Abort'.[this.name,this.container.name]"/>
         <return value="false"/>
       </do_if>
@@ -104,6 +104,7 @@ Script to Dock or Park an Object
           <do_if value="not $docking_coordinator.$prefferedparkslot?">
             <set_value name="$docking_coordinator.$prefferedparkslot" exact="$slots.{1}"/>
           </do_if>
+        <debug_text filter="general" text="'%1 %2 Destination is a multi-offer Parkspot, defaulting to: %3'.[this.name,this.container.name,$destination,$docking_coordinator.$prefferedparkslot]"/>
         </do_if>
       </do_if>
       <remove_value name="$slots"/>
