@@ -156,6 +156,10 @@ Defensemodes regulate how active the Ship reacts to enemies:
         <do_else>
           <set_value name="$attacker" exact="event.param"/>
         </do_else>
+        <!-- ignore Friendly Fire from own faction  -->
+        <do_if value="$attacker? and $attacker.faction == this.faction">
+          <remove_value name="$attacker"/>
+        </do_if>
         <!-- Enemy Intercept Code to Intercept Attackers (who either shot a Missile or shot at us -->
         <do_if value="$attacker? and this.ship.distanceto.{$attacker} lt this.ship.maxradarrange and this.ship.mayattack.{$attacker}">
           <add_to_group groupname="$enemies_g" object="$attacker"/>
