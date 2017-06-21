@@ -29,6 +29,7 @@
       <leave_formation object="this.ship"/>
       <debug_text filter="general" text="'%1 %2 Interceptor Drone sent against: %3'.[this.name,this.container.name,$params.$target]"/>
       <add_to_group object="this.ship" groupname="$params.$interceptgroup"/>
+      <remove_from_group object="this.ship" group="$freedrones"/>
       <run_script name="'fight.attack.object.fighter'">
         <param name="primarytargets" value="$primarytargets" comment="Group of objects to destroy before moving on to other nearby targets" />
         <param name="secondarytargets" value="$secondarytargets" comment="Group of objects to destroy after primary targets, before moving on to other nearby targets" />
@@ -38,11 +39,13 @@
       </run_script>
       <debug_text filter="general" text="'%1 %2 Interceptor Drone Fight work done'.[this.name,this.container.name,$params.$target]"/>
       <remove_from_group object="this.ship" group="$params.$interceptgroup"/>
+      <add_to_group object="this.ship" group="$freedrones"/>
       <return value="null"/>
     </actions>
   </attention>
   <on_abort>
     <remove_from_group object="this.ship" group="$params.$interceptgroup"/>
+    <add_to_group object="this.ship" group="$freedrones"/>
     <debug_text filter="general" text="'%1 %2 Interceptor Drone Fight work aborted'.[this.name,this.container.name,$params.$target]"/>
   </on_abort>
 </aiscript>
