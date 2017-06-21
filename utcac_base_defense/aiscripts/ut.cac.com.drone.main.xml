@@ -113,22 +113,7 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <label name="start"/>
       <add_to_group groupname="$freedrones" object="this.ship"/>
       <join_formation object="this.ship" leader="this.ship.commander"/>
-      <wait>
-        <interrupt>
-          <conditions>
-            <check_any>
-              <event_object_signalled group="$commander" param="'recall drones'"/>
-              <event_object_signalled group="$commander" param="'travel boost prep'"/>
-              <event_object_signalled group="$commander" param="'travel jump prep'"/>
-              <event_object_signalled group="$commander" param="'travel jump start'"/>
-              <event_object_signalled group="$commander" param="'travel gate prep'"/>
-            </check_any>
-          </conditions>
-          <actions>
-            <resume label="return to commander"/>
-          </actions>
-        </interrupt>
-      </wait>
+      <wait/>
       <resume label="start"/>
       <!-- ============================ -->
       <label name="execute order"/>
