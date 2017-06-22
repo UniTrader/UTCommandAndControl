@@ -18,8 +18,8 @@ Script to Dock or Park an Object
     <do_if value="$destination.tradenpc.exists">
       <set_value name="$docking_coordinator" exact="$destination.tradenpc"/>
     </do_if>
-    <do_elseif value="$destination.buildanchor.tradenpc.exists" comment="for CVs the Manager of the Station coordinates the Docking">
-      <set_value name="$docking_coordinator" exact="$destination.buildanchor.tradenpc"/>
+    <do_elseif value="$destination.pilot.exists" comment="for Ships the Pilot coordinates the Docking">
+      <set_value name="$docking_coordinator" exact="$destination.pilot"/>
     </do_elseif>
     <do_else>
       <set_value name="$docking_coordinator" exact="null"/>
@@ -186,6 +186,14 @@ Script to Dock or Park an Object
           </wait>
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Park queue re-check.[this.name,this.container.name]"/>
         </do_while>
+        
+        
+        <connect_to_trade_location ship="this.ship" tradedock="if true then $parkslot else 'First Found Parkslot'" result="$success" />
+        <do_if value="$success">
+          <set_value name="$move_to_approach_pos_first"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Got Park Slot: %3 and its Free - Parking. Queue: %4'.[this.name,this.container.name,$parkslot,$park_queue]"/>
+          <resume label="park"/>
+        </do_if>
         
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Got Parking Slot: %3 - Moving to secondary Approach Pos. Park Queue: %4'.[this.name,this.container.name,$parkslot,$park_queue]"/>
         
