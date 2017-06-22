@@ -265,6 +265,9 @@ Defensemodes regulate how active the Ship reacts to enemies:
           <append_to_list name="global.$unused_groups" exact="$enemies_t.{event.object}"/>
         </do_if>
         <remove_value name="$enemies_t.{event.object}"/>
+        <do_if value="$enemies_g.count == 0">
+          <abort_called_scripts resume="green"/>
+        </do_if>
       </actions>
     </handler>
     <handler comment="travel intent signals and Drone Recall - set Variables for not launching Drones anymore and send Drone Recall Singals">
