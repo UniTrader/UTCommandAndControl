@@ -349,13 +349,14 @@ Defensemodes regulate how active the Ship reacts to enemies:
           </do_elseif>
           <do_if value="$battlestate == 'green'">
             <abort_called_scripts/>
-        </do_if>
+          </do_if>
           <do_elseif value="$battlestate == 'yellow'">
             <abort_called_scripts resume="yellow"/>
-        </do_elseif>
+          </do_elseif>
           <do_elseif value="$battlestate == 'red'">
             <abort_called_scripts resume="red"/>
-        </do_elseif>
+          </do_elseif>
+        </do_if>
       </actions>
     </handler>
   </interrupts>
@@ -426,11 +427,11 @@ Defensemodes regulate how active the Ship reacts to enemies:
           <resume label="red"/>
         </do_elseif>
       </do_all>
-      <!-- Scan for (new) Enemies - during Yellow Alert done exlcusively via events - ->
+      <!-- Scan for (new) Enemies - during Yellow Alert done exlcusively via events -->
       <find_gravidar_contact groupname="$enemies_g" object="this.ship" functional="true" maybeattackedby="this.ship" multiple="true">
         <match_distance object="this.ship" max="this.ship.maxradarrange"/>
       </find_gravidar_contact>
-      -->
+      
       <do_if value="$ordered_target.isoperational">
         <add_to_group groupname="$enemies_g" object="$ordered_target"/>
       </do_if>
