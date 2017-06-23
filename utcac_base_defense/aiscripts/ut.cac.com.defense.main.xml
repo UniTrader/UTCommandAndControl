@@ -347,8 +347,15 @@ Defensemodes regulate how active the Ship reacts to enemies:
           <do_elseif value="1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count gt $droneratio">
             <signal_objects object="this.ship" param="'recall drones'" param2=" $droneratio / ( 1.0 - this.ship.availableunits.{unitcategory.defence}.count / this.ship.units.{unitcategory.defence}.count )"/><!-- signals the ratio of Drones which should be recalled -->
           </do_elseif>
-          <abort_called_scripts/>
+          <do_if value="$battlestate == 'green'">
+            <abort_called_scripts/>
         </do_if>
+          <do_elseif value="$battlestate == 'yellow'">
+            <abort_called_scripts resume="yellow"/>
+        </do_elseif>
+          <do_elseif value="$battlestate == 'red'">
+            <abort_called_scripts resume="red"/>
+        </do_elseif>
       </actions>
     </handler>
   </interrupts>
