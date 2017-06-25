@@ -184,7 +184,7 @@ Script to Dock or Park an Object
           </transform_position>
           <do_if value="$sorted_in_approach_queue?" comment="when we are sorted into the Queue we just have to strafe upwards">
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - move up'.[this.name,this.container.name]"/>
-            <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
+            <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false" avoid="false">
               <position value="$approachpos" />
               <rotation value="$parkrot" />
               <interrupt>
@@ -252,23 +252,23 @@ Script to Dock or Park an Object
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vanilla-like Parking - Parking'.[this.name,this.container.name]"/>
         <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park 3'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
         <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
-          <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
+          <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false" avoid="false">
             <position value="$parkpos" />
             <rotation value="$parkrot" />
           </move_strafe>
-          <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
+          <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false" avoid="false">
             <position value="$parkpos" />
             <rotation value="$parkrot" />
           </move_strafe>
         </do_if>
         <do_elseif value="$quadrant == quadrant.back">
-          <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" reverse="true" abortpath="false">
+          <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" reverse="true" abortpath="false" avoid="false">
             <position value="$parkpos" />
             <rotation value="$parkrot" />
           </move_to>
         </do_elseif>
         <do_else>
-          <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" abortpath="false">
+          <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" abortpath="false" avoid="false">
             <position value="$parkpos" />
             <rotation value="$parkrot" />
           </move_to>
@@ -277,7 +277,7 @@ Script to Dock or Park an Object
       <do_else comment="when we are sorted into the Queue we just have to strafe upwards">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - last Step'.[this.name,this.container.name]"/>
         <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park 4'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot"/>
-        <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
+        <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false" avoid="false">
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_strafe>
@@ -308,6 +308,7 @@ Script to Dock or Park an Object
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Parking done'.[this.name,this.container.name]"/>
       
       <label name="finish"/>
+      <set_avoid_collisions object="this.ship" enabled="true" />
       <return value="true"/>
     </actions>
   </attention>
