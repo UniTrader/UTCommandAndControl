@@ -61,10 +61,34 @@ Script to Dock or Park an Object
         </do_else>
         <find_tradeoffer_parking_slot name="$freeslot" object="$undockfrom" refobject="this.ship" includeoccupied="true" />
         
-        <!-- confirm its indeed  the right unpark Position - if not just undock directly -->
+        <!-- confirm its indeed  the right unpark Position - if not check the queue and if you dont find it there just undock directly -->
         <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom.zone" approach="false" position="$checkpos"/>
-        <do_if value="this.ship.distanceto.{$checkpos} lt 100m">
+        <do_if value="not this.ship.distanceto.{$checkpos} lt 100m">
+          <set_value name="$freeslot" exact="null"/>
+          <find_tradeoffer_parking_slot name="$parkingslots" object="$undockfrom" includeoccupied="true" multiple="true" />
+          <do_all exact="$parkingslots.count" counter="$i">
+            <do_if value="global.$parking_queue.{$parkingslots.{$i}.component}.{1} == this.ship">
+              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found parking Slot based on Queue List'.[this.name,this.container.name]"/>
+              <set_value name="$freeslot" exact="$parkingslots.{$i}.component"/>
+              <break/>
+            </do_if>
+          </do_all>
+          <remove_value name="$parkingslots"/>
+        </do_if>
         
+        <do_if value="$freeslot">
+          
+          <!-- Remove ourselves from the park queue and signal the others in it to advance -->
+          <disconnect_from_trade_location ship="this.ship" />
+          <do_if value="global.$parking_queue.{$freeslot.component}.{1} == this.ship">
+            <remove_value name="global.$parking_queue.{$freeslot.component}.{1}"/>
+          </do_if>
+          <do_else>
+           <debug_text filter="error" text="'%1 %2 Not first in Parking Slot Queue anymore!!!'.[this.name,this.container.name]"/>
+          </do_else>
+          <signal_objects object="$freeslot.component" param="'parking queue update'" param2="$freeslot"/>
+          <signal_objects object="$unparkfrom" param="'parking queue update'" param2="$freeslot" delay="1s"/>
+          
           <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom" approach="true" position="$undockpos" quadrant="$quadrant" rotation="$undockrot"/>
           <set_avoid_collisions object="this.ship" enabled="false" />
           <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
@@ -91,19 +115,18 @@ Script to Dock or Park an Object
           
         </do_if>
         <do_else>
+          <disconnect_from_trade_location ship="this.ship" />
           <set_value name="$unparkquadrants" exact="[quadrant.front, quadrant.none]"/>
+          <signal_objects object="$unparkfrom" param="'parking queue update'" param2="$freeslot" delay="1s"/>
         </do_else>
         
         
-        <!-- move out of the Way of the next ship if someone is waiting, then Signal Dock is free -->
-        <do_if value="$undockfrom.exists and $undockfrom.tradenpc.exists and $undockfrom.tradenpc.$park_queue? and $undockfrom.tradenpc.$park_queue.{$freeslot.component}?">
+        <!-- Removed because of restructure: move out of the Way of the next ship if someone is waiting, then Signal Dock is free -->
+        <do_if value="false" comment="$undockfrom.exists and $undockfrom.tradenpc.exists and $undockfrom.tradenpc.$park_queue? and $undockfrom.tradenpc.$park_queue.{$freeslot.component}?">
           <get_safe_pos result="$safepos" object="this.ship" zone="this.zone" radius="this.ship.size" directionobject="this.ship" direction="$unparkquadrants.{1}" direction2="$unparkquadrants.{2}" ignored="$undockfrom" min="this.ship.size + $undockfrom.tradenpc.$park_queue.{$freeslot.component}.size"/>
           <move_to destination="this.zone" object="this.ship" usehighways="false" forceposition="false" abortpath="false" finishonapproach="true"/>
         </do_if>
-        <disconnect_from_trade_location ship="this.ship" />
         <set_avoid_collisions object="this.ship" enabled="true" />
-        <signal_objects object="$freeslot.component" param="'parking queue update'" param2="$freeslot"/>
-        <signal_objects object="$undockfrom" param="'parking queue update'" param2="$freeslot" delay="1s"/>
         
         <!-- just in case, move to a safepos -->
         <!--Don't ignore this ship. Use it to avoid finding a safepos in the parking position.-->
@@ -116,7 +139,7 @@ Script to Dock or Park an Object
         <do_else>
           <get_safe_pos object="this.ship" radius="this.ship.size * 1.5" zone="this.zone" directionobject="this.ship" direction="$unparkquadrants.{1}" direction2="$unparkquadrants.{2}" angle="45deg" result="$safepos"/>
         </do_else>
-      <set_value name="this.$mayabortpath" comment="tell following movement Script that the remainder of the Path is irrelevant"/>
+        <set_value name="this.$mayabortpath" comment="tell following movement Script that the remainder of the Path is irrelevant"/>
         <move_to destination="this.zone" object="this.ship" usehighways="false" forceposition="false" abortpath="false" finishonapproach="true">
           <position value="$safepos"/>
           <interrupt>
