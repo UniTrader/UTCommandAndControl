@@ -184,7 +184,8 @@ Script to Dock or Park an Object
           </transform_position>
           <do_if value="$sorted_in_approach_queue?" comment="when we are sorted into the Queue we just have to strafe upwards">
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - move up'.[this.name,this.container.name]"/>
-            <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false" avoid="false">
+            <set_avoid_collisions object="this.ship" enabled="true" />
+            <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
               <position value="$approachpos" />
               <rotation value="$parkrot" />
               <interrupt>
@@ -267,29 +268,31 @@ Script to Dock or Park an Object
         </move_to>
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Parking - last Step'.[this.name,this.container.name]"/>
+      <set_avoid_collisions object="this.ship" enabled="false"/>
       <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park 3'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
       <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
-        <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false" avoid="false">
+        <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_strafe>
-        <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false" avoid="false">
+        <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_strafe>
       </do_if>
       <do_elseif value="$quadrant == quadrant.back">
-        <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" reverse="true" abortpath="false" avoid="false">
+        <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" reverse="true" abortpath="false">
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_to>
       </do_elseif>
       <do_else>
-        <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" abortpath="false" avoid="false">
+        <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" abortpath="false">
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_to>
       </do_else>
+      <set_avoid_collisions object="this.ship" enabled="true"/>
       
       <!-- check regulary if our parking Spot still works -->
       <do_if value="not $parkingslot.component.isoperational">
