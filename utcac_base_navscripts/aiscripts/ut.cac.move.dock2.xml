@@ -111,7 +111,7 @@ Script to Dock or Park an Object
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Parking on free Slot: %3'.[this.name,this.container.name,$parkingslot.component.name]"/>
               <resume label="park exec"/>
             </do_if>
-            <do_elseif value="global.$parking_queue.{$parkingslots.{$i}.component}.{2} == 1">
+            <do_elseif value="global.$parking_queue.{$parkingslots.{$i}.component}.count == 1">
               <append_to_list name="global.$parking_queue.{$parkingslots.{$i}.component}" exact="this.ship"/>
               <set_value name="$parkingslot" exact="$parkingslots.{$i}"/>
               <remove_value name="global.$parking_queue.{$destination}.{1}"/>
