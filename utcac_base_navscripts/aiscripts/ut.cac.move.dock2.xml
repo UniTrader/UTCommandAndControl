@@ -200,7 +200,10 @@ Script to Dock or Park an Object
                 </actions>
               </interrupt>
             </move_strafe>
-            <wait>
+            <do_if value="global.$parking_queue.{$parkingslot.component}.{1} == this.ship">
+              <break/>
+            </do_if>
+            <wait max="10min" comment="time as fallback in case something goes wrong">
               <interrupt>
                 <conditions>
                   <check_any>
