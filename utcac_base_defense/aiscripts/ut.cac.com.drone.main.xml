@@ -112,8 +112,14 @@ Listener for Return Signal has to be implemented by the individual Sub-Scripts -
       <!-- ============================ -->
       <label name="start"/>
       <add_to_group groupname="$freedrones" object="this.ship"/>
-      <join_formation object="this.ship" leader="this.ship.commander"/>
-      <wait/>
+      <join_formation object="this.ship" leader="$commander.{1}"/>
+      <do_if value="this.ship.formationleader == $commander.{1}">
+        <wait/>
+      </do_if>
+      <do_else>
+        <debug_text filter="error" text="'%1 %2 Could not enter Formation with Commander %3 - returning'.[this.name,this.container.name,$commander.{1}.name]"/>
+        <resume label="return to commander"/>
+      </do_else>
       <resume label="start"/>
       <!-- ============================ -->
       <label name="execute order"/>
