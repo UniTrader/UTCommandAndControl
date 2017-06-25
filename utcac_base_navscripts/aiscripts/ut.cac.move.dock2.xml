@@ -87,6 +87,11 @@ Script to Dock or Park an Object
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Park Queue Park Slot List'.[this.name,this.container.name]"/>
           <set_value name="global.$parking_queue.{$parkingslots.{$i}.component}" exact="[]"/>
         </do_if>
+        <!-- check if the  first entry of each queue is valid (should eventually sort out any issues after 2 ships attempt to dock, so not checking all every time ) -->
+        <do_elseif value="global.$parking_queue.{$parkingslots.{$i}.component}.count and not global.$parking_queue.{$parkingslots.{$i}.component}.{1}.exists or global.$parking_queue.{$parkingslots.{$i}.component}.{1}.zone != $destination.zone">
+          <debug_text filter="error" text="'%1 %2 Removing Invalid Entry %3 from Parkingspot Queue of %4'.[this.name,this.container.name.global.$parking_queue.{$parkingslots.{$i}.component}.{$i},$destination]"/>
+          <remove_value name="global.$parking_queue.{$parkingslots.{$i}.component}.{$i}"/>
+        </do_elseif>
       </do_all>
       
       <do_if value="$parkingslots.count == 0">
@@ -99,8 +104,16 @@ Script to Dock or Park an Object
         <append_to_list name="global.$parking_queue.{$destination}" exact="this.ship"/>
       </do_if>
       
+      <!-- check Entries in Queue if they are valid -->
+      <do_all exact="global.$parking_queue.{$destination}.count" counter="$i">
+        <do_if value="not global.$parking_queue.{$destination}.{$i}.exists or global.$parking_queue.{$destination}.{$i}.zone != $destination.zone">
+          <debug_text filter="error" text="'%1 %2 Removing Invalid Entry %3 from Queue of %4'.[this.name,this.container.name.global.$parking_queue.{$destination}.{$i},$destination]"/>
+          <remove_value name="global.$parking_queue.{$destination}.{$i}"/>
+        </do_if>
+      </do_all>
+      
       <do_while value="true" comment="exit from loop is done via resume label=***">
-        <do_if value="global.$parking_queue.{$destination}.indexof.{this.ship} == 1">
+        <do_if value="global.$parking_queue.{$destination}.{1} == this.ship">
           <!-- try to park at any Slot -->
           <do_all exact="$parkingslots.count" counter="$i">
             <do_if value="global.$parking_queue.{$parkingslots.{$i}.component}.count == 0">
@@ -328,5 +341,12 @@ Script to Dock or Park an Object
     <signal_objects object="$destination" param="'parking queue update'" param2="$parkingslot" delay="1s"/>
     <disconnect_from_trade_location ship="this.ship" />
     <set_avoid_collisions object="this.ship" enabled="true" />
+    <!-- clear queues -->
+    <do_if value="global.$parking_queue.{$destination}.indexof.{this.ship}">
+      <remove_value name="global.$parking_queue.{$destination}.{global.$parking_queue.{$destination}.indexof.{this.ship}}"/>
+    </do_if>
+    <do_if value="$parkingslot.component? and global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}">
+      <remove_value name="global.$parking_queue.{$parkingslot.component}.{global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}}"/>
+    </do_if>
   </on_abort>
 </aiscript>
