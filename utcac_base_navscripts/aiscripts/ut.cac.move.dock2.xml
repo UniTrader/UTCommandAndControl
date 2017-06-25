@@ -194,8 +194,24 @@ Script to Dock or Park an Object
                     <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
                   </check_any>
                 </conditions>
+                <actions>
+                  <continue/>
+                </actions>
               </interrupt>
             </move_strafe>
+            <wait>
+              <interrupt>
+                <conditions>
+                  <check_any>
+                    <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
+                    <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
+                  </check_any>
+                </conditions>
+                <actions>
+                  <continue/>
+                </actions>
+              </interrupt>
+            </wait>
           </do_if>
           <do_else>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - sorting in queue'.[this.name,this.container.name]"/>
