@@ -101,7 +101,7 @@ Script to Dock or Park an Object
       
       <do_while value="true" comment="exit from loop is done via resume label=***">
         <do_if value="global.$parking_queue.{$destination}.indexof.{this.ship} == 1">
-          <!-- try to sort into any Parking Slot Queue -->
+          <!-- try to park at any Slot -->
           <do_all exact="$parkingslots.count" counter="$i">
             <do_if value="global.$parking_queue.{$parkingslots.{$i}.component}.count == 0">
               <append_to_list name="global.$parking_queue.{$parkingslots.{$i}.component}" exact="this.ship"/>
@@ -111,24 +111,27 @@ Script to Dock or Park an Object
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Parking on free Slot: %3'.[this.name,this.container.name,$parkingslot.component.name]"/>
               <resume label="park exec"/>
             </do_if>
-            <do_elseif value="global.$parking_queue.{$parkingslots.{$i}.component}.count == 1">
+          </do_all>
+          <!-- try to sort into wait queue for any slot -->
+          <do_all exact="$parkingslots.count" counter="$i">
+            <do_if value="global.$parking_queue.{$parkingslots.{$i}.component}.count == 1">
               <append_to_list name="global.$parking_queue.{$parkingslots.{$i}.component}" exact="this.ship"/>
               <set_value name="$parkingslot" exact="$parkingslots.{$i}"/>
               <remove_value name="global.$parking_queue.{$destination}.{1}"/>
               <signal_objects object="$destination" param="'parking queue update'"/>
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Waiting for Slo to be freed: %3'.[this.name,this.container.name,$parkingslot.component.name]"/>
               <resume label="park prep"/>
-            </do_elseif>
-            <!-- maybe add a Check here so we can put multiple Ships into the same Trade Dock Queue? like if there is only one Dock or the Ware Exchange is quite quick -->
-            <do_elseif value="$parkingslots.count == 1">
-              <append_to_list name="global.$parking_queue.{$parkingslots.{$i}.component}" exact="this.ship"/>
-              <set_value name="$parkingslot" exact="$parkingslots.{$i}"/>
-              <remove_value name="global.$parking_queue.{$destination}.{1}"/>
-              <signal_objects object="$destination" param="'parking queue update'"/>
-              <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sorting in Queue for Slot: %3'.[this.name,this.container.name,$parkingslot.component.name]"/>
-              <resume label="park prep"/>
-            </do_elseif>
+            </do_if>
           </do_all>
+          <!-- maybe add a Check here so we can put multiple Ships into the same Trade Dock Queue? like if there is only one Dock or the Ware Exchange is quite quick -->
+          <do_if value="$parkingslots.count == 1">
+            <append_to_list name="global.$parking_queue.{$parkingslots.{1}.component}" exact="this.ship"/>
+            <set_value name="$parkingslot" exact="$parkingslots.{1}"/>
+            <remove_value name="global.$parking_queue.{$destination}.{1}"/>
+            <signal_objects object="$destination" param="'parking queue update'"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sorting in Queue for Slot: %3'.[this.name,this.container.name,$parkingslot.component.name]"/>
+            <resume label="park prep"/>
+          </do_if>
         </do_if>
         <!-- complete previous idle movement while waiting if interrupted --> 
         <do_if value="this.ship.numwaypoints gt 1">
