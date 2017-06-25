@@ -175,9 +175,9 @@ Script to Dock or Park an Object
           <!-- get Target Position for our current Ship and calculate a position below as approach pos (based on the size of all objects before in the queue) -->
           <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'approach N1'" space="$destination.zone" approach="false" position="$approachpos" rotation="$parkrot"/>
           <!-- first ship and current Ship only have to be accounted for in half! therefor starting with zero minus  half height of each to counter the full addition of their height in the next loop! -->
-          <set_value name="$approach_offset_y" exact="0 - (global.$park_queue.{$parkingslot.component}.{1}.height + this.ship.height ) / 2"/>
-          <do_all exact="global.$park_queue.{$parkingslot.component}.indexof.{this.ship}" counter="$i">
-            <set_value name="$approach_offset_y" operation="add" exact="global.$park_queue.{$parkingslot.component}.{$i}.height"/>
+          <set_value name="$approach_offset_y" exact="0 - (global.$parking_queue.{$parkingslot.component}.{1}.height + this.ship.height ) / 2"/>
+          <do_all exact="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}" counter="$i">
+            <set_value name="$approach_offset_y" operation="add" exact="global.$parking_queue.{$parkingslot.component}.{$i}.height"/>
           </do_all>
           <transform_position name="$approachpos" refposition="$approachpos" refrotation="$parkrot" >
             <position x="0m" y="0m - $approach_offset_y" z="0m"/>
