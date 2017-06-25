@@ -173,7 +173,7 @@ Script to Dock or Park an Object
       <do_else>
         <do_while value="global.$parking_queue.{$parkingslot.component}.{1} != this.ship">
           <!-- get Target Position for our current Ship and calculate a position below as approach pos (based on the size of all objects before in the queue) -->
-          <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'approach N1'" space="$destination.zone" approach="false" position="$approachpos" rotation="$parkrot"/>
+          <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'approach N1'" space="$destination.zone" approach="true" position="$approachpos" rotation="$parkrot"/>
           <!-- first ship and current Ship only have to be accounted for in half! therefor starting with zero minus  half height of each to counter the full addition of their height in the next loop! -->
           <set_value name="$approach_offset_y" exact="0 - (global.$parking_queue.{$parkingslot.component}.{1}.height + this.ship.height ) / 2"/>
           <do_all exact="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}" counter="$i">
