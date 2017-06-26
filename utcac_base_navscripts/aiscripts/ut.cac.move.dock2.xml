@@ -261,6 +261,16 @@ Script to Dock or Park an Object
       
       <!-- Execute parking - at this point the parking slot is set in stone! -->
       <label name="park exec"/>
+      <!-- if we jumped directly here and dont have an approach/park pos get it now -->
+      <do_if value="not $approachpos? or not $parkpos? or not $parkrot?">
+        <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park prep 1'" space="$destination.zone" approach="true" position="$approachpos" rotation="$parkrot" quadrant="$approachquad"/>
+        <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park prep 2'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
+        <do_if value="$approachquad != $quadrant">
+          <debug_text filter="error" text="'%1 %2 Ship decided for a 180° turn on Parking'.[this.name,this.container.name]"/>
+        </do_if>
+        <remove_value name="$approachquad"/>
+      </do_if>
+      
       <connect_to_trade_location ship="this.ship" tradedock="if true then $parkingslot else 'park 1'" result="$success" />
       <do_while value="not $success">
         <!-- check regulary if our parking Spot still works -->
