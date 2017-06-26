@@ -180,26 +180,33 @@ Script to Dock or Park an Object
       <!--  prepare Parking - calculate and move to approach pos (prepared for a queue per parkingslot, but not used yet) -->
       <!-- opposed to Vanilla Waiting pos is below the parking Pos and all Ships move/Strafe upwards when moving on in the queue (EXPERIMENTAL!!!) -->
       <label name="park prep"/>
+      <!-- save Approach and Park Pos in a Var to prevent the Ship from changing Parking direction -->
+      <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park prep 1'" space="$destination.zone" approach="true" position="$approachpos" rotation="$parkrot" quadrant="$approachquad"/>
+      <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park prep 2'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
+      <do_if value="$approachquad != $quadrant">
+        <debug_text filter="error" text="'%1 %2 Ship decided for a 180° turn on Parking'.[this.name,this.container.name]"/>
+      </do_if>
+      <remove_value name="$approachquad"/>
+      
+      
       <do_if value="false" comment="Vanilla-like approach. Not implemented yet, but will be if issues with the new method arise for certain Objects">
       
       </do_if>
       <do_else>
         <do_while value="global.$parking_queue.{$parkingslot.component}.{1} != this.ship">
-          <!-- get Target Position for our current Ship and calculate a position below as approach pos (based on the size of all objects before in the queue) -->
-          <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'approach N1'" space="$destination.zone" approach="true" position="$approachpos" rotation="$parkrot"/>
           <!-- first ship and current Ship only have to be accounted for in half! therefor starting with zero minus  half height of each to counter the full addition of their height in the next loop! -->
           <set_value name="$approach_offset_y" exact="0 - (global.$parking_queue.{$parkingslot.component}.{1}.height + this.ship.height ) / 2"/>
           <do_all exact="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}" counter="$i">
             <set_value name="$approach_offset_y" operation="add" exact="global.$parking_queue.{$parkingslot.component}.{$i}.height"/>
           </do_all>
-          <transform_position name="$approachpos" refposition="$approachpos" refrotation="$parkrot" >
+          <transform_position name="$waitpos" refposition="$approachpos" refrotation="$parkrot" >
             <position x="0m" y="0m - $approach_offset_y" z="0m"/>
           </transform_position>
           <do_if value="$sorted_in_approach_queue?" comment="when we are sorted into the Queue we just have to strafe upwards">
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - move up'.[this.name,this.container.name]"/>
             <set_avoid_collisions object="this.ship" enabled="true" />
             <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
-              <position value="$approachpos" />
+              <position value="$waitpos" />
               <rotation value="$parkrot" />
               <interrupt>
                 <conditions>
@@ -233,7 +240,7 @@ Script to Dock or Park an Object
           <do_else>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - sorting in queue'.[this.name,this.container.name]"/>
             <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" abortpath="true">
-              <position value="$approachpos" />
+              <position value="$waitpos" />
               <rotation value="$parkrot" />
               <interrupt>
                 <conditions>
@@ -274,7 +281,6 @@ Script to Dock or Park an Object
       </do_while>
       <do_if value="not $sorted_in_approach_queue? " comment="we are not sorted into the Queue or the Station is incompatible with it - vanilla approach">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vanilla-like Parking - Flying to Approach Pos'.[this.name,this.container.name]"/>
-        <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park 1'" space="$destination.zone" approach="true" position="$approachpos" rotation="$approachrot"/>
         <!-- Signal Followers where we attempt to Park so they can wait nearby - also in Update Case when Parkpos changed-->
         <signal_objects object="this.ship" param="'travel dockat'" param2="[$destination,$parkingslot,$approachpos]" param3="null" comment="not waiting - no prep group needed"/>
         <move_to object="this.ship" usehighways="false" destination="$destination.zone" finishonapproach="false" abortpath="true">
@@ -285,7 +291,6 @@ Script to Dock or Park an Object
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Parking - last Step'.[this.name,this.container.name]"/>
       <set_avoid_collisions object="this.ship" enabled="false"/>
-      <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park 3'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
       <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
         <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
           <position value="$parkpos" />
