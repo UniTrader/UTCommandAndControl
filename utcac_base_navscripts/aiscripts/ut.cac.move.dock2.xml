@@ -88,7 +88,7 @@ Script to Dock or Park an Object
           <set_value name="global.$parking_queue.{$parkingslots.{$i}.component}" exact="[]"/>
         </do_if>
         <!-- check if the  first entry of each queue is valid (should eventually sort out any issues after 2 ships attempt to dock, so not checking all every time ) -->
-        <do_elseif value="global.$parking_queue.{$parkingslots.{$i}.component}.count and not global.$parking_queue.{$parkingslots.{$i}.component}.{1}.exists or global.$parking_queue.{$parkingslots.{$i}.component}.{1}.zone != $destination.zone">
+        <do_elseif value="global.$parking_queue.{$parkingslots.{$i}.component}.count and ( (not global.$parking_queue.{$parkingslots.{$i}.component}.{1}.exists) or global.$parking_queue.{$parkingslots.{$i}.component}.{1}.zone != $destination.zone)">
           <debug_text filter="error" text="'%1 %2 Removing Invalid Entry %3 from Parkingspot Queue of %4'.[this.name,this.container.name,global.$parking_queue.{$parkingslots.{$i}.component}.{1},$destination]"/>
           <remove_value name="global.$parking_queue.{$parkingslots.{$i}.component}.{1}"/>
         </do_elseif>
