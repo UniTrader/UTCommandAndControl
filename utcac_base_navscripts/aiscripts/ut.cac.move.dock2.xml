@@ -205,6 +205,21 @@ Script to Dock or Park an Object
           <do_if value="$sorted_in_approach_queue?" comment="when we are sorted into the Queue we just have to strafe upwards">
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - move up'.[this.name,this.container.name]"/>
             <set_avoid_collisions object="this.ship" enabled="true" />
+            <do_if value="not ( this.race == race.xenon or this.race == race.drone)" comment="Computer Races sync the Move perfectly, and a bit earlier than non-computer Races">
+              <wait min="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}" max="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship} + 1s" profile="inversebell" comment="to de-perfect-sync when the queue moves">
+                <interrupt>
+                  <conditions>
+                    <check_any>
+                      <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
+                      <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
+                    </check_any>
+                  </conditions>
+                  <actions>
+                    <continue/>
+                  </actions>
+                </interrupt>
+              </wait>
+            </do_if>
             <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
               <position value="$waitpos" />
               <rotation value="$parkrot" />
@@ -220,9 +235,6 @@ Script to Dock or Park an Object
                 </actions>
               </interrupt>
             </move_strafe>
-            <do_if value="global.$parking_queue.{$parkingslot.component}.{1} == this.ship">
-              <break/>
-            </do_if>
             <wait max="10min" comment="time as fallback in case something goes wrong">
               <interrupt>
                 <conditions>
