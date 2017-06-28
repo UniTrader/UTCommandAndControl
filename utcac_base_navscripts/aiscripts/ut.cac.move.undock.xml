@@ -105,21 +105,21 @@ Script to Dock or Park an Object
           <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
             <move_strafe object="this.ship" destination="$undockfrom.zone" abortpath="false" finishonapproach="true">
               <position value="$undockpos" />
-              <rotation value="$undockrot" />
+              <rotation value="this.ship.rotation" />
             </move_strafe>
             <set_value name="$unparkquadrants" exact="[$quadrant.inverse, quadrant.front]"/>
           </do_if>
           <do_elseif value="$quadrant == quadrant.back">
             <move_to object="this.ship" destination="$undockfrom.zone" abortpath="false" finishonapproach="true">
               <position value="$undockpos" />
-              <rotation value="$undockrot" />
+              <rotation value="this.ship.rotation" />
             </move_to>
             <set_value name="$unparkquadrants" exact="[quadrant.front, quadrant.none]"/>
           </do_elseif>
           <do_else>
             <move_to object="this.ship" destination="$undockfrom.zone" reverse="true" abortpath="false" finishonapproach="true">
               <position value="$undockpos" />
-              <rotation value="$undockrot" />
+              <rotation value="this.ship.rotation" />
             </move_to>
             <set_value name="$unparkquadrants" exact="[quadrant.back, quadrant.none]"/>
           </do_else>
