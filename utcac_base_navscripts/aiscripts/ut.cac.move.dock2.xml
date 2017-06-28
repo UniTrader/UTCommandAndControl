@@ -155,14 +155,15 @@ Script to Dock or Park an Object
                   <event_object_approaching_waypoint object="this.ship" lastwaypoint="true"/>
                   <event_object_signalled object="$destination" param="'parking queue update'"/>
                 </check_any>
+                <set_value name="$eventname" exact="event.name"/>
               </conditions>
-              <actions>
-                <do_if value="event.name == 'event_object_signalled'">
-                  <continue/>
-                </do_if>
-              </actions>
             </interrupt>
           </wait>
+          <do_if value="$eventname? and $eventname == 'event_object_signalled'">
+            <remove_value name="$eventname"/>
+            <continue/>
+          </do_if>
+          <remove_value name="$eventname"/>
         </do_if>
         <!-- some random idle movement while waiting -->
         <create_random_position_outside_boundingbox name="$safepos" component="$destination" mindistance="this.ship.size" maxdistance="this.ship.size + $destination.size"/>
@@ -213,12 +214,14 @@ Script to Dock or Park an Object
                       <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
                       <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
                     </check_any>
+                    <set_value name="$interrupted"/>
                   </conditions>
-                  <actions>
-                    <continue/>
-                  </actions>
                 </interrupt>
               </wait>
+              <do_if value="$interrupted?">
+                <remove_value name="$interrupted"/>
+                <continue/>
+              </do_if>
             </do_if>
             <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
               <position value="$waitpos" />
@@ -229,12 +232,14 @@ Script to Dock or Park an Object
                     <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
                     <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
                   </check_any>
+                  <set_value name="$interrupted"/>
                 </conditions>
-                <actions>
-                  <continue/>
-                </actions>
               </interrupt>
             </move_strafe>
+            <do_if value="$interrupted?">
+              <remove_value name="$interrupted"/>
+              <continue/>
+            </do_if>
             <wait max="10min" comment="time as fallback in case something goes wrong">
               <interrupt>
                 <conditions>
@@ -242,12 +247,14 @@ Script to Dock or Park an Object
                     <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
                     <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
                   </check_any>
+                  <set_value name="$interrupted"/>
                 </conditions>
-                <actions>
-                  <continue/>
-                </actions>
               </interrupt>
             </wait>
+            <do_if value="$interrupted?">
+              <remove_value name="$interrupted"/>
+              <continue/>
+            </do_if>
           </do_if>
           <do_else>
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - sorting in queue'.[this.name,this.container.name]"/>
@@ -260,12 +267,14 @@ Script to Dock or Park an Object
                     <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
                     <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
                   </check_any>
+                  <set_value name="$interrupted"/>
                 </conditions>
-                <actions>
-                  <continue/>
-                </actions>
               </interrupt>
             </move_to>
+            <do_if value="$interrupted?">
+              <remove_value name="$interrupted"/>
+              <continue/>
+            </do_if>
             <set_value name="$sorted_in_approach_queue"/>
           </do_else>
         </do_while>
