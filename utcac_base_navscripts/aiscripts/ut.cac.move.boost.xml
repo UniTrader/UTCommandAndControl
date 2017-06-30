@@ -242,7 +242,7 @@
           </get_zone_exit_pos>
         </do_else>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Calculated Params for IS-Boost:\nstartpos: %3 startrot: %4\ntargetzone:%5 targetpos: %6 position: %7 Targetpos Distance to Destination: %8'.[this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position,@$destination.distanceto.{$targetpos}]"/>
-        </do_if>
+      </do_if>
       <do_else>
         <!-- InZone-Boost - move a bit in Direction of the Target to align (if not already) - and Boost to nearby it -->
         
@@ -291,10 +291,14 @@
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Distance to Start Pos greater than Distance to Target - aborting'.[this.name,this.container.name]"/>
           <return/>
         </do_if>
-        <!--do_if value="$targetpos? and ( this.ship.distanceto.{$targetpos} gt this.ship.distanceto.{$position} )">
+        <do_if value="$targetpos? and ( this.ship.distanceto.{$targetpos} gt this.ship.distanceto.{$position} )">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Distance to Target Pos greater than Distance to Target - aborting'.[this.name,this.container.name]"/>
           <return/>
-        </do_if-->
+        </do_if>
+        <do_if value="$startpos? and $targetpos? and ( this.ship.distanceto.{$startpos} gt this.ship.distanceto.{$position} ) + ( this.ship.distanceto.{$targetpos} gt this.ship.distanceto.{$position} )">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Distance flown in Slow Mode greater than Distance to Target - aborting'.[this.name,this.container.name]"/>
+          <return/>
+        </do_if>
         
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Calculated Params for IZ-Boost:\nstartpos: %3 startrot: %4\ntargetzone:%5 targetpos: %6 position: %7  Targetpos Distance to Destination: %8'.[this.name,this.container.name,@$startpos,@$startrot,$targetzone.knownname,$targetpos,$position,$destination.distanceto.{$targetpos}]"/>
       </do_else>
