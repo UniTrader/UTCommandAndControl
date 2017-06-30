@@ -196,6 +196,10 @@ Script to Dock or Park an Object
       <do_if value="$approachquad != $quadrant">
         <debug_text filter="error" text="'%1 %2 Ship decided for a 180° turn on Parking'.[this.name,this.container.name]"/>
       </do_if>
+      <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround..">
+        <set_value name="$destination_position" exact="$destination.position"/>
+        <set_value name="$destination_rotation" exact="$destination.rotation"/>
+      </do_if>
       <remove_value name="$approachquad"/>
       
       
@@ -364,6 +368,10 @@ Script to Dock or Park an Object
         <do_if value="$approachquad != $quadrant">
           <debug_text filter="error" text="'%1 %2 Ship decided for a 180° turn on Parking'.[this.name,this.container.name]"/>
         </do_if>
+        <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround..">
+          <set_value name="$destination_position" exact="$destination.position"/>
+          <set_value name="$destination_rotation" exact="$destination.rotation"/>
+        </do_if>
         <remove_value name="$approachquad"/>
       </do_if>
       
@@ -433,6 +441,13 @@ Script to Dock or Park an Object
         </move_to>
       </do_else>
       <set_avoid_collisions object="this.ship" enabled="true"/>
+      <do_if value="$destination_position? and $destination.distanceto.{$destination_position} gt 50m">
+        <debug_text filter="error" text="'%1 %2 Destination was moved during Approach - forcing it back to original!!'.[this.name,this.container.name]"/>
+        <warp object="$destination" zone="this.zone">
+          <position value="$destination_position"/>
+          <rotation value="$destination_rotation"/>
+        </warp>
+      </do_if>
       
       <!-- check regulary if our parking Spot still works -->
       <do_if value="not $parkingslot.component.isoperational">
