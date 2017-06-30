@@ -201,8 +201,9 @@ Script to Dock or Park an Object
       <do_else>
         <do_while value="global.$parking_queue.{$parkingslot.component}.{1} != this.ship">
           <!-- first ship and current Ship only have to be accounted for in half! therefor starting with zero minus  half height of each to counter the full addition of their height in the next loop! -->
+          <set_value name="$queue_pos" exact="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}" comment="saving queue pos to avoid multiple lookups"/>
           <set_value name="$approach_offset_y" exact="0 - (global.$parking_queue.{$parkingslot.component}.{1}.height + this.ship.height ) * 0.75"/>
-          <do_all exact="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}" counter="$i">
+          <do_all exact="$queue_pos" counter="$i">
             <set_value name="$approach_offset_y" operation="add" exact="global.$parking_queue.{$parkingslot.component}.{$i}.height *1.5"/>
           </do_all>
           <transform_position name="$waitpos" refposition="$approachpos" refrotation="$parkrot" >
@@ -212,7 +213,7 @@ Script to Dock or Park an Object
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - move up'.[this.name,this.container.name]"/>
             <set_avoid_collisions object="this.ship" enabled="true" />
             <do_if value="not ( this.race == race.xenon or this.race == race.drone)" comment="Computer Races sync the Move perfectly, and a bit earlier than non-computer Races">
-              <wait min="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}" max="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship} + 1s" profile="inversebell" comment="to de-perfect-sync when the queue moves">
+              <wait min="$queue_pos" max="$queue_pos + 1s" profile="inversebell" comment="to de-perfect-sync when the queue moves">
                 <interrupt>
                   <conditions>
                     <check_any>
@@ -228,7 +229,7 @@ Script to Dock or Park an Object
                     <do_if value="event.object == $destination">
                       <!-- someone just changed the parking queue - lets check if there is currently an empty parkslot and use it instead of the one we are currently waiting for -->
                       <do_if value="global.$parking_queue.{$destination}.count == 0 and global.$parking_queue.{event.param2}.count == 0">
-                        <remove_value name="global.$parking_queue.{$parkingslot.component}.{global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}}"/>
+                        <remove_value name="global.$parking_queue.{$parkingslot.com ponent}.{$queue_pos}"/>
                         <remove_value name="$sorted_in_approach_queue"/>
                         <set_value name="$parkingslot" exact="event.param2"/>
                         <!-- will continue loop after wait ends meaning the park procedure is restarted -->
@@ -260,7 +261,7 @@ Script to Dock or Park an Object
                   <do_if value="event.object == $destination">
                     <!-- someone just changed the parking queue - lets check if there is currently an empty parkslot and use it instead of the one we are currently waiting for -->
                     <do_if value="global.$parking_queue.{$destination}.count == 0 and global.$parking_queue.{event.param2}.count == 0">
-                      <remove_value name="global.$parking_queue.{$parkingslot.component}.{global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}}"/>
+                      <remove_value name="global.$parking_queue.{$parkingslot.component}.{$queue_pos}"/>
                       <remove_value name="$sorted_in_approach_queue"/>
                       <set_value name="$parkingslot" exact="event.param2"/>
                       <!-- will continue loop after move_strafe ends meaning the park procedure is restarted -->
@@ -289,7 +290,7 @@ Script to Dock or Park an Object
                   <do_if value="event.object == $destination">
                     <!-- someone just changed the parking queue - lets check if there is currently an empty parkslot and use it instead of the one we are currently waiting for -->
                     <do_if value="global.$parking_queue.{$destination}.count == 0 and global.$parking_queue.{event.param2}.count == 0">
-                      <remove_value name="global.$parking_queue.{$parkingslot.component}.{global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}}"/>
+                      <remove_value name="global.$parking_queue.{$parkingslot.component}.{$queue_pos}"/>
                       <remove_value name="$sorted_in_approach_queue"/>
                       <set_value name="$parkingslot" exact="event.param2"/>
                       <!-- will continue loop after wait ends meaning the park procedure is restarted -->
@@ -323,7 +324,7 @@ Script to Dock or Park an Object
                   <do_if value="event.object == $destination">
                     <!-- someone just changed the parking queue - lets check if there is currently an empty parkslot and use it instead of the one we are currently waiting for -->
                     <do_if value="global.$parking_queue.{$destination}.count == 0 and global.$parking_queue.{event.param2}.count == 0">
-                      <remove_value name="global.$parking_queue.{$parkingslot.component}.{global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}}"/>
+                      <remove_value name="global.$parking_queue.{$parkingslot.component}.{$queue_pos}"/>
                       <remove_value name="$sorted_in_approach_queue"/>
                       <set_value name="$parkingslot" exact="event.param2"/>
                       <!-- will continue loop after move_to ends meaning the park procedure is restarted -->
@@ -339,6 +340,7 @@ Script to Dock or Park an Object
             <set_value name="$sorted_in_approach_queue"/>
           </do_else>
         </do_while>
+        <remove_value name="$queue_pos"/>
       </do_else>
       
       <!-- Execute parking - at this point the parking slot is set in stone! -->
