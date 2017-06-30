@@ -182,6 +182,13 @@ Script to Dock or Park an Object
     <signal_objects object="$undockfrom" param="'parking queue update'" param2="$freeslot" delay="1s"/>
     <set_avoid_collisions object="this.ship" enabled="true" />
     <clear_collision_filter object="this.ship"/>
+    <!-- clear queues -->
+    <do_if value="global.$parking_queue.{$undockfrom}.indexof.{this.ship}">
+      <remove_value name="global.$parking_queue.{$destination}.{global.$parking_queue.{$destination}.indexof.{this.ship}}"/>
+    </do_if>
+    <do_if value="$freeslot? and $parkingslot.component? and global.$parking_queue.{$freeslot.component}.indexof.{this.ship}">
+      <remove_value name="global.$parking_queue.{$freeslot.component}.{global.$parking_queue.{$freeslot.component}.indexof.{this.ship}}"/>
+    </do_if>
     <!-- ToDo: make parent Order Interruptable again -->
   </on_abort>
 </aiscript>
