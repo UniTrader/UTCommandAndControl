@@ -89,7 +89,7 @@ Script to Dock or Park an Object
           <signal_objects object="$freeslot.component" param="'parking queue update'" param2="$freeslot"/>
           <signal_objects object="$undockfrom" param="'parking queue update'" param2="$freeslot" delay="1s"/>
           
-          <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom.zone" approach="true" position="$undockpos" quadrant="$quadrant"/>
+          <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom" approach="true" position="$undockpos" quadrant="$quadrant"/>
           <do_if value="false" comment="exclude Stations here which cannt take the modified undock target pos"/>
           <do_elseif value="false" comment="include stations here which have an inverted queue">
             <transform_position name="$undockpos" refposition="$undockpos" refrotation="$undockrot" >
@@ -103,21 +103,21 @@ Script to Dock or Park an Object
           </do_else>
           <set_avoid_collisions object="this.ship" enabled="false" />
           <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
-            <move_strafe object="this.ship" destination="$undockfrom.zone" abortpath="false" finishonapproach="true">
+            <move_strafe object="this.ship" destination="$undockfrom" abortpath="false" finishonapproach="true">
               <position value="$undockpos" />
               <rotation value="this.ship.rotation" />
             </move_strafe>
             <set_value name="$unparkquadrants" exact="[$quadrant.inverse, quadrant.front]"/>
           </do_if>
           <do_elseif value="$quadrant == quadrant.back">
-            <move_to object="this.ship" destination="$undockfrom.zone" abortpath="false" finishonapproach="true">
+            <move_to object="this.ship" destination="$undockfrom" abortpath="false" finishonapproach="true">
               <position value="$undockpos" />
               <rotation value="this.ship.rotation" />
             </move_to>
             <set_value name="$unparkquadrants" exact="[quadrant.front, quadrant.none]"/>
           </do_elseif>
           <do_else>
-            <move_to object="this.ship" destination="$undockfrom.zone" reverse="true" abortpath="false" finishonapproach="true">
+            <move_to object="this.ship" destination="$undockfrom" reverse="true" abortpath="false" finishonapproach="true">
               <position value="$undockpos" />
               <rotation value="this.ship.rotation" />
             </move_to>
