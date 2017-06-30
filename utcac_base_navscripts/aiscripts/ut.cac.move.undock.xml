@@ -91,6 +91,7 @@ Script to Dock or Park an Object
           
           <get_trade_parking_pos ship="this.ship" tradedock="$freeslot" space="$undockfrom.zone" approach="true" position="$undockpos" quadrant="$quadrant"/>
           <do_if value="false" comment="exclude Stations here which cannt take the modified undock target pos"/>
+          <do_elseif value="not global.$parking_queue.{$freeslot.component}.{1}?" comment="dont modify undock pos if there is no other Ship waiting in Park Pos queue"/>
           <do_elseif value="false" comment="include stations here which have an inverted queue">
             <transform_position name="$undockpos" refposition="$undockpos" refrotation="this.ship.rotation" >
               <position x="0m" y="0 - this.ship.height * 1.5" z="0m"/>
