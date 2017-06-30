@@ -117,7 +117,7 @@ Script to Dock or Park an Object
         </do_if>
       </do_all>
       
-      <do_while value="true" comment="exit from loop is done via resume label=***">
+      <do_while value="global.$parking_queue.{$destination}.indexof.{this.ship}" comment="exit from loop is done via resume label=*** - regular exit is an Error">
         <do_if value="@global.$parking_queue.{$destination}.{1} == this.ship">
           <!-- try to park at any Slot -->
           <do_all exact="$parkingslots.count" counter="$i">
@@ -182,6 +182,9 @@ Script to Dock or Park an Object
           </interrupt>
         </move_to>
       </do_while>
+      <!-- loop ended without jumping to park prep or park exec - so ship got thrown out of the queue - restart! -->
+      <debug_text filter="error" text="'%1 %2 Ship got removed from Destination Queue - restarting!!!'.[this.name,this.container.name]"/>
+      <resume label="parking"/>
       
       <!--  prepare Parking - calculate and move to approach pos (prepared for a queue per parkingslot, but not used yet) -->
       <!-- opposed to Vanilla Waiting pos is below the parking Pos and all Ships move/Strafe upwards when moving on in the queue (EXPERIMENTAL!!!) -->
@@ -202,7 +205,7 @@ Script to Dock or Park an Object
         <do_while value="global.$parking_queue.{$parkingslot.component}.{1} != this.ship">
           <!-- first ship and current Ship only have to be accounted for in half! therefor starting with zero minus  half height of each to counter the full addition of their height in the next loop! -->
           <do_if value="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship} == 0">
-            <debug_text filter="error" text="'%1 %2 Ship got removed from Queue - restarting!!!'.[this.name,this.container.name]"/>
+            <debug_text filter="error" text="'%1 %2 Ship got removed from Trade Port Queue - restarting!!!'.[this.name,this.container.name]"/>
             <remove_value name="$sorted_in_approach_queue"/>
             <remove_value name="$parkingslot"/>
             <resume label="parking"/>
