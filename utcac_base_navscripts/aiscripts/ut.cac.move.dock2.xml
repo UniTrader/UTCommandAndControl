@@ -112,7 +112,7 @@ Script to Dock or Park an Object
       <!-- check Entries in Queue if they are valid -->
       <do_all exact="global.$parking_queue.{$destination}.count" counter="$i">
         <do_if value="not global.$parking_queue.{$destination}.{$i}.exists or global.$parking_queue.{$destination}.{$i}.zone != $destination.zone">
-          <debug_text filter="error" text="'%1 %2 Removing Invalid Entry %3 from Queue of %4'.[this.name,this.container.name.global.$parking_queue.{$destination}.{$i},$destination]"/>
+          <debug_text filter="error" text="'%1 %2 Removing Invalid Entry %3 from Queue of %4'.[this.name,this.container.name,global.$parking_queue.{$destination}.{$i},$destination]"/>
           <remove_value name="global.$parking_queue.{$destination}.{$i}"/>
         </do_if>
       </do_all>
