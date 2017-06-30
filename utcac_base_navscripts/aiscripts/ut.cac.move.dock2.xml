@@ -216,11 +216,25 @@ Script to Dock or Park an Object
                 <interrupt>
                   <conditions>
                     <check_any>
-                      <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
+                      <check_all>
+                        <event_object_signalled object="$destination" param="'parking queue update'"/>
+                        <check_value value="event.param2 != null"/>
+                      </check_all>
                       <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
                     </check_any>
                     <set_value name="$interrupted"/>
                   </conditions>
+                  <actions>
+                    <do_if value="event.object == $destination">
+                      <!-- someone just changed the parking queue - lets check if there is currently an empty parkslot and use it instead of the one we are currently waiting for -->
+                      <do_if value="global.$parking_queue.{$destination}.count == 0 and global.$parking_queue.{event.param2}.count == 0">
+                        <remove_value name="global.$parking_queue.{$parkingslot.component}.{global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}}"/>
+                        <remove_value name="$sorted_in_approach_queue"/>
+                        <set_value name="$parkingslot" exact="event.param2"/>
+                        <!-- will continue loop after wait ends meaning the park procedure is restarted -->
+                      </do_if>
+                    </do_if>
+                  </actions>
                 </interrupt>
               </wait>
               <do_if value="$interrupted?">
@@ -234,11 +248,25 @@ Script to Dock or Park an Object
               <interrupt>
                 <conditions>
                   <check_any>
-                    <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
+                    <check_all>
+                      <event_object_signalled object="$destination" param="'parking queue update'"/>
+                      <check_value value="event.param2 != null"/>
+                    </check_all>
                     <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
                   </check_any>
                   <set_value name="$interrupted"/>
                 </conditions>
+                <actions>
+                  <do_if value="event.object == $destination">
+                    <!-- someone just changed the parking queue - lets check if there is currently an empty parkslot and use it instead of the one we are currently waiting for -->
+                    <do_if value="global.$parking_queue.{$destination}.count == 0 and global.$parking_queue.{event.param2}.count == 0">
+                      <remove_value name="global.$parking_queue.{$parkingslot.component}.{global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}}"/>
+                      <remove_value name="$sorted_in_approach_queue"/>
+                      <set_value name="$parkingslot" exact="event.param2"/>
+                      <!-- will continue loop after move_strafe ends meaning the park procedure is restarted -->
+                    </do_if>
+                  </do_if>
+                </actions>
               </interrupt>
             </move_strafe>
             <do_if value="$interrupted?">
@@ -249,11 +277,25 @@ Script to Dock or Park an Object
               <interrupt>
                 <conditions>
                   <check_any>
-                    <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
+                    <check_all>
+                      <event_object_signalled object="$destination" param="'parking queue update'"/>
+                      <check_value value="event.param2 != null"/>
+                    </check_all>
                     <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
                   </check_any>
                   <set_value name="$interrupted"/>
                 </conditions>
+                <actions>
+                  <do_if value="event.object == $destination">
+                    <!-- someone just changed the parking queue - lets check if there is currently an empty parkslot and use it instead of the one we are currently waiting for -->
+                    <do_if value="global.$parking_queue.{$destination}.count == 0 and global.$parking_queue.{event.param2}.count == 0">
+                      <remove_value name="global.$parking_queue.{$parkingslot.component}.{global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}}"/>
+                      <remove_value name="$sorted_in_approach_queue"/>
+                      <set_value name="$parkingslot" exact="event.param2"/>
+                      <!-- will continue loop after wait ends meaning the park procedure is restarted -->
+                    </do_if>
+                  </do_if>
+                </actions>
               </interrupt>
             </wait>
             <do_if value="$interrupted?">
@@ -269,11 +311,25 @@ Script to Dock or Park an Object
               <interrupt>
                 <conditions>
                   <check_any>
-                    <!--event_object_signalled object="$destination" param="'parking queue update'"/-->
+                    <check_all>
+                      <event_object_signalled object="$destination" param="'parking queue update'"/>
+                      <check_value value="event.param2 != null"/>
+                    </check_all>
                     <event_object_signalled object="$parkingslot.component" param="'parking queue update'"/>
                   </check_any>
                   <set_value name="$interrupted"/>
                 </conditions>
+                <actions>
+                  <do_if value="event.object == $destination">
+                    <!-- someone just changed the parking queue - lets check if there is currently an empty parkslot and use it instead of the one we are currently waiting for -->
+                    <do_if value="global.$parking_queue.{$destination}.count == 0 and global.$parking_queue.{event.param2}.count == 0">
+                      <remove_value name="global.$parking_queue.{$parkingslot.component}.{global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}}"/>
+                      <remove_value name="$sorted_in_approach_queue"/>
+                      <set_value name="$parkingslot" exact="event.param2"/>
+                      <!-- will continue loop after move_to ends meaning the park procedure is restarted -->
+                    </do_if>
+                  </do_if>
+                </actions>
               </interrupt>
             </move_to>
             <do_if value="$interrupted?">
