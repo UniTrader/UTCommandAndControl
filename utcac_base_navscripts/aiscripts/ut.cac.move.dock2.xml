@@ -202,6 +202,13 @@ Script to Dock or Park an Object
         <do_while value="global.$parking_queue.{$parkingslot.component}.{1} != this.ship">
           <!-- first ship and current Ship only have to be accounted for in half! therefor starting with zero minus  half height of each to counter the full addition of their height in the next loop! -->
           <set_value name="$queue_pos" exact="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}" comment="saving queue pos to avoid multiple lookups"/>
+          <do_if value="$queue_pos == 0">
+            <debug_text filter="error" text="'%1 %2 Ship got removed from Queue - restarting!!!'.[this.name,this.container.name]"/>
+            <remove_value name="$sorted_in_approach_queue"/>
+            <remove_value name="$parkingslot"/>
+            <remove_value name="$queue_pos"/>
+            <resume label="parking"/>
+          </do_if>
           <set_value name="$approach_offset_y" exact="0 - (global.$parking_queue.{$parkingslot.component}.{1}.height + this.ship.height ) * 0.75"/>
           <do_all exact="$queue_pos" counter="$i">
             <set_value name="$approach_offset_y" operation="add" exact="global.$parking_queue.{$parkingslot.component}.{$i}.height *1.5"/>
@@ -232,7 +239,7 @@ Script to Dock or Park an Object
                         <remove_value name="global.$parking_queue.{$parkingslot.component}.{$queue_pos}"/>
                         <remove_value name="$sorted_in_approach_queue"/>
                         <set_value name="$parkingslot" exact="event.param2"/>
-                        <!-- will continue loop after wait ends meaning the park procedure is restarted -->
+                        <resume label="park prep"/>
                       </do_if>
                     </do_if>
                   </actions>
@@ -264,7 +271,7 @@ Script to Dock or Park an Object
                       <remove_value name="global.$parking_queue.{$parkingslot.component}.{$queue_pos}"/>
                       <remove_value name="$sorted_in_approach_queue"/>
                       <set_value name="$parkingslot" exact="event.param2"/>
-                      <!-- will continue loop after move_strafe ends meaning the park procedure is restarted -->
+                      <resume label="park prep"/>
                     </do_if>
                   </do_if>
                 </actions>
@@ -293,7 +300,7 @@ Script to Dock or Park an Object
                       <remove_value name="global.$parking_queue.{$parkingslot.component}.{$queue_pos}"/>
                       <remove_value name="$sorted_in_approach_queue"/>
                       <set_value name="$parkingslot" exact="event.param2"/>
-                      <!-- will continue loop after wait ends meaning the park procedure is restarted -->
+                      <resume label="park prep"/>
                     </do_if>
                   </do_if>
                 </actions>
@@ -327,7 +334,7 @@ Script to Dock or Park an Object
                       <remove_value name="global.$parking_queue.{$parkingslot.component}.{$queue_pos}"/>
                       <remove_value name="$sorted_in_approach_queue"/>
                       <set_value name="$parkingslot" exact="event.param2"/>
-                      <!-- will continue loop after move_to ends meaning the park procedure is restarted -->
+                      <resume label="park prep"/>
                     </do_if>
                   </do_if>
                 </actions>
