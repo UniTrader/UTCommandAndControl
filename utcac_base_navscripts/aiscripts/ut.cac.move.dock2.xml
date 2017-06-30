@@ -82,7 +82,12 @@ Script to Dock or Park an Object
         <set_value name="global.$parking_queue.{$destination}" exact="[]"/>
       </do_if>
       <find_tradeoffer_parking_slot name="$parkingslots" object="$destination" includeoccupied="true" refobject="this.ship" multiple="true" />
-      <do_all exact="$parkingslots.count" counter="$i">
+      <do_all exact="$parkingslots.count" counter="$i" reverse="true">
+        <!-- simple filter for Trade Offers using the same Parking Slot - shold be good enough for CVs (enables usage of the unlimited Trade Dock Queue on CVs) -->
+        <do_if value="$i gt 1 and $parkingslots.{$i}.component == $parkingslots.{$i - 1}.component">
+          <remove_value name="$parkingslots.{$i}"/>
+          <continue/>
+        </do_if>
         <do_if value="not global.$parking_queue.{$parkingslots.{$i}.component}?">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Park Queue Park Slot List'.[this.name,this.container.name]"/>
           <set_value name="global.$parking_queue.{$parkingslots.{$i}.component}" exact="[]"/>
