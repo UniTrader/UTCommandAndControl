@@ -347,6 +347,10 @@ Script to Dock or Park an Object
               <continue/>
             </do_if>
             <set_value name="$sorted_in_approach_queue"/>
+            <!-- is we are second in queue and first is still busy approaching - try to get him yielding his queue position(additional checks in signal handler) -->
+            <do_if value="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship} == 2">
+              <signal_objects object="global.$parking_queue.{$parkingslot.component}.{1}" param="'park queue swap request'" param2="this.ship"/>
+            </do_if>
           </do_else>
         </do_while>
       </do_else>
@@ -392,6 +396,20 @@ Script to Dock or Park an Object
           <!-- NOTE: finishonapproach currently causes problems with position jumping for the next move_to unless there is a <wait /> -->
           <position value="$approachpos" />
           <rotation value="$parkrot" />
+          <interrupt comment="swap Queue Position with another Ship if its earlier ready to park">
+            <conditions>
+              <event_object_signalled object="this.ship" param="'park queue swap request'"/>
+              <check_value value="global.$parking_queue.{$parkingslot.component}.{2} == event.param2"/>
+              <check_value value="this.ship.distanceto.{$parkingslot.component} gt 7km"/>
+            </conditions>
+            <actions>
+              <disconnect_from_trade_location ship="this.ship" />
+              <set_value name="global.$parking_queue.{$parkingslot.component}.{1}" exact="event.param2"/>
+              <set_value name="global.$parking_queue.{$parkingslot.component}.{2}" exact="this.ship"/>
+              <signal_objects object="$parkingslot.component" param="'parking queue update'" param2="$parkingslot"/>
+              <resume label="park prep"/>
+            </actions>
+          </interrupt>
         </move_to>
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Parking - last Step'.[this.name,this.container.name]"/>
