@@ -245,7 +245,7 @@ Script to Dock or Park an Object
                   </actions>
                 </interrupt>
               </wait>
-              <do_if value="$interrupted? or global.$parking_queue.{$parkingslot.component}.{$queue_pos} != this.ship">
+              <do_if value="$interrupted? or ( global.$parking_queue.{$parkingslot.component}.{$queue_pos} != this.ship and global.$parking_queue.{$parkingslot.component}.{$queue_pos - 1} != this.ship )">
                 <remove_value name="$interrupted"/>
                 <continue/>
               </do_if>
@@ -277,7 +277,7 @@ Script to Dock or Park an Object
                 </actions>
               </interrupt>
             </move_strafe>
-            <do_if value="$interrupted? or global.$parking_queue.{$parkingslot.component}.{$queue_pos} != this.ship">
+            <do_if value="$interrupted? or ( global.$parking_queue.{$parkingslot.component}.{$queue_pos} != this.ship and global.$parking_queue.{$parkingslot.component}.{$queue_pos - 1} != this.ship )">
               <remove_value name="$interrupted"/>
               <continue/>
             </do_if>
@@ -306,7 +306,7 @@ Script to Dock or Park an Object
                 </actions>
               </interrupt>
             </wait>
-            <do_if value="$interrupted? or global.$parking_queue.{$parkingslot.component}.{$queue_pos} != this.ship">
+            <do_if value="$interrupted? or ( global.$parking_queue.{$parkingslot.component}.{$queue_pos} != this.ship and global.$parking_queue.{$parkingslot.component}.{$queue_pos - 1} != this.ship )">
               <remove_value name="$interrupted"/>
               <continue/>
             </do_if>
@@ -340,7 +340,7 @@ Script to Dock or Park an Object
                 </actions>
               </interrupt>
             </move_to>
-            <do_if value="$interrupted? or global.$parking_queue.{$parkingslot.component}.{$queue_pos} != this.ship">
+            <do_if value="$interrupted? or ( global.$parking_queue.{$parkingslot.component}.{$queue_pos} != this.ship and global.$parking_queue.{$parkingslot.component}.{$queue_pos - 1} != this.ship )">
               <remove_value name="$interrupted"/>
               <continue/>
             </do_if>
