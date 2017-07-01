@@ -226,7 +226,7 @@ Script to Dock or Park an Object
             <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Vertical Parking - move up'.[this.name,this.container.name]"/>
             <set_avoid_collisions object="this.ship" enabled="true" />
             <do_if value="not ( this.race == race.xenon or this.race == race.drone)" comment="Computer Races sync the Move perfectly, and a bit earlier than non-computer Races">
-              <wait min="( global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}  * 2s ) -2s" max="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship} * 2s" profile="inversebell" comment="to de-perfect-sync when the queue moves">
+              <wait min="( global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}  * 2s )" max="( global.$parking_queue.{$parkingslot.component}.indexof.{this.ship} * 2s ) + 2s" profile="inversebell" comment="to de-perfect-sync when the queue moves">
                 <interrupt>
                   <conditions>
                     <check_any>
