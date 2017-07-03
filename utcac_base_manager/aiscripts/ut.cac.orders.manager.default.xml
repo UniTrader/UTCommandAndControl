@@ -54,7 +54,7 @@
       <wait max="50ms"/>
       
       <!-- if there is not much else to do and we are assigned to a Station - do Zonetrade (POSSIBLY TIME INTENSIVE) -->
-      <do_if value="this.container.isclass.station and ( this.$orderlist.count lt 1 and player.age gt $next_zonetrade and not this.$ut_cac.$currenttrade )">
+      <do_if value="this.container.isclass.station and ( this.$orderlist.count lt 1 and player.age gt $next_zonetrade and not this.$ut_cac.$currenttrade? )">
         <set_value name="$next_zonetrade" exact="player.age + 7min"/>
         <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname={5554103,25001},$repeat=false,$interruptable=true]"/>
       </do_if>
