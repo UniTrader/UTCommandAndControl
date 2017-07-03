@@ -683,7 +683,7 @@
                 $ConstructionVessel.buildmodule.neededslotresources.{$ware}.count - $ConstructionVessel.cargo.{$ware}.count - $incomingamount, 
                 $ConstructionVessel.cargo.{$ware}.free - $incomingamount, 
                 $entity.ship.cargo.{$ware}.free, 
-                (this.money/$selloffer.unitprice)i 
+                (this.money/$selloffer.unitprice)L 
             ].min"/>
             </do_if>
             <do_else>
@@ -693,7 +693,7 @@
                 ( if this.$ut_cac.$consumables.{$ware}? then (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count - $incomingamount, 
                 this.container.cargo.{$ware}.free - $incomingamount, 
                 $entity.ship.cargo.{$ware}.free, 
-                (this.money/$selloffer.unitprice)i 
+                (this.money/$selloffer.unitprice)L 
             ].min"/>
             </do_else>
             <do_if value="$amount le 0">
@@ -702,7 +702,7 @@ $selloffer.offeramount,
 ( if this.$ut_cac.$consumables.{$ware}? then (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count - $incomingamount, 
 this.container.cargo.{$ware}.free - $incomingamount, 
 $entity.ship.cargo.{$ware}.free, 
-(this.money/$selloffer.unitprice)i 
+(this.money/$selloffer.unitprice)L 
 ]"/>
               <continue/>
             </do_if>
@@ -710,7 +710,7 @@ $entity.ship.cargo.{$ware}.free,
                 <debug_text filter="general" text="'Station %1 has no fitting buy offer - creating one to be able to sell the necesary ware ( %2x %3 ).'.[this.container.name,$amount,$ware]" />
                 </do_if>
                 <do_else>
-                <set_value name="$amount" exact="[ $selloffer.offeramount, this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free,(this.money/$selloffer.unitprice)i , $buyoffer.offeramount].min"/>
+                <set_value name="$amount" exact="[ $selloffer.offeramount, this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count, $entity.ship.cargo.{$ware}.free,(this.money/$selloffer.unitprice)L , $buyoffer.offeramount].min"/>
                 </do_else-->
             <do_if value="$wareslist_buysell.{$i} == 'buy consumable'">
               <create_trade_offer name="$buyoffer" buyer="this.container" object="this.container" amount="$amount" ware="$ware" price="$selloffer.unitprice" playeronly="true"/>
@@ -723,7 +723,7 @@ $entity.ship.cargo.{$ware}.free,
             </do_else>
             <!-- Expression too long - bugs out.... 
             <debug_text filter="general" chance="@this.$debug * 100" text="
-            'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.offeramount ,   ( if this.$ut_cac.$consumables.{$ware}? then (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count ), ( if this.$ut_cac.$consumables.{$ware}? then (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) + this.container.cargo.{$ware}.target ) , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)i , this.money , $selloffer.unitprice ]"/-->
+            'trade amount: %1\n=&gt; %2 offer, %3 ( %4 - %5 ) needed(target-is), %6 cargobay, %7 ( %8 / %9 ) money(available/unitprice)'.[ $amount , $selloffer.offeramount ,   ( if this.$ut_cac.$consumables.{$ware}? then (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) else this.container.cargo.{$ware}.target ) - this.container.cargo.{$ware}.count ), ( if this.$ut_cac.$consumables.{$ware}? then (if this.$ut_cac.$consumables.{$ware}.$target? then  this.$ut_cac.$consumables.{$ware}.$target else 0 ) + this.container.cargo.{$ware}.target ) , this.container.cargo.{$ware}.count , $entity.ship.cargo.{$ware}.free , (this.money/$selloffer.unitprice)L , this.money , $selloffer.unitprice ]"/-->
             <!--clamp_trade_amount result="$amount" seller="this.container" seller="$entity.ship" trade="$buyoffer" amount="$amount/-->
             <do_if value="not $entity.hasownaccount">
               <set_actor_account actor="$entity"/>
