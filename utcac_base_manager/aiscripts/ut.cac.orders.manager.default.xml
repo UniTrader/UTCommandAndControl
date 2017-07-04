@@ -58,6 +58,18 @@
         <set_value name="$next_zonetrade" exact="player.age + 7min"/>
         <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.manager.zonetrade',$displayname={5554103,25001},$repeat=false,$interruptable=true]"/>
       </do_if>
+      <do_elseif value="this.$ut_cac.$currenttrade?">
+        <debug_text filter="general" text="'Trade Values during Zonetrade:\n
+exists %1\n
+available %2\n
+buyer %3\n
+seller %4\n
+amount %5\n
+desiredamount %6\n
+offeramount %7\n
+offeramount.{$entity} %\n8
+transferredamount %9'.[this.$ut_cac.$currenttrade.exists,this.$ut_cac.$currenttrade.available,this.$ut_cac.$currenttrade.buyer,this.$ut_cac.$currenttrade.seller,this.$ut_cac.$currenttrade.amount,this.$ut_cac.$currenttrade.desiredamount %6,this.$ut_cac.$currenttrade.offeramoun,this.$ut_cac.$currenttrade.offeramount{this},this.$ut_cac.$currenttrade.transferredamount]"/>
+      </do_elseif>
       
       <!-- wait two Frames to give the Signals time to be executed (if any) in preperation for the Check if there are any Orders to be executed-->
       <wait max="50ms"/>
