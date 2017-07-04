@@ -194,7 +194,7 @@ Script to Dock or Park an Object
       <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park prep 1'" space="$destination.zone" approach="true" position="$approachpos" rotation="$parkrot" quadrant="$approachquad"/>
       <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park prep 2'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
       <do_if value="$approachquad != $quadrant">
-        <debug_text filter="error" text="'%1 %2 Ship decided for a 180° turn on Parking'.[this.name,this.container.name]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Ship decided for a 180° turn on Parking prep'.[this.name,this.container.name]"/>
       </do_if>
       <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround..">
         <set_value name="$destination_position" exact="$destination.position"/>
@@ -366,7 +366,7 @@ Script to Dock or Park an Object
         <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park prep 1'" space="$destination.zone" approach="true" position="$approachpos" rotation="$parkrot" quadrant="$approachquad"/>
         <get_trade_parking_pos ship="this.ship" tradedock="if true then $parkingslot else 'park prep 2'" space="$destination.zone" approach="false" position="$parkpos" rotation="$parkrot" quadrant="$quadrant"/>
         <do_if value="$approachquad != $quadrant">
-          <debug_text filter="error" text="'%1 %2 Ship decided for a 180° turn on Parking'.[this.name,this.container.name]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Ship decided for a 180° turn on Parking exec'.[this.name,this.container.name]"/>
         </do_if>
         <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround..">
           <set_value name="$destination_position" exact="$destination.position"/>
