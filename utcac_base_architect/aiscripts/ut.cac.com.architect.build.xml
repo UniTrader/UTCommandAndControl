@@ -197,6 +197,11 @@
             </check_is_area_obstructed>
           </do_while>
           <remove_from_player_squad object="this.ship"/>
+          <!-- If Architect does not have access to any account - create own -->
+          <do_if value="not this.money or ( this.isplayerowned and this.money == player.money)">
+            <set_actor_account actor="this"/>
+            <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Architect creates account for Constructing Station'.[this.name,this.container.name]"/>
+          </do_if>
           <set_buildmodule_macro object="this.ship" macro="$macro"/>
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
           <create_build_plan macro="$macro" buildplan="$Buildplan" buildplanlist="[['a',0]]" upgradeplanlist="$upgradeplan" />
@@ -215,7 +220,18 @@
           <connect_to_build_location object="this.ship" buildlocation="$buildlocation"/>
           <set_trade_restrictions object="this.ship" restricted="false"/>
           <do_if value="$station.isconstruction">
-            <restart_build object="$buildlocation.station" buildmodule="this.ship.buildmodule"/>
+            <!-- If Architect does not have access to any account - create own -->
+            <do_if value="not this.money or ( this.isplayerowned and this.money == player.money)">
+              <do_if value="$buildlocation.child.exists and $buildlocation.child.tradenpc.exists">
+                <share_actor_account actor="this" otherobject="$buildlocation.child.tradenpc" transferto="$buildlocation.child.tradenpc"/>
+                <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Architect uses manager account for Completing Station'.[this.name,this.container.name]"/>
+              </do_if>
+              <do_else>
+                <set_actor_account actor="this"/>
+                <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Architect creates account for Completing Station'.[this.name,this.container.name]"/>
+              </do_else>
+            </do_if>
+            <restart_build object="$buildlocation.child" buildmodule="this.ship.buildmodule"/>
             <set_command_action commandaction="commandaction.repairingto" param="$station" />
             <add_blocked_area blocker="this" zone="this.zone">
               <position value="$buildlocation.offset" space="this.zone"/>
@@ -301,6 +317,17 @@
         <!--set the Stage to build to current + 1  -->
         <set_value name="$stage" exact="$station.currentbuildplan.{$sequence}.stage + 1"/>
         <do_if value="$stage le $station.completebuildplan.{$sequence}.stage">
+          <!-- If Architect does not have access to any account - create own -->
+          <do_if value="not this.money or ( this.isplayerowned and this.money == player.money)">
+            <do_if value="$station.exists and $station.tradenpc.exists">
+              <share_actor_account actor="this" otherobject="$station.tradenpc" transferto="$station.tradenpc"/>
+              <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Architect uses manager account for Extending Station'.[this.name,this.container.name]"/>
+            </do_if>
+            <do_else>
+              <set_actor_account actor="this"/>
+              <debug_text filter="general" text="'%1 %2 Architect creates account, but is extending so should have access to one currently??'.[this.name,this.container.name]"/>
+            </do_else>
+          </do_if>
           <create_build_plan macro="$station.macro" buildplan="$Buildplan" buildplanlist="[[$sequence,$stage]]" upgradeplanlist="$upgradeplan" />
           <add_build_plan buildmodule="this.ship.buildmodule" buildplan="$Buildplan" updatebuild="true" />
           <set_value name="$params.$displayname" exact="{5554103,24002}.[$macro.buildpurposemacro.{$Buildplan}.name,$sequence,$stage]"/>
@@ -337,6 +364,17 @@
       
       <!-- Upgrade existing Station only -->
       <do_elseif value="$upgradeplan.count">
+        <!-- If Architect does not have access to any account - create own -->
+        <do_if value="not this.money or ( this.isplayerowned and this.money == player.money)">
+          <do_if value="this.ship.buildmodule.buildanchor.exists and this.ship.buildmodule.buildanchor.tradenpc.exists">
+            <share_actor_account actor="this" otherobject="this.ship.buildmodule.buildanchor.tradenpc" transferto="this.ship.buildmodule.buildanchor.tradenpc"/>
+            <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Architect uses manager account for Upgrading Station'.[this.name,this.container.name]"/>
+          </do_if>
+          <do_else>
+            <set_actor_account actor="this"/>
+            <debug_text filter="general" text="'%1 %2 Architect creates account for Upgrading Station???'.[this.name,this.container.name]"/>
+          </do_else>
+        </do_if>
         <create_build_plan macro="this.ship.buildmodule.buildanchor.macro" buildplan="$Buildplan" buildplanlist="[]" upgradeplanlist="$upgradeplan"/>
         <build_object_upgrades buildmodule="this.ship.buildmodule" sequence="''" stage="0" buildplan="$Buildplan" updatebuild="true"/>
         <!-- wait till construction is done -->
