@@ -86,7 +86,7 @@
       </do_if>
       
       <!-- Cargobay (more than) half full without any other orders, so its dead weight - empty it. (Fuel ignored for this Purpose) -->
-      <do_if value="this.ship.cargo.free lt (this.ship.cargo.capacity - this.ship.cargo.{ware.fuelcells}.count)/2">
+      <do_if value="this.ship.cargo.free lt (this.ship.cargo.capacity - ( this.ship.cargo.{ware.fuelcells}.count * ware.fuelcells.volume)) /5">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Empty Cargo'.[this.name,this.container.name]"/>
         <run_script name="'ut.cac.com.captain.emptycargo'">
           <param name="onlysector" value="true"/>
