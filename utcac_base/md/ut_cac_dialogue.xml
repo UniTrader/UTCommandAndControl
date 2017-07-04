@@ -740,7 +740,7 @@
           <do_if value="event.object.isplayerowned">
             <append_to_list name="$genericuiparam.{8}" exact="[ [ 'invisible' , [ 8 ] ] , null ]"/>
             <!-- Account Part of the Menu -->
-            <do_if value="event.object.money and event.object.money != player.money">
+            <do_if value="event.object.hasownaccount or ( event.object.money? and event.object.money != player.money)">
               <!-- ToDo: Refine Calculation to include Money needed by outstanding Orders -->
               <set_value name="$accountpercentage" exact="[ 80 * event.object.money / (event.object.container.productionmoney + event.object.container.wantedmoney + event.object.container.buildanchor.wantedmoney), 100].min " comment="100-%-Point is at 80% filling of the Bar. less than 50% are indcated by a red bar, less than 100% by yellow, and above that green"/>
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 , 2 ] ] , 
@@ -884,7 +884,7 @@
                   <add_player_choice_sub text="{5554103,554}" position="4" section="comm_personal_transfer_jobselected" choiceparam="'architect'"/>
                   <do_if value="$selectedobject.buildmodule.buildanchor.isconstruction or not $selectedobject.buildmodule.buildanchor.exists">
                     <add_player_choice_sub text="{5554103,555}" position="5" section="comm_personal_transfer_jobselected" choiceparam="'manager'"/>
-                    <add_player_choice_sub text="{5554103,560}.[{5554103,558}]" position="6" section="comm_personal_transfer_standby_as"/>
+                    <add_player_choice_sub text="{5554103,560}" position="6" section="comm_personal_transfer_standby_as"/>
                   </do_if>
                 </do_if>
                 <do_else>
@@ -923,7 +923,7 @@
                 <add_player_choice_sub text="{5554103,553}" position="3" section="comm_personal_transfer_jobselected" choiceparam="'engineer'" selectable="false"/>
                 <do_if value="$selectedobject.canbuildships">
                   <!-- 5 Standby for constructed Ships -->
-                  <add_player_choice_sub text="{5554103,560}.[{5554103,558}]" position="5" section="comm_personal_transfer_standby_as"/>
+                  <add_player_choice_sub text="{5554103,560}" position="5" section="comm_personal_transfer_standby_as"/>
                 </do_if>
               </do_elseif>
             </do_if>
