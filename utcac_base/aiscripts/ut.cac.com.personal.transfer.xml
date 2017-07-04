@@ -338,10 +338,10 @@
         <set_value name="this.$ut_cac.$settings_section" exact="'comm_manager_settings'"/>
         <!-- Manager and Architect are supposed to share their Account, with the Manager handling the main one -->
         <do_if value="$destination.buildmodule.exists and $destination.architect.exists">
-          <share_actor_account actor="this" otherobject="$destination.architect" transferto="this"/>
+          <share_actor_account actor="$destination.architect" otherobject="this" transferto="this"/>
         </do_if>
         <do_elseif value="$destination.buildingmodule.container.architect.exists">
-          <share_actor_account actor="this" otherobject="$destination.buildingmodule.container.architect" transferto="this"/>
+          <share_actor_account actor="$destination.buildingmodule.container.architect" otherobject="this" transferto="this"/>
         </do_elseif>
       </do_elseif>
       <do_elseif value="$job == 'pilot'">
@@ -474,10 +474,10 @@
           </do_if>
         </do_all>
         <do_if value="$manager?">
-          <share_actor_account actor="$manager" otherobject="this" transferto="$manager"/>
+          <share_actor_account actor="this" otherobject="$manager" transferto="$manager"/>
         </do_if>
         <do_elseif value="$destination.buildanchor.tradenpc.exists">
-          <share_actor_account actor="$destination.buildanchor.tradenpc" otherobject="this" transferto="$destination.buildanchor.tradenpc"/>
+          <share_actor_account actor="this" otherobject="$destination.buildanchor.tradenpc" transferto="$destination.buildanchor.tradenpc"/>
         </do_elseif>
       </do_elseif>
       <do_elseif value="$job == 'tradeagent'">
