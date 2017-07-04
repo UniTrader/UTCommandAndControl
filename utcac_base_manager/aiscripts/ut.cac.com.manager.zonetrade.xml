@@ -80,58 +80,20 @@
           <set_value name="$unbundle" exact="true"/>
         </do_if>
         <do_if value="not $unbundle?">
-          <!-- use a 2hour duration for station trades, as these can be inherently slower -->
-          <add_ware_reservation object="this.container" entity="this" ware="$tradeware" amount="$finalamount" result="$reserved" duration="3h" type="sell"/>
-          <!-- DEBUG ONLY START -->
-          <set_value name="$d_startamount" exact="this.container.cargo.{$tradeware}.count"/>
-          <!-- DEBUG ONLY END -->
+          <!-- Dont reserve Trades because this avoids the (difficult to implement) Cleanup. Zonetrade is inherently faster anyway. -->
+          <!--add_ware_reservation object="this.container" entity="this" ware="$tradeware" amount="$finalamount" result="$reserved" duration="3h" type="sell"/-->
         </do_if>
         <set_command command="command.trade" param="$finalselloffer.seller"/>
         <do_if value="this.$ut_cac?"><set_value name="this.$ut_cac.$isactive"/></do_if>
-        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Manager Zonetrade Executing Trade'.[this.name,this.container.name]"/>
-        <debug_text filter="general" text="'Trade Values before Zonetrade:\n
-exists %1\n
-available %2\n
-buyer %3\n
-seller %4\n
-amount %5\n
-desiredamount %6\n
-offeramount %7\n
-offeramount.{$entity} %\n8
-transferredamount %9'.[$finalselloffer.exists,$finalselloffer.available,$finalselloffer.buyer,$finalselloffer.seller,$finalselloffer.amount,$finalselloffer.desiredamount %6,$finalselloffer.offeramoun,$finalselloffer.offeramount{this},$finalselloffer.transferredamount]"/>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Manager Zonetrade Executing Trade\nWare: %3; Amount Bought: %4; Unitprice: %5 Total: %6'.[this.name,this.container.name,$finalselloffer.ware,$finalamount,$finalselloffer.unitprice,$finalselloffer.unitprice*$finalamount]"/>
         <show_notification caption="'Manager does Zonetrade!!!'" details="'Ware: %1\nAmount: %2\nTradepartner: %3'.[$finalselloffer.ware,$finalamount,$finalselloffer.owner.knownname]"/>
         <execute_trade tradeoffer="$finalselloffer" amount="$finalamount" tradepartner="this.container" result="$traderesult" unbundle="$unbundle?">
           <interrupt_after_time time="3s"/>
         </execute_trade>
-        <debug_text filter="general" text="'Trade Values during Zonetrade (first):\n
-exists %1\n
-available %2\n
-buyer %3\n
-seller %4\n
-amount %5\n
-desiredamount %6\n
-offeramount %7\n
-offeramount.{$entity} %\n8
-transferredamount %9'.[$finalselloffer.exists,$finalselloffer.available,$finalselloffer.buyer,$finalselloffer.seller,$finalselloffer.amount,$finalselloffer.desiredamount %6,$finalselloffer.offeramoun,$finalselloffer.offeramount{this},$finalselloffer.transferredamount]"/>
-        <set_value name="this.$ut_cac.$currenttrade" exact="$finalselloffer"/>
       </do_if>
-      <resume label="finish"/>
-      <!-- Cleanup Order is added via MD when the Trade is completed, but actual cleanup is done vie AI because only here the reservation can be removed - this seperation is done to prevent a blocking of the Manager during a Zone Trade -->
-      <label name="cleanup"/>
-        <do_if value="$params.$trade == this.$ut_cac.$currenttrade">
-          <remove_ware_reservation object="this.container" entity="this" ware="$params.$trade.ware"/>
-          <remove_value name="this.$ut_cac.$currenttrade"/>
-          <wait exact="3s"/>
-          <!-- no need to call detach_from_masstraffic since stations in the same zone are linked with a static network that persists anyway -->
-        </do_if>
-      
-      <label name="finish"/>
       
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Manager Zonetrade Script finished'.[this.name,this.container.name] + ( if this.$ut_cac.$currenttrade then ' - executing Trade %1'.[$finalselloffer] )"/>
       
-      <return>
-        <retval name="repeat" value="false"/>
-      </return>
     </actions>
   </attention>
 </aiscript>
