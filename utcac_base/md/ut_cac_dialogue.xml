@@ -746,20 +746,31 @@
               <do_if value="event.object.type == entitytype.manager or event.object.type == entitytype.architect">
                 <do_if value="event.object.container.isclass.station">
                   <set_value name="$wantedmoney" exact="event.object.container.productionmoney + event.object.container.wantedmoney + event.object.container.buildingmodule.ship.wantedmoney"/>
+                  <set_value name="$wantedmoney_temp" exact="$wantedmoney"/>
                   <!-- Add Money necesary to perforrm planned Actions to the Money needed for Porduction/current Construction -->
                   <do_all exact="event.object.$orderlist.count" counter="$i">
-                    <set_value name="$wantedmoney" operation="add" exact="@event.object.$orderlist.{$i}.$wantedmoney"/>
+                    <set_value name="$wantedmoney_temp" operation="add" exact="@event.object.$orderlist.{$i}.$wantedmoney"/>
+                    <do_if value="$wantedmoney lt $wantedmoney_temp">
+                      <set_value name="$wantedmoney" exact="$wantedmoney_temp"/>
+                    </do_if>
                   </do_all>
                   <!-- Add Money necesary to perforrm planned Actions of the attached Manager -->
                   <do_all exact="event.object.buildingmodule.ship.architect.$orderlist.count" counter="$i">
-                    <set_value name="$wantedmoney" operation="add" exact="@event.object.buildingmodule.ship.architect.$orderlist.{$i}.$wantedmoney"/>
+                    <set_value name="$wantedmoney_temp" operation="add" exact="@event.object.buildingmodule.ship.architect.$orderlist.{$i}.$wantedmoney"/>
+                    <do_if value="$wantedmoney lt $wantedmoney_temp">
+                      <set_value name="$wantedmoney" exact="$wantedmoney_temp"/>
+                    </do_if>
                   </do_all>
                 </do_if>
                 <do_elseif value="event.object.isclass.ship" comment="calculation for Archi/Manager on CV">
                   <set_value name="$wantedmoney" exact="event.object.buildanchor.productionmoney + event.object.buildanchor.wantedmoney + event.object.container.wantedmoney"/>
+                  <set_value name="$wantedmoney_temp" exact="$wantedmoney"/>
                   <!-- Add Money necesary to perforrm planned Actions to the Money needed for Porduction/current Construction -->
                   <do_all exact="event.object.ship.architect.$orderlist.count" counter="$i">
-                    <set_value name="$wantedmoney" operation="add" exact="@event.object.ship.architect.$orderlist.{$i}.$wantedmoney"/>
+                    <set_value name="$wantedmoney_temp" operation="add" exact="@event.object.ship.architect.$orderlist.{$i}.$wantedmoney"/>
+                    <do_if value="$wantedmoney lt $wantedmoney_temp">
+                      <set_value name="$wantedmoney" exact="$wantedmoney_temp"/>
+                    </do_if>
                   </do_all>
                   <do_if value="event.object.buildanchor.tradenpc.exists">
                     <set_value name="$manager" exact="event.object.buildanchor.tradenpc"/>
@@ -774,16 +785,24 @@
                     </do_all>
                   </do_else>
                   <do_all exact="$manager.$orderlist.count" counter="$i">
-                    <set_value name="$wantedmoney" operation="add" exact="@$manager.$orderlist.{$i}.$wantedmoney"/>
+                    <set_value name="$wantedmoney_temp" operation="add" exact="@$manager.$orderlist.{$i}.$wantedmoney"/>
+                    <do_if value="$wantedmoney lt $wantedmoney_temp">
+                      <set_value name="$wantedmoney" exact="$wantedmoney_temp"/>
+                    </do_if>
                   </do_all>
                 </do_elseif>
               </do_if>
               <do_else>
                 <set_value name="$wantedmoney" exact="0Cr"/>
-                  <do_all exact="event.object.$orderlist.count" counter="$i">
-                    <set_value name="$wantedmoney" operation="add" exact="@event.object.$orderlist.{$i}.$wantedmoney"/>
-                  </do_all>
+                <set_value name="$wantedmoney_temp" exact="0Cr"/>
+                <do_all exact="event.object.$orderlist.count" counter="$i" reverse="true">
+                  <set_value name="$wantedmoney_temp" operation="add" exact="@event.object.$orderlist.{$i}.$wantedmoney"/>
+                  <do_if value="$wantedmoney lt $wantedmoney_temp">
+                    <set_value name="$wantedmoney" exact="$wantedmoney_temp"/>
+                  </do_if>
+                </do_all>
               </do_else>
+              <remove_value name="$wantedmoney_temp"/>
               <set_value name="$accountpercentage" exact="[ 80 * event.object.money / $wantedmoney, 100].min " comment="100-%-Point is at 80% filling of the Bar. less than 50% are indcated by a red bar, less than 100% by yellow, and above that green"/>
               <append_to_list name="$genericuiparam.{8}" exact="[ [ 'header' , [ 6 , 2 ] ] , 
 [ 'text' , if event.object.hasownaccount then {5554103,504} else {5554103,505} ] , 
