@@ -211,6 +211,7 @@
           <destroy_object object="this.$ut_cac.$construction" explosion="false"/>
           <set_value name="this.$ut_cac.$construction" exact="this.ship.buildmodule.buildanchor"/>
           <set_value name="$params.$displayname" exact="{5554103,24000}.[$macro.name]"/>
+          <remove_value name="$params.$wantedmoney" comment="is now managed by Construction/Vanilla Code"/>
           <signal_objects object="this.container" param="'Object Name Updated'"/>
           <set_command_action commandaction="commandaction.repairingto" param="$station" />
           <set_trade_restrictions object="this.ship" restricted="false"/>
@@ -232,6 +233,7 @@
               </do_else>
             </do_if>
             <restart_build object="$buildlocation.child" buildmodule="this.ship.buildmodule"/>
+            <remove_value name="$params.$wantedmoney" comment="is now managed by Construction/Vanilla Code"/>
             <set_command_action commandaction="commandaction.repairingto" param="$station" />
             <add_blocked_area blocker="this" zone="this.zone">
               <position value="$buildlocation.offset" space="this.zone"/>
@@ -331,6 +333,7 @@
           <create_build_plan macro="$station.macro" buildplan="$Buildplan" buildplanlist="[[$sequence,$stage]]" upgradeplanlist="$upgradeplan" />
           <add_build_plan buildmodule="this.ship.buildmodule" buildplan="$Buildplan" updatebuild="true" />
           <set_value name="$params.$displayname" exact="{5554103,24002}.[$macro.buildpurposemacro.{$Buildplan}.name,$sequence,$stage]"/>
+          <remove_value name="$params.$wantedmoney" comment="is now managed by Construction/Vanilla Code"/>
           <set_command_action commandaction="commandaction.repairingto" param="$macro.buildpurposemacro.{buildplan.[$sequence,$stage]}" />
           <signal_objects object="this.container" param="'Object Name Updated'"/>
           <remove_blocked_area blocker="this" zone="this.zone"/>
@@ -377,6 +380,7 @@
         </do_if>
         <create_build_plan macro="this.ship.buildmodule.buildanchor.macro" buildplan="$Buildplan" buildplanlist="[]" upgradeplanlist="$upgradeplan"/>
         <build_object_upgrades buildmodule="this.ship.buildmodule" sequence="''" stage="0" buildplan="$Buildplan" updatebuild="true"/>
+        <remove_value name="$params.$wantedmoney" comment="is now managed by Construction/Vanilla Code"/>
         <!-- wait till construction is done -->
         <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
         <wait resume="true">
