@@ -196,9 +196,10 @@ Script to Dock or Park an Object
       <do_if value="$approachquad != $quadrant">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Ship decided for a 180° turn on Parking prep'.[this.name,this.container.name]"/>
       </do_if>
-      <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround..">
+      <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround..(also disable the colli response for the destination)">
         <set_value name="$destination_position" exact="$destination.position"/>
         <set_value name="$destination_rotation" exact="$destination.rotation"/>
+        <disable_collision_response object="$destination"/>
       </do_if>
       <remove_value name="$approachquad"/>
       
@@ -368,9 +369,10 @@ Script to Dock or Park an Object
         <do_if value="$approachquad != $quadrant">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Ship decided for a 180° turn on Parking exec'.[this.name,this.container.name]"/>
         </do_if>
-        <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround..">
+        <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround.. (also disable the collission response for the destination)">
           <set_value name="$destination_position" exact="$destination.position"/>
           <set_value name="$destination_rotation" exact="$destination.rotation"/>
+          <disable_collision_response object="$destination"/>
         </do_if>
         <remove_value name="$approachquad"/>
       </do_if>
