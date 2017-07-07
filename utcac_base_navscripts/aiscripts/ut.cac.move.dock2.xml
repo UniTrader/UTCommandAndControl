@@ -196,10 +196,6 @@ Script to Dock or Park an Object
       <do_if value="$approachquad != $quadrant">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Ship decided for a 180° turn on Parking prep'.[this.name,this.container.name]"/>
       </do_if>
-      <!-- not much forward/backward movement during strafing - basing approach pos on park pos for now -->
-      <do_if value="$quadrant == quadrant.front">
-        <set_value name="$approachpos" exact="$parkpos"/>
-      </do_if>
       <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround..">
         <set_value name="$destination_position" exact="$destination.position"/>
         <set_value name="$destination_rotation" exact="$destination.rotation"/>
@@ -372,10 +368,6 @@ Script to Dock or Park an Object
         <do_if value="$approachquad != $quadrant">
           <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Ship decided for a 180° turn on Parking exec'.[this.name,this.container.name]"/>
         </do_if>
-        <!-- not much forward/backward movement during strafing - basing approach pos on park pos for now -->
-        <do_if value="$quadrant == quadrant.front">
-          <set_value name="$approachpos" exact="$parkpos"/>
-        </do_if>
         <do_if value="$destination.isclass.ship" comment="save Position of destination Ship for which the trade parking pos was calculated (in case the Ship gets moved for some reason) - this is a workaround..">
           <set_value name="$destination_position" exact="$destination.position"/>
           <set_value name="$destination_rotation" exact="$destination.rotation"/>
@@ -430,23 +422,31 @@ Script to Dock or Park an Object
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Parking - last Step'.[this.name,this.container.name]"/>
       <set_avoid_collisions object="this.ship" enabled="false"/>
-      <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right) or $sorted_in_approach_queue?">
+      <do_if value="($quadrant == quadrant.left) or ($quadrant == quadrant.right)">
         <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
           <position value="$parkpos" />
           <rotation value="$parkrot" />
         </move_strafe>
       </do_if>
-      <do_elseif value="$quadrant == quadrant.back">
-        <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" reverse="true" abortpath="false">
-          <position value="$parkpos" />
-          <rotation value="$parkrot" />
-        </move_to>
-      </do_elseif>
       <do_else>
-        <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" abortpath="false">
-          <position value="$parkpos" />
-          <rotation value="$parkrot" />
-        </move_to>
+        <do_if value="$sorted_in_approach_queue?">
+          <move_strafe object="this.ship" destination="$destination.zone" forcerotation="true" abortpath="false">
+            <position value="$approachpos" />
+            <rotation value="$parkrot" />
+          </move_strafe>
+        </do_if>
+        <do_if value="$quadrant == quadrant.back">
+          <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" reverse="true" abortpath="false">
+            <position value="$parkpos" />
+            <rotation value="$parkrot" />
+          </move_to>
+        </do_if>
+        <do_else>
+          <move_to object="this.ship" usehighways="false" destination="$destination.zone" forcerotation="true" abortpath="false">
+            <position value="$parkpos" />
+            <rotation value="$parkrot" />
+          </move_to>
+        </do_else>
       </do_else>
       <set_avoid_collisions object="this.ship" enabled="true"/>
       <do_if value="$destination_position? and $destination.distanceto.{$destination_position} gt 50m">
