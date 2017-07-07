@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<aiscript name="ut.cac.com.captain.realign.buildership" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
+  <!--
+
+ rewritten from scratch by UniTrader
+  
+Script to re-align the Ship with the Original Build Position.
+Intended to be called hourly, first blocks the CV-Wide queue to prevent other Ships from getting a Park Position, then re-alings ship and after that allows resuming of Docking procedures.
+
+  -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+    <param name="position" default="null" comment="Original Position the CV should return to"/>
+  </params>
+  <init>
+  </init>
+  <attention min="unknown">
+    <actions>
+      <!-- first decode the $params to the Variables -->
+      <do_if value="$params">
+        <do_if value="$params.$position?">
+          <set_value name="$position" exact="$params.$position"/>
+        </do_if>
+      </do_if>
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Script started with Params: $position: %3'.[this.name,this.container.name,$position]"/>
+      
+      <!-- Verify Input and Situation -->
+      <do_if value="not $position">
+        <debug_text filter="error" text="'%1 %2 No Position given - Abort'.[this.name,this.container.name]"/>
+        <return/>
+      </do_if>
+      
+      <set_command_action commandaction="commandaction.flying" param="this.ship"/>
+      <do_if value="this.$ut_cac?">
+        <set_value name="this.$ut_cac.$isactive"/>
+      </do_if>
+      
+      <!-- prepare global coordination Vars -->
+      <do_if value="not global.$parking_queue?">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Park Queue GV'.[this.name,this.container.name]"/>
+        <set_value name="global.$parking_queue" exact="table[]"/>
+      </do_if>
+      <do_if value="not global.$parking_queue.{this.ship}?">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Park Queue Destination List for %3'.[this.name,this.container.name,$this.ship.name]"/>
+        <set_value name="global.$parking_queue.{this.ship}" exact="[]"/>
+      </do_if>
+      <find_tradeoffer_parking_slot name="$parkingslots" object="this.ship" includeoccupied="true" refobject="this.ship" multiple="true" />
+      <do_all exact="$parkingslots.count" counter="$i" reverse="true">
+        <!-- simple filter for Trade Offers using the same Parking Slot - shold be good enough for CVs (enables usage of the unlimited Trade Dock Queue on CVs) -->
+        <do_if value="$i gt 1 and $parkingslots.{$i}.component == $parkingslots.{$i - 1}.component">
+          <remove_value name="$parkingslots.{$i}"/>
+          <continue/>
+        </do_if>
+        <do_if value="not global.$parking_queue.{$parkingslots.{$i}.component}?">
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Creating Park Queue Park Slot List'.[this.name,this.container.name]"/>
+          <set_value name="global.$parking_queue.{$parkingslots.{$i}.component}" exact="[]"/>
+        </do_if>
+        <!-- check if the  first entry of each queue is valid (should eventually sort out any issues after 2 ships attempt to dock, so not checking all every time ) -->
+        <do_elseif value="global.$parking_queue.{$parkingslots.{$i}.component}.count and ( (not global.$parking_queue.{$parkingslots.{$i}.component}.{1}.exists) or global.$parking_queue.{$parkingslots.{$i}.component}.{1}.sector != this.ship.sector)">
+          <debug_text filter="error" text="'%1 %2 Removing Invalid Entry %3 from Parkingspot Queue of %4'.[this.name,this.container.name,global.$parking_queue.{$parkingslots.{$i}.component}.{1},this.ship]"/>
+          <remove_value name="global.$parking_queue.{$parkingslots.{$i}.component}.{1}"/>
+        </do_elseif>
+      </do_all>
+      
+      <label name="waiting"/>
+      
+      <!-- sort into queue -->
+      <do_if value="not global.$parking_queue.{this.ship}.indexof.{this.ship}">
+        <append_to_list name="global.$parking_queue.{this.ship}" exact="this.ship"/>
+      </do_if>
+      
+      <!-- wait till we are first in "Station-wide" queue and also all Parking Slot queues are empty -->
+      <do_while value="global.$parking_queue.{this.ship}.indexof.{this.ship}" comment="exit from loop is done via resume label=*** - regular exit is an Error">
+        <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Checking Queues'.[this.name,this.container.name]"/>
+        <set_value name="$queue_empty" exact="true"/>
+        <do_if value="global.$parking_queue.{this.ship}.indexof.{this.ship} != 1">
+          <set_value name="$queue_empty" exact="false"/>
+        </do_if>
+        <do_else>
+          <do_all exact="$parkingslots.count" counter="$i">
+            <do_if value="global.$parking_queue.{$parkingslots.{$i}.component}.count">
+              <set_value name="$queue_empty" exact="false"/>
+              <break/>
+            </do_if>
+          </do_all>
+        </do_else>
+        <do_if value="$queue_empty">
+          <resume label="realign"/>
+        </do_if>
+        <wait exact="15min">
+          <interrupt>
+            <conditions>
+              <event_object_signalled object="this.ship" param="'parking queue update'"/>
+            </conditions>
+          </interrupt>
+        </wait>
+      </do_while>
+      <!-- loop ended without jumping to realign - so ship got thrown out of the queue - restart! -->
+      <debug_text filter="error" text="'%1 %2 Ship got removed from Destination Queue - restarting!!!'.[this.name,this.container.name]"/>
+      <resume label="waiting"/>
+      
+      <!-- all parkslot queues are empty - re-position CV -->
+      <label name="realign"/>
+      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Realign start'.[this.name,this.container.name]"/>
+      
+      <set_avoid_collisions object="this.ship" enabled="false"/>
+      <create_orientation name="$rotation" orientation="look_at" refposition="this.ship.buildanchor.position">
+        <position value="this.ship.position"/>
+      </create_orientation>
+      <move_to object="this.ship" usehighways="false" destination="this.zone" forcerotation="true" forceposition="true">
+        <position value="$position" />
+        <rotation value="$rotation"/>
+      </move_to>
+      <set_avoid_collisions object="this.ship" enabled="true" />
+      
+      <label name="finish"/>
+      <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Realign end, finishing start'.[this.name,this.container.name]"/>
+      <!-- remove ourselves from Queue and Signal everyone to continue -->
+      <do_if value="global.$parking_queue.{this.ship}.{1} == this.ship">
+        <remove_value name="global.$parking_queue.{this.ship}.{1}"/>
+      </do_if>
+      <do_elseif value="global.$parking_queue.{this.ship}.indexof.{this.ship}">
+        <debug_text filter="error" text="'%1 %2 this.ship is not, as expected, on position 1 but on %3 - removing anyway'.[this.name,this.container.name,global.$parking_queue.{this.ship}.indexof.{this.ship}]"/>
+        <remove_value name="global.$parking_queue.{this.ship}.{global.$parking_queue.{this.ship}.indexof.{this.ship}}"/>
+      </do_elseif>
+      <do_else>
+        <debug_text filter="error" text="'%1 %2 this.ship not found in queue - continuing anyway'.[this.name,this.container.name]"/>
+      </do_else>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sending Parking Queue Update'.[this.name,this.container.name]"/>
+      <signal_objects object="this.ship" param="'parking queue update'"/>
+      
+      
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Realign done'.[this.name,this.container.name]"/>
+      
+    </actions>
+  </attention>
+  <on_abort>
+    <!-- Notify everyone that the Queue just changed -->
+    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sending Parking Queue Update (Abort Case)'.[this.name,this.container.name]"/>
+    <signal_objects object="this.ship" param="'parking queue update'"/>
+    <set_avoid_collisions object="this.ship" enabled="true" />
+    <!-- clear queues -->
+    <do_if value="global.$parking_queue.{this.ship}.indexof.{this.ship}">
+      <remove_value name="global.$parking_queue.{this.ship}.{global.$parking_queue.{this.ship}.indexof.{this.ship}}"/>
+    </do_if>
+  </on_abort>
+</aiscript>
