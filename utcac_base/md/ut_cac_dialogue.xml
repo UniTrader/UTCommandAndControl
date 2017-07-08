@@ -498,8 +498,8 @@
             <add_npc_line speaker="player.entity" line="[1400,1401,1402].random" hidechoices="false" comment="lets talk about this in detail" />
             <add_npc_line speaker="event.object" line="[4110,4111].random" hidechoices="false" comment="Here you go." />
           </do_if>
-          <add_player_choice text="{5554103,41}" position="1" section="comm_subordinates_take_playersquad" selectable="player.primaryship.subordinates.{1}? and event.object.isclass.station"/>
-          <add_player_choice text="{5554103,42}" position="2" section="comm_subordinates_add_subordinate" selectable="false"/>
+          <add_player_choice text="{5554103,41}" position="1" section="comm_subordinates_take_playersquad" selectable="player.primaryship.subordinates.{1}? and ( event.object.container.isclass.station or event.object.container.buildmodule.exists )"/>
+          <add_player_choice text="{5554103,42}" position="2" section="comm_subordinates_add_subordinate_select" selectable="event.object.type == entitytype.manager"/>
           <add_player_choice_sub text="{5554103,43}" position="3" section="comm_subordinates_take_shipsquad" selectable="false" comment="not implemented yet"/>
           <add_player_choice text="{5554103,44}" position="4" section="comm_subordinates_transfer_to_playersquad" selectable="false" comment="no practical usage for this yet"/>
           <add_player_choice text="{5554103,45}" position="5" section="comm_subordinates_superior_select" selectable="event.object.container.isclass.ship"/>
@@ -525,6 +525,19 @@
           <do_all exact="event.object.subordinates.count" counter="$i" reverse="true">
             <add_to_player_squad object="event.object.subordinates.{$i}" />
           </do_all>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_subordinates_add_subordinate_select'">
+          <do_if value="event.name == 'event_conversation_next_section'">
+            <open_conversation_menu menu="UTMapMenu" param="[0, 0, 'sector', event.object.container.sector, null, event.object.container.zone, 'selectobject', ['comm_subordinates_add_subordinate_selected']]"/>
+          </do_if>
+          <do_else>
+            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+          </do_else>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_subordinates_add_subordinate_selected'">
+          <signal_objects object="event.param2.{3}.pilot" param="'new order'" param2="table[$script='ut.cac.com.change.superior',$displayname={5554103,20001}.[event.object.container.name,event.object.container.name], $new_superior=event.object.container,$new_superiorentity=event.object,$interruptable=true]"/>
+          <remove_value name="$superiorentity"/>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_subordinates_superior_select'">
