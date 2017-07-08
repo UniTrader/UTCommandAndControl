@@ -764,7 +764,7 @@
                   <set_value name="$wantedmoney" exact="event.object.container.productionmoney + event.object.container.wantedmoney + event.object.container.buildingmodule.ship.wantedmoney"/>
                   <set_value name="$wantedmoney_temp" exact="$wantedmoney"/>
                   <!-- Add Money necesary to perforrm planned Actions to the Money needed for Porduction/current Construction -->
-                  <do_all exact="event.object.$orderlist.count" counter="$i">
+                  <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
                     <set_value name="$wantedmoney_temp" operation="add" exact="@event.object.$orderlist.{$i}.$wantedmoney"/>
                     <do_if value="$wantedmoney lt $wantedmoney_temp">
                       <set_value name="$wantedmoney" exact="$wantedmoney_temp"/>
@@ -782,7 +782,7 @@
                   <set_value name="$wantedmoney" exact="event.object.buildanchor.productionmoney + event.object.buildanchor.wantedmoney + event.object.container.wantedmoney"/>
                   <set_value name="$wantedmoney_temp" exact="$wantedmoney"/>
                   <!-- Add Money necesary to perforrm planned Actions to the Money needed for Porduction/current Construction -->
-                  <do_all exact="event.object.ship.architect.$orderlist.count" counter="$i">
+                  <do_all exact="event.object.ship.architect.$orderlist.count" counter="$i" reverse="false">
                     <set_value name="$wantedmoney_temp" operation="add" exact="@event.object.ship.architect.$orderlist.{$i}.$wantedmoney"/>
                     <do_if value="$wantedmoney lt $wantedmoney_temp">
                       <set_value name="$wantedmoney" exact="$wantedmoney_temp"/>
@@ -800,7 +800,7 @@
                       </do_if>
                     </do_all>
                   </do_else>
-                  <do_all exact="$manager.$orderlist.count" counter="$i">
+                  <do_all exact="$manager.$orderlist.count" counter="$i" reverse="false">
                     <set_value name="$wantedmoney_temp" operation="add" exact="@$manager.$orderlist.{$i}.$wantedmoney"/>
                     <do_if value="$wantedmoney lt $wantedmoney_temp">
                       <set_value name="$wantedmoney" exact="$wantedmoney_temp"/>
@@ -811,7 +811,7 @@
               <do_else>
                 <set_value name="$wantedmoney" exact="0Cr"/>
                 <set_value name="$wantedmoney_temp" exact="0Cr"/>
-                <do_all exact="event.object.$orderlist.count" counter="$i" reverse="true">
+                <do_all exact="event.object.$orderlist.count" counter="$i" reverse="false">
                   <set_value name="$wantedmoney_temp" operation="add" exact="@event.object.$orderlist.{$i}.$wantedmoney"/>
                   <do_if value="$wantedmoney lt $wantedmoney_temp">
                     <set_value name="$wantedmoney" exact="$wantedmoney_temp"/>
