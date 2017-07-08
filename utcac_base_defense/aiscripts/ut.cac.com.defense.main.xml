@@ -494,8 +494,8 @@ Defensemodes regulate how active the Ship reacts to enemies:
         <!-- if few Enemies are in Radar Range - send them some Drones to clear Radar ASAP -->
         <do_if value="$enemies_g.count lt 5 and $drones_defense.count gt $enemies_g.count * 5">
           <do_all exact="$enemies_g.count" counter="$i">
-            <!-- send some drones after the Attacker and go into red alert -->
-            <do_if value="$drones_defense.count">
+            <!-- send some drones after the Attacker and go into red alert (check if there is an $enemies_t entry, because if not the target is a missile) -->
+            <do_if value="$drones_defense.count and $enemies_t.{$enemies_g.{$i}}?">
               <do_if value="$enemies_g.{$i}.isclass.{[class.drone,class.ship_xs,class.ship_s,class.ship_m]}">
                 <set_value name="$hp" exact="$enemies_g.{$i}.maxhull + $enemies_g.{$i}.maxshield"/>
                 <!-- subtract DPS of already attacking Drones -->
