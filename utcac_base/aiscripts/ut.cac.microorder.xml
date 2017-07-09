@@ -47,21 +47,13 @@
         </wait>
       </do_elseif>
       <do_elseif value="$params.$order == 'wait signal'">
-        <do_while value="true">
-          <wait>
-		    <interrupt_after_time time="10h"/>
-            <interrupt>
-              <conditions>
+        <wait>
+          <interrupt>
+            <conditions>
               <event_object_signalled object="$params.$signalobject" param="$params.$signalparam"/>
-              </conditions>
-              <actions>
-                <return>
-                  <retval name="repeat" value="@$params.$repeat"/>
-                </return>
-              </actions>
-            </interrupt>
-          </wait>
-        </do_while>
+            </conditions>
+          </interrupt>
+        </wait>
       </do_elseif>
       <do_elseif value="$params.$order == 'wait order'">
         <set_value name="$endtime" exact="player.age + $params.$time"/>
