@@ -433,6 +433,7 @@ ToDo:
             <do_elseif value="event.name == 'event_object_jump_aborted'">
               <set_value name="$result" exact="false"/>
             </do_elseif>
+            <set_value name="$debug_jumpevent1" exact="event.name"/>
           </actions>
         </interrupt>
       </move_to>
@@ -456,6 +457,7 @@ ToDo:
              <do_elseif value="event.name == 'event_object_jump_aborted'">
                 <set_value name="$result" exact="false"/>
               </do_elseif>
+            <set_value name="$debug_jumpevent2" exact="event.name"/>
             </actions>
           </interrupt>
         </wait>
@@ -464,8 +466,10 @@ ToDo:
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sucessfully Jumped'.[this.name,this.container.name]"/>
       </do_if>
       <do_else>
-        <debug_text filter="error" text="'%1 %2 Jump failed!!!! Possible Reasons:\nFuel: %3 of %4 Jumpdrive Name:%5, Cooldown: %6 operational: %7 Firstresult: %8\nPerforming Fallback Warp'.[this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational,@$firstresul]"/>
-        <debug_text filter="error" text="'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3, result: %4\ncooldowntimes: 1: %5, 2: %6, 3: %7 4: %8   Player Zone: %9'.[this.zone.name,$beacon.zone.name,$beacon.name,@$result,$debug_cooldowntime1,$debug_cooldowntime2,$debug_cooldowntime3,$debug_cooldowntime4,player.zone.name]"/>
+        <debug_text filter="error" text="
+'%1 %2 Jump failed!!!! Possible Reasons:\nFuel: %3 of %4 Jumpdrive Name:%5, Cooldown: %6 operational: %7 Firstresult: %8\nPerforming Fallback Warp\n'.[this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational,@$firstresult]+
+'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3, result: %4\ncooldowntimes: 1: %5, 2: %6, 3: %7 4: %8   Player Zone: %9'.[this.zone.name,$beacon.zone.name,$beacon.name,@$result,$debug_cooldowntime1,$debug_cooldowntime2,$debug_cooldowntime3,$debug_cooldowntime4,player.zone.name]+
+'Jump events: %1   %2'.[$debug_jumpevent1,$debug_jumpevent2]"/>
         <stop_moving object="this.ship" immediate="true"/>
         <warp object="this.ship" zone="$beacon.zone">
           <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
