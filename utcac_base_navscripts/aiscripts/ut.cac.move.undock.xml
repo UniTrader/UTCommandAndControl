@@ -96,11 +96,21 @@ Script to Dock or Park an Object
               <transform_position name="$undockpos" refposition="$undockpos" refrotation="this.ship.rotation">
                 <position x="0m" y="0 - ( this.ship.height + global.$parking_queue.{$freeslot.component}.{1}.height) * 0.75" z="0m"/>
               </transform_position>
+              <do_if value="$quadrant == quadrant.back or $quadrant == quadrant.front">
+                <transform_position name="$undockpos_strafe" refposition="this.ship.position" refrotation="this.ship.rotation">
+                  <position x="0m" y="0 - ( this.ship.height + global.$parking_queue.{$freeslot.component}.{1}.height) * 0.75" z="0m"/>
+                </transform_position>
+              </do_if>
             </do_if>
             <do_else>
               <transform_position name="$undockpos" refposition="$undockpos" refrotation="this.ship.rotation">
                 <position x="0m" y="( this.ship.height + global.$parking_queue.{$freeslot.component}.{1}.height) * 0.75" z="0m"/>
               </transform_position>
+              <do_if value="$quadrant == quadrant.back or $quadrant == quadrant.front">
+                <transform_position name="$undockpos_strafe" refposition="this.ship.position" refrotation="this.ship.rotation">
+                  <position x="0m" y="( this.ship.height + global.$parking_queue.{$freeslot.component}.{1}.height) * 0.75" z="0m"/>
+                </transform_position>
+              </do_if>
             </do_else>
           </do_elseif>
         </do_if>
@@ -113,20 +123,12 @@ Script to Dock or Park an Object
           <set_value name="$unparkquadrants" exact="[$quadrant.inverse, quadrant.front]"/>
         </do_if>
         <do_elseif value="$quadrant == quadrant.back or $quadrant == quadrant.front">
-          <do_if value="false" comment="include stations here which have an inverted queue">
-            <transform_position name="$temppos" refposition="this.ship.position" refrotation="this.ship.rotation">
-              <position x="0m" y="0 - ( this.ship.height + global.$parking_queue.{$freeslot.component}.{1}.height) * 0.75" z="0m"/>
-            </transform_position>
-          </do_if>
-          <do_else>
-            <transform_position name="$temppos" refposition="this.ship.position" refrotation="this.ship.rotation">
-              <position x="0m" y="( this.ship.height + global.$parking_queue.{$freeslot.component}.{1}.height) * 0.75" z="0m"/>
-            </transform_position>
-          </do_else>
-          <move_strafe object="this.ship" destination="$undockfrom.zone" abortpath="false" finishonapproach="true">
-            <position value="$temppos"/>
-            <rotation value="this.ship.rotation"/>
+          <do_if value="$undockpos_strafe?">
+            <move_strafe object="this.ship" destination="$undockfrom.zone" abortpath="false" finishonapproach="true">
+              <position value="$undockpos_strafe"/>
+              <rotation value="this.ship.rotation"/>
           </move_strafe>
+          </do_if>
           <do_if value="$quadrant == quadrant.back">
             <move_to object="this.ship" destination="$undockfrom.zone" abortpath="false" finishonapproach="true">
               <position value="$undockpos"/>
