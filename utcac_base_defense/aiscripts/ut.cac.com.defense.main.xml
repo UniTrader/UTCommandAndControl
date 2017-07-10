@@ -197,9 +197,11 @@ Defensemodes regulate how active the Ship reacts to enemies:
                 </do_all>
                 <do_while value="$drones_defense.count and $hp gt 0 and $enemies_t.{$attacker}.count le 3">
                   <set_value name="$newinterceptor" exact="$drones_defense.random"/>
-                  <set_value name="$hp" operation="subtract" exact="$newinterceptor.dps.all"/>
-                  <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Launching Interceptor %3 to kill %4'.[this.name,this.container.name,$newinterceptor,$attacker.name]"/>
-                  <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.fight',$target=$attacker,$othertargets=true,$interceptgroup=$enemies_t.{$attacker}]"/>
+                  <do_if value="$newinterceptor.isoperational">
+                    <set_value name="$hp" operation="subtract" exact="$newinterceptor.dps.all"/>
+                    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Launching Interceptor %3 to kill %4'.[this.name,this.container.name,$newinterceptor,$attacker.name]"/>
+                    <signal_objects object="$newinterceptor" param="'execute order'" param2="table[$script='ut.cac.com.drone.fight',$target=$attacker,$othertargets=true,$interceptgroup=$enemies_t.{$attacker}]"/>
+                  </do_if>
                   <remove_from_group object="$newinterceptor" group="$drones_defense" comment="this is also handled in the Drone Script, but required here that we dont pick the same drone twice"/>
                 </do_while>
               </do_if>
