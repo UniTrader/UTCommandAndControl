@@ -67,7 +67,7 @@ Script to Dock or Park an Object
           <set_value name="$freeslot" exact="null"/>
           <find_tradeoffer_parking_slot name="$parkingslots" object="$undockfrom" includeoccupied="true" multiple="true" />
           <do_all exact="$parkingslots.count" counter="$i">
-            <do_if value="global.$parking_queue.{$parkingslots.{$i}.component}.{1} == this.ship">
+            <do_if value="@global.$parking_queue.{$parkingslots.{$i}.component}.{1} == this.ship">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Found parking Slot based on Queue List'.[this.name,this.container.name]"/>
               <set_value name="$freeslot" exact="$parkingslots.{$i}"/>
               <break/>
