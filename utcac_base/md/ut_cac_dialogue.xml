@@ -1107,6 +1107,7 @@
         <debug_text filter="general" chance="@event.object.$debug * 100" text="'%1 %2 event.name= %3 \nevent.param= %4 event.param2= %5 event.param3= %6'.[event.object.name,event.object.container.name,event.name,event.param,event.param2,event.param3]"/>
         <!-- Button Reminder: { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] } -->
         <do_if value="event.param == 'comm_debug_main'">
+          <remove_value name="$data_details" comment="cleanup for section 'comm_debug_data_details'"/>
           <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Debug Menu for %1'.[event.object.name], null, null , null , [ 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , 116 , -1 ] ,  [] ,  [ 
 [ 'button' , 'Back' , false , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 [ 'button' , 'UNUSED' , '' , 'INPUT_STATE_DETAILMONITOR_BACK' , true , null , true] , 
@@ -1183,61 +1184,70 @@ null
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_data_details'">
           <do_if value="event.name == 'event_conversation_returned_to_section'">
-            <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+            <resize_list list="$data_details" count="$data_details.count - 1"/>
+            <set_value name="$data" exact="$data_details.{$data_details.count}"/>
           </do_if>
           <do_else>
-            <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Data Details for a %1'.[typeof event.param2], null, null , null , [ 40 , 210 , -1 ] ,  [] ,  [ 
+            <do_if value="$data_details?">
+              <append_to_list name="$data_details" exact="event.param2"/>
+            </do_if>
+            <do_else>
+              <set_value name="$data_details" exact="[event.param2]"/>
+            </do_else>
+            <set_value name="$data" exact="event.param2"/>
+          </do_else>
+          <set_value name="$genericuiparam" exact=" [ 0 , 0 , 'Data Details for a %1'.[typeof $data], null, null , null , [ 40 , 210 , -1 ] ,  [] ,  [ 
 [ 'button' , 'Back' , false , 'INPUT_STATE_DETAILMONITOR_B' , true ] , 
 null , null , 
 [ 'button' , 'Details', 'comm_debug_data_details' , 'INPUT_STATE_DETAILMONITOR_X' , true ]
 ] ]"/>
-            <do_if value="typeof event.param2 == datatype.table">
-              <set_value name="$keys" exact="event.param2.keys.list"/>
-              <do_all exact="$keys.count" counter="$i">
-                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ], null , $keys.{$i} ] , 
-[ 'text' , '' + ( typeof event.param2.{$keys.{$i}} ) ] ,
+          <do_if value="typeof $data == datatype.table">
+            <set_value name="$keys" exact="$data.keys.list"/>
+            <do_all exact="$keys.count" counter="$i">
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ], null , $keys.{$i} ] , 
+[ 'text' , '' + ( typeof $data.{$keys.{$i}} ) ] ,
 [ 'text' , $keys.{$i} ] 
 ]"/>
-                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1, 2 ] , null , event.param2.{$keys.{$i}} ] , 
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1, 2 ] , null , $data.{$keys.{$i}} ] , 
 [ 'text' , '+>' ] ,
-[ 'text' , '' + event.param2.{$keys.{$i}} ]
+[ 'text' , '' + $data.{$keys.{$i}} ]
 ]"/>
-              </do_all>
-              <remove_value name="$keys"/>
-            </do_if>
-            <do_elseif value="typeof event.param2 == datatype.list">
-              <do_all exact="event.param2.count" counter="$i">
-                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ] , null , event.param2.{$i} ] , 
-[ 'text' , '' + ( typeof event.param2.{$i} ) ] ,
-[ 'text' , event.param2.{$i} ] 
+            </do_all>
+            <remove_value name="$keys"/>
+          </do_if>
+          <do_elseif value="typeof $data == datatype.list">
+            <do_all exact="$data.count" counter="$i">
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ] , null , $data.{$i} ] , 
+[ 'text' , '' + ( typeof $data.{$i} ) ] ,
+[ 'text' , $data.{$i} ] 
 ]"/>
-                <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1, 2 ] , null , event.param2.{$i} ] , 
+              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 1, 2 ] , null , $data.{$i} ] , 
 [ 'text' , '+>' ] ,
-[ 'text' , '' + event.param2.{$i} ]
+[ 'text' , '' + $data.{$i} ]
 ]"/>
-              </do_all>
-            </do_elseif>
-            <do_elseif value="@event.param2.isclass.component">
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2, 1 ] ] ,
+            </do_all>
+          </do_elseif>
+          <do_elseif value="@$data.isclass.component">
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2, 1 ] ] ,
 [ 'text' , 'value' ] ,
-[ 'text' , '' + event.param2 ] 
+[ 'text' , '' + $data ] 
 ]"/>
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2, 1 ] ] ,
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2, 1 ] ] ,
 [ 'text' , 'name' ] ,
-[ 'text' , '' + event.param2.name ] 
+[ 'text' , '' + $data.name ] 
 ]"/>
-            </do_elseif>
-            <do_else>
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3] ] , 
+          </do_elseif>
+          <do_else>
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3] ] , 
 [ 'text' , 'No Data Type for which further Details can be displayed' ] 
 ]"/>
-              <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ] ] , 
-[ 'text' , '' + ( typeof event.param2 ) ] ,
-[ 'text' , '' + event.param2 ] 
+            <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 2 , 1 ] ] , 
+[ 'text' , '' + ( typeof $data ) ] ,
+[ 'text' , '' + $data ] 
 ]"/>
-            </do_else>
-            <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
           </do_else>
+          <remove_value name="$data"/>
+          <open_conversation_menu menu="ut_genericui" param="$genericuiparam"/>
         </do_elseif>
         <do_else>
           <debug_text filter="error" text="'%1 %2 Unknown Section: %3'.[event.object.name,event.object.container.name,event.param]"/>
