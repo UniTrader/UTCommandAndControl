@@ -2,9 +2,12 @@
 <aiscript name="ut.cac.com.captain.performsingletraderun" version="30" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
-    <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this NOTE: BROKEN, NEEDS FIXING!!! (also does not refresh Reservations from Trade List, call once before with 'refreshreservations' = true to do this)"/>
-    <param name="amount" default="null" comment="Specific Amount to Trade in case a specific Trade is ordered"/>
-    <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list ONLY (does not execute any Trade)"/>
+    <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this"/>
+    <param name="tradepartner" default="null" comment="Specify an Object to Trade with instead of passing a specific Trade Offer - also requires Amount, Ware and Unitprice"/>
+    <param name="amount" default="null" comment="Specific Amount to Trade in case a specific Trade is ordered. will adjust down if necesary"/>
+    <param name="ware" default="null" comment="Specify aWare to Trade with instead of passing a specific Trade Offer - also requires Amount, Tradepartner and Unitprice"/>
+    <param name="unitprice" default="null" comment="Specify a Unitprice for the Trade instead of passing a specific Trade Offer - also requires Amount, Ware and Tradepartner"/>
+    <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list and Order List ONLY (does not execute any Trade)"/>
     <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
     <param name="command" default="command.trade" comment="command to display when executing this Script ( command.freetrade or command.trade would make sense, depending on context)"/>
     <param name="usecustomtrade" default="false" comment="always perform a custom trade"/>
@@ -14,9 +17,18 @@
     <do_if value="$params.$trade?">
       <set_value name="$trade" exact="$params.$trade"/>
     </do_if>
+    <!-- do_if value="$params.$tradepartner?">
+      <set_value name="$tradepartner" exact="$params.$tradepartner"/>
+    </do_if-->
     <do_if value="$params.$amount?">
       <set_value name="$amount" exact="$params.$amount"/>
     </do_if>
+    <!--do_if value="$params.$ware?">
+      <set_value name="$ware" exact="$params.$ware"/>
+    </do_if>
+    <do_if value="$params.$unitprice?">
+      <set_value name="$unitprice" exact="$params.$unitprice"/>
+    </do_if-->
     <do_if value="$params.$refreshreservations?">
       <set_value name="$refreshreservations" exact="$params.$refreshreservations"/>
     </do_if>
@@ -44,7 +56,6 @@
           <!-- ToDo: should the entity maybe be the Manager? need to know for using the proper Actor Account -->
           <!-- Note: trade Orders for the same ware with the same Station are not supported - always just grab the amount you can get in one run. -->
           <do_if value="$trades.{$i}.seller.exists">
-            <!-- is this really correct? its the same as in buyer, even the amount, so i wonder how the game differs between sell and buy? -->
             <add_ware_reservation object="$trades.{$i}.seller" result="$reserved" ware="$trades.{$i}.ware" entity="this" amount="$trades.{$i}.amount" replace="true" duration="$i * 1h" mission="$trades.{$i}.ismission" virtual="$trades.{$i}.unbundle" type="buy"/>
           </do_if>
           <do_elseif value="$trades.{$i}.buyer.exists">
@@ -58,11 +69,28 @@
           </do_else>
         </do_all>
       </do_if>
+      <do_all exact="this.$orderlist.count" counter="$i">
+        <do_if value="this.$orderlist.{$i}.$script == 'ut.cac.com.captain.performsingletraderun'">
+          <do_if value="this.$orderlist.{$i}.$trade? and this.$orderlist.{$i}.$amount?">
+            <do_if value="this.$orderlist.{$i}.$trade.seller.exists and this.$orderlist.{$i}.$amount gt 0">
+              <add_ware_reservation object="this.$orderlist.{$i}.$trade.seller" result="$reserved" ware="this.$orderlist.{$i}.$trade.ware" entity="this" amount="this.$orderlist.{$i}.$amount" replace="true" duration="$i * 1h" mission="this.$orderlist.{$i}.$trade.ismission" virtual="this.$orderlist.{$i}.$trade.unbundle" type="buy"/>
+          </do_if>
+          <do_elseif value="this.$orderlist.{$i}.$trade.buyer.exists and this.$orderlist.{$i}.$amount lt 0">
+            <do_if value="not this.$orderlist.{$i}.$trade.unbundle">
+              <add_ware_reservation object="this.$orderlist.{$i}.$trade.buyer" result="$reserved" ware="this.$orderlist.{$i}.$trade.ware" entity="this" amount="0 - 1this.$orderlist.{$i}.$amount" replace="true" duration="$i * 1h" mission="this.$orderlist.{$i}.$trade.ismission" type="sell"/>
+            </do_if>
+           </do_elseif>
+          <do_else>
+            <debug_text filter="error" text="'%1 %2 Ordered Orderlist Trade %3 (ware: %4 amount: %5 unitprice: %6 ) has neither a Seller nor a Buyer or amount does not fit - not shure what to do with it....[this.name,this.container.name,this.$orderlist.{$i}.$trade,this.$orderlist.{$i}.$trade.ware,this.$orderlist.{$i}.$amount,this.$orderlist.{$i}.$trade.unitprice]"/>
+          </do_else>
+          </do_if>
+        </do_if>
+      </do_all>
       <do_if value="$refreshreservations == true">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Refreshed Reservations, thats all'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Refreshed Reservations:\n%3'.[this.name,this.container.name,$trades]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Refreshed Reservations:\n%3 (+ the ones in Orderlist)'.[this.name,this.container.name,$trades]"/>
       <remove_value name="$refreshreservations"/>
       <remove_value name="$trades"/>
       
@@ -81,16 +109,10 @@
       </do_if>
       <do_else>
         <set_value name="$non_shoppinglist_trade"/>
-        <do_if value="$trade.seller.exists">
-          <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
-        </do_if>
-        <do_elseif value="$trade.buyer.exists">
-          <add_ware_reservation object="$trade.owner" result="$reserved" ware="$trade.ware" entity="this" amount="$amount" replace="true" duration="1h" mission="$trade.ismission" type="sell"/>
-        </do_elseif>
-        <do_else>
+        <do_if value="not $trade.seller.exists and not $trade.buyer.exists">
           <debug_text filter="error" text="'%1 %2 Ordered Trade %3 (ware: %4 amount: %5 unitprice: %6 ) has neither a Seller nor a Buyer and is therfore invalid - removing'.[this.name,this.container.name,$trade,$trade.ware,$trade.amount,$trade.unitprice]"/>
           <return/>
-        </do_else>
+        </do_if>
       </do_else>
       
       <set_command command="$command" param="$trade.owner"/>
@@ -175,17 +197,21 @@
       <do_if value="this.$ut_cac?">
         <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
+      <!-- get preffered Parking Slot - first use our current trade, then a related offer, then any offer for the ware we want to trade with. -->
       <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l">
         <set_value name="$offer" exact="null" />
         <!-- ToDo: Ware Exchange Case: Active Partner -->
-        <do_if value="@$trade.seller.isoperational">
+        <do_if value="$non_shoppinglist_trade? and ( $trade.buyer.isoperational and $trade.buyer == $tradepartner or $trade.seller.isoperational and $trade.seller == $tradepartner">
+          <set_value name="$offer" exact="$trade"/>
+        </do_if>
+        <do_elseif value="@$trade.seller.isoperational">
           <do_if value="$trade.ismission">
             <find_sell_offer result="$offer" seller="$tradepartner" wares="$trade.ware" excludemissions="false" tradepartner="this.ship" />
           </do_if>
           <do_else>
             <find_sell_offer result="$offer" seller="$tradepartner" wares="$trade.ware" tradepartner="this.ship" />
           </do_else>
-        </do_if>
+        </do_elseif>
         <do_elseif value="@$trade.buyer.isoperational">
           <find_buy_offer result="$offer" buyer="$tradepartner" wares="$trade.ware" tradepartner="this.ship" />
         </do_elseif>
@@ -251,7 +277,13 @@
         <set_value name="this.$ut_cac.$isactive"/>
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Executing Trade, Details:\nWare:%3 Amount:%4 Price:%5 Tradepartner:%6 in %7, this.money:%8'.[this.name,this.container.name,$trade.ware,$amount,$trade.price,$tradepartner.knownname,$tradepartner.zone.knownname,this.money]"/>
-      <do_if value="$trade.seller.exists" comment="we want to buy something, look for sell offers">
+      <do_if value="$non_shoppinglist_trade?">
+        <!-- we have a Trade Offer passed directly - confirm its still valid and use it -->
+        <set_value name="$tradeoffer" exact="$trade"/>
+        <set_value name="$usecustomtrade" exact="true"/>
+        <!-- ToDo: Amount calculations -->
+      </do_if>
+      <do_elseif value="$trade.seller.exists" comment="we want to buy something, look for sell offers">
         <do_if value="not $trade.ismission">
           <set_value name="$tradeoffer" exact="null"/>
           <find_sell_offer result="$tradeoffers" seller="$trade.seller" wares="$trade.ware" tradepartner="this.ship" multiple="true" >
@@ -292,7 +324,7 @@
           </do_if>
           <do_if value="not $tradeoffer.available and not ($trade.owner == this.ship.commander)">
             <!-- no fitting Trade found -->
-            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Trade Offerstill  unavailable - use Trade Offer with highest amount regardless of price and adjust amount to our budget (buy case)'.[this.name,this.container.name]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Trade Offer still  unavailable - use Trade Offer with highest amount regardless of price and adjust amount to our budget (buy case)'.[this.name,this.container.name]"/>
             <find_sell_offer result="$tradeoffers" seller="$trade.seller" wares="$trade.ware" tradepartner="this.ship" multiple="true" />
             <do_if value="$tradeoffers.count == 1">
               <set_value name="$tradeoffer" exact="$tradeoffers.{1}" />
@@ -324,7 +356,7 @@
             </do_if>
           </do_if>
         </do_if>
-      </do_if>
+      </do_elseif>
       <do_else comment="we want to sell something">
         <do_if value="not $trade.ismission">
           <set_value name="$tradeoffer" exact="null"/>
@@ -369,7 +401,7 @@
       <run_script sinceversion="20" chance="0" name="''"/>
       
       <do_if value="$tradeoffer.available and not $usecustomtrade">
-        <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
+        <!-- Hack/Fix: if we dont have Transport units of our own take one from Tradepartner -->
         <do_if value="this.ship.units.{unitcategory.transport}.count == 0 and $tradepartner.availableunits.{unitcategory.transport}.count gt 0">
           <set_value name="$unitmacro" exact="$tradepartner.availableunits.{unitcategory.transport}.list.random"/>
           <remove_units object="$tradepartner" macro="$unitmacro" exact="1"/>
@@ -407,7 +439,7 @@
           <add_units object="$tradepartner" macro="$unitmacro" exact="1"/>
         </do_if>
       </do_if>
-      <!-- just transfer the Wares if we didnt find an Offer and its for the Commande- orif its a Trade directly from the Shoppinglist -->
+      <!-- just transfer the Wares if we didnt find an Offer and its for the Commander or if its a Trade directly from the Shoppinglist -->
       <do_elseif value="$trade.owner == this.ship.commander or $tradeoffer == $trade or $usecustomtrade">
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 No offer found - Exchanging Wares'.[this.name,this.container.name]"/>
         <!-- Hack/Fix: if we dont have Transport unitos of our own take one from Tradepartner -->
@@ -418,12 +450,12 @@
         </do_if>
         <do_if value="$trade.seller.isoperational">
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" virtual="$trade.unbundle" type="buy"/>
-          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle" usecommandermoney="false">
+          <execute_custom_trade seller="$trade.seller" buyer="this.ship" ware="$trade.ware" amount="$amount" price="if $unitprice then $unitprice else $trade.unitprice" result="$traderesult" unbundle="$trade.unbundle" usecommandermoney="false">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
         </do_if>
         <do_elseif value="$trade.buyer.isoperational">
-          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="$trade.unitprice" result="$traderesult" unbundle="$trade.unbundle" usecommandermoney="false">
+          <execute_custom_trade seller="this.ship" buyer="$trade.buyer" ware="$trade.ware" amount="$amount" price="if $unitprice then $unitprice else $trade.unitprice" result="$traderesult" unbundle="$trade.unbundle" usecommandermoney="false">
             <interrupt_after_time time="121 min"/>
           </execute_custom_trade>
           <remove_ware_reservation object="$tradepartner" entity="this" ware="$trade.ware" mission="$trade.ismission" type="sell"/>
@@ -452,20 +484,10 @@
       B) One Order remaining in Orderlist - the current Order
       C) Two Orders remaining in Orderlist: current one on top, and refuel as second (because refuel may skip itself entirely)-->
       <do_if value="$params? and (this.$orderlist.count == 0 or ( this.$orderlist.count == 1 and $params == this.$orderlist.{1} ) or ( this.$orderlist.count == 2 and $params == this.$orderlist.{1} and this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ) )">
-        <do_if value="this.ship.commanderentity? and this.ship.commanderentity.exists and this.ship.commanderentity.type == entitytype.manager">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Requesting new Orders in advance (Manager Signal)'.[this.name,this.container.name]"/>
-          <signal_objects object="this.ship.commanderentity" param="'request orders'" param2="this"/>
-        </do_if>
-        <do_elseif value="this.$ut_cac.$commanderentity? and this.$ut_cac.$commanderentity.exists and this.$ut_cac.$commanderentity.type == entitytype.manager">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Requesting new Orders in advance (Fallback Manager Signal)'.[this.name,this.container.name]"/>
-          <signal_objects object="this.$ut_cac.$commanderentity" param="'request orders'" param2="this"/>
-        </do_elseif>
-        <do_else>
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Requesting new Orders in advance (Script Call)'.[this.name,this.container.name]"/>
-          <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="30">
-            <param name="params" value="this.$ut_cac.$defaultorders"/>
-          </run_script>
-        </do_else>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Requesting new Orders in advance (Script Call)'.[this.name,this.container.name]"/>
+        <run_script name="this.$ut_cac.$defaultorders.$script" sinceversion="30">
+          <param name="params" value="this.$ut_cac.$defaultorders"/>
+        </run_script>
       </do_if>
       <do_else>
         <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2  NOT Requesting new Orders: %3 and ( %4 or ( %5 and %6 ) or ( %7 and %8 and %9 ) )'.[this.name,this.container.name,$params? , this.$orderlist.count == 0 , this.$orderlist.count == 1 , $params == this.$orderlist.{1} , this.$orderlist.count == 2 , $params == this.$orderlist.{1} , this.$orderlist.{2}.$script == 'ut.cac.com.captain.refuel' ]"/>
