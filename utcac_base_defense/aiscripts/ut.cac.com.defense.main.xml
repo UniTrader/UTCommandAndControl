@@ -568,6 +568,10 @@ Defensemodes regulate how active the Ship reacts to enemies:
       <remove_value name="$enemies_add"/>
       <remove_value name="$stay_red"/>
       
+      <do_if value="not $enemies_g.count">
+        <resume label="green"/>
+      </do_if>
+      
       <!-- if not already in Battlestate now enter it -->
       <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Battlestate Red, Target Group:\n%3'.[this.name,this.container.name,$enemies_g]"/>
       <do_if value="$battlestate != 'red'">
