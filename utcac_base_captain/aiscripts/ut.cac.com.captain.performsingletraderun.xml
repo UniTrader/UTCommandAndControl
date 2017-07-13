@@ -77,11 +77,11 @@
           </do_if>
           <do_elseif value="this.$orderlist.{$i}.$trade.buyer.exists and this.$orderlist.{$i}.$amount lt 0">
             <do_if value="not this.$orderlist.{$i}.$trade.unbundle">
-              <add_ware_reservation object="this.$orderlist.{$i}.$trade.buyer" result="$reserved" ware="this.$orderlist.{$i}.$trade.ware" entity="this" amount="0 - 1this.$orderlist.{$i}.$amount" replace="true" duration="$i * 1h" mission="this.$orderlist.{$i}.$trade.ismission" type="sell"/>
+              <add_ware_reservation object="this.$orderlist.{$i}.$trade.buyer" result="$reserved" ware="this.$orderlist.{$i}.$trade.ware" entity="this" amount="this.$orderlist.{$i}.$amount" replace="true" duration="$i * 1h" mission="this.$orderlist.{$i}.$trade.ismission" type="sell"/>
             </do_if>
            </do_elseif>
           <do_else>
-            <debug_text filter="error" text="'%1 %2 Ordered Orderlist Trade %3 (ware: %4 amount: %5 unitprice: %6 ) has neither a Seller nor a Buyer or amount does not fit - not shure what to do with it....[this.name,this.container.name,this.$orderlist.{$i}.$trade,this.$orderlist.{$i}.$trade.ware,this.$orderlist.{$i}.$amount,this.$orderlist.{$i}.$trade.unitprice]"/>
+            <debug_text filter="error" text="'%1 %2 Ordered Orderlist Trade %3 (ware: %4 amount: %5 unitprice: %6 ) has neither a Seller nor a Buyer or amount does not fit - not shure what to do with it...'.[this.name,this.container.name,this.$orderlist.{$i}.$trade,this.$orderlist.{$i}.$trade.ware,this.$orderlist.{$i}.$amount,this.$orderlist.{$i}.$trade.unitprice]"/>
           </do_else>
           </do_if>
         </do_if>
@@ -201,7 +201,7 @@
       <do_if value="this.ship.isclass.ship_xl or this.ship.isclass.ship_l">
         <set_value name="$offer" exact="null" />
         <!-- ToDo: Ware Exchange Case: Active Partner -->
-        <do_if value="$non_shoppinglist_trade? and ( $trade.buyer.isoperational and $trade.buyer == $tradepartner or $trade.seller.isoperational and $trade.seller == $tradepartner">
+        <do_if value="$non_shoppinglist_trade? and ( $trade.buyer.isoperational and $trade.buyer == $tradepartner or $trade.seller.isoperational and $trade.seller == $tradepartner)">
           <set_value name="$offer" exact="$trade"/>
         </do_if>
         <do_elseif value="@$trade.seller.isoperational">
