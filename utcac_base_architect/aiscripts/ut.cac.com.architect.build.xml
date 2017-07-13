@@ -473,7 +473,9 @@
           <set_value name="$fuelcells_targetamount" exact="[$subordinates.{$i}.cargo.{ware.fuelcells}.max,2500].min" operation="add"/>
           <wait exact="1s" resume="true"/>
         </do_all>
-        <set_value name="$manager.$ut_cac.$consumables.{ware.fuelcells}.$target" exact="$fuelcells_targetamount"/>
+        <do_if value="$manager.$ut_cac?">
+          <set_value name="$manager.$ut_cac.$consumables.{ware.fuelcells}.$target" exact="$fuelcells_targetamount"/>
+        </do_if>
       </do_if>
       
       
