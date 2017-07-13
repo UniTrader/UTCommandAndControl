@@ -466,7 +466,7 @@
         <set_value name="$subordinates" exact="this.ship.subordinates.clone"/>
         <do_all exact="$subordinates.count" counter="$i">
           <set_object_commander object="$subordinates.{$i}" commander="$station" type="entitytype.manager"/>
-          <remove_value name="$subordinates.{$i}.$commanderentity"/>
+          <remove_value name="$subordinates.{$i}.pilot.$commanderentity"/>
           <do_if value="$manager.exists">
             <signal_objects object="$subordinates.{$i}.pilot" param="'new order'" param2=" table[$script='ut.cac.microorder', $displayname='\033RWait for Manager Arrival',$order='wait signal',$signalobject=$station,$signalparam='manager arrived'] "/>
           </do_if>
