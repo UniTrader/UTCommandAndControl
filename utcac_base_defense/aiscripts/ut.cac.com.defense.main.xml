@@ -211,7 +211,8 @@ Defensemodes regulate how active the Ship reacts to enemies:
                   <set_value name="$primarytarget" exact="$attacker"/>
                   <do_if value="this.container.distanceto.{$primarytarget} lt 4km" comment="Overrung URVs have 3 km range, plus some bonus">
                     <!-- add some Handling to allow for configurable sub-targets (only attacks main hull for now) -->
-                    <signal_objects group="$drones_attack" param="'execute order'" param2="table[$script='ut.cac.com.drone.bombcapship',$target=$primarytarget]"/>
+                    <signal_objects group="$drones_attack" param="'execute order'" param2="table[$script='ut.cac.com.drone.fight',$target=$primarytarget,$othertargets=true,$interceptgroup=$enemies_t.{$primarytarget}]"/>
+                    <!--signal_objects group="$drones_attack" param="'execute order'" param2="table[$script='ut.cac.com.drone.bombcapship',$target=$primarytarget]"/-->
                   </do_if>
                 </do_if>
               </do_else>
