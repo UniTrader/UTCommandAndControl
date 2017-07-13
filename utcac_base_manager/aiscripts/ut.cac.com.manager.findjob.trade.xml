@@ -657,13 +657,18 @@
                   <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
                     <offeramount min="$minamount"/>
                     <price max="$price"/>
-                    <match_seller owner="this.owner"/>
+                    <match_buyer owner="this.owner">
+                      <match_distance space="this.zone" negate="true"/>
+                    </match_buyer>
                   </find_sell_offer>
                 </do_if>
                 <do_else>
                   <find_sell_offer result="$selloffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
                     <offeramount min="$minamount"/>
                     <price max="$price"/>
+                    <match_buyer>
+                      <match_distance space="this.zone" negate="true"/>
+                    </match_buyer>
                   </find_sell_offer>
                 </do_else>
                 <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
@@ -813,13 +818,18 @@ table[$script='ut.cac.com.manager.findjob.assign.escort',$displayname={5554103,2
                 <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
                   <offeramount min="$minamount"/>
                   <price min="$price"/>
-                  <match_buyer owner="this.owner"/>
+                  <match_seller owner="this.owner">
+                    <match_distance space="this.zone" negate="true"/>
+                  </match_seller>
                 </find_buy_offer>
               </do_if>
               <do_else>
                 <find_buy_offer result="$buyoffer" tradepartner="this.container" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player">
                   <offeramount min="$minamount"/>
                   <price min="$price"/>
+                  <match_seller>
+                    <match_distance space="this.zone" negate="true"/>
+                  </match_seller>
                 </find_buy_offer>
               </do_else>
               <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
