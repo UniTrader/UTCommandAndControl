@@ -15,6 +15,7 @@
     <param name="new_type" default="null" comment="if the new Job is not directly implemented in this Script pass the new fitting entity type here."/>
     <param name="new_defaultorders" default="null" comment="New defaultorders Scripts table. used in the case of a custom next job."/>
     <param name="keepaccount" default="false" comment="the Entity keeps its account during Transfer instead of removing and re-creating it"/>
+    <param name="skipconversationcheck" default="false" comment="Skips the Conversation Check which usually waits for the Player to exit a Conversation/Menu before Transfer"/>
   </params>
   <init>
       <!-- first decode the $params to the Variables -->
@@ -36,6 +37,9 @@
         </do_if>
         <do_if value="$params.$keepaccount?">
           <set_value name="$keepaccount" exact="$params.$keepaccount"/>
+        </do_if>
+        <do_if value="$params.$skipconversationcheck?">
+          <set_value name="$skipconversationcheck" exact="$params.$skipconversationcheck"/>
         </do_if>
       </do_if>
   </init>
@@ -160,7 +164,7 @@
       
       
       <!-- wait till Player has finished Conversation, its annoying when NPC just disappears -->
-      <do_if value="player.isinconversation">
+      <do_if value="player.isinconversation and not $skipconversationcheck">
         <wait>
           <interrupt>
             <conditions>
