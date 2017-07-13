@@ -335,11 +335,15 @@
         <assign_control_entity actor="this" object="$destination"/>
         <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.manager.default']"/>
         <set_value name="this.$ut_cac.$find_job_for_subordinate" exact="'ut.cac.com.manager.findjob'"/>
-        <set_value name="this.$ut_cac.$range" exact="[this.sector]"/>
-        <set_value name="this.$ut_cac.$range_j" exact="[this.sector]"/>
-        <set_value name="this.$ut_cac.$range_h" exact="[this.sector]"/>
-        <set_value name="this.$ut_cac.$range_w" exact="[null]"/>
-        <set_value name="this.$ut_cac.$legality" exact="3"/>
+        <do_if value="not this.$ut_cac.$range? and not this.$ut_cac.$range.count">
+          <set_value name="this.$ut_cac.$range" exact="[this.sector]"/>
+          <set_value name="this.$ut_cac.$range_j" exact="[this.sector]"/>
+          <set_value name="this.$ut_cac.$range_h" exact="[this.sector]"/>
+          <set_value name="this.$ut_cac.$range_w" exact="[null]"/>
+        </do_if>
+        <do_if value="not this.$ut_cac.$legality?">
+          <set_value name="this.$ut_cac.$legality" exact="3"/>
+        </do_if>
         <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
         <set_value name="this.$ut_cac.$settings_section" exact="'comm_manager_settings'"/>
         <!-- Manager and Architect are supposed to share their Account (and Captain/Pilot for compatibility reasons too), with the Manager handling the main one  -->
