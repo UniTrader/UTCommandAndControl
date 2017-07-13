@@ -216,9 +216,9 @@ Script to Dock or Park an Object
             <remove_value name="$parkingslot"/>
             <resume label="parking"/>
           </do_if>
-          <set_value name="$approach_offset_y" exact="0 - (global.$parking_queue.{$parkingslot.component}.{1}.height + this.ship.height ) * 0.75"/>
+          <set_value name="$approach_offset_y" exact="0 - (global.$parking_queue.{$parkingslot.component}.{1}.height + this.ship.height )"/>
           <do_all exact="global.$parking_queue.{$parkingslot.component}.indexof.{this.ship}" counter="$i">
-            <set_value name="$approach_offset_y" operation="add" exact="global.$parking_queue.{$parkingslot.component}.{$i}.height *1.5"/>
+            <set_value name="$approach_offset_y" operation="add" exact="global.$parking_queue.{$parkingslot.component}.{$i}.height * 2"/>
           </do_all>
           <transform_position name="$waitpos" refposition="$approachpos" refrotation="$parkrot" >
             <position x="0m" y="0m - $approach_offset_y" z="0m"/>
