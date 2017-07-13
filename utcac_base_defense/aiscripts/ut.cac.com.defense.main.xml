@@ -207,11 +207,11 @@ Defensemodes regulate how active the Ship reacts to enemies:
               </do_if>
               <do_else comment="Attacker is a big Ship">
                 <!-- we focus only on one Big Ship at once (the prioritytarget), so further big Ships will be ignored for now -->
-                <do_if value="not $prioritytarget.exists and not $prioritytarget.isoperational">
-                  <set_value name="$prioritytarget" exact="$attacker"/>
-                  <do_if value="this.container.distanceto.{$prioritytarget} lt 4km" comment="Overrung URVs have 3 km range, plus some bonus">
+                <do_if value="not $primarytarget.exists and not $primarytarget.isoperational">
+                  <set_value name="$primarytarget" exact="$attacker"/>
+                  <do_if value="this.container.distanceto.{$primarytarget} lt 4km" comment="Overrung URVs have 3 km range, plus some bonus">
                     <!-- add some Handling to allow for configurable sub-targets (only attacks main hull for now) -->
-                    <signal_objects group="$drones_attack" param="'execute order'" param2="table[$script='ut.cac.com.drone.bombcapship',$target=$prioritytarget]"/>
+                    <signal_objects group="$drones_attack" param="'execute order'" param2="table[$script='ut.cac.com.drone.bombcapship',$target=$primarytarget]"/>
                   </do_if>
                 </do_if>
               </do_else>
