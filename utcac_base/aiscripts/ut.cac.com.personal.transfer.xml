@@ -65,7 +65,6 @@
       <remove_value name="this.$ut_cac.$settings_section" comment="no Settings until this arrived at his assigned Workplace!"/>
       <remove_value name="this.$ut_cac.$find_job_for_subordinate" comment="No Orders for Subordinates unless efined by Workplace"/>
       <set_value name="this.$ut_cac.$defaultorders" exact="table[$script='ut.cac.orders.standby']" comment="failsafe in case something goes wrong"/>
-      <remove_actor_account actor="this" transfer="true"/>
       
       
       <!-- Fly to new Assignment -->
@@ -339,15 +338,18 @@
         <set_value name="this.$ut_cac.$legality" exact="3"/>
         <!--<set_value name="this.$ut_cac.$orders_section" exact="'comm_captain_orders'"/>-->
         <set_value name="this.$ut_cac.$settings_section" exact="'comm_manager_settings'"/>
-        <!-- Manager and Architect are supposed to share their Account, with the Manager handling the main one -->
+        <!-- Manager and Architect are supposed to share their Account (and Captain/Pilot for compatibility reasons too), with the Manager handling the main one  -->
         <do_if value="$destination.buildmodule.exists and $destination.architect.exists">
           <share_actor_account actor="$destination.architect" otherobject="this" transferto="this"/>
+          <do_if value="$destination.pilot.exists">
+            <share_actor_account actor="$destination.pilot" otherobject="this" transferto="this"/>
+          </do_if>
         </do_if>
         <do_elseif value="@$destination.buildingmodule.container.architect.exists">
           <share_actor_account actor="$destination.buildingmodule.container.architect" otherobject="this" transferto="this"/>
-        </do_elseif>
-        <do_elseif value="@$destination.architect.exists">
-          <share_actor_account actor="$destination.architect" otherobject="this" transferto="this"/>
+          <do_if value="$destination.buildingmodule.pilot.exists">
+            <share_actor_account actor="$destination.buildingmodule.pilot" otherobject="this" transferto="this"/>
+          </do_if>
         </do_elseif>
       </do_elseif>
       <do_elseif value="$job == 'pilot'">
@@ -481,9 +483,15 @@
         </do_all>
         <do_if value="$manager?">
           <share_actor_account actor="this" otherobject="$manager" transferto="$manager"/>
+          <do_if value="this.container.pilot.exists">
+            <share_actor_account actor="this.container.pilot" otherobject="$manager" transferto="$manager"/>
+          </do_if>
         </do_if>
         <do_elseif value="$destination.buildanchor.tradenpc.exists">
           <share_actor_account actor="this" otherobject="$destination.buildanchor.tradenpc" transferto="$destination.buildanchor.tradenpc"/>
+          <do_if value="this.container.pilot.exists">
+            <share_actor_account actor="this.container.pilot" otherobject="$destination.buildanchor.tradenpc" transferto="$destination.buildanchor.tradenpc"/>
+          </do_if>
         </do_elseif>
       </do_elseif>
       <do_elseif value="$job == 'tradeagent'">
