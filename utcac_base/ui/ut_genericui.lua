@@ -183,7 +183,7 @@ function menu.CreateCell(celldefinition,row,column,height,width,buttonlist)
 	elseif celldefinition[1] == "button" then
 -- { 'button' , 'button text' [,'next_section' [ ,hotkey  [, selectable [,param [,keepvisible [,notsubsection]]]] ]] }
 		-- Fill List with all Button Scripts to assign so i dont have to loop over the whole list twice
-		if celldefinition[5] then
+		if celldefinition[4] and celldefinition[5] then
 			-- Append Button Cell Values to buttonlist so they can be assigned their respective function later (not possible currently.. :( ) 
 			table.insert(buttonlist,{row,column,celldefinition[3],celldefinition[6],celldefinition[7],celldefinition[8]})
 		end
