@@ -1126,7 +1126,7 @@
           <append_to_list name="$genericuiparam.{8}" exact="[ [ 'regular' , [ 3 , 3 , 2 , 2 ] ] , 
 [ 'button' , 'Debug Text Page 5554103' , 'comm_debug_lang_file' , false , true , 5554103 ] , 
 [ 'button' , 'Execute Testing Code' , 'comm_debug_execute_code' , false , true , null ] , 
-null , 
+[ 'button' , 'LiveDebug: ' + @event.object.$debug_live , 'comm_debug_live_toggle' , false , true ] , 
 [ 'button' , 'Show Config Var' , 'comm_debug_data_details' , false , true , event.object.$ut_cac ] 
 ]"/>
           <do_if value="event.object.$orderlist?">
@@ -1157,7 +1157,21 @@ null
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_toggle'">
-          <set_value name="event.object.$debug" exact="not @event.object.$debug"/>
+          <do_if value="@event.object.$debug?">
+            <remove_value name="event.object.$debug"/>
+          </do_if>
+          <do_else>
+            <set_value name="event.object.$debug"/>
+          </do_else>
+          <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
+        </do_elseif>
+        <do_elseif value="event.param == 'comm_debug_live_toggle'">
+          <do_if value="@event.object.$debug_live?">
+            <remove_value name="event.object.$debug_live"/>
+          </do_if>
+          <do_else>
+            <set_value name="event.object.$debug_live"/>
+          </do_else>
           <open_conversation_menu menu="UTConversationControl" param="[0, 0, 'return']"/>
         </do_elseif>
         <do_elseif value="event.param == 'comm_debug_cleanup_actor'">
