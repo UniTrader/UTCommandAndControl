@@ -251,14 +251,19 @@
           <return/>
         </do_else>
         <!-- signalling Manager in charge to find Trade Orders for Subordinates -->
-        <do_all exact="this.ship.subordinates.{entitytype.manager}.count" counter="$i">
-          <do_if value=" this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity.exists">
-            <signal_objects object="this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}.pilot"/>
-          </do_if>
-          <do_elseif value="this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity? and this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity.exists">
-            <signal_objects object="this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}.pilot"/>
-          </do_elseif>
-        </do_all>
+        <do_if value="$station.tradenpc.exists">
+          <signal_objects object="$station.tradenpc" param="'new order'" param2="table[$script='ut.cac.com.manager.findjob.update',$displayname='\033RUpdating Jobs for Idle Subordinates',$interruptable=true]"/>
+        </do_if>
+        <do_else>
+          <do_all exact="this.ship.subordinates.{entitytype.manager}.count" counter="$i">
+            <do_if value=" this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity.exists">
+              <signal_objects object="this.ship.subordinates.{entitytype.manager}.{$i}.commanderentity" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}.pilot"/>
+            </do_if>
+            <do_elseif value="this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity? and this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity.exists">
+              <signal_objects object="this.ship.subordinates.{entitytype.manager}.{$i}.pilot.$ut_cac.$commanderentity" param="'request orders'" param2="this.ship.subordinates.{entitytype.manager}.{$i}.pilot"/>
+            </do_elseif>
+          </do_all>
+        </do_else>
         <!-- wait till construction is done -->
         <set_value name="this.$ut_cac.$isactive" exact="2" comment="tell the payment script we are doing a possibly long-lasting action"/>
         <do_while value="$station.isconstruction">

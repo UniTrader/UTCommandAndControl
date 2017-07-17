@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<aiscript xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="ut.cac.com.manager.findjob.update" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd" version="1">
+<!-- This Script should be called when circumstates changed (like a Station Part was completed) and Trade hips might get new Trade Orders - appends new Orders-Script for all currently idle Subordinates -->
+<!-- doesnt use any params; currently written specifically for a Station Manager -->
+  <params>
+    <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
+  </params>
+  <init>
+
+  </init>
+  <interrupts>
+  </interrupts>
+  <attention min="unknown">
+    <actions>
+      <set_value name="$subordinates" exact="this.ship.subordinates.{this.type}.clone"/>
+      <do_all exact="$subordinates.count" counter="$i">
+        <do_if value="$subordinates.{$i}.pilot.$orderlist.count == 1 and $subordinates.{$i}.primarypurpose !=  objectpurpose.fight and ( $subordinates.{$i}.pilot.$orderlist.{1}.$script == 'ut.cac.com.captain.patrol' or $subordinates.{$i}.pilot.$orderlist.{1}.$script =='ut.cac.move.escort' or ($subordinates.{$i}.pilot.$orderlist.{1}.$script='ut.cac.microorder' and $subordinates.{$i}.pilot.$orderlist.{1}.$order=='wait order'))">
+          <signal_objects object="this" param="'request orders'" param2="$subordinates.{$i}.pilot"/>
+        </do_if>
+      </do_all>
+    </actions>
+  </attention>
+</aiscript>
