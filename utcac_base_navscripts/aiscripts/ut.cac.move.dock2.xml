@@ -379,6 +379,7 @@ Script to Dock or Park an Object
       
       <connect_to_trade_location ship="this.ship" tradedock="if true then $parkingslot else 'park 1'" result="$success" />
       <do_while value="not $success">
+        <disconnect_from_trade_location ship="this.ship" comment="Ships which couldnt connect complain that they are still connected to the Station they wanted to connect to unsuccesfully - attempting to fix it"/>
         <!-- check regulary if our parking Spot still works -->
         <do_if value="not $parkingslot.component.isoperational">
           <remove_value name="$parkingslot"/>
