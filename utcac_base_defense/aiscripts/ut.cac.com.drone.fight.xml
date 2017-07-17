@@ -25,7 +25,7 @@
         <set_value name="$secondarytargets" exact="null"/>
       </do_else>
       <leave_formation object="this.ship"/>
-      <debug_text filter="general" text="'%1 %2 Interceptor Drone sent against: %3'.[this.name,this.container.name,$params.$target]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Interceptor Drone sent against: %3'.[this.name,this.container.name,$params.$target]"/>
       <add_to_group object="this.ship" groupname="$params.$interceptgroup"/>
       <remove_from_group object="this.ship" group="$freedrones"/>
       <run_script name="'fight.attack.object.fighter'">
@@ -35,7 +35,7 @@
         <param name="pursuetargets" value="false" comment="Pursue the target no matter what. Default: false" />
         <param name="allowothertargets" value="false" comment="Whether the script shall keep running when all primary targets have been destroyed. Default: true" />
       </run_script>
-      <debug_text filter="general" text="'%1 %2 Interceptor Drone Fight work done'.[this.name,this.container.name,$params.$target]"/>
+      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Interceptor Drone Fight work done'.[this.name,this.container.name,$params.$target]"/>
       <remove_from_group object="this.ship" group="$params.$interceptgroup"/>
       <add_to_group object="this.ship" groupname="$freedrones"/>
       <return value="null"/>
@@ -44,6 +44,6 @@
   <on_abort>
     <remove_from_group object="this.ship" group="$params.$interceptgroup"/>
     <add_to_group object="this.ship" groupname="$freedrones"/>
-    <debug_text filter="general" text="'%1 %2 Interceptor Drone Fight work aborted'.[this.name,this.container.name,$params.$target]"/>
+    <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Interceptor Drone Fight work aborted'.[this.name,this.container.name,$params.$target]"/>
   </on_abort>
 </aiscript>
