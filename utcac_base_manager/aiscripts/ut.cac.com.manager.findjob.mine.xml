@@ -7,12 +7,12 @@
     <param name="range_w" default="false" comment="Aligned List of Waypoints to reach the specified Space"/>
     <param name="ware" default="false" comment="Ressource to look for"/>
     <param name="mininglist" default="false" comment="Other Ressources which may be mined if nearby"/>
+    <param name="destination_object" default="this.container" comment="Object for which the Mineables are meant; if provided the mininglist will be ignored and be based on the Object instead"/>
   </params>
+  <init>
+  </init>
   <interrupts>
   </interrupts>
-  <init>
-
-  </init>
   <attention min="unknown">
     <actions>
       <do_if value="$params">
@@ -27,6 +27,9 @@
         </do_if>
         <do_if value="$params.$mininglist?">
           <set_value name="$mininglist" exact="$params.$mininglist"/>
+        </do_if>
+        <do_if value="$params.$destination_object?">
+          <set_value name="$destination_object" exact="$params.$destination_object"/>
         </do_if>
         <remove_value name="$params"/>
       </do_if>
@@ -48,6 +51,22 @@
         <return value="false"/>
       </do_if>
       
+      <!-- If a Destination Object is provided base Mininglist on it -->
+      <do_if value="$destination_object.exists">
+        <set_value name="$mininglist" exact="[]"/>
+        <do_all exact="$destination_object.buildmodule.neededslotresources.list.count" counter="$i">
+          <do_if value="$destination_object.buildmodule.neededslotresources.list.{$i}.tags.indexof.{tag.minable}">
+            <append_to_list name="$mininglist" exact="$destination_object.buildmodule.neededslotresources.list.{$i}"/>
+          </do_if>
+        </do_all>
+        <do_all exact="$destination_object.resources.list.count" counter="$i">
+          <do_if value="$destination_object.resources.list.{$i}.tags.indexof.{tag.minable} and not $mininglist.indexof.$destination_object.resources.list.{$i}">
+            <append_to_list name="$mininglist" exact="$destination_object.resources.list.{$i}"/>
+          </do_if>
+        </do_all>
+        <remove_value name="$mininglist.{$mininglist.indexof.{$ware}}"/>
+      </do_if>
+      
       
       <set_command_action commandaction="commandaction.searchingresources"/>
       <do_if value="this.$ut_cac?">
@@ -59,9 +78,12 @@
       <set_value name="$amount" exact="[this.container.cargo.{$ware}.target - this.container.cargo.{$ware}.count - $incomingamount , $entity.ship.cargo.{$ware}.free ].min"/>
       <do_all exact="$range.count" counter="$i" reverse="false">
         <do_if value="$range.{$i}.exists">
-          <do_if value="this.cluster == $range.{$i} or $range.{$i}.isclass.galaxy">
-            <set_value name="$searchobject" exact="this.container"/>
+          <do_if value="$range.{$i}.isclass.station or $range.{$i}.isclass.ship" comment="ignore range types which cannot contain Minerals to mine (namely Stations and Ships)">
+            <continue/>
           </do_if>
+          <do_elseif value="this.cluster == $range.{$i} or $range.{$i}.isclass.galaxy">
+            <set_value name="$searchobject" exact="this.container"/>
+          </do_elseif>
           <do_elseif value="$range.{$i}.isclass.cluster">
             <find_sector name="$searchobject" space="$range.{$i}"/>
           </do_elseif>
@@ -75,10 +97,10 @@
           <do_if value="$zone.exists and ( $zone.hascontext.{$range.{$i}} or $zone == $range.{$i} )">
             <debug_text filter="general" chance="@this.$debug *100" text="'%1 %2 Found wanted Ressource in Range:\nRange: %3 - Zone: %4'.[this.name,this.container.name,$range.{$i}.knownname,$zone]"/>
             <do_if value="$range_w and $range_w.{$i}">
-              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.move.generic',$displayname={5554103,21003}.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , table[$script='ut.cac.com.captain.mining',$displayname={5554103,21008}.[$zone.knownname,$ware.name],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=true] , table[$script='ut.cac.move.generic',$displayname={5554103,21003}.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] ]"/>
+              <signal_objects object="$entity" param="'new order'" param2="[ table[$script='ut.cac.move.generic',$displayname={5554103,21003}.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] , table[$script='ut.cac.com.captain.mining',$displayname={5554103,21008}.[$zone.knownname,$ware.name],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$destination_object=$destination_object,$interruptable=true] , table[$script='ut.cac.move.generic',$displayname={5554103,21003}.[$range_w.{$i}.name],$destination=$range_w.{$i},$endintargetspace=true] ]"/>
             </do_if>
             <do_else>
-              <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.mining',$displayname={5554103,21008}.[$zone.knownname,$ware.name],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$interruptable=true]"/>
+              <signal_objects object="$entity" param="'new order'" param2="table[$script='ut.cac.com.captain.mining',$displayname={5554103,21008}.[$zone.knownname,$ware.name],$zone=$zone,$ware=$ware,$amount=$amount,$mininglist=$mininglist,$destination_object=$destination_object,$interruptable=true]"/>
             </do_else>
             <!-- Request Escort if Ware Value is greater than half the Ship Value and Mining somewhere else than the current Zone (which should be patrolled anyway)-->
             <do_if value="$amount * $ware.maxprice gt $entity.ship.value *0.3 and this.zone != $zone">
