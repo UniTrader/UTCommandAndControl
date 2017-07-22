@@ -3,10 +3,8 @@
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="trade" default="null" comment="Execute a specific Trade and ignore the Trade List for this"/>
-    <param name="tradepartner" default="null" comment="Specify an Object to Trade with instead of passing a specific Trade Offer - also requires Amount, Ware and Unitprice"/>
     <param name="amount" default="null" comment="Specific Amount to Trade in case a specific Trade is ordered. will adjust down if necesary"/>
-    <param name="ware" default="null" comment="Specify aWare to Trade with instead of passing a specific Trade Offer - also requires Amount, Tradepartner and Unitprice"/>
-    <param name="unitprice" default="null" comment="Specify a Unitprice for the Trade instead of passing a specific Trade Offer - also requires Amount, Ware and Tradepartner"/>
+    <param name="unitprice" default="null" comment="Specify a Unitprice for the Trade instead of using the one specified by the Trade Offer"/>
     <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list and Order List ONLY (does not execute any Trade)"/>
     <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
     <param name="command" default="command.trade" comment="command to display when executing this Script ( command.freetrade or command.trade would make sense, depending on context)"/>
@@ -17,18 +15,12 @@
     <do_if value="$params.$trade?">
       <set_value name="$trade" exact="$params.$trade"/>
     </do_if>
-    <!-- do_if value="$params.$tradepartner?">
-      <set_value name="$tradepartner" exact="$params.$tradepartner"/>
-    </do_if-->
     <do_if value="$params.$amount?">
       <set_value name="$amount" exact="$params.$amount"/>
     </do_if>
-    <!--do_if value="$params.$ware?">
-      <set_value name="$ware" exact="$params.$ware"/>
-    </do_if>
     <do_if value="$params.$unitprice?">
       <set_value name="$unitprice" exact="$params.$unitprice"/>
-    </do_if-->
+    </do_if>
     <do_if value="$params.$refreshreservations?">
       <set_value name="$refreshreservations" exact="$params.$refreshreservations"/>
     </do_if>
