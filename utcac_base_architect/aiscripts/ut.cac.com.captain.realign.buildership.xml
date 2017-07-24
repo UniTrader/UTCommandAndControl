@@ -30,6 +30,10 @@ Intended to be called hourly, first blocks the CV-Wide queue to prevent other Sh
         <debug_text filter="error" text="'%1 %2 No Position given - Abort'.[this.name,this.container.name]"/>
         <return/>
       </do_if>
+      <do_if value="not this.ship.buildanchor.exists">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Build Anchor does not exist (yet) - exit prematurely (nothing unusual)'.[this.name,this.container.name]"/>
+        <return/>
+      </do_if>
       
       <set_command_action commandaction="commandaction.flying" param="this.ship"/>
       <do_if value="this.$ut_cac?">
