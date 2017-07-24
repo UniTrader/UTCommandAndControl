@@ -794,7 +794,7 @@ $interruptable=true]"/>
           <do_all exact="$sell_wp.count" counter="$i" reverse="true">
             <do_if value="$sell_wp.{$i}.$trade.owner == $trade_object">
               <append_to_list name="$new_orders" exact="$sell_wp.{$i}"/>
-              <set_value name="$required_money" operation="subtract" exact="$sell_wp.{$i}.$trade.$unitprice * $sell_wp.{$i}.$amount"/>
+              <set_value name="$required_money" operation="subtract" exact="$sell_wp.{$i}.$unitprice * $sell_wp.{$i}.$amount"/>
               <remove_value name="$sell_wp.{$i}"/>
             </do_if>
           </do_all>
@@ -808,7 +808,7 @@ $interruptable=true]"/>
         <do_all exact="$sell_away.count" counter="$i" reverse="true">
           <do_if value="$sell_away.{$i}.$trade.owner == $trade_object">
             <append_to_list name="$new_orders" exact="$sell_away.{$i}"/>
-            <set_value name="$required_money" operation="subtract" exact="$sell_away.{$i}.$trade.$unitprice * $sell_away.{$i}.$amount"/>
+            <set_value name="$required_money" operation="subtract" exact="$sell_away.{$i}.$unitprice * $sell_away.{$i}.$amount"/>
             <remove_value name="$sell_away.{$i}"/>
           </do_if>
         </do_all>
@@ -825,7 +825,7 @@ $interruptable=true]"/>
         <do_if value="$buy_away.count">
           <append_to_list name="$new_orders" exact="$buy_away.{1}"/>
           <set_value name="$trade_object" exact="$buy_away.{1}.$trade.owner"/>
-          <set_value name="$required_money" operation="add" exact="$buy_away.{$i}.$trade.$unitprice * $buy_away.{$i}.$amount"/>
+          <set_value name="$required_money" operation="add" exact="$buy_away.{$i}$unitprice * $buy_away.{$i}.$amount"/>
           <remove_value name="$buy_away.{1}"/>
         </do_if>
       </do_while>
@@ -841,7 +841,7 @@ $interruptable=true]"/>
           <do_all exact="$buy_wp.count" counter="$i" reverse="true">
             <do_if value="$buy_wp.{$i}.$trade.owner == $trade_object">
               <append_to_list name="$new_orders" exact="$buy_wp.{$i}"/>
-              <set_value name="$required_money" operation="add" exact="$buy_wp.{$i}.$trade.$unitprice * $buy_wp.{$i}.$amount"/>
+              <set_value name="$required_money" operation="add" exact="$buy_wp.{$i}.$unitprice * $buy_wp.{$i}.$amount"/>
               <remove_value name="$buy_wp.{$i}"/>
             </do_if>
           </do_all>
