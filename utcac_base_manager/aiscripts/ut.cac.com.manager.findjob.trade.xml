@@ -570,21 +570,21 @@
             <do_if value="$range.{$j} != null" comment="ignore empty slots">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Searching %3 for Sell Offers, Ware: %4, Max Price: %5'.[this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
               <do_if value="this.container.istraderestricted">
-                <find_sell_offer result="$selloffer" wares="$ware" space="$range.{$j}" tradepartner="$trade_object" knowntoplayer="this.owner == faction.player">
+                <find_sell_offer result="$selloffer" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player"><!-- tradepartner="$trade_object" -->
                   <offeramount min="$minamount"/>
                   <price max="$price"/>
-                  <match_buyer owner="this.owner">
+                  <match_seller owner="this.owner">
                     <!--match_distance space="this.zone" value="position.[0m,0m,0m]" max="50km" negate="true"/-->
-                  </match_buyer>
+                  </match_seller>
                 </find_sell_offer>
               </do_if>
               <do_else>
-                <find_sell_offer result="$selloffer" wares="$ware" space="$range.{$j}" tradepartner="$trade_object" knowntoplayer="this.owner == faction.player">
+                <find_sell_offer result="$selloffer" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player"><!-- tradepartner="$trade_object" -->
                   <offeramount min="$minamount"/>
                   <price max="$price"/>
-                  <match_buyer>
-                    <!--match_distance space="this.zone" value="position.[0m,0m,0m]" max="50km" negate="true"/-->
-                  </match_buyer>
+                  <!--match_seller>
+                    <match_distance space="this.zone" value="position.[0m,0m,0m]" max="50km" negate="true"/>
+                  </match_seller-->
                 </find_sell_offer>
               </do_else>
               <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
@@ -699,21 +699,21 @@ $interruptable=true]"/>
             <do_if value="$range.{$j} != null" comment="ignore empty slots">
               <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Searching %3 for Buy Offers, Ware: %4, Min Price: %5'.[this.name,this.container.name,$range.{$j}.knownname,$ware.name,$price]"/>
               <do_if value="this.container.istraderestricted">
-                <find_buy_offer result="$buyoffer" wares="$ware" space="$range.{$j}" tradepartner="$trade_object" knowntoplayer="this.owner == faction.player">
+                <find_buy_offer result="$buyoffer" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player"><!-- tradepartner="this.container" -->
                   <offeramount min="$minamount"/>
                   <price min="$price"/>
-                  <match_seller owner="this.owner">
+                  <match_buyer owner="this.owner">
                     <!--match_distance space="this.zone" value="position.[0m,0m,0m]" max="50km" negate="true"/-->
-                  </match_seller>
+                  </match_buyer>
                 </find_buy_offer>
               </do_if>
               <do_else>
-                <find_buy_offer result="$buyoffer" wares="$ware" space="$range.{$j}" tradepartner="$trade_object" knowntoplayer="this.owner == faction.player">
+                <find_buy_offer result="$buyoffer" wares="$ware" space="$range.{$j}" knowntoplayer="this.owner == faction.player"><!-- tradepartner="this.container" -->
                   <offeramount min="$minamount"/>
                   <price min="$price"/>
-                  <match_seller>
-                    <!--match_distance space="this.zone" value="position.[0m,0m,0m]" max="50km" negate="true"/-->
-                  </match_seller>
+                  <!--match_buyer>
+                    <match_distance space="this.zone" value="position.[0m,0m,0m]" max="50km" negate="true"/>
+                  </match_buyer-->
                 </find_buy_offer>
               </do_else>
               <wait exact="6s - (this.skill.management)s" comment="to make it look like he is actually comparing Trades wait ( 6 - mangmentskill) seconds per Ware checked (Better Managers are faster)"/>
