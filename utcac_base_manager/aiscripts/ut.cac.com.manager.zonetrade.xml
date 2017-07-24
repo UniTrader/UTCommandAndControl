@@ -39,8 +39,8 @@
         <sort_trades name="$selloffers" tradelist="$selloffers" sorter="relativeprice"/>
         <do_all exact="$buyoffers.count">
           <!-- find the selloffer with the highest amount -->
-          <set_value name="$currentbuyoffer" exact="$buyoffers.random"/>
-          <set_value name="$offerindex" exact="$buyoffers.indexof.{$currentbuyoffer}"/>
+          <set_value name="$offerindex" min="1" max="$buyoffers.indexof.{$currentbuyoffer}"/>
+          <set_value name="$currentbuyoffer" exact="$buyoffers.{$offerindex}"/>
           <remove_value name="$buyoffers.{$offerindex}"/>
           <remove_value name="$offerindex"/>
           <set_value name="$currentware" exact="$currentbuyoffer.ware"/>
@@ -90,9 +90,72 @@
         <execute_trade tradeoffer="$finalselloffer" amount="$finalamount" tradepartner="this.container" result="$traderesult" unbundle="$unbundle?">
           <interrupt_after_time time="3s"/>
         </execute_trade>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Manager Zonetrade Script finished with regular Trade: %3'.[this.name,this.container.name,$finalselloffer] )"/>
+        <return/>
       </do_if>
       
-      <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Manager Zonetrade Script finished'.[this.name,this.container.name] + ( if this.$ut_cac.$currenttrade then ' - executing Trade %1'.[$finalselloffer] )"/>
+      <do_if value="this.station.buildingmodule.container.exists">
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Attempting Trade with CV if one is attached'.[this.name,this.container.name]"/>
+        <find_buy_offer buyer="this.station.buildingmodule.container" result="$buyoffers" multiple="true"/>
+        <do_if value="$buyoffers.count gt 0">
+          <create_list name="$buywares"/>
+          <!-- build list of wares that we are interested in -->
+          <do_all exact="$buyoffers.count" counter="$i">
+            <append_to_list name="$buywares" exact="$buyoffers.{$i}.ware"/>
+          </do_all>
+          <find_sell_offer seller="this.container" wares="$buywares" space="this.container.zone" result="$selloffers" multiple="true">
+            <stocklevel min="0.2"/>
+          </find_sell_offer>
+          
+          <remove_value name="$buywares"/>
+          <do_all exact="$buyoffers.count">
+            <!-- find the selloffer with the highest amount -->
+            <set_value name="$offerindex" min="1" max="$buyoffers.count"/>
+            <set_value name="$currentbuyoffer" exact="$buyoffers.{$offerindex}"/>
+            <remove_value name="$buyoffers.{$offerindex}"/>
+            <remove_value name="$offerindex"/>
+            <set_value name="$currentware" exact="$currentbuyoffer.ware"/>
+            <set_value name="$maxsellamount" exact="0"/>
+            <set_value name="$selloffer" exact="null"/>
+            <do_all exact="$selloffers.count" counter="$j">
+              <set_value name="$currentselloffer" exact="$selloffers.{$j}"/>
+              <do_if value="$currentselloffer.ware == $currentware">
+                <set_value name="$finalamount" exact="$currentselloffer.offeramount.{this}"/>
+                <do_if value="$currentbuyoffer.amount lt $currentselloffer.offeramount.{this}">
+                  <set_value name="$finalamount" exact="$currentbuyoffer.amount"/>
+                </do_if>
+                <do_if value="$finalamount * $currentware.volume gt 100000">
+                  <!-- cap the max trade volume at 100000 to avoid super-long huge trades -->
+                  <set_value name="$finalamount" exact="100000 / $currentware.volume"/>
+                </do_if>
+              <set_value name="$finalselloffer" exact="$currentselloffer"/>
+              <set_value name="$buyoffer" exact="$currentbuyoffer"/>
+              <break/>
+            </do_if>
+          </do_all>
+          <do_if value="$selloffer">
+            <break/>
+          </do_if>
+        </do_all>
+      </do_if>
+      <remove_value name="$buyoffers"/>
+      <remove_value name="$selloffers"/>
+      </do_if>
+      
+      <!-- execute the trade/Ware Transfer -->
+      <do_if value="$buyoffer.exists">
+        <set_value name="$tradeware" exact="$finalselloffer.ware"/>
+        <set_command command="command.trade" param="$buyoffer.buyer"/>
+        <do_if value="this.$ut_cac?">
+          <set_value name="this.$ut_cac.$isactive"/>
+        </do_if>
+        <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Manager Zonetrade Executing Trade\nWare: %3; Amount Bought: %4; Unitprice: %5 Total: %6'.[this.name,this.container.name,$finalselloffer.ware,$finalamount,$finalselloffer.unitprice,$finalselloffer.unitprice*$finalamount]"/>
+        <show_notification caption="'Manager does Zonetrade with CV!!!'" details="'Ware: %1\nAmount: %2\nTradepartner: %3'.[$finalselloffer.ware,$finalamount,$finalselloffer.owner.knownname]"/>
+        <!--show_notification caption="'Manager does Zonetrade!!!'" details="'Ware: %1\nAmount: %2\nTradepartner: %3'.[$finalselloffer.ware,$finalamount,$finalselloffer.owner.knownname]"/-->
+        <execute_custom_trade buyer="this.station.buildingmodule.container" seller="this.container" ware="$finalware" amount="$finalamount" price="0Cr">
+          <interrupt_after_time time="3s"/>
+        </execute_custom_trade>
+      </do_if>
       
     </actions>
   </attention>
