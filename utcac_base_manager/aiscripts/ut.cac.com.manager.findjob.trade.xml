@@ -865,11 +865,11 @@ $interruptable=true]"/>
         <do_if value="not $entity.hasownaccount">
           <set_actor_account actor="$entity"/>
         </do_if>
-        <do_if value="$entity_money lt $required_money">
+        <do_if value="$entity.money lt $required_money">
           <transfer_money from="this" to="$entity" amount="$required_money - $entity.money"/>
         </do_if>
         <!-- if entity has far too much money take the unneeded amount back -->
-        <do_elseif value="$entity_money lt $required_money + 100000Cr">
+        <do_elseif value="$entity.money lt $required_money + 100000Cr">
           <transfer_money from="$entity" to="this" amount="$entity.money - $required_money"/>
         </do_elseif>
         <signal_objects object="$entity" param="'new order'" param2="$new_orders"/>
