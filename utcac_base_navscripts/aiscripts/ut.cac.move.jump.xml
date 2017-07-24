@@ -413,35 +413,18 @@ ToDo:
         <interrupt_after_time time="0s"/>
       </jump>
       <set_value name="$result" exact="@$firstresult"/>
-      <set_value name="$debug_cooldowntime3" exact="$jumpdrive.cooldowntimeleft"/>
-      <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
-        <position space="this.zone" object="this.ship" z="20km"/>
-        <rotation value="this.ship.rotation"/>
-        <interrupt_after_time time="$jumpdrive.chargetime * 2"/>
-        <interrupt>
-          <conditions>
-            <check_any>
-              <event_object_jump_completed object="this.ship"/>
-              <event_object_changed_zone object="this.ship" zone="$beacon.zone" comment="workaround because jump_completed doesnt seem to trigger"/>
-              <event_object_jump_aborted object="this.ship"/>
-            </check_any>
-          </conditions>
-          <actions>
-            <do_if value="event.name == 'event_object_jump_completed' or event.name == 'event_object_changed_zone'">
-              <set_value name="$result" exact="true"/>
-            </do_if>
-            <do_elseif value="event.name == 'event_object_jump_aborted'">
-              <set_value name="$result" exact="false"/>
-            </do_elseif>
-            <set_value name="$debug_jumpevent1" exact="event.name"/>
-          </actions>
-        </interrupt>
-      </move_to>
-      <set_value name="$debug_cooldowntime4" exact="$jumpdrive.cooldowntimeleft"/>
-      <stop_moving object="this.ship" immediate="true"/>
-      <do_if value="not $result">
-        <wait>
-          <interrupt_after_time time="5s"/>
+      <do_if value="$jumpdrive.cooldowntimeleft">
+        <debug_text filter="error" text="'%1 %2 JD Charge failure detected - doing fallback warp and skip all movement stuff during Jump'.[this.name,this.container.name]"/>
+        <warp object="this.ship" zone="$beacon.zone">
+          <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
+          <orientation refobject="$beacon" orientation="look_away"/>
+        </warp>
+      </do_if>
+      <do_else>
+        <move_to object="this.ship" abortpath="false" destination="this.zone" commandaction="false" >
+          <position space="this.zone" object="this.ship" z="20km"/>
+          <rotation value="this.ship.rotation"/>
+          <interrupt_after_time time="$jumpdrive.chargetime * 2"/>
           <interrupt>
             <conditions>
               <check_any>
@@ -454,31 +437,56 @@ ToDo:
               <do_if value="event.name == 'event_object_jump_completed' or event.name == 'event_object_changed_zone'">
                 <set_value name="$result" exact="true"/>
               </do_if>
-             <do_elseif value="event.name == 'event_object_jump_aborted'">
+              <do_elseif value="event.name == 'event_object_jump_aborted'">
                 <set_value name="$result" exact="false"/>
               </do_elseif>
-            <set_value name="$debug_jumpevent2" exact="event.name"/>
+              <set_value name="$debug_jumpevent1" exact="event.name"/>
             </actions>
           </interrupt>
-        </wait>
-      </do_if>
-      <do_if value="$result">
-        <!--debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sucessfully Jumped'.[this.name,this.container.name]"/-->
-        <debug_text filter="general" chance="@this.$debug * 100" text="
+        </move_to>
+        <set_value name="$debug_cooldowntime4" exact="$jumpdrive.cooldowntimeleft"/>
+        <stop_moving object="this.ship" immediate="true"/>
+        <do_if value="not $result">
+          <wait>
+            <interrupt_after_time time="5s"/>
+            <interrupt>
+              <conditions>
+                <check_any>
+                  <event_object_jump_completed object="this.ship"/>
+                  <event_object_changed_zone object="this.ship" zone="$beacon.zone" comment="workaround because jump_completed doesnt seem to trigger"/>
+                  <event_object_jump_aborted object="this.ship"/>
+                </check_any>
+              </conditions>
+              <actions>
+                <do_if value="event.name == 'event_object_jump_completed' or event.name == 'event_object_changed_zone'">
+                  <set_value name="$result" exact="true"/>
+                </do_if>
+               <do_elseif value="event.name == 'event_object_jump_aborted'">
+                  <set_value name="$result" exact="false"/>
+                </do_elseif>
+                <set_value name="$debug_jumpevent2" exact="event.name"/>
+              </actions>
+            </interrupt>
+          </wait>
+        </do_if>
+        <do_if value="$result">
+          <!--debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Sucessfully Jumped'.[this.name,this.container.name]"/-->
+          <debug_text filter="general" chance="@this.$debug * 100" text="
 '%1 %2 Successful Jump, Values also displayed by failed ones:\nFuel: %3 of %4 Jumpdrive Name:%5, Cooldown: %6 operational: %7 Firstresult: %8\n'.[this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational,@$firstresult]+
 'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3, result: %4\ncooldowntimes: 1: %5, 2: %6, 3: %7 4: %8   Player Zone: %9\n'.[this.zone.name,$beacon.zone.name,$beacon.name,@$result,$debug_cooldowntime1,$debug_cooldowntime2,$debug_cooldowntime3,$debug_cooldowntime4,player.zone.name]+
 'Jump events: %1   %2'.[@$debug_jumpevent1,@$debug_jumpevent2]"/>
-      </do_if>
-      <do_else>
-        <debug_text filter="error" text="
+        </do_if>
+        <do_else>
+          <debug_text filter="error" text="
 '%1 %2 Jump failed!!!! Possible Reasons:\nFuel: %3 of %4 Jumpdrive Name:%5, Cooldown: %6 operational: %7 Firstresult: %8\n'.[this.name,this.container.name,this.ship.cargo.{ware.fuelcells}.count,this.ship.jumpcostto.{$destination},$jumpdrive.name,$jumpdrive.cooldowntimeleft,$jumpdrive.isoperational,@$firstresult]+
 'Additional Info: Current Zone: %1, Target Zone: %2, Beacon: %3, result: %4\ncooldowntimes: 1: %5, 2: %6, 3: %7 4: %8   Player Zone: %9\n'.[this.zone.name,$beacon.zone.name,$beacon.name,@$result,$debug_cooldowntime1,$debug_cooldowntime2,$debug_cooldowntime3,$debug_cooldowntime4,player.zone.name]+
 'Jump events: %1   %2\nPerforming Fallback Warp'.[@$debug_jumpevent1,@$debug_jumpevent2]"/>
-        <stop_moving object="this.ship" immediate="true"/>
-        <warp object="this.ship" zone="$beacon.zone">
-          <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
-          <orientation refobject="$beacon" orientation="look_away"/>
-        </warp>
+          <stop_moving object="this.ship" immediate="true"/>
+          <warp object="this.ship" zone="$beacon.zone">
+            <safepos allowyaxis="true" value="$beacon.position" radius="this.ship.size"/>
+            <orientation refobject="$beacon" orientation="look_away"/>
+          </warp>
+        </do_else>
       </do_else>
       <signal_objects object="this.ship" param="'travel completed'"/>
       
