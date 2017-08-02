@@ -1,12 +1,15 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <aiscript name="ut.cac.com.captain.performsingletraderun2" version="30" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://utnas/~unitrader/XRebirthxsds/aiscripts.xsd">
 <!-- Execute a single Trade. will go through the Shopping List if no Specifics are passed. -->
+<!-- ToDo: Handle proper handling of Reservations when using unbundle/rebundle -->
   <params>
     <param name="params" default="false" comment="pass a single Table filled with the wanted param Values here to make calls via list possible (always has priority)"/>
     <param name="tradepartner" default="null" comment="The Object to perform the Trade with"/>
     <param name="ware" default="null" comment="The Ware to Trade with"/>
     <param name="amount" default="null" comment="Specific Amount to Trade in case a specific Trade is ordered. Positive Value for Buyig, negative for Selling. will adjust down if necesary"/>
     <param name="unitprice" default="null" comment="Unitprice to Trade for. Assumed to be valid, will not be checked."/>
+    <param name="unbundle" default="false" comment="Unbundle Traded Wares on receiver?"/>
+    <param name="rebundle" default="false" comment="Rebundle Traded Wares from Sender?"/>
     <param name="refreshreservations" default="false" comment="Refresh Ware Revervations from Trade list and Order List ONLY (does not execute any Trade)"/>
     <param name="undock" default="2" comment="undock when finished? (true -> yes, false -> no, 2 -> autodetect)"/>
     <param name="command" default="command.trade" comment="command to display when executing this Script ( command.freetrade or command.trade would make sense, depending on context)"/>
@@ -24,6 +27,12 @@
     </do_if>
     <do_if value="$params.$unitprice?">
       <set_value name="$unitprice" exact="$params.$unitprice"/>
+    </do_if>
+    <do_if value="$params.$unbundle?">
+      <set_value name="$unbundle" exact="$params.$unbundle"/>
+    </do_if>
+    <do_if value="$params.$rebundle?">
+      <set_value name="$rebundle" exact="$params.$rebundle"/>
     </do_if>
     <do_if value="$params.$refreshreservations?">
       <set_value name="$refreshreservations" exact="$params.$refreshreservations"/>
@@ -259,12 +268,12 @@
       </do_if>
       <do_if value="$amount gt 0">
         <remove_ware_reservation object="$tradepartner" entity="this" ware="$ware" type="buy"/>
-        <execute_custom_trade seller="$tradepartner" buyer="this.ship" ware="$ware" amount="$amount" price="$unitprice" result="$traderesult" usecommandermoney="false">
+        <execute_custom_trade seller="$tradepartner" buyer="this.ship" ware="$ware" amount="$amount" price="$unitprice" result="$traderesult" usecommandermoney="false" unbundle="$unbundle" rebundle="$rebundle">
           <interrupt_after_time time="121 min"/>
         </execute_custom_trade>
       </do_if>
       <do_elseif value="$amount lt 0">
-        <execute_custom_trade seller="this.ship" buyer="$tradepartner" ware="$ware" amount="0 - $amount" price="$unitprice" result="$traderesult" usecommandermoney="false">
+        <execute_custom_trade seller="this.ship" buyer="$tradepartner" ware="$ware" amount="0 - $amount" price="$unitprice" result="$traderesult" usecommandermoney="false" unbundle="$unbundle" rebundle="$rebundle">
           <interrupt_after_time time="121 min"/>
         </execute_custom_trade>
         <remove_ware_reservation object="$tradepartner" entity="this" ware="$ware" type="sell"/>
