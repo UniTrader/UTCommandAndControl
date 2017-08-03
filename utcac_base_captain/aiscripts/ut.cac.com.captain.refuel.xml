@@ -97,6 +97,17 @@
               <add_buy_order object="this.ship" trade="$selloffer" amount="$buyamount" price="0Cr"/>
               <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21006},$undock=2,$interruptable=true]"/>
               <remove_trade_offer object="this.container" tradeoffer="$selloffer"/>
+            <signal_objects object="this" param="'new order'" param2="table[
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21012}.[$buyamount,ware.fuelcells.name,this.ship.commander.name],
+$tradepartner=this.ship.commander,
+$ware=ware.fuelcells,
+$amount=$buyamount,
+$unitprice=0Cr,
+$undock=2,
+$wantedmoney=0Cr,
+$moveable=false,
+$interruptable=true]"/>
               <resume label="finish"/>
             </do_if>
           </do_if>
@@ -133,9 +144,18 @@
       </do_if>
       <debug_text filter="general" chance="@this.$debug * 100" text="'Found! Going to get it!'"/>
       <transfer_money from="if this.ship.commanderentity.exists then  this.ship.commanderentity else  this.$ut_cac.$commanderentity" to="this" amount="$buyamount * $selloffer.unitprice"/>
-      <debug_text filter="general" chance="@this.$debug * 100" text="'Transferred %1 ( %2 * %3 )Credits from Commander (%5) to pay, current account: %4'.[$buyamount * $selloffer.unitprice , $buyamount , $selloffer.unitprice , this.money,this.ship.commanderentity.name]"/>
-      <add_buy_order object="this.ship" trade="$selloffer" amount="$buyamount" price="$selloffer.unitprice"/>
-      <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21006},$undock=2,$interruptable=true]"/>
+      <signal_objects object="this" param="'new order'" param2="table[
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21010}.[$buyamount,ware.fuelcells.name,$buyamount*$selloffer.unitprice],
+$tradepartner=$selloffer.seller,
+$ware=ware.fuelcells,
+$amount=$buyamount,
+$unitprice=$selloffer.unitprice,
+$unbundle=true,
+$undock=2,
+$wantedmoney=$buyamount * $selloffer.unitprice,
+$moveable=false,
+$interruptable=true]"/>
       
       <label name="finish"/>
       <!-- This Script is finished - Check if it makes sense to Undock and Continue with next Order -->
