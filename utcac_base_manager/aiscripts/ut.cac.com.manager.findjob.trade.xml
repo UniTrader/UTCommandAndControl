@@ -627,6 +627,7 @@ $entity.ship.cargo.{$ware}.free,
             <append_to_list name="$buy_away" exact="table[
 $script='ut.cac.com.captain.performsingletraderun2',
 $displayname={5554103,21010}.[$amount,$ware.name,$selloffer.seller.name,$amount * $selloffer.unitprice],
+$tradepartner=$selloffer.seller.name,
 $ware=$selloffer.ware,
 $amount=$amount,
 $unitprice=$selloffer.unitprice,
@@ -637,6 +638,7 @@ $interruptable=true]"/>
             <append_to_list name="$sell_home" exact="table[
 $script='ut.cac.com.captain.performsingletraderun2',
 $displayname={5554103,21013}.[$amount,$ware.name,$trade_object.name],
+$tradepartner=$trade_object,
 $ware=$buyoffer.ware,
 $amount=$amount,
 $unitprice=0Cr,
@@ -745,7 +747,8 @@ $interruptable=true]"/>
             <find_sell_offer result="$selloffer" buyer="$trade_object" wares="$ware"/>
             <append_to_list name="$buy_home" exact="table[
 $script='ut.cac.com.captain.performsingletraderun2',
-$displayname={5554103,21012}.[$amount,$ware.name,$selloffer.seller.name],
+$displayname={5554103,21012}.[$amount,$ware.name,$trade_object.name],
+$tradepartner=$trade_object,
 $ware=$selloffer.ware,
 $amount=$amount,
 $unitprice=0Cr,
@@ -755,7 +758,9 @@ $moveable=false,
 $interruptable=true]"/>
             <append_to_list name="$sell_away" exact="table[
 $script='ut.cac.com.captain.performsingletraderun2',
-$displayname={5554103,21013}.[$amount,$ware.name,$trade_object.name,$amount * $buyoffer.unitprice],
+$displayname={5554103,21013}.[$amount,$ware.name,$selloffer.buyer.name,$amount * $buyoffer.unitprice],
+$tradepartner=$selloffer.buyer,
+$tradepartner=$trade_object,
 $ware=$buyoffer.ware,
 $amount=$amount,
 $unitprice=$buyoffer.unitprice,
