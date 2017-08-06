@@ -147,17 +147,12 @@ $interruptable=true]"/>
             <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$removeamount" /-->
             <remove_cargo object="this.ship" ware="$ware" exact="this.ship.cargo.{$ware}.count - $amount"/>
           </do_if>
-          
-          <create_trade_offer name="$buyoffer" buyer="$destination_object" object="$destination_object" amount="this.ship.cargo.{$mininglist.{$i}}.count" ware="$mininglist.{$i}" price="0Cr" playeronly="true"/>
-          <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.amount" price="0Cr"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21014},$repeat=0,$undock=false]"/>
-          <remove_trade_offer object="$destination_object" tradeoffer="$buyoffer"/>
           <signal_objects object="this" param="'new order'" param2="table[
 $script='ut.cac.com.captain.performsingletraderun2',
 $displayname={5554103,21013}.[this.ship.cargo.{$mininglist.{$i}}.count,$mininglist.{$i}.name,$destination_object.name],
 $tradepartner=$destination_object,
 $ware=$mininglist.{$i},
-$amount=this.ship.cargo.{$mininglist.{$i}}.count,
+$amount=0 - this.ship.cargo.{$mininglist.{$i}}.count,
 $unitprice=0Cr,
 $undock=2,
 $moveable=false,
