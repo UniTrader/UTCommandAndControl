@@ -284,8 +284,6 @@
             <replace string="{5554302,119}+'7'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
             <replace string="{5554302,119}+'8'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
             <replace string="{5554302,119}+'9'" with="[{5554301,2001},{5554301,2003},{5554301,2005},{5554301,2007},{5554301,2009},{5554301,2011},{5554301,2013},{5554301,2015},{5554301,2017},{5554301,2019},{5554301,2021},{5554301,2025}+'0'].random"/>
-            <!-- Money-->
-            <replace string="{5554302,123}" with="if $object.isclass.ship then $object.pilot.money.formatted.{'%s%Cr'} else $object.tradenpc.money.formatted.{'%s%Cr'}"/>
             <!-- Short Name Variants - doesnt work in XR v4.0, but for future usage -->
             <!--
             <replace string="{5554302,110}" with="$object.commander.zone.shortname"/>
@@ -381,12 +379,36 @@
             <replace string="{5554302,307}" with="''"/>
             <replace string="{5554302,308}" with="''"/>
             <replace string="{5554302,309}" with="''"/>
+            <!-- Trade relevant Replacements -->
+            <replace string="{5554302,123}" with="''"/>
+            <replace string="{5554302,124}" with="''"/>
+            <replace string="{5554302,126}" with="''"/>
+            <replace string="{5554302,128}" with="''"/>
+            <replace string="{5554302,129}" with="''"/>
+            <replace string="{5554302,130}" with="''"/>
+            <replace string="{5554302,131}" with="''"/>
             <!-- Values based on other Scripts -->
             <replace string="{5554302,120}" with="''"/>
             <!-- UT CaC Functionality -->
             <replace string="{5554302,401}" with="''"/>
             <replace string="{5554302,402}" with="''"/>
           </substitute_text>
+          <!-- Generate the Long Name -->
+          <!-- Find Primary and Secondary Ware in Cargo -->
+          <set_value name="$cargolist" exact="@$object.cargo.list"/>
+          <do_if value="$cargolist.indexof.{ware.fuelcells}">
+            <remove_value name="$cargolist.{$cargolist.indexof.{ware.fuelcells}}"/>
+          </do_if>
+          <set_value name="$primarycargo" exact="null"/>
+          <set_value name="$secondarycargo" exact="null"/>
+          <do_all exact="$cargolist.count" counter="$i">
+            <do_if value="( @$object.cargo.{$cargolist.{$i}} * @$cargolist.{$i}.volume gt ( @$object.cargo.{$primarycargo}.count * @$primarycargo.volume )">
+              <set_value name="$secondarycargo" exact="$primarycargo"/>
+              <set_value name="$primarycargo" exact="$cargolist.{$i}"/>
+            </do_if>
+            <do_elseif value="( @$object.cargo.{$cargolist.{$i}} * @$cargolist.{$i}.volume gt ( @$object.cargo.{$secondarycargo}.count * @$secondarycargo.volume )">
+              <set_value name="$secondarycargo" exact="$cargolist.{$i}"/>
+          </do_all>
           <substitute_text text="$nameA">
             <!-- Skill-based Expressions -->
             <replace string="{5554302,10}" with="@$object.boardingnpc.skill.combinedskill"/>
@@ -469,12 +491,26 @@ else 'null'"/>
             <replace string="{5554302,307}" with="if @$object.completebuildplan.{'g'}.stage then $object.currentbuildplan.{'g'}.stage else ''"/>
             <replace string="{5554302,308}" with="if @$object.completebuildplan.{'h'}.stage then $object.currentbuildplan.{'h'}.stage else ''"/>
             <replace string="{5554302,309}" with="if @$object.completebuildplan.{'i'}.stage then $object.currentbuildplan.{'i'}.stage else ''"/>
+            <!-- Trade relevant Replacements -->
+            <replace string="{5554302,123}" with="if $object.isclass.ship then $object.pilot.money.formatted.{'%s%Cr'} else $object.tradenpc.money.formatted.{'%s%Cr'}"/>
+            <replace string="{5554302,124}" with="if $primarycargo then $primarycargo.name else {5554302,125}"/>
+            <replace string="{5554302,126}" with="if $secondarycargo then $secondarycargo.name else {5554302,127}"/>
+            <replace string="{5554302,128}" with="@$object.cargo.free"/>
+            <replace string="{5554302,129}" with="@$object.cargo.capacity"/>
+            <replace string="{5554302,130}" with="@$object.cargo.capacity - @$object.cargo.free"/>
+            <replace string="{5554302,131}" with="$cargolist.count"/>
+            
             <!-- Values based on other Scripts -->
             <replace string="{5554302,120}" with="$scriptset"/>
             <!-- UT CaC Functionality -->
             <replace string="{5554302,401}" with="if $object.controlentity.$orderlist? then $object.controlentity.$orderlist.{1}.$displayname else ''"/>
             <replace string="{5554302,402}" with="if $object.controlentity.$orderlist? then $object.controlentity.$orderlist.count else ''"/>
           </substitute_text>
+          
+          <!-- remove temp Values for Cargo Expression -->
+          <remove_value name="$primarycargo"/>
+          <remove_value name="$secondarycargo"/>
+          <remove_value name="$cargolist"/>
           
           <!-- if the Name contains something dynamic - add it to the Update-Group, otherwise remove it -->
           <do_if value="$nameA != $nameB">
