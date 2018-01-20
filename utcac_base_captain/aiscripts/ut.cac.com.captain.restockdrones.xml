@@ -97,9 +97,19 @@
               </do_if>
               <continue/>
             </do_else>
-            <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 Adding Offer to Trade List (same Zone):\n%3'.[this.name,this.container.name,$selloffers.{$i}]"/>
-            <add_buy_order object="this.ship" trade="$selloffers.{$i}" amount="$amount" price="$selloffers.{$i}.unitprice" unbundle="true"/>
-            <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21009},$repeat=0]"/>
+            <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 Adding Traderun to Orderlist (same Zone):\n%3'.[this.name,this.container.name,$selloffers.{$i}]"/>
+            <signal_objects object="this" param="'new order'" param2="table[
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21012}.[$amount,$selloffers.{$i}.ware.name,$selloffers.{$i}.seller.name],
+$tradepartner=$selloffers.{$i}.seller,
+$ware=$selloffers.{$i}.ware,
+$amount=$amount,
+$unitprice=$selloffers.{$i}.unitprice,
+$unbundle=true,
+$undock=2,
+$wantedmoney=$amount * $selloffers.{$i}.unitprice,
+$moveable=false,
+$interruptable=true]"/>
             <remove_value name="$selloffers.{$i}"/>
             <do_if value="$mindistindex">
               <set_value name="$mindistindex" operation="subtract" comment="to keep them in sync"/>
@@ -142,9 +152,19 @@
             <set_value name="$mindistindex" exact="null"/>
             <continue/>
           </do_else>
-          <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 Adding Offer to Trade List (mindist):\n%3'.[this.name,this.container.name,$selloffers.{$mindistindex}]"/>
-          <add_buy_order object="this.ship" trade="$selloffers.{$mindistindex}" amount="$amount" price="$selloffers.{$mindistindex}.unitprice" unbundle="true"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21009},$command=command.freetrade]"/>
+          <debug_text filter="general" chance="@this.$debug + 1 * 100" text="'%1 %2 Adding Trade to Order List (mindist):\n%3'.[this.name,this.container.name,$selloffers.{$mindistindex}]"/>
+          <signal_objects object="this" param="'new order'" param2="table[
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21012}.[$amount,$selloffers.{$mindistindex}.ware.name,$selloffers.{$mindistindex}.seller.name],
+$tradepartner=$selloffers.{$mindistindex}.seller,
+$ware=$selloffers.{$mindistindex}.ware,
+$amount=$amount,
+$unitprice=$selloffers.{$mindistindex}.unitprice,
+$unbundle=true,
+$undock=2,
+$wantedmoney=$amount * $selloffers.{$mindistindex}.unitprice,
+$moveable=false,
+$interruptable=true]"/>
           <set_value name="$currentzone" exact="$selloffers.{$mindistindex}.owner.zone"/>
           <remove_value name="$selloffers.{$mindistindex}"/>
         </do_if>

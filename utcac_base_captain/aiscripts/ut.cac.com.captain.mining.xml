@@ -119,9 +119,16 @@
       <!-- Check what we got effectively and plan Trade Orders to get the Wares to the Commander -->
       <remove_ware_reservation object="$destination_object" entity="this" ware="$ware" type="sell"/>
       <do_if value="this.ship.cargo.{$ware}.count and not $mininglist.indexof.{$ware}">
-        <create_trade_offer name="$buyoffer" buyer="$destination_object" object="$destination_object" amount="this.ship.cargo.{$ware}.count" ware="$ware" price="0Cr" playeronly="true"/>
-        <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.amount" price="0Cr"/>
-        <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$repeat=0,$undock=false]"/>
+         <signal_objects object="this" param="'new order'" param2="table[
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21013}.[this.ship.cargo.{$ware}.count,$ware.name,$destination_object.name],
+$tradepartner=$destination_object,
+$ware=$ware,
+$amount=$amount,
+$unitprice=0Cr,
+$undock=2,
+$moveable=false,
+$interruptable=true]"/>
         <remove_trade_offer object="$destination_object" tradeoffer="$buyoffer"/>
         <!-- throw out Minerals we didnt want -->
         <do_if value="$amount and this.ship.cargo.{$ware}.count gt $amount">
@@ -140,11 +147,16 @@
             <deplete_yield container="this.ship" ware="$ware" zone="this.zone" amount="$removeamount" /-->
             <remove_cargo object="this.ship" ware="$ware" exact="this.ship.cargo.{$ware}.count - $amount"/>
           </do_if>
-          
-          <create_trade_offer name="$buyoffer" buyer="$destination_object" object="$destination_object" amount="this.ship.cargo.{$mininglist.{$i}}.count" ware="$mininglist.{$i}" price="0Cr" playeronly="true"/>
-          <add_sell_order object="this.ship" trade="$buyoffer" amount="$buyoffer.amount" price="0Cr"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21012},$repeat=0,$undock=false]"/>
-          <remove_trade_offer object="$destination_object" tradeoffer="$buyoffer"/>
+          <signal_objects object="this" param="'new order'" param2="table[
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21013}.[this.ship.cargo.{$mininglist.{$i}}.count,$mininglist.{$i}.name,$destination_object.name],
+$tradepartner=$destination_object,
+$ware=$mininglist.{$i},
+$amount=0 - this.ship.cargo.{$mininglist.{$i}}.count,
+$unitprice=0Cr,
+$undock=2,
+$moveable=false,
+$interruptable=true]"/>
         </do_if>
       </do_all>
       <!-- when last Ware is unloaded we want to undock -->

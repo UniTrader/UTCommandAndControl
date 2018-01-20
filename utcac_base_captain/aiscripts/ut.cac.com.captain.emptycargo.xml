@@ -87,8 +87,18 @@
         <do_all exact="$buyoffers.count" counter="$i" reverse="true">
           <!-- Offer is in current Zone - just add it to the Trade Orders -->
           <do_if value="$buyoffers.{$i}.owner.zone == $currentzone">
-            <add_sell_order object="this.ship" trade="$buyoffers.{$i}" amount="this.ship.cargo.{$buyoffers.{$i}.ware}.count" price="$buyoffers.{$i}.unitprice"/>
-            <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21009},$repeat=0]"/>
+            <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Adding Buy Trade to Orderlistist (currentzone):\n%3'.[this.name,this.container.name,$buyoffers.{$i}]"/>
+            <append_to_list name="$sell_away" exact="table[
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21013}.[this.ship.cargo.{$buyoffers.{$i}.ware}.count,$buyoffers.{$i}.ware.name,$buyoffers.{$i}.buyer.name,this.ship.cargo.{$buyoffers.{$i}.ware}.count * $buyoffers.{$i}..unitprice],
+$tradepartner=$buyoffers.{$i}.buyer,
+$ware=$buyoffers.{$i}.ware,
+$amount=0 - this.ship.cargo.{$buyoffers.{$i}.ware}.count,
+$unitprice=$buyoffers.{$i}.unitprice,
+$undock=2,
+$wantedmoney=this.ship.cargo.{$buyoffers.{$i}.ware}.count * $buyoffers{$i}.unitprice,
+$moveable=false,
+$interruptable=true]"/>
             <remove_value name="$buyoffers.{$i}"/>
             <do_if value="$mindistindex">
               <set_value name="$mindistindex" operation="subtract" comment="to keep them in sync"/>
@@ -114,9 +124,18 @@
         </do_all>
         <!-- add nearest Offer in a diffrent Zone to the Trade List and set it as new origin Point -->
         <do_if value="$mindistindex">
-          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Adding Buy Offer to Trade List:\n%3'.[this.name,this.container.name,$buyoffers.{$mindistindex}]"/>
-          <add_sell_order object="this.ship" trade="$buyoffers.{$mindistindex}" amount="this.ship.cargo.{$buyoffers.{$mindistindex}.ware}.count" price="$buyoffers.{$mindistindex}.unitprice"/>
-          <signal_objects object="this" param="'new order'" param2="table[$script='ut.cac.com.captain.performsingletraderun',$displayname={5554103,21009},$command=command.freetrade]"/>
+          <debug_text filter="general" chance="@this.$debug * 100" text="'%1 %2 Adding Buy Trade to Orderlistist (mindistance):\n%3'.[this.name,this.container.name,$buyoffers.{$mindistindex}]"/>
+          <append_to_list name="$sell_away" exact="table[
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21013}.[this.ship.cargo.{$buyoffers.{$mindistindex}.ware}.count,$buyoffers.{$mindistindex}.ware.name,$buyoffers.{$mindistindex}.buyer.name,this.ship.cargo.{$buyoffers.{$indistindex}.ware}.count * $buyoffers.{$indistindex}..unitprice],
+$tradepartner=$buyoffers.{$indistindex}.buyer,
+$ware=$buyoffers.{$indistindex}.ware,
+$amount=0 - this.ship.cargo.{$buyoffers.{$indistindex}.ware}.count,
+$unitprice=$buyoffers.{$indistindex}.unitprice,
+$undock=2,
+$wantedmoney=this.ship.cargo.{$buyoffers.{$indistindex}.ware}.count * $buyoffers{$indistindex}.unitprice,
+$moveable=false,
+$interruptable=true]"/>
           <set_value name="$currentzone" exact="$buyoffers.{$mindistindex}.owner.zone"/>
           <remove_value name="$buyoffers.{$mindistindex}"/>
           <set_value name="$mindistindex" exact="null"/>

@@ -625,9 +625,10 @@ $entity.ship.cargo.{$ware}.free,
             <!-- Add Primary Trades to internal "Shoppinglist" -->
             <find_buy_offer result="$buyoffer" buyer="$trade_object" wares="$ware"/>
             <append_to_list name="$buy_away" exact="table[
-$script='ut.cac.com.captain.performsingletraderun',
+$script='ut.cac.com.captain.performsingletraderun2',
 $displayname={5554103,21010}.[$amount,$ware.name,$selloffer.seller.name,$amount * $selloffer.unitprice],
-$trade=$selloffer,
+$tradepartner=$selloffer.seller.name,
+$ware=$selloffer.ware,
 $amount=$amount,
 $unitprice=$selloffer.unitprice,
 $undock=2,
@@ -635,9 +636,10 @@ $wantedmoney=$amount * $selloffer.unitprice,
 $moveable=false,
 $interruptable=true]"/>
             <append_to_list name="$sell_home" exact="table[
-$script='ut.cac.com.captain.performsingletraderun',
+$script='ut.cac.com.captain.performsingletraderun2',
 $displayname={5554103,21013}.[$amount,$ware.name,$trade_object.name],
-$trade=$buyoffer,
+$tradepartner=$trade_object,
+$ware=$buyoffer.ware,
 $amount=$amount,
 $unitprice=0Cr,
 $undock=2,
@@ -744,9 +746,10 @@ $interruptable=true]"/>
             <!-- Add Primary Trades to internal "Shoppinglist" -->
             <find_sell_offer result="$selloffer" buyer="$trade_object" wares="$ware"/>
             <append_to_list name="$buy_home" exact="table[
-$script='ut.cac.com.captain.performsingletraderun',
-$displayname={5554103,21012}.[$amount,$ware.name,$selloffer.seller.name],
-$trade=$selloffer,
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21012}.[$amount,$ware.name,$trade_object.name],
+$tradepartner=$trade_object,
+$ware=$selloffer.ware,
 $amount=$amount,
 $unitprice=0Cr,
 $undock=2,
@@ -754,9 +757,10 @@ $wantedmoney=0Cr,
 $moveable=false,
 $interruptable=true]"/>
             <append_to_list name="$sell_away" exact="table[
-$script='ut.cac.com.captain.performsingletraderun',
-$displayname={5554103,21013}.[$amount,$ware.name,$trade_object.name,$amount * $buyoffer.unitprice],
-$trade=$buyoffer,
+$script='ut.cac.com.captain.performsingletraderun2',
+$displayname={5554103,21013}.[$amount,$ware.name,$selloffer.buyer.name,$amount * $buyoffer.unitprice],
+$tradepartner=$selloffer.buyer,
+$ware=$buyoffer.ware,
 $amount=$amount,
 $unitprice=$buyoffer.unitprice,
 $undock=2,
@@ -829,7 +833,7 @@ $interruptable=true]"/>
         <do_if value="$buy_away.count">
           <append_to_list name="$new_orders" exact="$buy_away.{1}"/>
           <set_value name="$trade_object" exact="$buy_away.{1}.$trade.owner"/>
-          <set_value name="$required_money" operation="add" exact="$buy_away.{$i}$unitprice * $buy_away.{$i}.$amount"/>
+          <set_value name="$required_money" operation="add" exact="$buy_away.{$i}.$unitprice * $buy_away.{$i}.$amount"/>
           <remove_value name="$buy_away.{1}"/>
         </do_if>
       </do_while>
